@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { Loader2 } from "lucide-react";
 import { loadTemplatesAction } from "@/lib/actions/templates";
 import type { TemplateCard } from "@/lib/db/templates";
-import { CARD_CAPTION, CARD_PADDING, GalleryCard } from "./gallery-card";
+import { CARD_CAPTION, CARD_PADDING, CARD_TITLE, GalleryCard } from "./gallery-card";
 import { MasonryGrid } from "./masonry-grid";
 
 export function TemplateGallery({ initial, hasMore: initialHasMore, platform, q }: { initial: TemplateCard[]; hasMore: boolean; platform?: string; q?: string }) {
@@ -44,6 +44,7 @@ export function TemplateGallery({ initial, hasMore: initialHasMore, platform, q 
         items={items}
         cardPadding={CARD_PADDING}
         captionHeight={CARD_CAPTION}
+        caption={CARD_TITLE}
         render={(t, i) => <GalleryCard key={t.id} t={t} eager={i < 8} />}
       />
       <div ref={sentinelRef} className="flex justify-center py-12">

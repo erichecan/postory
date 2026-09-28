@@ -8,9 +8,11 @@ import { startDesignAction } from "@/lib/actions/designs";
 import { platformLabel } from "@/lib/platforms";
 import type { TemplateCard } from "@/lib/db/templates";
 import { cn } from "@/lib/utils";
+import type { WrappingCaption } from "./masonry-grid";
 
 export const CARD_PADDING = 8;
 export const CARD_CAPTION = 104;
+export const CARD_TITLE: WrappingCaption<TemplateCard> = { text: (t) => t.title, font: "15px", lineHeight: 20, maxLines: 3, inset: 2 };
 
 export function GalleryCard({ t, eager }: { t: TemplateCard; eager: boolean }) {
   const [loaded, setLoaded] = useState(false);
@@ -44,7 +46,7 @@ export function GalleryCard({ t, eager }: { t: TemplateCard; eager: boolean }) {
         )}
       </Link>
       <div className="flex flex-col gap-2 px-0.5 pt-3">
-        <Link href={`/templates/${t.id}`} className="truncate text-[15px] leading-tight hover:underline">{t.title}</Link>
+        <Link href={`/templates/${t.id}`} className="line-clamp-3 text-[15px] leading-5 hover:underline">{t.title}</Link>
         <div className="flex items-center gap-1.5">
           <span className="rounded-md border border-white/10 px-1.5 py-0.5 text-[11px] leading-none text-muted-foreground">{platformLabel(t.platform)}</span>
           {t.editable && <span className="rounded-md border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[11px] leading-none text-primary">全部可改</span>}
