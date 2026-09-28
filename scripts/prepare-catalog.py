@@ -9,7 +9,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "src/data")
-ASSETS = os.path.join(ROOT, "public/templates/orshot-assets")
+ASSETS = os.path.join(ROOT, "public/assets/templates/orshot-assets")
 os.makedirs(ASSETS, exist_ok=True)
 
 PLATFORM = {
@@ -33,7 +33,7 @@ PLATFORM_LABEL = {
 
 def local_asset(url: str) -> str:
     name = hashlib.md5(url.encode()).hexdigest()[:16] + ".jpg"
-    return f"/templates/orshot-assets/{name}", os.path.join(ASSETS, name)
+    return f"/assets/templates/orshot-assets/{name}", os.path.join(ASSETS, name)
 
 
 def download(pair):
