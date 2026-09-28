@@ -41,3 +41,12 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+
+# 模板素材（Orshot / Bannerbear）不进库：图片在 gs://postory-templates，数据只在本地用于导入
+/public/assets/templates
+/public/templates
+/src/data/catalog.json
+/src/data/orshot-layers
+/src/data/orshot-selection.json
+/src/data/templates.json
+/docs/shots

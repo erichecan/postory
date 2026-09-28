@@ -2,16 +2,35 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { readFileSync } from "node:fs";
 import { PrismaClient, type Prisma } from "../src/generated/prisma/client";
-import catalog from "../src/data/catalog.json";
+
+type CatalogEntry = {
+  id: string;
+  source: string;
+  title: string;
+  description: string;
+  platform: string;
+  width: number;
+  height: number;
+  thumbnails: string[];
+  pages: unknown;
+  editable: boolean;
+  sourceUrl: string;
+  sortOrder: number;
+};
+
+const catalog = JSON.parse(readFileSync("src/data/catalog.json", "utf8")) as CatalogEntry[];
+const templatesOnly = process.env.SEED_SCOPE === "templates";
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
 });
 
 async function main() {
-  if (process.env.NODE_ENV === "production" || !/@(localhost|127\.0\.0\.1)[:/]/.test(process.env.DATABASE_URL ?? "")) {
-    throw new Error("seed 只允许在本地数据库运行（含公开的演示账号密码）");
+  const local = /@(localhost|127\.0\.0\.1)[:/]/.test(process.env.DATABASE_URL ?? "");
+  if (!templatesOnly && (process.env.NODE_ENV === "production" || !local)) {
+    throw new Error("seed 只允许在本地数据库运行（含公开的演示账号密码）；线上只导模板请加 SEED_SCOPE=templates");
   }
   for (const t of catalog) {
     const data = {
@@ -32,6 +51,10 @@ async function main() {
 
   const removed = await prisma.template.deleteMany({ where: { id: { notIn: catalog.map((t) => t.id) } } });
   if (removed.count) console.log(`removed stale templates=${removed.count}`);
+  if (templatesOnly) {
+    console.log(`seeded templates=${await prisma.template.count()}`);
+    return;
+  }
 
   const admin = await bcrypt.hash("admin12345", 10);
   await prisma.user.upsert({
