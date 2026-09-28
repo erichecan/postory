@@ -26,7 +26,11 @@ export async function saveDesignAction(id: string, input: unknown): Promise<{ ok
 
 const scheduleSchema = z.object({
   platforms: z.array(z.enum(PUBLISH_TARGETS)).min(1, "至少选择一个发布平台"),
-  scheduledAt: z.coerce.date().refine((d) => !Number.isNaN(d.getTime()), "请选择发布时间"),
+  scheduledAt: z
+    .string({ error: "请选择发布时间" })
+    .transform((v) => new Date(v))
+    .refine((d) => !Number.isNaN(d.getTime()), "请选择发布时间")
+    .refine((d) => d.getTime() > Date.now() - 60_000, "发布时间不能早于现在"),
 });
 
 export async function scheduleDesignAction(id: string, input: unknown): Promise<{ ok: boolean; error?: string }> {

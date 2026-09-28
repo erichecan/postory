@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { ArrowLeft, Check, CloudOff, Download, Loader2, Redo2, Undo2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { SaveStatus } from "./use-autosave";
@@ -15,6 +14,7 @@ const STATUS: Record<SaveStatus, { text: string; icon: React.ReactNode }> = {
 export function EditorTopbar({
   title,
   onTitle,
+  onBack,
   status,
   canUndo,
   canRedo,
@@ -26,6 +26,7 @@ export function EditorTopbar({
 }: {
   title: string;
   onTitle: (v: string) => void;
+  onBack: () => void;
   status: SaveStatus;
   canUndo: boolean;
   canRedo: boolean;
@@ -39,9 +40,9 @@ export function EditorTopbar({
   const iconBtn = "grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-30";
   return (
     <header className="flex h-14 shrink-0 items-center gap-3 border-b px-3">
-      <Link href="/designs" className={iconBtn} title="返回我的作品">
+      <button type="button" onClick={onBack} className={iconBtn} title="返回我的作品">
         <ArrowLeft className="size-4" />
-      </Link>
+      </button>
       <input
         value={title}
         onChange={(e) => onTitle(e.target.value.slice(0, 128))}

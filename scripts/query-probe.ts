@@ -36,12 +36,14 @@ async function main() {
   const d10 = await queriesOf(() => listOwnDesigns(user.id));
   await seed(200);
   const d200 = await queriesOf(() => listOwnDesigns(user.id));
-  report("listOwnDesigns 查询数不随数据量增长", d10 === d200 && d10 <= 2, `10 条=${d10} 次，200 条=${d200} 次`);
+  report("listOwnDesigns 查询数不随数据量增长", d10 === d200 && d10 <= 5, `10 条=${d10} 次，200 条=${d200} 次`);
 
   const p1 = await queriesOf(() => listTemplates({ page: 1 }));
   const p7 = await queriesOf(() => listTemplates({ page: 7 }));
   report("listTemplates 查询数与页码无关", p1 === p7 && p1 <= 3, `第 1 页=${p1} 次，第 7 页=${p7} 次`);
 
+  const mine = await listOwnDesigns(user.id);
+  report("我的作品草稿分页", mine.drafts.length === 24 && mine.draftPageCount === Math.ceil(200 / 24), `每页 ${mine.drafts.length} 条，共 ${mine.draftPageCount} 页`);
   const page = await listTemplates({ page: 1 });
   report("模板列表分页", page.items.length === TEMPLATES_PER_PAGE && page.pageCount === Math.ceil(page.total / TEMPLATES_PER_PAGE), `每页 ${page.items.length} 条，共 ${page.pageCount} 页`);
 

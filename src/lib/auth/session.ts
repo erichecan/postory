@@ -2,7 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/db/client";
+import { findActiveSessionUser } from "@/lib/db/users";
 import { SESSION_COOKIE, SESSION_TTL_SECONDS, signSession, verifySession, type SessionPayload } from "./token";
 
 export async function createSession(payload: SessionPayload) {
@@ -23,11 +23,7 @@ export async function destroySession() {
 export const getCurrentUser = cache(async () => {
   const session = await verifySession((await cookies()).get(SESSION_COOKIE)?.value);
   if (!session) return null;
-  const user = await prisma.user.findUnique({
-    where: { id: session.userId },
-    select: { id: true, name: true, phone: true, role: true, disabled: true },
-  });
-  return user && !user.disabled ? user : null;
+  return findActiveSessionUser(session.userId);
 });
 
 export type CurrentUser = NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>;

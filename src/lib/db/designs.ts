@@ -1,6 +1,6 @@
 import "server-only";
 import { prisma } from "./client";
-import type { Prisma } from "@/generated/prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 import type { DesignPage } from "@/types/design";
 
 export async function createDesignFromTemplate(userId: string, templateId: string) {
@@ -38,18 +38,40 @@ export async function deleteOwnDesign(userId: string, id: string) {
   return res.count === 1;
 }
 
-export async function listOwnDesigns(userId: string) {
-  return prisma.design.findMany({
-    where: { userId },
-    orderBy: [{ updatedAt: "desc" }],
-    select: {
-      id: true,
-      title: true,
-      status: true,
-      platforms: true,
-      scheduledAt: true,
-      updatedAt: true,
-      pages: true,
-    },
-  }).then((rows) => rows.map((r) => ({ ...r, cover: (r.pages as unknown as DesignPage[])[0], pages: undefined })));
+export const DESIGNS_PER_PAGE = 24;
+
+export type DesignListItem = {
+  id: string;
+  title: string;
+  status: "DRAFT" | "SCHEDULED";
+  platforms: string[];
+  scheduledAt: Date | null;
+  updatedAt: Date;
+  cover: DesignPage;
+};
+
+function listDesigns(userId: string, status: "DRAFT" | "SCHEDULED", page: number) {
+  const order = status === "SCHEDULED" ? Prisma.sql`"scheduledAt" ASC` : Prisma.sql`"updatedAt" DESC`;
+  return prisma.$queryRaw<DesignListItem[]>`
+    SELECT id, title, status::text AS status, platforms, "scheduledAt", "updatedAt", pages->0 AS cover
+    FROM "Design"
+    WHERE "userId" = ${userId} AND status = ${status}::"DesignStatus"
+    ORDER BY ${order}
+    LIMIT ${DESIGNS_PER_PAGE} OFFSET ${(page - 1) * DESIGNS_PER_PAGE}`;
+}
+
+export async function listOwnDesigns(userId: string, draftPage = 1) {
+  const [scheduled, drafts, scheduledTotal, draftTotal] = await prisma.$transaction([
+    listDesigns(userId, "SCHEDULED", 1),
+    listDesigns(userId, "DRAFT", draftPage),
+    prisma.design.count({ where: { userId, status: "SCHEDULED" } }),
+    prisma.design.count({ where: { userId, status: "DRAFT" } }),
+  ]);
+  return {
+    scheduled,
+    drafts,
+    scheduledTotal,
+    draftTotal,
+    draftPageCount: Math.max(1, Math.ceil(draftTotal / DESIGNS_PER_PAGE)),
+  };
 }

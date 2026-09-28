@@ -38,3 +38,15 @@ export async function listUsers() {
 export async function setUserDisabled(id: string, disabled: boolean) {
   return prisma.user.update({ where: { id }, data: { disabled }, select: { id: true } });
 }
+
+export async function findActiveSessionUser(id: string) {
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: { id: true, name: true, phone: true, role: true, disabled: true },
+  });
+  return user && !user.disabled ? user : null;
+}
+
+export async function findUserRole(id: string) {
+  return prisma.user.findUnique({ where: { id }, select: { role: true } });
+}

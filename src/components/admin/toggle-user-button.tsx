@@ -12,11 +12,8 @@ export function ToggleUserButton({ id, disabled }: { id: string; disabled: boole
       disabled={pending}
       onClick={() =>
         start(async () => {
-          try {
-            await adminToggleUserAction(id, !disabled);
-          } catch {
-            toast.error("操作失败");
-          }
+          const res = await adminToggleUserAction(id, !disabled).catch(() => ({ ok: false, error: "操作失败" }));
+          if (!res.ok) toast.error(res.error ?? "操作失败");
         })
       }
       className={`rounded-md border px-2.5 py-1 text-xs disabled:opacity-50 ${disabled ? "hover:bg-accent" : "text-destructive hover:bg-destructive/10"}`}

@@ -134,6 +134,13 @@ async function main() {
   const own = await callAction("saveDesignAction", [design.id, { title: "probe-own-save", pages: tpl.pages }], cookieA);
   check("用户 A 保存自己的作品 → 成功", /"ok":true/.test(own.body), `status=${own.status}`);
 
+  const adminOnAdmin = await callAction("adminToggleUserAction", [admin.id, true], cookieAdmin);
+  check("管理员停用管理员账号 → 拒绝", /"ok":false/.test(adminOnAdmin.body));
+  const past = await callAction("scheduleDesignAction", [design.id, { platforms: ["小红书"], scheduledAt: "2020-01-01T00:00:00.000Z" }], cookieA);
+  check("发布时间早于现在 → 拒绝", /"ok":false/.test(past.body));
+  const future = await callAction("scheduleDesignAction", [design.id, { platforms: ["小红书"], scheduledAt: new Date(Date.now() + 86400000).toISOString() }], cookieA);
+  check("发布时间在未来 → 成功", /"ok":true/.test(future.body));
+
   const bigImage = "data:image/png;base64," + "A".repeat(3 * 1024 * 1024);
   const bigPages = structuredClone(tpl.pages) as { elements: { type: string; content?: string }[] }[];
   bigPages[0].elements.push({ type: "image", content: bigImage, ...{ id: "big", x: 0, y: 0, w: 1, h: 1, z: 1, rotation: 0, style: {} } });

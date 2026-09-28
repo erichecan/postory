@@ -44,7 +44,7 @@ export function ProfileForm({ initial, submitLabel = "保存", onSaved }: { init
             <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()}>上传图片</Button>
             {logo && <Button type="button" variant="ghost" size="sm" onClick={() => setLogo("")}><X className="size-3.5" />移除</Button>}
           </div>
-          <p className="text-xs text-muted-foreground">PNG / JPG / WebP，不超过 2MB</p>
+          <p className="text-xs text-muted-foreground">PNG / JPG / WebP，不超过 2MB，会自动压缩</p>
         </div>
         <input type="hidden" name="logoUrl" value={logo} />
         <input

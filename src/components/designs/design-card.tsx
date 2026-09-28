@@ -1,22 +1,13 @@
 import Link from "next/link";
 import { CalendarClock } from "lucide-react";
 import { FitPreview } from "@/components/canvas/fit-preview";
-import type { DesignPage } from "@/types/design";
+import type { DesignListItem } from "@/lib/db/designs";
 import { DeleteDesignButton } from "./delete-design-button";
 
-export type DesignCardData = {
-  id: string;
-  title: string;
-  status: "DRAFT" | "SCHEDULED";
-  platforms: string[];
-  scheduledAt: Date | null;
-  updatedAt: Date;
-  cover: DesignPage;
-};
 
 const fmt = new Intl.DateTimeFormat("zh-CN", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Shanghai" });
 
-export function DesignCard({ d }: { d: DesignCardData }) {
+export function DesignCard({ d }: { d: DesignListItem }) {
   return (
     <div className="group flex flex-col overflow-hidden rounded-xl border bg-card">
       <Link href={`/editor/${d.id}`} className="relative block aspect-[4/3] overflow-hidden bg-black/30">

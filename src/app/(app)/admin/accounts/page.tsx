@@ -6,7 +6,7 @@ import { listUsers } from "@/lib/db/users";
 const fmt = new Intl.DateTimeFormat("zh-CN", { dateStyle: "medium", timeZone: "Asia/Shanghai" });
 
 export default async function AccountsPage() {
-  const admin = await requireAdmin();
+  await requireAdmin();
   const users = await listUsers();
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-8 sm:px-8">
@@ -31,7 +31,7 @@ export default async function AccountsPage() {
                 <td className="px-4 py-3 tabular-nums">{u._count.designs}</td>
                 <td className="px-4 py-3 text-muted-foreground">{fmt.format(u.createdAt)}</td>
                 <td className="px-4 py-3">{u.disabled ? <span className="text-destructive">已停用</span> : <span className="text-emerald-400">正常</span>}</td>
-                <td className="px-4 py-3 text-right">{u.id !== admin.id && <ToggleUserButton id={u.id} disabled={u.disabled} />}</td>
+                <td className="px-4 py-3 text-right">{u.role !== "ADMIN" && <ToggleUserButton id={u.id} disabled={u.disabled} />}</td>
               </tr>
             ))}
           </tbody>

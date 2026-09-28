@@ -72,7 +72,7 @@ export function PublishDialog({
           </div>
           <label className="flex flex-col gap-2">
             <span className="text-sm">发布时间</span>
-            <input type="datetime-local" value={at} onChange={(e) => setAt(e.target.value)} className="h-10 rounded-lg border bg-input/30 px-3 text-sm [color-scheme:dark]" />
+            <input type="datetime-local" value={at} min={toLocalInput(new Date())} onChange={(e) => setAt(e.target.value)} className="h-10 rounded-lg border bg-input/30 px-3 text-sm [color-scheme:dark]" />
           </label>
         </div>
         <DialogFooter>

@@ -21,6 +21,7 @@ export function NumberField({
   step = 1,
   min,
   suffix,
+  readOnly = false,
 }: {
   label: string;
   value: number;
@@ -28,18 +29,20 @@ export function NumberField({
   step?: number;
   min?: number;
   suffix?: string;
+  readOnly?: boolean;
 }) {
   return (
-    <label className={boxCls}>
+    <label className={cn(boxCls, readOnly && "opacity-60")}>
       <span className="w-4 shrink-0 text-muted-foreground">{label}</span>
       <input
         type="number"
         value={Number.isFinite(value) ? Math.round(value * 100) / 100 : 0}
         step={step}
         min={min}
+        readOnly={readOnly}
         onChange={(e) => {
           const v = e.target.valueAsNumber;
-          if (Number.isFinite(v)) onChange(v);
+          if (Number.isFinite(v)) onChange(min === undefined ? v : Math.max(min, v));
         }}
         className="w-full min-w-0 bg-transparent outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
       />

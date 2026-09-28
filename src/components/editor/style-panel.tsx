@@ -18,8 +18,8 @@ export const StylePanel = forwardRef<HTMLTextAreaElement, { page: DesignPage; el
         <>
           <Section title="画布尺寸">
             <div className="grid grid-cols-2 gap-2">
-              <NumberField label="W" value={page.width} onChange={() => {}} />
-              <NumberField label="H" value={page.height} onChange={() => {}} />
+              <NumberField label="W" value={page.width} readOnly onChange={() => {}} />
+              <NumberField label="H" value={page.height} readOnly onChange={() => {}} />
             </div>
           </Section>
           <Section title="背景">

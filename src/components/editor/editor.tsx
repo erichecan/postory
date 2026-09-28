@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useReducer, useRef, useState } from "react";
 import { toast } from "sonner";
 import { PageView } from "@/components/canvas/page-view";
@@ -35,6 +36,7 @@ export function Editor({ design, brand }: { design: EditorDesign; brand: BrandFi
   const [tab, setTab] = useState<Tab>("style");
   const [zoom, setZoom] = useState(1);
   const [exporting, setExporting] = useState(false);
+  const router = useRouter();
   const exportRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
 
@@ -68,6 +70,9 @@ export function Editor({ design, brand }: { design: EditorDesign; brand: BrandFi
         onTitle={(v) => {
           setTitle(v);
           setTitleEdits((n) => n + 1);
+        }}
+        onBack={async () => {
+          if ((await flush()) || confirm("还有改动没保存成功，确定离开吗？")) router.push("/designs");
         }}
         status={status}
         canUndo={state.past.length > 0}
