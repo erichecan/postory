@@ -32,9 +32,9 @@
       定性状态：待你确认
       证据：designs/admin 双语；列表用 format.list；时区随浏览器 cookie
       依赖：1
-- [ ] 6. 收尾：残留中文扫描、key 一致性、verify.sh、双宽度截图、部署并线上验证
+- [x] 6. 收尾：残留中文扫描、key 一致性、verify.sh、双宽度截图、部署并线上验证
       验收命令：scripts/verify.sh
       可看物：线上地址
       定性状态：待你确认
-      证据：
+      证据：verify 86 PASS；部署 run 成功；线上 en 浏览器 → lang=en、一键登录、导航 Templates | My designs | Business profile、切中文、390px 无截断；抢注 13900000000 后一键登录仍进 林小满（测试账号已删）
       依赖：2–5
