@@ -1,0 +1,135 @@
+# DEV-PLAN · social-shell（社交媒体管理平台 · 演示原型）
+
+日期：2026-09-27
+
+## 0. 读取的文档
+
+- 无 PRD 文件。需求来源为用户对话原话，逐字存档于 `docs/20260927-social-shell-需求原话.md`
+- 已完成素材：`src/data/templates.json`（167 个社交类模板）+ `public/templates/`（Orshot 30 个 / Bannerbear 137 个，用户选 A 方案筛选）
+
+## 1. 目标与范围
+
+**目标**：给公司和合作伙伴演示一个"看起来完整"的社交媒体管理平台界面，作为后续界面设计、引入社交功能的底稿。
+
+**做**：注册/登录 · 线下开通账号（管理员后台）· 模板库 · 模板详情 · 简单编辑 · 选填已提交的商家信息 · 设定发布平台与时间（仅记录，不真实发布）
+
+**不做**：付费墙 · 多平台账号绑定/管理 · 真实发布到任何平台 · 通过 NPM/API 调用原站模板 · 短信验证码 · 找回密码
+
+## 2. 模块拆解
+
+| 模块 | 内容 |
+| :-- | :-- |
+| 账号 | 手机号 + 密码注册/登录；管理员后台手动创建账号（=线下开通），可停用 |
+| 商家资料 | 店名、微信号、电话、地址、Logo、常用活动文案；首次登录引导填写，之后在「我的资料」修改 |
+| 模板库 | 网格瀑布流；按平台筛选（Instagram 帖子/快拍、YouTube 封面、X/Twitter、Pinterest、Facebook）；关键词搜索；分页 24 条/页 |
+| 模板详情 | **参考 Orshot 详情页上半部分**：左侧标题 + 描述 + 「用这个模板」按钮 + 卖点列表，右侧预览卡（多页轮播 + 页码）。不做下半部分（步骤说明、集成、API 代码）。底部保留「更多模板」 |
+| 编辑器 | **参考 Orshot Studio**：左侧工具栏、中间画布（左右翻页）、底部缩放 + 添加文字/图片/形状、右侧面板「页面 / 样式 / 图层」。不做 Agent、Smart Resize、变量/代码 `{}`、API。额外加一个右侧「商家资料」页签：一键把微信/店名/活动文案等填入选中的文字 |
+| 编辑器 · 两种模板 | Orshot 30 个：用它的图层数据（`src/data/orshot-layers/*.json`，含坐标/字体/颜色）在 DOM 里完整还原，**原有文字、颜色、图片都能直接点选修改**。Bannerbear 137 个：没有公开图层数据，整张图作底，只能叠加新文字/Logo |
+| 发布计划 | 编辑完选择发布平台 + 发布时间 → 存为「待发布」；「我的作品」列表按时间排序，可再次编辑/删除 |
+| 管理后台 | 账号列表、创建账号（线下开通）、停用账号 |
+
+## 3. Schema（Prisma）
+
+```prisma
+enum Role { USER ADMIN }
+enum AccountSource { SELF_SIGNUP OFFLINE }
+enum DesignStatus { DRAFT SCHEDULED }
+
+model User {
+  id           String        @id @default(cuid())
+  phone        String        @unique @db.VarChar(20)
+  passwordHash String
+  name         String        @db.VarChar(64)
+  role         Role          @default(USER)
+  source       AccountSource @default(SELF_SIGNUP)
+  disabled     Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  profile      BrandProfile?
+  designs      Design[]
+}
+
+model BrandProfile {
+  userId     String  @id
+  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shopName   String? @db.VarChar(64)
+  wechat     String? @db.VarChar(64)
+  phone      String? @db.VarChar(20)
+  address    String? @db.VarChar(255)
+  logoUrl    String?
+  slogan     String? @db.VarChar(255)
+  activity   String? @db.Text
+}
+
+model Template {
+  id         String   @id
+  source     String
+  title      String
+  type       String
+  platform   String
+  width      Int
+  height     Int
+  images     String[]
+  sourceUrl  String
+  designs    Design[]
+  @@index([platform])
+}
+
+model Design {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  templateId  String
+  template    Template     @relation(fields: [templateId], references: [id])
+  layers      Json
+  platforms   String[]
+  scheduledAt DateTime?
+  status      DesignStatus @default(DRAFT)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  @@index([userId, scheduledAt])
+}
+```
+
+Template 由 `prisma/seed.ts` 从 `templates.json` 导入。
+
+## 4. 路由清单
+
+| 路径 | 说明 | 鉴权 |
+| :-- | :-- | :-- |
+| `/` | 未登录 → 落地页；已登录 → 跳 `/templates` | 公开 |
+| `/login` `/register` | 登录 / 注册 | 公开 |
+| `/onboarding` | 首次登录填商家资料 | USER |
+| `/templates` | 模板库（`?platform=&q=&page=`） | USER |
+| `/templates/[id]` | 模板详情 | USER |
+| `/editor/[designId]` | 编辑器 | 本人 |
+| `/designs` | 我的作品 / 发布计划 | USER |
+| `/profile` | 我的资料 | USER |
+| `/admin/accounts` | 账号管理（线下开通） | ADMIN |
+| Server Actions | register / login / logout / saveProfile / createDesign / saveDesign / scheduleDesign / deleteDesign / adminCreateUser / adminToggleUser | 按上表 |
+
+## 5. 风险点
+
+1. **模板图是扁平图片**：原站模板里的文字已经画在图上，改不了原字。编辑器只能在图上**叠加**新文字/Logo。演示时要避免让人以为可以改原图的字 → 见场景清单推断项。
+2. **版权**：图片来自 Orshot / Bannerbear，只用于内部与合作伙伴演示；公开上线前需要取得授权或改用自有模板。
+3. **图片体积**：50MB 静态图，列表页用 `next/image` 生成缩略图，避免首屏加载慢。
+4. **导出 PNG 跨域**：图片已下载到本地同源，canvas 导出不会被跨域限制。
+
+## 附录 A · 技术验收标准与 verify.sh
+
+`scripts/verify.sh`，退出码 0 = 通过：
+
+1. `npx tsc --noEmit`、`npm run lint`、`npm run build`
+2. `npx prisma migrate status` 无未应用迁移；seed 后 `Template` 数 = 167
+3. 路由探针：以普通用户 cookie 访问第 4 节每个页面，断言非 404/500；未登录访问受保护页 → 302 到 `/login`
+4. 鉴权探针：Server Actions 与 `/admin/*` 分别以「无 session / 伪造 session / 普通用户」请求 → 401 / 401 / 403；用户 A 访问用户 B 的 `/editor/[id]` → 404
+5. 查询探针：开 Prisma query log，`/templates` 与 `/designs` 在 10 条与 200 条数据下查询数相同（无 N+1）；列表分页 24 条
+6. 资源约束：Logo 上传 ≤ 2MB、仅 png/jpg/webp；模板列表 `revalidate` 缓存
+7. 性能基线：autocannon `/templates` 10s，记录 p95 与 req/s（阈值：本地 p95 < 300ms）
+8. 密码 bcrypt 存储，数据库中无明文
+
+## 6. 追加决策（2026-09-27 用户确认后）
+
+- 用户回复：「编辑器最好是参考 orshot 的编辑器,详情页也参考 orshot 的界面,只是不要下面代码修改等功能,只要最上面的编辑功能,其他的都确认」
+- 技术栈：默认栈；数据库：本地 PostgreSQL（我的推荐，用户"其他的都确认"）
+- 画布渲染：绝对定位 DOM（文字 `textMode: fit` 自动缩字号）；导出用 `html-to-image`
+- Unsplash 图片与 SVG 下载到 `public/templates/orshot-assets/`，同源才能导出 PNG；动画模板（22 个元素有 motion）只做静态首帧
