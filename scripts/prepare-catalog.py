@@ -151,6 +151,56 @@ def norm_element(e):
     return el
 
 
+SCENE_SETTLE = 1.0
+SOLID_COLOR = re.compile(r"^(#[0-9a-f]{3}|#[0-9a-f]{6}|rgb\([^)]*\)|[a-z]+)$")
+
+
+def timing(e):
+    tr = e.get("transitions") or {}
+    return float(tr.get("showAt") or 0), float(tr["hideAt"]) if tr.get("hideAt") is not None else float("inf")
+
+
+def covers_canvas(e, w, h):
+    x, y = e["position"]["x"], e["position"]["y"]
+    ew, eh = e["dimensions"]["width"], e["dimensions"]["height"]
+    return x <= 0 and y <= 0 and x + ew >= w and y + eh >= h
+
+
+def opaque(e):
+    st = e.get("style") or {}
+    if float(e.get("opacity", st.get("opacity", 1)) or 1) < 1:
+        return False
+    if e["type"] == "image":
+        return True
+    return e["type"] == "shape" and bool(SOLID_COLOR.match(str(st.get("fill", "")).replace(" ", "").lower()))
+
+
+def split_scenes(p):
+    """视频模板把多个场景按时间轴叠在同一页：按每个铺满画布的不透明背景出现后的时刻各取一帧，拆成多页。"""
+    w, h = p["canvas"]["width"], p["canvas"]["height"]
+    els = p["elements"]
+    if not p.get("videoDuration") or not any(e.get("transitions") for e in els):
+        return [p]
+    backdrops = [e for e in els if covers_canvas(e, w, h) and opaque(e)]
+    moments = []
+    for e in backdrops:
+        show, hide = timing(e)
+        moments.append(min(show + SCENE_SETTLE, (show + hide) / 2))
+    moments.append(max(timing(e)[0] for e in els) + SCENE_SETTLE)
+
+    def frame(t):
+        visible = [e for e in els if timing(e)[0] <= t < timing(e)[1]]
+        floor = max((e.get("zIndex", 1) for e in visible if e in backdrops), default=float("-inf"))
+        return [e for e in visible if e.get("zIndex", 1) >= floor]
+
+    frames = [frame(t) for t in sorted(set(moments))]
+    ids = [{e["id"] for e in f} for f in frames]
+    kept = [f for i, f in enumerate(frames) if f and not any(ids[i] <= ids[j] for j in range(i + 1, len(frames)))]
+    if len(kept) < 2:
+        return [p]
+    return [{**p, "name": f"{p.get('name') or 'Scene'} {k + 1}/{len(kept)}", "elements": f} for k, f in enumerate(kept)]
+
+
 def norm_page(i, p):
     canvas = p["canvas"]
     elements = [norm_element(e) for e in p["elements"]]
@@ -179,7 +229,8 @@ def main():
     for order, oid in enumerate(selection):
         start = len(downloads)
         layers = json.load(open(os.path.join(DATA, "orshot-layers", f"{oid}.json")))
-        pages = [norm_page(i, p) for i, p in enumerate(layers["pages_data"])]
+        scenes = [s for p in layers["pages_data"] for s in split_scenes(p)]
+        pages = [norm_page(i, p) for i, p in enumerate(scenes)]
         thumbs = [
             local(m["thumbnail_url"], THUMB_DIR, f"orshot-{oid}-{i + 1}.png")
             for i, m in enumerate(layers.get("pages_meta") or [])

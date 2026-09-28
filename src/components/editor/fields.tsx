@@ -34,7 +34,7 @@ export function NumberField({
 }) {
   return (
     <label className={cn(boxCls, readOnly && "opacity-60")}>
-      <span className="w-4 shrink-0 text-muted-foreground">{label}</span>
+      <span className="min-w-4 shrink-0 whitespace-nowrap text-muted-foreground">{label}</span>
       <input
         type="number"
         value={Number.isFinite(value) ? Math.round(value * 100) / 100 : 0}
@@ -47,7 +47,7 @@ export function NumberField({
         }}
         className="w-full min-w-0 bg-transparent outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
       />
-      {suffix && <span className="text-muted-foreground">{suffix}</span>}
+      {suffix && <span className="shrink-0 whitespace-nowrap text-muted-foreground">{suffix}</span>}
     </label>
   );
 }

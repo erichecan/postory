@@ -15,7 +15,7 @@
     "alt": "店铺 Logo",
     "upload": "上传图片",
     "remove": "移除",
-    "hint": "PNG / JPG / WebP，不超过 2MB，会自动压缩"
+    "hint": "PNG / JPG / WebP，不超过 15MB，会自动压缩"
   },
   "fields": {
     "shopName": { "label": "店名", "placeholder": "例如：小满咖啡" },

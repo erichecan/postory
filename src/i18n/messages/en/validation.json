@@ -7,9 +7,9 @@
   "nameRequired": "Enter a name",
   "nameMax": "Name can be at most 64 characters",
   "maxLength": "At most {max} characters",
-  "logoTooLarge": "Logo must be 2MB or smaller",
+  "logoTooLarge": "Logo is still over 2MB after compression. Try another one",
   "logoFormat": "Logo must be PNG, JPG or WebP",
-  "imageTooLarge": "Image must be 2MB or smaller",
+  "imageTooLarge": "Image is still over 2MB after compression. Try another one",
   "forbiddenContent": "This content isn't allowed",
   "publishPlatformsRequired": "Choose at least one platform",
   "publishTimeRequired": "Choose a publish time",
@@ -17,5 +17,6 @@
   "imageFormat": "Only PNG, JPG and WebP images are supported",
   "imageReadFailed": "Couldn't read the image",
   "imageProcessFailed": "Couldn't process the image",
-  "imageSource": "Images must be uploaded or come from a template"
+  "imageSource": "Images must be uploaded or come from a template",
+  "uploadTooLarge": "Image must be 15MB or smaller"
 }

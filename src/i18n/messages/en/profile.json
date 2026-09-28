@@ -15,7 +15,7 @@
     "alt": "Shop logo",
     "upload": "Upload image",
     "remove": "Remove",
-    "hint": "PNG / JPG / WebP, up to 2MB, compressed automatically"
+    "hint": "PNG / JPG / WebP, up to 15MB, compressed automatically"
   },
   "fields": {
     "shopName": { "label": "Shop name", "placeholder": "e.g. Xiaoman Coffee" },

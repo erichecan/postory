@@ -50,3 +50,5 @@ next-env.d.ts
 /src/data/orshot-selection.json
 /src/data/templates.json
 /docs/shots
+
+__pycache__/

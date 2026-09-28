@@ -7,9 +7,9 @@
   "nameRequired": "请填写名称",
   "nameMax": "名称最多 64 个字",
   "maxLength": "最多 {max} 个字",
-  "logoTooLarge": "Logo 不能超过 2MB",
+  "logoTooLarge": "Logo 压缩后仍超过 2MB，请换一张",
   "logoFormat": "Logo 只支持 PNG、JPG、WebP",
-  "imageTooLarge": "图片不能超过 2MB",
+  "imageTooLarge": "图片压缩后仍超过 2MB，请换一张",
   "forbiddenContent": "不允许的内容",
   "publishPlatformsRequired": "至少选择一个发布平台",
   "publishTimeRequired": "请选择发布时间",
@@ -17,5 +17,6 @@
   "imageFormat": "只支持 PNG、JPG、WebP 图片",
   "imageReadFailed": "图片读取失败",
   "imageProcessFailed": "图片处理失败",
-  "imageSource": "图片只能来自上传或模板素材"
+  "imageSource": "图片只能来自上传或模板素材",
+  "uploadTooLarge": "图片不能超过 15MB"
 }
