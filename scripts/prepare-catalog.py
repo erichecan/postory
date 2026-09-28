@@ -100,6 +100,8 @@ def norm_style(e):
         if px(st.get("textBorderWidth")) > 0 and not transparent(st.get("textBorderColor")):
             out["border"] = f"{px(st['textBorderWidth']):g}px solid {st['textBorderColor']}"
     else:
+        if st.get("border"):
+            out["border"] = st["border"]
         if drop:
             out["filter"] = f"{out.get('filter', '')} drop-shadow({drop})".strip()
         if box:

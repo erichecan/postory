@@ -12,7 +12,7 @@ function shapeStyle(el: DesignElement): CSSProperties {
   }
   return {
     background: st.fill,
-    border: stroke,
+    border: st.border ?? stroke,
     borderRadius: el.shapeType === "circle" ? "50%" : st.borderRadius,
     boxShadow: st.boxShadow,
   };
