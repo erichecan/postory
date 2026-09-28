@@ -1,4 +1,4 @@
-# DEV-REPORT · social-shell（社媒工坊 · 演示原型）
+# DEV-REPORT · social-shell（Postory 帖事 · 演示原型）
 
 日期：2026-09-27　访问地址：**http://localhost:3002**（`npm run dev`）
 
@@ -11,9 +11,14 @@
 
 | 场景 | 来源 | 截图 | 状态 |
 | :-- | :-- | :-- | :-- |
+| 模板库首页复刻 Orshot 的 Instagram 模板页（居中大标题 + 分类条 + 4 列瀑布流 + 页脚） | 你说的："https://orshot.com/templates/g/instagram 现在的首页我需要复刻这个页面" | ![](docs/shots/20260927-home-v2.png) | 待你确认 |
+| 瀑布流：从左到右依次放进最矮的一列，滚到底自动加载更多，图片没加载出来时显示占位块 | 你说的："也要学习瀑布流" | ![](docs/shots/20260927-masonry-v2.png) | 待你确认 |
+| 功能入口从左侧栏移到顶部导航 | 你说的："把功能移动到顶部" | ![](docs/shots/20260927-youtube-v2.png) | 待你确认 |
+| 平台名改为 Postory 帖事 | 你说的："社媒工坊这个名字不好，完全不是商用啊" + 你选的 Postory | 同上 | 符合（正式使用前需要查商标） |
+| 手机宽度下不出现横向滚动 | 我推断的 | ![](docs/shots/20260927-mobile-v2.png) | 符合 |
 | 客户能自己注册、登录 | 你说的："希望客户登录上来能注册" | ![](docs/shots/20260927-login.png) | 符合 |
 | 线下消费后由管理员开通账号，也能停用 | 你说的："也可以通过线下消费的方式开通账号" | ![](docs/shots/20260927-admin.png) | 待你确认（做法是我推断的：后台输手机号 + 名称 + 初始密码） |
-| 登录后第一眼是模板库，可按平台筛选、搜索、翻页 | 你说的："客户登录后，最重要的就是模板库" | ![](docs/shots/20260927-library.png) | 符合 |
+| 登录后第一眼是模板库，可按平台筛选、搜索 | 你说的："客户登录后，最重要的就是模板库" | ![](docs/shots/20260927-library.png) | 符合 |
 | 模板图来自两个商家平台第一页，只保留社交类 167 个 | 你说的："把模板库第一页的图片都拿下来" + 你选的 A | 同上 | 符合 |
 | 详情页照 Orshot 上半部分，没有下面的代码区 | 你说的："详情页也参考 orshot 的界面，只是不要下面代码修改等功能" | ![](docs/shots/20260927-detail.png) | 符合（你 2026-09-27 回复"对"） |
 | 编辑器照 Orshot Studio；Orshot 模板原有文字/颜色/图片可直接改 | 你说的："编辑器最好是参考 orshot 的编辑器" | ![](docs/shots/20260927-editor-orshot.png) | 符合（你 2026-09-27 回复"对"） |
@@ -29,7 +34,7 @@
 ## 存档用的（你不用看，出问题时我回来查）
 
 ### verify.sh
-`bash scripts/verify.sh` → **VERIFY PASS**，67 项 PASS / 0 FAIL，完整输出：`docs/20260927-verify-output.txt`
+`bash scripts/verify.sh` → **VERIFY PASS**，0 FAIL，完整输出：`docs/20260927-verify-output.txt`
 
 - 类型 / lint / 迁移 / 构建：tsc、eslint、`prisma migrate status`、`next build` 全过；Template = 167
 - 路由探针：11 个路由登录态 200，不存在的模板 404
@@ -37,6 +42,7 @@
   - 页面：无 token / 伪造 token → 307 跳登录；普通用户进 `/admin` → 拒绝；JWT 里伪造 role=ADMIN 无效（角色以数据库为准）；B 打开 A 的作品 → 404
   - Server Actions（6 个写操作）：无 token / 伪造 token → 307 跳登录（≈401）；越权 → RSC 错误行或 `ok:false`（≈403），外加"数据库未被修改"不变量断言
   - 说明：Server Action 的 HTTP 状态码固定是 200，所以 403 改用"响应错误行 + 数据库不变"双重判定
+- 瀑布流"加载更多"：Server Action `loadTemplatesAction`，未登录调用会跳转登录（≈401）
 - 查询探针：`listOwnDesigns` 10 条与 200 条都是 5 次查询；`listTemplates` 第 1 页与第 7 页都是 3 次；两个列表都按 24 条/页分页
 - 资源约束：单个作品里超过 2MB 的图片会被拒；上传图片在浏览器端压成 WebP（1.1MB → 170KB）；Logo 只接受 png/jpeg/webp 且 ≤2MB
 - 安全：密码全部用 bcrypt 存储；登录后跳转白名单有 5 个回归探针；手机号不存在时也跑一次假哈希，耗时相同（54ms vs 54ms），无法按响应时间枚举
@@ -44,8 +50,8 @@
 ### 性能基线（本地生产构建，autocannon 10s，10 并发）
 | 接口 | p50 | p97.5 | req/s |
 | :-- | :-- | :-- | :-- |
-| /templates | 35ms | 46ms | 275 |
-| /templates/orshot-2427 | 22ms | 27ms | 435 |
+| /templates（瀑布流版，首屏 24 条） | 25ms | 35ms | 375 |
+| /templates/orshot-2427 | 17ms | 22ms | 544 |
 
 阈值：p97.5 < 300ms
 

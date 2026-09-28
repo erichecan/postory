@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, CalendarClock, Download, Palette, Store, Type } from "lucide-react";
 import { PreviewCarousel } from "@/components/templates/preview-carousel";
 import { StartDesignButton } from "@/components/templates/start-design-button";
-import { TemplateCard } from "@/components/templates/template-card";
+import { GalleryCard } from "@/components/gallery/gallery-card";
 import { getTemplate, listSimilarTemplates } from "@/lib/db/templates";
 import { platformLabel } from "@/lib/platforms";
 
@@ -24,7 +24,7 @@ export default async function TemplateDetailPage({ params }: PageProps<"/templat
   ];
 
   return (
-    <div className="mx-auto max-w-[1200px] px-4 py-8 sm:px-8">
+    <div className="mx-auto max-w-[1080px] px-4 py-10">
       <Link href="/templates" className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-3.5" /> 全部模板
       </Link>
@@ -57,9 +57,9 @@ export default async function TemplateDetailPage({ params }: PageProps<"/templat
             <h2 className="text-lg font-semibold">更多 {platformLabel(t.platform)} 模板</h2>
             <Link href={`/templates?platform=${t.platform}`} className="text-sm text-muted-foreground hover:text-foreground">查看全部</Link>
           </div>
-          <div className="columns-2 gap-5 sm:columns-3 lg:columns-6">
-            {similar.map((s) => (
-              <TemplateCard key={s.id} t={s} />
+          <div className="grid grid-cols-2 items-start gap-6 sm:grid-cols-3 lg:grid-cols-4">
+            {similar.slice(0, 4).map((s) => (
+              <GalleryCard key={s.id} t={s} eager={false} />
             ))}
           </div>
         </section>

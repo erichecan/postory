@@ -120,6 +120,10 @@ async function main() {
   check("用户 B 保存用户 A 的作品 → 拒绝（≈403）", denied(await callAction("saveDesignAction", [design.id, payload], cookieB)));
   check("用户 B 删除用户 A 的作品 → 拒绝（≈403）", denied(await callAction("deleteDesignAction", [design.id], cookieB)));
   check("普通用户停用他人账号 → 拒绝（≈403）", denied(await callAction("adminToggleUserAction", [b.id, true], cookieA)));
+  check("无 token 加载更多模板 → 跳登录（≈401）", sentToLogin(await callAction("loadTemplatesAction", [{ page: 2 }])));
+  const more = await callAction("loadTemplatesAction", [{ page: 2 }], cookieA);
+  check("登录用户加载第 2 页模板 → 成功", more.status === 200 && more.body.includes('"hasMore"'));
+
   const usersBefore = await prisma.user.count();
   const created = await callAction("adminCreateUserAction", [undefined, "$K"], cookieA);
   check("普通用户开通账号后用户总数不变", (await prisma.user.count()) === usersBefore);

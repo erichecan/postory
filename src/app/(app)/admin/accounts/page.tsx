@@ -9,7 +9,7 @@ export default async function AccountsPage() {
   await requireAdmin();
   const users = await listUsers();
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-8 sm:px-8">
+    <div className="mx-auto flex max-w-[1080px] flex-col gap-8 px-4 py-10">
       <header>
         <h1 className="text-2xl font-semibold tracking-tight">账号管理</h1>
         <p className="mt-1 text-sm text-muted-foreground">共 {users.length} 个账号</p>

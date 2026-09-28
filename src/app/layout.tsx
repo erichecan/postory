@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/sonner";
+import { BRAND } from "@/lib/brand";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "社媒工坊 · 社交媒体内容管理平台",
+  title: `${BRAND.name} ${BRAND.nameZh} · ${BRAND.tagline}`,
   description: "选模板、改文案、排期发布",
 };
 

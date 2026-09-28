@@ -26,15 +26,15 @@ PASS  Template 数量 = 167（实际 167）
   · serverActions
 
   Creating an optimized production build ...
-✓ Compiled successfully in 1048ms
+✓ Compiled successfully in 989ms
   Running TypeScript ...
-  Finished TypeScript in 1357ms ...
+  Finished TypeScript in 1156ms ...
   Collecting page data using 9 workers ...
   Generating static pages using 9 workers (0/11) ...
   Generating static pages using 9 workers (2/11) 
   Generating static pages using 9 workers (5/11) 
   Generating static pages using 9 workers (8/11) 
-✓ Generating static pages using 9 workers (11/11) in 122ms
+✓ Generating static pages using 9 workers (11/11) in 124ms
   Finalizing page optimization ...
 
 Route (app)
@@ -75,7 +75,7 @@ PASS  GET /templates/orshot-2444 登录用户  (status=200)
 PASS  GET /designs 登录用户  (status=200)
 PASS  GET /profile 登录用户  (status=200)
 PASS  GET /onboarding 登录用户  (status=200)
-PASS  GET /editor/cmukk9ef50003gvsicaj4zgk5 登录用户  (status=200)
+PASS  GET /editor/cmukltlnm0003yrsijp84c1tg 登录用户  (status=200)
 PASS  GET /login 公开  (status=200)
 PASS  GET /register 公开  (status=200)
 PASS  GET /admin/accounts 管理员
@@ -87,8 +87,8 @@ PASS  无 token /designs → 跳登录  (status=307)
 PASS  伪造 token /designs → 跳登录  (status=307)
 PASS  无 token /admin/accounts → 跳登录  (status=307)
 PASS  伪造 token /admin/accounts → 跳登录  (status=307)
-PASS  无 token /editor/cmukk9ef50003gvsicaj4zgk5 → 跳登录  (status=307)
-PASS  伪造 token /editor/cmukk9ef50003gvsicaj4zgk5 → 跳登录  (status=307)
+PASS  无 token /editor/cmukltlnm0003yrsijp84c1tg → 跳登录  (status=307)
+PASS  伪造 token /editor/cmukltlnm0003yrsijp84c1tg → 跳登录  (status=307)
 PASS  普通用户 /admin/accounts → 拒绝  (status=307)
 PASS  普通用户伪造 role=ADMIN → 拒绝（以数据库角色为准）  (status=307)
 PASS  用户 B 打开用户 A 的作品 → 404
@@ -108,6 +108,8 @@ PASS  伪造 token saveProfileAction → 跳登录（≈401）
 PASS  用户 B 保存用户 A 的作品 → 拒绝（≈403）
 PASS  用户 B 删除用户 A 的作品 → 拒绝（≈403）
 PASS  普通用户停用他人账号 → 拒绝（≈403）
+PASS  无 token 加载更多模板 → 跳登录（≈401）
+PASS  登录用户加载第 2 页模板 → 成功
 PASS  普通用户开通账号后用户总数不变
 PASS  普通用户开通账号 → 拒绝（≈403）
 PASS  伪造 role=ADMIN 停用他人 → 拒绝（≈403）
@@ -133,9 +135,9 @@ PASS  query-probe
 PASS  User.passwordHash 全部为 bcrypt（非 bcrypt 数=0）
 
 ==== 性能基线（autocannon 10s，/templates 与 /templates/[id]） ====
-INFO  /templates  p50=35ms  p97.5=46ms  req/s=275  non2xx=0
+INFO  /templates  p50=27ms  p97.5=38ms  req/s=357  non2xx=0
 PASS  性能 /templates p97.5 < 300ms 且无非 2xx
-INFO  /templates/orshot-2427  p50=22ms  p97.5=27ms  req/s=435  non2xx=0
+INFO  /templates/orshot-2427  p50=18ms  p97.5=22ms  req/s=543  non2xx=0
 PASS  性能 /templates/orshot-2427 p97.5 < 300ms 且无非 2xx
 
 ==== 结论 ====
