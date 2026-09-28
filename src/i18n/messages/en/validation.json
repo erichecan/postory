@@ -1,0 +1,17 @@
+{
+  "invalid": "Please check your input",
+  "phoneInvalid": "Enter an 11-digit phone number",
+  "passwordMin": "Password must be at least 8 characters",
+  "passwordMax": "Password can be at most 64 characters",
+  "passwordRequired": "Enter your password",
+  "nameRequired": "Enter a name",
+  "nameMax": "Name can be at most 64 characters",
+  "maxLength": "At most {max} characters",
+  "logoTooLarge": "Logo must be 2MB or smaller",
+  "logoFormat": "Logo must be PNG, JPG or WebP",
+  "imageTooLarge": "Image must be 2MB or smaller",
+  "forbiddenContent": "This content isn't allowed",
+  "publishPlatformsRequired": "Choose at least one platform",
+  "publishTimeRequired": "Choose a publish time",
+  "publishTimePast": "Publish time can't be in the past"
+}

@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
-import { BRAND } from "@/lib/brand";
 import fontSheets from "@/data/font-stylesheets.json";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: `${BRAND.name} ${BRAND.nameZh} · ${BRAND.tagline}`,
-  description: "选模板、改文案、排期发布",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("common");
+  return { title: `${t("brandName")} · ${t("tagline")}`, description: t("metaDescription") };
+}
 
 const UI_FONTS = "https://fonts.googleapis.com/css2?family=Inter:wght@400..900&family=Noto+Sans+SC:wght@400..900&display=swap";
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const locale = await getLocale();
   return (
-    <html lang="zh-CN" className="dark h-full antialiased">
+    <html lang={locale === "zh" ? "zh-CN" : "en"} className="dark h-full antialiased">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
@@ -22,8 +24,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         ))}
       </head>
       <body className="min-h-full bg-background font-sans text-foreground">
-        {children}
-        <Toaster />
+        <NextIntlClientProvider>
+          {children}
+          <Toaster />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

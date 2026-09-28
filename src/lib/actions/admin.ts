@@ -10,7 +10,7 @@ import { firstError, registerSchema, type FormState } from "@/lib/validation";
 export async function adminCreateUserAction(_: FormState, formData: FormData): Promise<FormState> {
   await assertAdmin();
   const parsed = registerSchema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) return { error: firstError(parsed.error) };
+  if (!parsed.success) return { error: await firstError(parsed.error) };
   try {
     await createUser({ ...parsed.data, source: "OFFLINE" });
   } catch (e) {

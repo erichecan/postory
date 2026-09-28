@@ -9,7 +9,7 @@ import { firstError, loginSchema, registerSchema, type FormState } from "@/lib/v
 
 export async function registerAction(_: FormState, formData: FormData): Promise<FormState> {
   const parsed = registerSchema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) return { error: firstError(parsed.error) };
+  if (!parsed.success) return { error: await firstError(parsed.error) };
   try {
     const user = await createUser({ ...parsed.data, source: "SELF_SIGNUP" });
     await createSession({ userId: user.id, role: user.role });
@@ -24,7 +24,7 @@ export async function registerAction(_: FormState, formData: FormData): Promise<
 
 export async function loginAction(_: FormState, formData: FormData): Promise<FormState> {
   const parsed = loginSchema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) return { error: firstError(parsed.error) };
+  if (!parsed.success) return { error: await firstError(parsed.error) };
   const user = await findUserByPhone(parsed.data.phone);
   const passwordOk = await verifyPassword(parsed.data.password, user?.passwordHash ?? DUMMY_HASH);
   if (!user || !passwordOk) {

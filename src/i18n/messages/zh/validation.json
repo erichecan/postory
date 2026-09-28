@@ -1,0 +1,17 @@
+{
+  "invalid": "输入有误",
+  "phoneInvalid": "请输入 11 位手机号",
+  "passwordMin": "密码至少 8 位",
+  "passwordMax": "密码最多 64 位",
+  "passwordRequired": "请输入密码",
+  "nameRequired": "请填写名称",
+  "nameMax": "名称最多 64 个字",
+  "maxLength": "最多 {max} 个字",
+  "logoTooLarge": "Logo 不能超过 2MB",
+  "logoFormat": "Logo 只支持 PNG、JPG、WebP",
+  "imageTooLarge": "图片不能超过 2MB",
+  "forbiddenContent": "不允许的内容",
+  "publishPlatformsRequired": "至少选择一个发布平台",
+  "publishTimeRequired": "请选择发布时间",
+  "publishTimePast": "发布时间不能早于现在"
+}
