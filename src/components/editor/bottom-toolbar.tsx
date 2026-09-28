@@ -5,7 +5,7 @@ import { Circle, ImagePlus, Minus, Plus, Square, Type } from "lucide-react";
 import { toast } from "sonner";
 import type { DesignElement, DesignPage } from "@/types/design";
 import { newId, topZ, type EditorAction } from "./editor-state";
-import { readImageFile } from "./image-replace";
+import { readImageFile } from "@/lib/image-file";
 
 const ZOOMS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 

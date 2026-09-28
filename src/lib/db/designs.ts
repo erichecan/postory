@@ -49,7 +49,7 @@ export async function listOwnDesigns(userId: string) {
       platforms: true,
       scheduledAt: true,
       updatedAt: true,
-      template: { select: { thumbnails: true, width: true, height: true } },
+      pages: true,
     },
-  });
+  }).then((rows) => rows.map((r) => ({ ...r, cover: (r.pages as unknown as DesignPage[])[0], pages: undefined })));
 }

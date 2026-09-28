@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# 技术验收：退出码 0 = 全部通过
+set -uo pipefail
+cd "$(dirname "$0")/.."
+
+PORT="${VERIFY_PORT:-3010}"
+BASE="http://localhost:$PORT"
+FAIL=0
+step() { printf '\n==== %s ====\n' "$1"; }
+run() {
+  local name="$1"; shift
+  if "$@"; then echo "PASS  $name"; else echo "FAIL  $name"; FAIL=1; fi
+}
+
+step "类型检查 / Lint"
+run "tsc --noEmit" npm run -s typecheck
+run "eslint" npx eslint src scripts --quiet
+
+step "数据库迁移"
+run "prisma migrate status" npx prisma migrate status
+TPL=$(psql "$(grep DATABASE_URL .env.local | cut -d'"' -f2 | sed 's/?schema=public//')" -Atc 'select count(*) from "Template"')
+run "Template 数量 = 167（实际 ${TPL}）" test "$TPL" = "167"
+
+step "生产构建"
+run "next build" npm run -s build
+
+step "启动生产服务 :$PORT"
+lsof -iTCP:"$PORT" -sTCP:LISTEN -t | xargs -r kill 2>/dev/null
+npx next start -p "$PORT" > .next/verify-server.log 2>&1 &
+SERVER=$!
+trap 'kill $SERVER 2>/dev/null' EXIT
+for _ in $(seq 1 60); do curl -s -o /dev/null "$BASE/login" && break; sleep 0.5; done
+
+step "路由 + 鉴权 + 资源约束探针"
+run "probes" npx tsx scripts/probes.ts "$BASE"
+
+step "查询探针"
+run "query-probe" env PRISMA_QUERY_COUNT=1 NODE_OPTIONS="--conditions=react-server" npx tsx scripts/query-probe.ts
+
+step "密码存储"
+PLAIN=$(psql "$(grep DATABASE_URL .env.local | cut -d'"' -f2 | sed 's/?schema=public//')" -Atc "select count(*) from \"User\" where \"passwordHash\" not like '\$2%'")
+run "User.passwordHash 全部为 bcrypt（非 bcrypt 数=${PLAIN}）" test "$PLAIN" = "0"
+
+step "性能基线（autocannon 10s，/templates 与 /templates/[id]）"
+COOKIE=$(npx tsx -e 'import "./scripts/load-env"; import { signSession, SESSION_COOKIE } from "./src/lib/auth/token"; import { prisma } from "./src/lib/db/client"; (async()=>{const u=await prisma.user.findUniqueOrThrow({where:{phone:"13900000000"}}); console.log(`${SESSION_COOKIE}=${await signSession({userId:u.id,role:u.role})}`); await prisma.$disconnect();})()')
+for path in "/templates" "/templates/orshot-2427"; do
+  OUT=$(npx autocannon -d 10 -c 10 -j -H "cookie=$COOKIE" "$BASE$path" 2>/dev/null)
+  read -r P50 P97 RPS NON2XX <<<"$(echo "$OUT" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const r=JSON.parse(s);console.log(r.latency.p50,r.latency.p97_5,Math.round(r.requests.average),r.non2xx)})')"
+  echo "INFO  $path  p50=${P50}ms  p97.5=${P97}ms  req/s=${RPS}  non2xx=${NON2XX}"
+  run "性能 $path p97.5 < 300ms 且无非 2xx" test "$P97" -lt 300 -a "$NON2XX" = "0"
+done
+
+printf '\n==== 结论 ====\n'
+if [ "$FAIL" = 0 ]; then echo "VERIFY PASS"; else echo "VERIFY FAIL"; fi
+exit "$FAIL"

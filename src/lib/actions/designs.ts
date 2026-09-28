@@ -38,8 +38,9 @@ export async function scheduleDesignAction(id: string, input: unknown): Promise<
   return ok ? { ok } : { ok, error: "作品不存在" };
 }
 
-export async function deleteDesignAction(id: string) {
+export async function deleteDesignAction(id: string): Promise<{ ok: boolean }> {
   const user = await assertUser();
-  await deleteOwnDesign(user.id, z.string().max(40).parse(id));
-  revalidatePath("/designs");
+  const ok = await deleteOwnDesign(user.id, z.string().max(40).parse(id));
+  if (ok) revalidatePath("/designs");
+  return { ok };
 }

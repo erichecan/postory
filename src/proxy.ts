@@ -13,9 +13,6 @@ export async function proxy(request: NextRequest) {
     url.searchParams.set("next", pathname + search);
     return NextResponse.redirect(url);
   }
-  if (session && (pathname === "/login" || pathname === "/register")) {
-    return NextResponse.redirect(new URL("/templates", request.url));
-  }
   return NextResponse.next();
 }
 
