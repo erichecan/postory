@@ -14,7 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PROJECT_ID: supply-491510
-      REGION: europe-west3
+      REGISTRY_REGION: europe-west3
+      REGION: europe-west1
       SERVICE_NAME: postory
       IMAGE: europe-west3-docker.pkg.dev/supply-491510/postory/web:${{ github.sha }}
 
@@ -27,7 +28,7 @@ jobs:
 
       - uses: google-github-actions/setup-gcloud@v2
 
-      - run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+      - run: gcloud auth configure-docker ${{ env.REGISTRY_REGION }}-docker.pkg.dev --quiet
 
       - name: Build
         run: docker build -t ${{ env.IMAGE }} .
