@@ -5,13 +5,16 @@ import type { DesignListItem } from "@/lib/db/designs";
 import { DeleteDesignButton } from "./delete-design-button";
 
 
+export const DESIGN_CARD_PADDING = 8;
+export const DESIGN_CARD_CAPTION = 96;
+
 const fmt = new Intl.DateTimeFormat("zh-CN", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Shanghai" });
 
 export function DesignCard({ d }: { d: DesignListItem }) {
   return (
     <div className="group flex flex-col overflow-hidden rounded-xl border bg-card">
-      <Link href={`/editor/${d.id}`} className="relative block aspect-[4/3] overflow-hidden bg-black/30">
-        <FitPreview page={d.cover} />
+      <Link href={`/editor/${d.id}`} className="relative block overflow-hidden bg-white/[0.04]" style={{ aspectRatio: `${d.cover.width + DESIGN_CARD_PADDING * 2} / ${d.cover.height + DESIGN_CARD_PADDING * 2}` }}>
+        <FitPreview page={d.cover} padding={DESIGN_CARD_PADDING} />
         <span className={`absolute left-2.5 top-2.5 rounded-md px-1.5 py-0.5 text-[11px] ${d.status === "SCHEDULED" ? "bg-primary text-primary-foreground" : "bg-black/70 text-white"}`}>
           {d.status === "SCHEDULED" ? "待发布" : "草稿"}
         </span>

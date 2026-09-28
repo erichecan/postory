@@ -69,8 +69,8 @@ model Design {
   id          String       @id @default(cuid())
   userId      String
   user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  templateId  String
-  template    Template     @relation(fields: [templateId], references: [id])
+  templateId  String?
+  template    Template?    @relation(fields: [templateId], references: [id], onDelete: SetNull)
   title       String       @db.VarChar(128)
   pages       Json
   platforms   String[]

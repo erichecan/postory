@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, CalendarClock, Download, Palette, Store, Type } from "lucide-react";
 import { PreviewCarousel } from "@/components/templates/preview-carousel";
 import { StartDesignButton } from "@/components/templates/start-design-button";
-import { GalleryCard } from "@/components/gallery/gallery-card";
+import { SimilarTemplates } from "@/components/gallery/similar-templates";
 import { getTemplate, listSimilarTemplates } from "@/lib/db/templates";
 import { platformLabel } from "@/lib/platforms";
 
@@ -11,7 +11,7 @@ export default async function TemplateDetailPage({ params }: PageProps<"/templat
   const { id } = await params;
   const t = await getTemplate(id);
   if (!t) notFound();
-  const similar = await listSimilarTemplates(t.id, t.platform);
+  const similar = await listSimilarTemplates(t.id, t.platform, 8);
 
   const features = [
     t.editable
@@ -57,11 +57,7 @@ export default async function TemplateDetailPage({ params }: PageProps<"/templat
             <h2 className="text-lg font-semibold">更多 {platformLabel(t.platform)} 模板</h2>
             <Link href={`/templates?platform=${t.platform}`} className="text-sm text-muted-foreground hover:text-foreground">查看全部</Link>
           </div>
-          <div className="grid grid-cols-2 items-start gap-6 sm:grid-cols-3 lg:grid-cols-4">
-            {similar.slice(0, 4).map((s) => (
-              <GalleryCard key={s.id} t={s} eager={false} />
-            ))}
-          </div>
+          <SimilarTemplates items={similar} />
         </section>
       )}
     </div>

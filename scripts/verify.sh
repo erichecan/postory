@@ -18,8 +18,12 @@ run "eslint" npx eslint src scripts --quiet
 
 step "数据库迁移"
 run "prisma migrate status" npx prisma migrate status
-TPL=$(psql "$(grep DATABASE_URL .env.local | cut -d'"' -f2 | sed 's/?schema=public//')" -Atc 'select count(*) from "Template"')
-run "Template 数量 = 167（实际 ${TPL}）" test "$TPL" = "167"
+DB="$(grep DATABASE_URL .env.local | cut -d'"' -f2 | sed 's/?schema=public//')"
+EXPECTED=$(node -e 'console.log(require("./src/data/catalog.json").length)')
+TPL=$(psql "$DB" -Atc 'select count(*) from "Template"')
+EDITABLE=$(psql "$DB" -Atc 'select count(*) from "Template" where editable')
+run "Template 数量 = catalog.json（期望 ${EXPECTED}，实际 ${TPL}）" test "$TPL" = "$EXPECTED"
+run "模板全部可编辑（${EDITABLE}/${TPL}）" test "$EDITABLE" = "$TPL"
 
 step "生产构建"
 run "next build" npm run -s build
@@ -38,7 +42,7 @@ step "查询探针"
 run "query-probe" env PRISMA_QUERY_COUNT=1 NODE_OPTIONS="--conditions=react-server" npx tsx scripts/query-probe.ts
 
 step "密码存储"
-PLAIN=$(psql "$(grep DATABASE_URL .env.local | cut -d'"' -f2 | sed 's/?schema=public//')" -Atc "select count(*) from \"User\" where \"passwordHash\" not like '\$2%'")
+PLAIN=$(psql "$DB" -Atc "select count(*) from \"User\" where \"passwordHash\" not like '\$2%'")
 run "User.passwordHash 全部为 bcrypt（非 bcrypt 数=${PLAIN}）" test "$PLAIN" = "0"
 
 step "性能基线（autocannon 10s，/templates 与 /templates/[id]）"

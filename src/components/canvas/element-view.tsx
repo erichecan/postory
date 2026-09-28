@@ -14,6 +14,7 @@ function shapeStyle(el: DesignElement): CSSProperties {
     background: st.fill,
     border: stroke,
     borderRadius: el.shapeType === "circle" ? "50%" : st.borderRadius,
+    boxShadow: st.boxShadow,
   };
 }
 
@@ -43,6 +44,11 @@ export function ElementView({ el }: { el: DesignElement }) {
     return <div style={{ ...box, ...shapeStyle(el) }} />;
   }
 
+  if (el.style.svgColor && el.content?.startsWith("data:image/svg")) {
+    const mask = `url("${el.content.replace(/"/g, "%22")}") center / ${el.style.objectFit === "cover" ? "cover" : "contain"} no-repeat`;
+    return <div style={{ ...box, background: el.style.svgColor, mask, WebkitMask: mask }} />;
+  }
+
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
@@ -51,9 +57,11 @@ export function ElementView({ el }: { el: DesignElement }) {
       draggable={false}
       style={{
         ...box,
+        maxWidth: "none",
         objectFit: el.style.objectFit ?? "cover",
         objectPosition: el.style.objectPosition,
         borderRadius: el.style.borderRadius,
+        boxShadow: el.style.boxShadow,
         border: el.style.borderWidth ? `${el.style.borderWidth} ${el.style.borderStyle ?? "solid"} ${el.style.borderColor}` : undefined,
       }}
     />

@@ -1,31 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { Loader2 } from "lucide-react";
 import { loadTemplatesAction } from "@/lib/actions/templates";
 import type { TemplateCard } from "@/lib/db/templates";
 import { CARD_CAPTION, CARD_PADDING, GalleryCard } from "./gallery-card";
-import { columnCountFor, distribute } from "./masonry";
-
-const GAP = 24;
+import { MasonryGrid } from "./masonry-grid";
 
 export function TemplateGallery({ initial, hasMore: initialHasMore, platform, q }: { initial: TemplateCard[]; hasMore: boolean; platform?: string; q?: string }) {
   const [items, setItems] = useState(initial);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [page, setPage] = useState(1);
-  const [width, setWidth] = useState(0);
   const [pending, start] = useTransition();
   const [error, setError] = useState(false);
-  const wrapRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = wrapRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
 
   const loadMore = useCallback(() => {
     if (pending || !hasMore) return;
@@ -50,23 +38,14 @@ export function TemplateGallery({ initial, hasMore: initialHasMore, platform, q 
     return () => io.disconnect();
   }, [loadMore, hasMore, error]);
 
-  const columns = useMemo(() => {
-    const count = width ? columnCountFor(width) : 4;
-    const colWidth = width ? (width - GAP * (count - 1)) / count : 240;
-    return distribute(items, count, colWidth - CARD_PADDING * 2, CARD_PADDING * 2 + CARD_CAPTION);
-  }, [items, width]);
-
   return (
-    <div ref={wrapRef}>
-      <div className="flex items-start" style={{ gap: GAP }}>
-        {columns.map((col, ci) => (
-          <div key={ci} className="flex min-w-0 flex-1 flex-col" style={{ gap: GAP }}>
-            {col.map((t) => (
-              <GalleryCard key={t.id} t={t} eager={items.indexOf(t) < 8} />
-            ))}
-          </div>
-        ))}
-      </div>
+    <div>
+      <MasonryGrid
+        items={items}
+        cardPadding={CARD_PADDING}
+        captionHeight={CARD_CAPTION}
+        render={(t, i) => <GalleryCard key={t.id} t={t} eager={i < 8} />}
+      />
       <div ref={sentinelRef} className="flex justify-center py-12">
         {pending && <Loader2 className="size-5 animate-spin text-muted-foreground" />}
         {!pending && hasMore && (

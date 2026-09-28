@@ -4,11 +4,11 @@ export type ElementStyle = {
   fontFamily?: string;
   fontWeight?: string;
   fontStyle?: string;
-  lineHeight?: number;
+  lineHeight?: number | string;
   letterSpacing?: string;
   textAlign?: "left" | "center" | "right";
   textDecoration?: string;
-  textMode?: "fit";
+  textMode?: "fit" | "overflow";
   minFontSize?: string;
   verticalAlign?: "flex-start" | "center" | "flex-end";
   backgroundColor?: string;
@@ -24,6 +24,16 @@ export type ElementStyle = {
   opacity?: number;
   filter?: string;
   mixBlendMode?: string;
+  textTransform?: "uppercase" | "lowercase" | "capitalize" | "none";
+  writingMode?: string;
+  textShadow?: string;
+  boxShadow?: string;
+  textStroke?: string;
+  textBackground?: string;
+  textBackgroundRadius?: string;
+  padding?: string;
+  border?: string;
+  svgColor?: string;
 };
 
 export type ElementType = "text" | "shape" | "image";

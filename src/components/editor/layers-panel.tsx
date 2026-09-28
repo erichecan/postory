@@ -2,12 +2,13 @@
 
 import type { Dispatch } from "react";
 import { Circle, Eye, EyeOff, Image as ImageIcon, Lock, Square, Type } from "lucide-react";
+import { plainText } from "@/components/canvas/rich-text";
 import { cn } from "@/lib/utils";
 import type { DesignElement, DesignPage } from "@/types/design";
 import type { EditorAction } from "./editor-state";
 
 function label(el: DesignElement) {
-  if (el.type === "text") return el.content?.trim() || "空文字";
+  if (el.type === "text") return plainText(el.content).trim() || "空文字";
   if (el.name) return el.name;
   if (el.type === "image") return "图片";
   return el.shapeType === "circle" ? "圆形" : "矩形";

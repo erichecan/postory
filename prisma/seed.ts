@@ -30,6 +30,9 @@ async function main() {
     await prisma.template.upsert({ where: { id: t.id }, create: { id: t.id, ...data }, update: data });
   }
 
+  const removed = await prisma.template.deleteMany({ where: { id: { notIn: catalog.map((t) => t.id) } } });
+  if (removed.count) console.log(`removed stale templates=${removed.count}`);
+
   const admin = await bcrypt.hash("admin12345", 10);
   await prisma.user.upsert({
     where: { phone: "13800000000" },

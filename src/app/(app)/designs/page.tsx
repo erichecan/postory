@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { DesignCard } from "@/components/designs/design-card";
+import { DesignsMasonry } from "@/components/designs/designs-masonry";
 import { Pagination } from "@/components/templates/pagination";
 import { requireUser } from "@/lib/auth/session";
 import { listOwnDesigns, type DesignListItem } from "@/lib/db/designs";
@@ -14,9 +14,7 @@ function Group({ title, hint, total, items, footer }: { title: string; hint: str
       {items.length === 0 ? (
         <div className="rounded-xl border border-dashed py-10 text-center text-sm text-muted-foreground">暂无</div>
       ) : (
-        <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4">
-          {items.map((d) => <DesignCard key={d.id} d={d} />)}
-        </div>
+        <DesignsMasonry items={items} />
       )}
       {footer}
     </section>

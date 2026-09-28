@@ -50,7 +50,7 @@ export function Editor({ design, brand }: { design: EditorDesign; brand: BrandFi
     setExporting(true);
     try {
       const suffix = state.pages.length > 1 ? `-${page.name}` : "";
-      await exportNodeAsPng(exportRef.current, `${title || "作品"}${suffix}.png`);
+      await exportNodeAsPng(exportRef.current, page, `${title || "作品"}${suffix}.png`);
     } catch {
       toast.error("导出失败，请重试");
     } finally {

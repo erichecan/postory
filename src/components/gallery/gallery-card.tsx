@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useCallback, useState, useTransition } from "react";
 import { Layers, Loader2 } from "lucide-react";
 import { startDesignAction } from "@/lib/actions/designs";
 import { platformLabel } from "@/lib/platforms";
@@ -15,6 +15,9 @@ export const CARD_CAPTION = 104;
 export function GalleryCard({ t, eager }: { t: TemplateCard; eager: boolean }) {
   const [loaded, setLoaded] = useState(false);
   const [pending, start] = useTransition();
+  const imgRef = useCallback((img: HTMLImageElement | null) => {
+    if (img?.complete && img.naturalWidth > 0) setLoaded(true);
+  }, []);
   return (
     <div className="group flex min-w-0 flex-col">
       <Link
@@ -28,6 +31,7 @@ export function GalleryCard({ t, eager }: { t: TemplateCard; eager: boolean }) {
             fill
             sizes="(max-width: 560px) 50vw, (max-width: 900px) 33vw, 260px"
             priority={eager}
+            ref={imgRef}
             onLoad={() => setLoaded(true)}
             className={cn("object-cover shadow-[0_1px_2px_rgba(0,0,0,0.25)] transition-opacity duration-300", loaded ? "opacity-100" : "opacity-0")}
           />

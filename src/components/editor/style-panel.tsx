@@ -2,12 +2,14 @@
 
 import { forwardRef, type Dispatch } from "react";
 import { AlignCenter, AlignLeft, AlignRight, ArrowDown, ArrowUp, Lock, Trash2 } from "lucide-react";
+import fontSheets from "@/data/font-stylesheets.json";
 import type { DesignElement, DesignPage } from "@/types/design";
 import type { EditorAction } from "./editor-state";
+import { plainText } from "@/components/canvas/rich-text";
 import { ColorField, NumberField, Section, Segmented } from "./fields";
 import { ImageReplace } from "./image-replace";
 
-export const FONT_OPTIONS = ["Noto Sans SC", "Inter", "Anton", "Archivo Black", "Fraunces", "Space Grotesk", "Syne"];
+export const FONT_OPTIONS = ["Noto Sans SC", ...fontSheets.families.filter((f) => f !== "Noto Sans SC")];
 const WEIGHTS = ["400", "500", "600", "700", "800", "900"];
 const selectCls = "h-8 w-full rounded-md border bg-input/30 px-2 text-xs outline-none focus:border-ring";
 
@@ -45,7 +47,7 @@ export const StylePanel = forwardRef<HTMLTextAreaElement, { page: DesignPage; el
           <Section title="文字内容">
             <textarea
               ref={textRef}
-              value={el.content ?? ""}
+              value={plainText(el.content)}
               onChange={(e) => set({ content: e.target.value }, "content")}
               rows={3}
               className="w-full resize-y rounded-md border bg-input/30 px-2.5 py-2 text-sm outline-none focus:border-ring"
