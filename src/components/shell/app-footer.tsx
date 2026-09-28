@@ -1,29 +1,30 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { Logo } from "@/components/brand/logo";
 import { BRAND } from "@/lib/brand";
-import { PLATFORMS } from "@/lib/platforms";
+import { PLATFORMS, platformLabel } from "@/lib/platforms";
 
-const COLUMNS = [
-  { title: "模板", links: PLATFORMS.map((p) => ({ href: `/templates?platform=${p.id}`, label: p.label })) },
-  {
-    title: "工作台",
-    links: [
-      { href: "/designs", label: "我的作品" },
-      { href: "/designs", label: "发布计划" },
-      { href: "/profile", label: "商家资料" },
-    ],
-  },
-];
-
-export function AppFooter() {
+export async function AppFooter() {
+  const [t, tc, tp] = await Promise.all([getTranslations("nav"), getTranslations("common"), getTranslations("platforms")]);
+  const columns = [
+    { title: t("footer.templates"), links: PLATFORMS.map((p) => ({ href: `/templates?platform=${p.id}`, label: platformLabel(tp, p.id) })) },
+    {
+      title: t("footer.workspace"),
+      links: [
+        { href: "/designs", label: t("footer.designs") },
+        { href: "/designs", label: t("footer.schedule") },
+        { href: "/profile", label: t("footer.profile") },
+      ],
+    },
+  ];
   return (
     <footer className="mt-24 border-t border-white/[0.06]">
       <div className="mx-auto grid max-w-[1080px] gap-10 px-4 py-14 sm:grid-cols-[1.4fr_1fr_1fr]">
         <div className="flex flex-col gap-3">
           <Logo />
-          <p className="max-w-xs text-sm text-muted-foreground">{BRAND.nameZh} · {BRAND.tagline}</p>
+          <p className="max-w-xs text-sm text-muted-foreground">{tc("brandName")} · {tc("tagline")}</p>
         </div>
-        {COLUMNS.map((col) => (
+        {columns.map((col) => (
           <div key={col.title} className="flex flex-col gap-3">
             <p className="text-xs font-medium uppercase tracking-[0.18em]">{col.title}</p>
             {col.links.map((l) => (
@@ -33,7 +34,7 @@ export function AppFooter() {
         ))}
       </div>
       <div className="border-t border-white/[0.06]">
-        <p className="mx-auto max-w-[1080px] px-4 py-5 text-xs text-muted-foreground">© 2026 {BRAND.name} · 保留所有权利</p>
+        <p className="mx-auto max-w-[1080px] px-4 py-5 text-xs text-muted-foreground">{t("footer.copyright", { brand: BRAND.name })}</p>
       </div>
     </footer>
   );

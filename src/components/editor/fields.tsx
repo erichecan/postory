@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 export function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -61,6 +62,7 @@ function toHex(color: string | undefined) {
 }
 
 export function ColorField({ label, value, onChange }: { label: string; value: string | undefined; onChange: (v: string) => void }) {
+  const t = useTranslations("editor.style");
   const isGradient = value?.includes("gradient");
   return (
     <div className="flex items-center justify-between gap-3">
@@ -73,7 +75,7 @@ export function ColorField({ label, value, onChange }: { label: string; value: s
           className="size-5 shrink-0 cursor-pointer rounded border-0 bg-transparent p-0 [&::-webkit-color-swatch]:rounded [&::-webkit-color-swatch]:border-0 [&::-webkit-color-swatch-wrapper]:p-0"
         />
         <input
-          value={isGradient ? "渐变" : toHex(value).slice(1).toUpperCase()}
+          value={isGradient ? t("gradient") : toHex(value).slice(1).toUpperCase()}
           readOnly={isGradient}
           onChange={(e) => /^[0-9a-f]{6}$/i.test(e.target.value) && onChange(`#${e.target.value}`)}
           className="w-full min-w-0 bg-transparent uppercase outline-none"

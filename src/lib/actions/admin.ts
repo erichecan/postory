@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { Prisma } from "@/generated/prisma/client";
 import { assertAdmin } from "@/lib/auth/session";
@@ -11,22 +12,23 @@ export async function adminCreateUserAction(_: FormState, formData: FormData): P
   await assertAdmin();
   const parsed = registerSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: await firstError(parsed.error) };
+  const t = await getTranslations("admin");
   try {
     await createUser({ ...parsed.data, source: "OFFLINE" });
   } catch (e) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") return { error: "该手机号已有账号" };
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") return { error: t("errors.phoneTaken") };
     throw e;
   }
   revalidatePath("/admin/accounts");
-  return { ok: true, message: `已开通：${parsed.data.name}（${parsed.data.phone}）` };
+  return { ok: true, message: t("created", { name: parsed.data.name, phone: parsed.data.phone }) };
 }
 
 export async function adminToggleUserAction(id: string, disabled: boolean): Promise<{ ok: boolean; error?: string }> {
   await assertAdmin();
   const userId = z.string().max(40).parse(id);
-  const target = await findUserRole(userId);
-  if (!target) return { ok: false, error: "账号不存在" };
-  if (target.role === "ADMIN") return { ok: false, error: "管理员账号不能在这里停用" };
+  const [target, t] = await Promise.all([findUserRole(userId), getTranslations("admin.errors")]);
+  if (!target) return { ok: false, error: t("notFound") };
+  if (target.role === "ADMIN") return { ok: false, error: t("cannotDisableAdmin") };
   await setUserDisabled(userId, z.boolean().parse(disabled));
   revalidatePath("/admin/accounts");
   return { ok: true };

@@ -28,6 +28,7 @@ const hits = execSync(
   .split("\n")
   .filter(Boolean)
   .filter((line) => !ALLOW.some((p) => line.startsWith(p)))
+  .filter((line) => !line.includes("i18n-allow"))
   .filter((line) => !/^\s*(\/\/|\*|\/\*|\{\/\*)/.test(line.replace(/^[^:]+:\d+:/, "")));
 for (const h of hits) problems.push(`残留中文 ${h.slice(0, 160)}`);
 

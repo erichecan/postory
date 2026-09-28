@@ -2,20 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
-  { href: "/templates", label: "模板库" },
-  { href: "/designs", label: "我的作品" },
-  { href: "/profile", label: "商家资料" },
-];
+  { href: "/templates", key: "templates" },
+  { href: "/designs", key: "designs" },
+  { href: "/profile", key: "profile" },
+] as const;
 
 export function NavLinks({ isAdmin }: { isAdmin: boolean }) {
+  const t = useTranslations("nav");
   const pathname = usePathname();
-  const links = isAdmin ? [...LINKS, { href: "/admin/accounts", label: "账号管理" }] : LINKS;
+  const links = isAdmin ? [...LINKS, { href: "/admin/accounts", key: "adminAccounts" } as const] : LINKS;
   return (
     <nav className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      {links.map(({ href, label }) => {
+      {links.map(({ href, key }) => {
         const active = pathname === href || pathname.startsWith(`${href}/`);
         return (
           <Link
@@ -26,7 +28,7 @@ export function NavLinks({ isAdmin }: { isAdmin: boolean }) {
               active && "text-foreground after:absolute after:inset-x-3 after:-bottom-px after:h-0.5 after:rounded-full after:bg-primary",
             )}
           >
-            {label}
+            {t(key)}
           </Link>
         );
       })}

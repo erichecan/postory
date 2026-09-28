@@ -1,1 +1,18 @@
-{}
+{
+  "platform": {
+    "instagram-post": "Instagram 帖子",
+    "instagram-story": "Instagram 快拍",
+    "youtube": "YouTube 封面",
+    "twitter": "X / Twitter",
+    "pinterest": "Pinterest",
+    "facebook": "Facebook"
+  },
+  "target": {
+    "xiaohongshu": "小红书",
+    "wechatMoments": "微信朋友圈",
+    "douyin": "抖音",
+    "instagram": "Instagram",
+    "facebook": "Facebook",
+    "twitter": "X / Twitter"
+  }
+}

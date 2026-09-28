@@ -1,1 +1,26 @@
-{}
+{
+  "title": "My designs",
+  "subtitle": "Every template you've edited lives here. Designs with a publish time appear in the publishing schedule.",
+  "emptyAll": "No designs yet.",
+  "goToTemplates": "Pick a template →",
+  "empty": "Nothing here yet",
+  "scheduled": "Publishing schedule",
+  "scheduledHint": "Sorted by publish time, showing the next 24",
+  "drafts": "Drafts",
+  "draftsHint": "Most recently edited first",
+  "status": {
+    "scheduled": "Scheduled",
+    "draft": "Draft"
+  },
+  "lastEdited": "Last edited {time}",
+  "continueEditing": "Continue editing",
+  "delete": {
+    "confirm": "Delete this design? This can't be undone.",
+    "failed": "Couldn't delete. The design may no longer exist",
+    "label": "Delete design"
+  },
+  "errors": {
+    "invalidData": "Invalid design data",
+    "notFound": "Design not found"
+  }
+}

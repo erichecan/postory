@@ -16,6 +16,9 @@ step "类型检查 / Lint"
 run "tsc --noEmit" npm run -s typecheck
 run "eslint" npx eslint src scripts --quiet
 
+step "双语文案"
+run "check-i18n（key 一致 / 无空值 / 无残留中文）" node scripts/check-i18n.mjs
+
 step "数据库迁移"
 run "prisma migrate status" npx prisma migrate status
 DB="$(grep DATABASE_URL .env.local | cut -d'"' -f2 | sed 's/?schema=public//')"
@@ -35,6 +38,20 @@ SERVER=$!
 trap 'kill $SERVER 2>/dev/null' EXIT
 for _ in $(seq 1 60); do curl -s -o /dev/null "$BASE/login" && break; sleep 0.5; done
 
+COOKIE=$(npx tsx -e 'import "./scripts/load-env"; import { signSession, SESSION_COOKIE } from "./src/lib/auth/token"; import { prisma } from "./src/lib/db/client"; (async()=>{const u=await prisma.user.findUniqueOrThrow({where:{phone:"13900000000"}}); console.log(`${SESSION_COOKIE}=${await signSession({userId:u.id,role:u.role})}`); await prisma.$disconnect();})()')
+
+step "双语路由探针（NEXT_LOCALE=zh/en → <html lang> 与状态码）"
+for path in "/login" "/register" "/templates" "/templates?platform=instagram-post" "/templates/orshot-2427" "/designs" "/profile"; do
+  for loc in zh en; do
+    want=$([ "$loc" = zh ] && echo "zh-CN" || echo "en")
+    SESSION=$([[ "$path" == /login || "$path" == /register ]] || echo "; $COOKIE")
+    RES=$(curl -s -w '\n%{http_code}' -H "Cookie: NEXT_LOCALE=$loc$SESSION" "$BASE$path")
+    CODE=$(tail -n1 <<<"$RES")
+    OK=0; [[ "$CODE" == 200 ]] && grep -q "<html lang=\"$want\"" <<<"$RES" && OK=1
+    run "$loc $path → $CODE lang=$want" test "$OK" = 1
+  done
+done
+
 step "路由 + 鉴权 + 资源约束探针"
 run "probes" npx tsx scripts/probes.ts "$BASE"
 
@@ -46,7 +63,6 @@ PLAIN=$(psql "$DB" -Atc "select count(*) from \"User\" where \"passwordHash\" no
 run "User.passwordHash 全部为 bcrypt（非 bcrypt 数=${PLAIN}）" test "$PLAIN" = "0"
 
 step "性能基线（autocannon 10s，/templates 与 /templates/[id]）"
-COOKIE=$(npx tsx -e 'import "./scripts/load-env"; import { signSession, SESSION_COOKIE } from "./src/lib/auth/token"; import { prisma } from "./src/lib/db/client"; (async()=>{const u=await prisma.user.findUniqueOrThrow({where:{phone:"13900000000"}}); console.log(`${SESSION_COOKIE}=${await signSession({userId:u.id,role:u.role})}`); await prisma.$disconnect();})()')
 for path in "/templates" "/templates/orshot-2427"; do
   OUT=$(npx autocannon -d 10 -c 10 -j -H "cookie=$COOKIE" "$BASE$path" 2>/dev/null)
   read -r P50 P97 RPS NON2XX <<<"$(echo "$OUT" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const r=JSON.parse(s);console.log(r.latency.p50,r.latency.p97_5,Math.round(r.requests.average),r.non2xx)})')"

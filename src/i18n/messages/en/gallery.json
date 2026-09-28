@@ -1,1 +1,16 @@
-{}
+{
+  "title": "Social media templates",
+  "platformTitle": "{platform} templates",
+  "subtitle": "Pick a template and add your shop name, promotion and WeChat. Get a post-ready image in minutes.",
+  "allTemplates": "All templates",
+  "pickTemplate": "Pick a template",
+  "viewDesigns": "View my designs",
+  "all": "All",
+  "searchPlaceholder": "Search templates",
+  "empty": "No matching templates. Try another keyword.",
+  "fullyEditable": "Fully editable",
+  "openInEditor": "Open in editor",
+  "loadFailed": "Failed to load. Click to retry",
+  "loadMore": "Load more",
+  "end": "That's everything · {count, plural, one {# template} other {# templates}}"
+}

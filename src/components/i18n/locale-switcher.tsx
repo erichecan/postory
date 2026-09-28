@@ -1,26 +1,21 @@
 "use client";
 
 import { useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { LOCALES, type Locale } from "@/i18n/config";
 import { setLocaleAction } from "@/lib/actions/locale";
 import { cn } from "@/lib/utils";
 
-const LABELS: Record<Locale, string> = { zh: "中", en: "EN" };
+const LABELS: Record<Locale, string> = { zh: "中", en: "EN" }; // i18n-allow: 语言名用其自身文字
 
 export function LocaleSwitcher({ className }: { className?: string }) {
   const t = useTranslations("common");
   const locale = useLocale();
-  const router = useRouter();
   const [pending, start] = useTransition();
 
   const choose = (next: Locale) => {
     if (next === locale) return;
-    start(async () => {
-      await setLocaleAction(next);
-      router.refresh();
-    });
+    start(() => setLocaleAction(next));
   };
 
   return (

@@ -1,1 +1,43 @@
-{}
+{
+  "title": "账号管理",
+  "total": "共 {count} 个账号",
+  "columns": {
+    "name": "名称",
+    "phone": "手机号",
+    "source": "开通方式",
+    "designs": "作品数",
+    "createdAt": "开通时间",
+    "status": "状态"
+  },
+  "adminBadge": "管理员",
+  "source": {
+    "offline": "线下开通",
+    "self": "自助注册"
+  },
+  "status": {
+    "disabled": "已停用",
+    "active": "正常"
+  },
+  "toggle": {
+    "enable": "恢复",
+    "disable": "停用",
+    "failed": "操作失败"
+  },
+  "form": {
+    "title": "线下开通账号",
+    "hint": "客户在门店消费后，在这里给他建账号，把手机号和初始密码告诉他。",
+    "phone": "手机号",
+    "name": "店铺 / 客户名称",
+    "password": "初始密码",
+    "passwordPlaceholder": "至少 8 位",
+    "submit": "开通账号",
+    "submitting": "开通中…",
+    "success": "已开通"
+  },
+  "errors": {
+    "phoneTaken": "该手机号已有账号",
+    "notFound": "账号不存在",
+    "cannotDisableAdmin": "管理员账号不能在这里停用"
+  },
+  "created": "已开通：{name}（{phone}）"
+}

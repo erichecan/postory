@@ -1,1 +1,31 @@
-{}
+{
+  "page": {
+    "title": "Business profile",
+    "subtitle": "Anything you fill in here can be added to a template in one click from the \"Business profile\" panel in the editor."
+  },
+  "onboarding": {
+    "step": "Step 1 of 1",
+    "title": "{name}, tell us about your shop",
+    "subtitle": "Fill this in once and every template can pull in your shop name, WeChat and promotion in one click — no retyping.",
+    "submit": "Save and pick a template",
+    "skip": "Skip for now →"
+  },
+  "logo": {
+    "label": "Shop logo",
+    "alt": "Shop logo",
+    "upload": "Upload image",
+    "remove": "Remove",
+    "hint": "PNG / JPG / WebP, up to 2MB, compressed automatically"
+  },
+  "fields": {
+    "shopName": { "label": "Shop name", "placeholder": "e.g. Xiaoman Coffee" },
+    "slogan": { "label": "Slogan", "placeholder": "Describe your shop in one line" },
+    "wechat": { "label": "WeChat ID", "placeholder": "The WeChat ID customers add" },
+    "phone": { "label": "Contact phone", "placeholder": "e.g. 139-0000-0000" },
+    "address": { "label": "Shop address", "placeholder": "City, district, street and number" },
+    "activity": { "label": "Go-to promotion copy", "placeholder": "e.g. National Day special: second latte half price, 10/1–10/7" }
+  },
+  "saving": "Saving…",
+  "saved": "Saved",
+  "savedMessage": "Business profile saved"
+}

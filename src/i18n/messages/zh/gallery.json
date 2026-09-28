@@ -1,1 +1,16 @@
-{}
+{
+  "title": "社交媒体模板",
+  "platformTitle": "{platform}模板",
+  "subtitle": "挑一个模板，换上你的店名、活动和微信。几分钟做出一张能发的图。",
+  "allTemplates": "全部模板",
+  "pickTemplate": "挑一个模板开始",
+  "viewDesigns": "查看我的作品",
+  "all": "全部",
+  "searchPlaceholder": "搜索模板",
+  "empty": "没有找到匹配的模板，换个关键词试试。",
+  "fullyEditable": "全部可改",
+  "openInEditor": "在编辑器中打开",
+  "loadFailed": "加载失败，点击重试",
+  "loadMore": "加载更多",
+  "end": "已经到底了 · 共 {count} 个模板"
+}

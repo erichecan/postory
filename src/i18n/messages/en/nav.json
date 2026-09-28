@@ -1,1 +1,15 @@
-{}
+{
+  "templates": "Templates",
+  "designs": "My designs",
+  "profile": "Business profile",
+  "adminAccounts": "Accounts",
+  "logout": "Log out",
+  "footer": {
+    "templates": "Templates",
+    "workspace": "Workspace",
+    "designs": "My designs",
+    "schedule": "Publishing schedule",
+    "profile": "Business profile",
+    "copyright": "© 2026 {brand} · All rights reserved"
+  }
+}

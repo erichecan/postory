@@ -1,1 +1,26 @@
-{}
+{
+  "allTemplates": "全部模板",
+  "fallbackDescription": "适用于 {platform} 的宣传模板。选中后替换成你自己的文案和图片，几分钟完成一张可发布的图。",
+  "startDesign": "用这个模板开始编辑",
+  "moreTemplates": "更多 {platform} 模板",
+  "viewAll": "查看全部",
+  "features": {
+    "editable": "模板上的文字、颜色、图片全部可以直接改",
+    "addContent": "在模板上添加文字、Logo 和图片",
+    "fillBrand": "一键填入你的店名、微信、活动文案",
+    "size": "{pages, plural, =1 {} other {# 个尺寸页面，}}{width} × {height} 像素",
+    "export": "导出高清 PNG，直接发朋友圈、小红书",
+    "schedule": "设定发布平台和时间，统一排期管理"
+  },
+  "pagination": {
+    "label": "分页",
+    "prev": "上一页",
+    "next": "下一页"
+  },
+  "carousel": {
+    "pageAlt": "{title} 第 {page} 页",
+    "prev": "上一页",
+    "next": "下一页",
+    "goTo": "第 {page} 页"
+  }
+}

@@ -2,16 +2,17 @@
 
 import type { Dispatch } from "react";
 import { Circle, Eye, EyeOff, Image as ImageIcon, Lock, Square, Type } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { plainText } from "@/components/canvas/rich-text";
 import { cn } from "@/lib/utils";
 import type { DesignElement, DesignPage } from "@/types/design";
 import type { EditorAction } from "./editor-state";
 
-function label(el: DesignElement) {
-  if (el.type === "text") return plainText(el.content).trim() || "空文字";
+function label(el: DesignElement, t: ReturnType<typeof useTranslations<"editor.layers">>) {
+  if (el.type === "text") return plainText(el.content).trim() || t("emptyText");
   if (el.name) return el.name;
-  if (el.type === "image") return "图片";
-  return el.shapeType === "circle" ? "圆形" : "矩形";
+  if (el.type === "image") return t("image");
+  return el.shapeType === "circle" ? t("circle") : t("rectangle");
 }
 
 function Icon({ el }: { el: DesignElement }) {
@@ -22,6 +23,7 @@ function Icon({ el }: { el: DesignElement }) {
 }
 
 export function LayersPanel({ page, selectedId, dispatch }: { page: DesignPage; selectedId: string | null; dispatch: Dispatch<EditorAction> }) {
+  const t = useTranslations("editor.layers");
   const items = [...page.elements].sort((a, b) => b.z - a.z);
   return (
     <ul className="flex flex-col p-2">
@@ -39,13 +41,13 @@ export function LayersPanel({ page, selectedId, dispatch }: { page: DesignPage; 
             )}
           >
             <Icon el={el} />
-            <span className="min-w-0 flex-1 truncate">{label(el)}</span>
+            <span className="min-w-0 flex-1 truncate">{label(el, t)}</span>
             {el.locked ? (
               <Lock className="size-3.5 text-muted-foreground" />
             ) : (
               <button
                 type="button"
-                aria-label={el.hidden ? "显示" : "隐藏"}
+                aria-label={el.hidden ? t("show") : t("hide")}
                 onClick={(e) => {
                   e.stopPropagation();
                   dispatch({ type: "updateElement", id: el.id, patch: { hidden: !el.hidden } });

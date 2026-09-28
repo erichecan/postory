@@ -1,1 +1,18 @@
-{}
+{
+  "platform": {
+    "instagram-post": "Instagram post",
+    "instagram-story": "Instagram story",
+    "youtube": "YouTube thumbnail",
+    "twitter": "X / Twitter",
+    "pinterest": "Pinterest",
+    "facebook": "Facebook"
+  },
+  "target": {
+    "xiaohongshu": "Xiaohongshu (RED)",
+    "wechatMoments": "WeChat Moments",
+    "douyin": "Douyin",
+    "instagram": "Instagram",
+    "facebook": "Facebook",
+    "twitter": "X / Twitter"
+  }
+}

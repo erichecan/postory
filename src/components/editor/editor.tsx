@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useReducer, useRef, useState } from "react";
 import { toast } from "sonner";
 import { PageView } from "@/components/canvas/page-view";
@@ -19,13 +20,8 @@ import { StylePanel } from "./style-panel";
 import { useAutosave } from "./use-autosave";
 import { useShortcuts } from "./use-shortcuts";
 
-const TABS = [
-  { id: "pages", label: "页面" },
-  { id: "style", label: "样式" },
-  { id: "layers", label: "图层" },
-  { id: "brand", label: "商家资料" },
-] as const;
-type Tab = (typeof TABS)[number]["id"];
+const TABS = ["pages", "style", "layers", "brand"] as const;
+type Tab = (typeof TABS)[number];
 
 export type EditorDesign = { id: string; title: string; pages: DesignPage[]; platforms: string[]; scheduledAt: string | null };
 
@@ -37,12 +33,13 @@ export function Editor({ design, brand }: { design: EditorDesign; brand: BrandFi
   const [zoom, setZoom] = useState(1);
   const [exporting, setExporting] = useState(false);
   const router = useRouter();
+  const t = useTranslations("editor");
   const exportRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
 
   const page = currentPage(state);
   const selected = selectedElement(state);
-  const { status, flush } = useAutosave(design.id, title.trim() || "未命名作品", state.pages, state.dirty + titleEdits);
+  const { status, flush } = useAutosave(design.id, title.trim() || t("untitled"), state.pages, state.dirty + titleEdits);
   useShortcuts(selected, dispatch);
 
   async function handleExport() {
@@ -50,9 +47,9 @@ export function Editor({ design, brand }: { design: EditorDesign; brand: BrandFi
     setExporting(true);
     try {
       const suffix = state.pages.length > 1 ? `-${page.name}` : "";
-      await exportNodeAsPng(exportRef.current, page, `${title || "作品"}${suffix}.png`);
+      await exportNodeAsPng(exportRef.current, page, `${title || t("exportFileName")}${suffix}.png`);
     } catch {
-      toast.error("导出失败，请重试");
+      toast.error(t("exportFailed"));
     } finally {
       setExporting(false);
     }
@@ -72,7 +69,7 @@ export function Editor({ design, brand }: { design: EditorDesign; brand: BrandFi
           setTitleEdits((n) => n + 1);
         }}
         onBack={async () => {
-          if ((await flush()) || confirm("还有改动没保存成功，确定离开吗？")) router.push("/designs");
+          if ((await flush()) || confirm(t("leaveUnsaved"))) router.push("/designs");
         }}
         status={status}
         canUndo={state.past.length > 0}
@@ -92,9 +89,9 @@ export function Editor({ design, brand }: { design: EditorDesign; brand: BrandFi
         </div>
         <aside className="flex w-[300px] shrink-0 flex-col border-l bg-[#141519]">
           <div className="flex gap-1 border-b p-2">
-            {TABS.map((t) => (
-              <button key={t.id} onClick={() => setTab(t.id)} className={cn("h-8 flex-1 rounded-md text-xs text-muted-foreground hover:text-foreground", tab === t.id && "bg-accent text-foreground")}>
-                {t.label}
+            {TABS.map((id) => (
+              <button key={id} onClick={() => setTab(id)} className={cn("h-8 flex-1 rounded-md text-xs text-muted-foreground hover:text-foreground", tab === id && "bg-accent text-foreground")}>
+                {t(`tabs.${id}`)}
               </button>
             ))}
           </div>

@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { prisma } from "./client";
 import type { Prisma } from "@/generated/prisma/client";
 import type { DesignPage } from "@/types/design";
@@ -40,6 +41,12 @@ export async function countTemplatesByPlatform() {
   const rows = await prisma.template.groupBy({ by: ["platform"], _count: { _all: true } });
   return Object.fromEntries(rows.map((r) => [r.platform, r._count._all])) as Record<string, number>;
 }
+
+export const countAllTemplatesCached = unstable_cache(
+  async () => prisma.template.count(),
+  ["template-count"],
+  { revalidate: 3600 },
+);
 
 export async function getTemplate(id: string) {
   const t = await prisma.template.findUnique({ where: { id } });

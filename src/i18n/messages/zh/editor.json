@@ -1,1 +1,102 @@
-{}
+{
+  "tabs": {
+    "pages": "页面",
+    "style": "样式",
+    "layers": "图层",
+    "brand": "商家资料"
+  },
+  "untitled": "未命名作品",
+  "exportFileName": "作品",
+  "exportFailed": "导出失败，请重试",
+  "leaveUnsaved": "还有改动没保存成功，确定离开吗？",
+  "topbar": {
+    "status": {
+      "saved": "已保存",
+      "pending": "有改动",
+      "saving": "保存中",
+      "error": "保存失败，稍后重试"
+    },
+    "back": "返回我的作品",
+    "undo": "撤销 (⌘Z)",
+    "redo": "重做 (⇧⌘Z)",
+    "exportPng": "导出 PNG"
+  },
+  "toolbar": {
+    "zoomOut": "缩小",
+    "zoomIn": "放大",
+    "addText": "添加文字",
+    "addImage": "添加图片",
+    "addRectangle": "添加矩形",
+    "addCircle": "添加圆形",
+    "defaultText": "双击编辑文字"
+  },
+  "canvas": {
+    "prevPage": "上一页",
+    "nextPage": "下一页"
+  },
+  "pages": {
+    "count": "{count} 个页面"
+  },
+  "layers": {
+    "emptyText": "空文字",
+    "image": "图片",
+    "circle": "圆形",
+    "rectangle": "矩形",
+    "show": "显示",
+    "hide": "隐藏"
+  },
+  "style": {
+    "canvasSize": "画布尺寸",
+    "background": "背景",
+    "color": "颜色",
+    "emptyHint": "点击画布上的文字、图片或色块，就能在这里修改它的样式。",
+    "locked": "模板底图已锁定。可以在上面添加文字和图片。",
+    "textContent": "文字内容",
+    "font": "字体",
+    "notoSansSc": "思源黑体（中文）",
+    "fontSize": "字",
+    "fontWeight": "字重 {weight}",
+    "fill": "填充",
+    "cornerRadius": "圆角",
+    "image": "图片",
+    "replaceImage": "换一张图片",
+    "fitCover": "填满",
+    "fitContain": "完整显示",
+    "positionSize": "位置与尺寸",
+    "bringForward": "上移",
+    "sendBackward": "下移",
+    "delete": "删除",
+    "gradient": "渐变"
+  },
+  "brand": {
+    "fields": {
+      "shopName": "店名",
+      "slogan": "口号",
+      "activity": "活动内容",
+      "wechat": "微信号",
+      "phone": "电话",
+      "address": "地址"
+    },
+    "wechatValue": "微信：{value}",
+    "phoneValue": "电话：{value}",
+    "logoName": "店铺 Logo",
+    "empty": "还没有填写商家资料。填好后，这里可以一键把店名、微信、活动放进模板。",
+    "fillProfile": "去填写商家资料 →",
+    "hintSelected": "已选中一段文字，点击下面的资料会替换它。",
+    "hintNone": "先在画布上选中一段文字再点，会直接替换；不选则新增一段文字。",
+    "replaceWithLogo": "用 Logo 替换选中图片",
+    "insertLogo": "放入店铺 Logo",
+    "editProfile": "修改商家资料 →"
+  },
+  "publish": {
+    "trigger": "设定发布",
+    "title": "设定发布计划",
+    "description": "选好要发的平台和时间，作品会出现在「我的作品」的发布计划里。",
+    "targets": "发布到",
+    "time": "发布时间",
+    "saving": "保存中…",
+    "submit": "加入发布计划",
+    "saveFailed": "保存失败",
+    "scheduled": "已加入发布计划"
+  }
+}

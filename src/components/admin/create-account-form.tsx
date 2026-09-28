@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,27 +9,28 @@ import { Label } from "@/components/ui/label";
 import { adminCreateUserAction } from "@/lib/actions/admin";
 
 export function CreateAccountForm() {
+  const t = useTranslations("admin.form");
   const [state, action, pending] = useActionState(adminCreateUserAction, undefined);
   const formRef = useRef<HTMLFormElement>(null);
   useEffect(() => {
     if (state?.ok) {
-      toast.success(state.message ?? "已开通");
+      toast.success(state.message ?? t("success"));
       formRef.current?.reset();
     }
-  }, [state]);
+  }, [state, t]);
   return (
     <form ref={formRef} action={action} className="flex flex-col gap-4 rounded-xl border bg-card p-5">
       <div>
-        <h2 className="font-semibold">线下开通账号</h2>
-        <p className="mt-1 text-xs text-muted-foreground">客户在门店消费后，在这里给他建账号，把手机号和初始密码告诉他。</p>
+        <h2 className="font-semibold">{t("title")}</h2>
+        <p className="mt-1 text-xs text-muted-foreground">{t("hint")}</p>
       </div>
       <div className="grid gap-3 sm:grid-cols-3">
-        <div className="flex flex-col gap-1.5"><Label htmlFor="a-phone">手机号</Label><Input id="a-phone" name="phone" inputMode="numeric" required className="h-9" /></div>
-        <div className="flex flex-col gap-1.5"><Label htmlFor="a-name">店铺 / 客户名称</Label><Input id="a-name" name="name" required className="h-9" /></div>
-        <div className="flex flex-col gap-1.5"><Label htmlFor="a-pass">初始密码</Label><Input id="a-pass" name="password" placeholder="至少 8 位" required className="h-9" /></div>
+        <div className="flex flex-col gap-1.5"><Label htmlFor="a-phone">{t("phone")}</Label><Input id="a-phone" name="phone" inputMode="numeric" required className="h-9" /></div>
+        <div className="flex flex-col gap-1.5"><Label htmlFor="a-name">{t("name")}</Label><Input id="a-name" name="name" required className="h-9" /></div>
+        <div className="flex flex-col gap-1.5"><Label htmlFor="a-pass">{t("password")}</Label><Input id="a-pass" name="password" placeholder={t("passwordPlaceholder")} required className="h-9" /></div>
       </div>
       {state?.error && <p className="rounded-md bg-destructive/15 px-3 py-2 text-sm text-destructive">{state.error}</p>}
-      <div><Button type="submit" disabled={pending}>{pending ? "开通中…" : "开通账号"}</Button></div>
+      <div><Button type="submit" disabled={pending}>{pending ? t("submitting") : t("submit")}</Button></div>
     </form>
   );
 }

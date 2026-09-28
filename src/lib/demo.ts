@@ -1,4 +1,4 @@
-export const DEMO_PHONE = "13900000000";
+export const DEMO_PHONE = "demo";
 
 export const DEMO_USER = { phone: DEMO_PHONE, name: "林小满" } as const;
 

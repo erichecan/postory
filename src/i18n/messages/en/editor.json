@@ -1,1 +1,102 @@
-{}
+{
+  "tabs": {
+    "pages": "Pages",
+    "style": "Style",
+    "layers": "Layers",
+    "brand": "Business"
+  },
+  "untitled": "Untitled design",
+  "exportFileName": "design",
+  "exportFailed": "Export failed. Please try again.",
+  "leaveUnsaved": "Some changes haven't been saved. Leave anyway?",
+  "topbar": {
+    "status": {
+      "saved": "Saved",
+      "pending": "Unsaved changes",
+      "saving": "Saving",
+      "error": "Couldn't save. Will retry shortly."
+    },
+    "back": "Back to My designs",
+    "undo": "Undo (⌘Z)",
+    "redo": "Redo (⇧⌘Z)",
+    "exportPng": "Export PNG"
+  },
+  "toolbar": {
+    "zoomOut": "Zoom out",
+    "zoomIn": "Zoom in",
+    "addText": "Add text",
+    "addImage": "Add image",
+    "addRectangle": "Add rectangle",
+    "addCircle": "Add circle",
+    "defaultText": "Double-click to edit"
+  },
+  "canvas": {
+    "prevPage": "Previous page",
+    "nextPage": "Next page"
+  },
+  "pages": {
+    "count": "{count, plural, one {# page} other {# pages}}"
+  },
+  "layers": {
+    "emptyText": "Empty text",
+    "image": "Image",
+    "circle": "Circle",
+    "rectangle": "Rectangle",
+    "show": "Show",
+    "hide": "Hide"
+  },
+  "style": {
+    "canvasSize": "Canvas size",
+    "background": "Background",
+    "color": "Color",
+    "emptyHint": "Click any text, image or shape on the canvas to edit its style here.",
+    "locked": "The template background is locked. You can add text and images on top of it.",
+    "textContent": "Text",
+    "font": "Font",
+    "notoSansSc": "Noto Sans SC (Chinese)",
+    "fontSize": "Aa",
+    "fontWeight": "Weight {weight}",
+    "fill": "Fill",
+    "cornerRadius": "radius",
+    "image": "Image",
+    "replaceImage": "Replace image",
+    "fitCover": "Fill",
+    "fitContain": "Fit",
+    "positionSize": "Position & size",
+    "bringForward": "Forward",
+    "sendBackward": "Backward",
+    "delete": "Delete",
+    "gradient": "Gradient"
+  },
+  "brand": {
+    "fields": {
+      "shopName": "Shop name",
+      "slogan": "Slogan",
+      "activity": "Promotion",
+      "wechat": "WeChat ID",
+      "phone": "Phone",
+      "address": "Address"
+    },
+    "wechatValue": "WeChat: {value}",
+    "phoneValue": "Tel: {value}",
+    "logoName": "Shop logo",
+    "empty": "You haven't filled in your business profile yet. Once you do, you can drop your shop name, WeChat and promotions into the template in one click.",
+    "fillProfile": "Fill in business profile →",
+    "hintSelected": "Text selected. Click an item below to replace it.",
+    "hintNone": "Select text on the canvas first to replace it, or click an item to add it as new text.",
+    "replaceWithLogo": "Replace selected image with logo",
+    "insertLogo": "Add shop logo",
+    "editProfile": "Edit business profile →"
+  },
+  "publish": {
+    "trigger": "Schedule",
+    "title": "Schedule post",
+    "description": "Pick the platforms and time. The design will appear under Scheduled in My designs.",
+    "targets": "Publish to",
+    "time": "Publish time",
+    "saving": "Saving…",
+    "submit": "Add to schedule",
+    "saveFailed": "Couldn't save",
+    "scheduled": "Added to schedule"
+  }
+}

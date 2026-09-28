@@ -1,1 +1,43 @@
-{}
+{
+  "title": "Accounts",
+  "total": "{count, plural, one {# account} other {# accounts}}",
+  "columns": {
+    "name": "Name",
+    "phone": "Phone",
+    "source": "Created via",
+    "designs": "Designs",
+    "createdAt": "Created",
+    "status": "Status"
+  },
+  "adminBadge": "Admin",
+  "source": {
+    "offline": "In store",
+    "self": "Self sign-up"
+  },
+  "status": {
+    "disabled": "Disabled",
+    "active": "Active"
+  },
+  "toggle": {
+    "enable": "Restore",
+    "disable": "Disable",
+    "failed": "Action failed"
+  },
+  "form": {
+    "title": "Create an account in store",
+    "hint": "After a customer buys in store, create their account here and give them the phone number and initial password.",
+    "phone": "Phone",
+    "name": "Shop / customer name",
+    "password": "Initial password",
+    "passwordPlaceholder": "At least 8 characters",
+    "submit": "Create account",
+    "submitting": "Creating…",
+    "success": "Account created"
+  },
+  "errors": {
+    "phoneTaken": "An account with this phone number already exists",
+    "notFound": "Account not found",
+    "cannotDisableAdmin": "Admin accounts can't be disabled here"
+  },
+  "created": "Created: {name} ({phone})"
+}

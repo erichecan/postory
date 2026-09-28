@@ -1,1 +1,26 @@
-{}
+{
+  "title": "我的作品",
+  "subtitle": "编辑过的模板都在这里；设定了发布时间的会进入发布计划。",
+  "emptyAll": "还没有作品。",
+  "goToTemplates": "去模板库挑一个 →",
+  "empty": "暂无",
+  "scheduled": "发布计划",
+  "scheduledHint": "按发布时间先后排列，显示最近 24 条",
+  "drafts": "草稿",
+  "draftsHint": "最近编辑的在前",
+  "status": {
+    "scheduled": "待发布",
+    "draft": "草稿"
+  },
+  "lastEdited": "最后编辑 {time}",
+  "continueEditing": "继续编辑",
+  "delete": {
+    "confirm": "确定删除这个作品吗？删除后无法恢复。",
+    "failed": "删除失败，作品可能已不存在",
+    "label": "删除作品"
+  },
+  "errors": {
+    "invalidData": "作品数据格式不正确",
+    "notFound": "作品不存在"
+  }
+}

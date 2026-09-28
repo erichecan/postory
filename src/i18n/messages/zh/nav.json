@@ -1,1 +1,15 @@
-{}
+{
+  "templates": "模板库",
+  "designs": "我的作品",
+  "profile": "商家资料",
+  "adminAccounts": "账号管理",
+  "logout": "退出登录",
+  "footer": {
+    "templates": "模板",
+    "workspace": "工作台",
+    "designs": "我的作品",
+    "schedule": "发布计划",
+    "profile": "商家资料",
+    "copyright": "© 2026 {brand} · 保留所有权利"
+  }
+}

@@ -1,15 +1,17 @@
 "use client";
 
 import type { Dispatch } from "react";
+import { useTranslations } from "next-intl";
 import { ScaledPage } from "@/components/canvas/page-view";
 import { cn } from "@/lib/utils";
 import type { DesignPage } from "@/types/design";
 import type { EditorAction } from "./editor-state";
 
 export function PagesPanel({ pages, pageIndex, dispatch }: { pages: DesignPage[]; pageIndex: number; dispatch: Dispatch<EditorAction> }) {
+  const t = useTranslations("editor.pages");
   return (
     <div className="flex flex-col gap-2 p-3">
-      <p className="px-1 text-xs text-muted-foreground">{pages.length} 个页面</p>
+      <p className="px-1 text-xs text-muted-foreground">{t("count", { count: pages.length })}</p>
       {pages.map((p, i) => (
         <button
           key={`${p.name}-${i}`}

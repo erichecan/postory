@@ -2,16 +2,19 @@
 
 import { useRef } from "react";
 import { ImageUp } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { ACCEPTED_IMAGE_TYPES, readImageFile } from "@/lib/image-file";
+import { ACCEPTED_IMAGE_TYPES, imageErrorKey, readImageFile } from "@/lib/image-file";
 
-export function ImageReplace({ onPick, label = "换一张图片" }: { onPick: (dataUrl: string) => void; label?: string }) {
+export function ImageReplace({ onPick, label }: { onPick: (dataUrl: string) => void; label?: string }) {
+  const t = useTranslations("editor");
+  const tv = useTranslations("validation");
   const ref = useRef<HTMLInputElement>(null);
   return (
     <>
       <button type="button" onClick={() => ref.current?.click()} className="flex h-8 items-center justify-center gap-1.5 rounded-md border text-xs hover:bg-accent">
         <ImageUp className="size-3.5" />
-        {label}
+        {label ?? t("style.replaceImage")}
       </button>
       <input
         ref={ref}
@@ -25,7 +28,7 @@ export function ImageReplace({ onPick, label = "换一张图片" }: { onPick: (d
           try {
             onPick(await readImageFile(file));
           } catch (err) {
-            toast.error(err instanceof Error ? err.message : "图片读取失败");
+            toast.error(tv(imageErrorKey(err)));
           }
         }}
       />

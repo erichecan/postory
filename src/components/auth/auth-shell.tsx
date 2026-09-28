@@ -1,5 +1,8 @@
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 import { Logo } from "@/components/brand/logo";
+import { LocaleSwitcher } from "@/components/i18n/locale-switcher";
+import { countAllTemplatesCached } from "@/lib/db/templates";
 
 const SHOWCASE = [
   "/assets/templates/orshot/orshot-2444-1.png",
@@ -8,11 +11,15 @@ const SHOWCASE = [
   "/assets/templates/orshot/orshot-2354-1.png",
 ];
 
-export function AuthShell({ children }: { children: React.ReactNode }) {
+export async function AuthShell({ children }: { children: React.ReactNode }) {
+  const [t, count] = await Promise.all([getTranslations("auth.showcase"), countAllTemplatesCached()]);
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       <div className="flex flex-col p-6 sm:p-10">
-        <Logo href="/" />
+        <div className="flex items-center justify-between">
+          <Logo href="/" />
+          <LocaleSwitcher />
+        </div>
         <div className="flex flex-1 items-center justify-center py-10">{children}</div>
       </div>
       <div className="relative hidden overflow-hidden bg-sidebar lg:block">
@@ -24,8 +31,8 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
           ))}
         </div>
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-sidebar via-sidebar/90 to-transparent p-10 pt-32">
-          <p className="text-2xl font-semibold">167 套社交媒体模板，改几个字就能发。</p>
-          <p className="mt-2 text-muted-foreground">Instagram、小红书、朋友圈、YouTube 封面，一个地方搞定。</p>
+          <p className="text-2xl font-semibold">{t("title", { count })}</p>
+          <p className="mt-2 text-muted-foreground">{t("subtitle")}</p>
         </div>
       </div>
     </div>

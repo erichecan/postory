@@ -1,1 +1,26 @@
-{}
+{
+  "allTemplates": "All templates",
+  "fallbackDescription": "A promo template for {platform}. Swap in your own copy and images and have a post-ready image in minutes.",
+  "startDesign": "Start editing this template",
+  "moreTemplates": "More {platform} templates",
+  "viewAll": "View all",
+  "features": {
+    "editable": "Every text, color and image on the template is editable",
+    "addContent": "Add text, your logo and images to the template",
+    "fillBrand": "Fill in your shop name, WeChat and promo copy in one click",
+    "size": "{pages, plural, =1 {} other {# pages · }}{width} × {height} px",
+    "export": "Export HD PNGs ready for WeChat Moments and Xiaohongshu",
+    "schedule": "Set platforms and times, and manage your schedule in one place"
+  },
+  "pagination": {
+    "label": "Pagination",
+    "prev": "Previous",
+    "next": "Next"
+  },
+  "carousel": {
+    "pageAlt": "{title}, page {page}",
+    "prev": "Previous page",
+    "next": "Next page",
+    "goTo": "Page {page}"
+  }
+}

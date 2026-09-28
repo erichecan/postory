@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
+import { TimeZoneSync } from "@/components/i18n/time-zone-sync";
 import { Toaster } from "@/components/ui/sonner";
 import fontSheets from "@/data/font-stylesheets.json";
 import "./globals.css";
@@ -27,6 +28,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <NextIntlClientProvider>
           {children}
           <Toaster />
+          <TimeZoneSync />
         </NextIntlClientProvider>
       </body>
     </html>

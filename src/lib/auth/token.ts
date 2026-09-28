@@ -7,7 +7,7 @@ export type SessionPayload = { userId: string; role: "USER" | "ADMIN" };
 
 function secret() {
   const s = process.env.AUTH_SECRET;
-  if (!s || s.length < 32) throw new Error("AUTH_SECRET 未配置或长度不足 32");
+  if (!s || s.length < 32) throw new Error("AUTH_SECRET is missing or shorter than 32 characters");
   return new TextEncoder().encode(s);
 }
 

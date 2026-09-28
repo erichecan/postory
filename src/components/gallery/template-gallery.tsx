@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { loadTemplatesAction } from "@/lib/actions/templates";
 import type { TemplateCard } from "@/lib/db/templates";
 import { CARD_CAPTION, CARD_PADDING, CARD_TITLE, GalleryCard } from "./gallery-card";
 import { MasonryGrid } from "./masonry-grid";
 
 export function TemplateGallery({ initial, hasMore: initialHasMore, platform, q }: { initial: TemplateCard[]; hasMore: boolean; platform?: string; q?: string }) {
+  const t = useTranslations("gallery");
   const [items, setItems] = useState(initial);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [page, setPage] = useState(1);
@@ -51,10 +53,10 @@ export function TemplateGallery({ initial, hasMore: initialHasMore, platform, q 
         {pending && <Loader2 className="size-5 animate-spin text-muted-foreground" />}
         {!pending && hasMore && (
           <button onClick={loadMore} className="rounded-lg border border-white/10 px-4 py-2 text-sm text-muted-foreground hover:text-foreground">
-            {error ? "加载失败，点击重试" : "加载更多"}
+            {error ? t("loadFailed") : t("loadMore")}
           </button>
         )}
-        {!hasMore && items.length > 0 && <p className="text-sm text-muted-foreground">已经到底了 · 共 {items.length} 个模板</p>}
+        {!hasMore && items.length > 0 && <p className="text-sm text-muted-foreground">{t("end", { count: items.length })}</p>}
       </div>
     </div>
   );

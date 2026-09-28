@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type Dispatch, type PointerEvent as ReactPointerEvent } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { PageView } from "@/components/canvas/page-view";
 import type { DesignElement, DesignPage } from "@/types/design";
 import type { EditorAction } from "./editor-state";
@@ -44,6 +45,7 @@ export function CanvasStage({
   dispatch: Dispatch<EditorAction>;
   onEditText: () => void;
 }) {
+  const t = useTranslations("editor.canvas");
   const wrapRef = useRef<HTMLDivElement>(null);
   const gesture = useRef<Gesture | null>(null);
   const [fit, setFit] = useState(0.5);
@@ -94,10 +96,10 @@ export function CanvasStage({
     >
       {pageCount > 1 && (
         <>
-          <button onClick={() => dispatch({ type: "page", index: pageIndex - 1 })} disabled={pageIndex === 0} aria-label="上一页" className="absolute left-5 top-1/2 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full border bg-background/80 disabled:opacity-30">
+          <button onClick={() => dispatch({ type: "page", index: pageIndex - 1 })} disabled={pageIndex === 0} aria-label={t("prevPage")} className="absolute left-5 top-1/2 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full border bg-background/80 disabled:opacity-30">
             <ChevronLeft className="size-4" />
           </button>
-          <button onClick={() => dispatch({ type: "page", index: pageIndex + 1 })} disabled={pageIndex === pageCount - 1} aria-label="下一页" className="absolute right-5 top-1/2 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full border bg-background/80 disabled:opacity-30">
+          <button onClick={() => dispatch({ type: "page", index: pageIndex + 1 })} disabled={pageIndex === pageCount - 1} aria-label={t("nextPage")} className="absolute right-5 top-1/2 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full border bg-background/80 disabled:opacity-30">
             <ChevronRight className="size-4" />
           </button>
         </>

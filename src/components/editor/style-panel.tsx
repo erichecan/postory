@@ -2,6 +2,7 @@
 
 import { forwardRef, type Dispatch } from "react";
 import { AlignCenter, AlignLeft, AlignRight, ArrowDown, ArrowUp, Lock, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import fontSheets from "@/data/font-stylesheets.json";
 import type { DesignElement, DesignPage } from "@/types/design";
 import type { EditorAction } from "./editor-state";
@@ -15,19 +16,20 @@ const selectCls = "h-8 w-full rounded-md border bg-input/30 px-2 text-xs outline
 
 export const StylePanel = forwardRef<HTMLTextAreaElement, { page: DesignPage; el: DesignElement | null; dispatch: Dispatch<EditorAction> }>(
   function StylePanel({ page, el, dispatch }, textRef) {
+    const t = useTranslations("editor.style");
     if (!el) {
       return (
         <>
-          <Section title="画布尺寸">
+          <Section title={t("canvasSize")}>
             <div className="grid grid-cols-2 gap-2">
               <NumberField label="W" value={page.width} readOnly onChange={() => {}} />
               <NumberField label="H" value={page.height} readOnly onChange={() => {}} />
             </div>
           </Section>
-          <Section title="背景">
-            <ColorField label="颜色" value={page.background} onChange={(v) => dispatch({ type: "updatePage", patch: { background: v }, key: "bg" })} />
+          <Section title={t("background")}>
+            <ColorField label={t("color")} value={page.background} onChange={(v) => dispatch({ type: "updatePage", patch: { background: v }, key: "bg" })} />
           </Section>
-          <p className="px-4 py-4 text-xs leading-relaxed text-muted-foreground">点击画布上的文字、图片或色块，就能在这里修改它的样式。</p>
+          <p className="px-4 py-4 text-xs leading-relaxed text-muted-foreground">{t("emptyHint")}</p>
         </>
       );
     }
@@ -40,11 +42,11 @@ export const StylePanel = forwardRef<HTMLTextAreaElement, { page: DesignPage; el
       <>
         {el.locked && (
           <p className="flex items-center gap-2 border-b px-4 py-3 text-xs text-muted-foreground">
-            <Lock className="size-3.5" /> 模板底图已锁定。可以在上面添加文字和图片。
+            <Lock className="size-3.5" /> {t("locked")}
           </p>
         )}
         {el.type === "text" && (
-          <Section title="文字内容">
+          <Section title={t("textContent")}>
             <textarea
               ref={textRef}
               value={plainText(el.content)}
@@ -55,19 +57,19 @@ export const StylePanel = forwardRef<HTMLTextAreaElement, { page: DesignPage; el
           </Section>
         )}
         {el.type === "text" && (
-          <Section title="字体">
+          <Section title={t("font")}>
             <select value={st.fontFamily ?? "Inter"} onChange={(e) => style({ fontFamily: e.target.value }, "ff")} className={selectCls}>
               {[...new Set([st.fontFamily ?? "Inter", ...FONT_OPTIONS])].map((f) => (
-                <option key={f} value={f}>{f === "Noto Sans SC" ? "思源黑体（中文）" : f}</option>
+                <option key={f} value={f}>{f === "Noto Sans SC" ? t("notoSansSc") : f}</option>
               ))}
             </select>
             <div className="grid grid-cols-2 gap-2">
-              <NumberField label="字" value={parseFloat(st.fontSize ?? "32")} min={4} onChange={(v) => style({ fontSize: `${v}px`, minFontSize: String(Math.min(v, parseFloat(st.minFontSize ?? "8"))) }, "fs")} suffix="px" />
+              <NumberField label={t("fontSize")} value={parseFloat(st.fontSize ?? "32")} min={4} onChange={(v) => style({ fontSize: `${v}px`, minFontSize: String(Math.min(v, parseFloat(st.minFontSize ?? "8"))) }, "fs")} suffix="px" />
               <select value={st.fontWeight ?? "400"} onChange={(e) => style({ fontWeight: e.target.value }, "fw")} className={selectCls}>
-                {WEIGHTS.map((w) => <option key={w} value={w}>字重 {w}</option>)}
+                {WEIGHTS.map((w) => <option key={w} value={w}>{t("fontWeight", { weight: w })}</option>)}
               </select>
             </div>
-            <ColorField label="颜色" value={st.color} onChange={(v) => style({ color: v }, "color")} />
+            <ColorField label={t("color")} value={st.color} onChange={(v) => style({ color: v }, "color")} />
             <Segmented
               value={st.textAlign ?? "left"}
               onChange={(v) => style({ textAlign: v }, "align")}
@@ -80,21 +82,21 @@ export const StylePanel = forwardRef<HTMLTextAreaElement, { page: DesignPage; el
           </Section>
         )}
         {el.type === "shape" && (
-          <Section title="填充">
-            <ColorField label="颜色" value={st.fill} onChange={(v) => style({ fill: v }, "fill")} />
+          <Section title={t("fill")}>
+            <ColorField label={t("color")} value={st.fill} onChange={(v) => style({ fill: v }, "fill")} />
             {el.shapeType !== "circle" && (
-              <NumberField label="R" value={parseFloat(st.borderRadius ?? "0")} min={0} onChange={(v) => style({ borderRadius: `${v}px` }, "radius")} suffix="圆角" />
+              <NumberField label="R" value={parseFloat(st.borderRadius ?? "0")} min={0} onChange={(v) => style({ borderRadius: `${v}px` }, "radius")} suffix={t("cornerRadius")} />
             )}
           </Section>
         )}
         {el.type === "image" && !el.locked && (
-          <Section title="图片">
+          <Section title={t("image")}>
             <ImageReplace onPick={(src) => set({ content: src }, "img")} />
-            <Segmented value={st.objectFit ?? "cover"} onChange={(v) => style({ objectFit: v }, "fit")} options={[{ value: "cover", label: "填满" }, { value: "contain", label: "完整显示" }]} />
+            <Segmented value={st.objectFit ?? "cover"} onChange={(v) => style({ objectFit: v }, "fit")} options={[{ value: "cover", label: t("fitCover") }, { value: "contain", label: t("fitContain") }]} />
           </Section>
         )}
         {!el.locked && (
-          <Section title="位置与尺寸">
+          <Section title={t("positionSize")}>
             <div className="grid grid-cols-2 gap-2">
               <NumberField label="X" value={el.x} onChange={(v) => set({ x: v }, "x")} />
               <NumberField label="Y" value={el.y} onChange={(v) => set({ y: v }, "y")} />
@@ -107,9 +109,9 @@ export const StylePanel = forwardRef<HTMLTextAreaElement, { page: DesignPage; el
         )}
         {!el.locked && (
           <div className="flex gap-2 px-4 py-4">
-            <button onClick={() => dispatch({ type: "reorder", id: el.id, dir: "up" })} className="flex h-8 flex-1 items-center justify-center gap-1 rounded-md border text-xs hover:bg-accent"><ArrowUp className="size-3.5" />上移</button>
-            <button onClick={() => dispatch({ type: "reorder", id: el.id, dir: "down" })} className="flex h-8 flex-1 items-center justify-center gap-1 rounded-md border text-xs hover:bg-accent"><ArrowDown className="size-3.5" />下移</button>
-            <button onClick={() => dispatch({ type: "remove", id: el.id })} className="flex h-8 flex-1 items-center justify-center gap-1 rounded-md border text-xs text-destructive hover:bg-destructive/10"><Trash2 className="size-3.5" />删除</button>
+            <button onClick={() => dispatch({ type: "reorder", id: el.id, dir: "up" })} className="flex h-8 flex-1 items-center justify-center gap-1 rounded-md border text-xs hover:bg-accent"><ArrowUp className="size-3.5" />{t("bringForward")}</button>
+            <button onClick={() => dispatch({ type: "reorder", id: el.id, dir: "down" })} className="flex h-8 flex-1 items-center justify-center gap-1 rounded-md border text-xs hover:bg-accent"><ArrowDown className="size-3.5" />{t("sendBackward")}</button>
+            <button onClick={() => dispatch({ type: "remove", id: el.id })} className="flex h-8 flex-1 items-center justify-center gap-1 rounded-md border text-xs text-destructive hover:bg-destructive/10"><Trash2 className="size-3.5" />{t("delete")}</button>
           </div>
         )}
       </>

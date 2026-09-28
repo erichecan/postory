@@ -1,1 +1,31 @@
-{}
+{
+  "page": {
+    "title": "商家资料",
+    "subtitle": "这里填的内容，在编辑器右侧「商家资料」里可以一键放进模板。"
+  },
+  "onboarding": {
+    "step": "第 1 步 / 共 1 步",
+    "title": "{name}，先告诉我们你的店",
+    "subtitle": "填一次，以后每个模板都能一键带入店名、微信和活动，不用重复打字。",
+    "submit": "保存，去挑模板",
+    "skip": "先跳过，稍后再填 →"
+  },
+  "logo": {
+    "label": "店铺 Logo",
+    "alt": "店铺 Logo",
+    "upload": "上传图片",
+    "remove": "移除",
+    "hint": "PNG / JPG / WebP，不超过 2MB，会自动压缩"
+  },
+  "fields": {
+    "shopName": { "label": "店名", "placeholder": "例如：小满咖啡" },
+    "slogan": { "label": "口号", "placeholder": "一句话介绍你的店" },
+    "wechat": { "label": "微信号", "placeholder": "顾客加你的微信号" },
+    "phone": { "label": "联系电话", "placeholder": "例如：139-0000-0000" },
+    "address": { "label": "门店地址", "placeholder": "省市区 + 街道门牌" },
+    "activity": { "label": "常用活动文案", "placeholder": "例如：国庆限定，拿铁第二杯半价，10/1–10/7" }
+  },
+  "saving": "保存中…",
+  "saved": "已保存",
+  "savedMessage": "商家资料已保存"
+}

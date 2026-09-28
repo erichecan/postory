@@ -2,9 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { getTranslations } from "next-intl/server";
 import { assertUser } from "@/lib/auth/session";
 import { upsertBrandProfile } from "@/lib/db/profiles";
-import type { FormState } from "@/lib/validation";
+import { firstError, type FormState } from "@/lib/validation";
 
 const MAX_LOGO_DATA_URL = Math.ceil((2 * 1024 * 1024 * 4) / 3) + 64;
 
@@ -12,7 +13,7 @@ const optional = (max: number) =>
   z
     .string()
     .trim()
-    .max(max, `最多 ${max} 个字`)
+    .max(max, "maxLength")
     .transform((v) => (v === "" ? null : v));
 
 const profileSchema = z.object({
@@ -24,16 +25,16 @@ const profileSchema = z.object({
   address: optional(255),
   logoUrl: z
     .string()
-    .max(MAX_LOGO_DATA_URL, "Logo 不能超过 2MB")
-    .refine((v) => v === "" || /^data:image\/(png|jpeg|webp);base64,/.test(v), "Logo 只支持 PNG、JPG、WebP")
+    .max(MAX_LOGO_DATA_URL, "logoTooLarge")
+    .refine((v) => v === "" || /^data:image\/(png|jpeg|webp);base64,/.test(v), "logoFormat")
     .transform((v) => (v === "" ? null : v)),
 });
 
 export async function saveProfileAction(_: FormState, formData: FormData): Promise<FormState> {
   const user = await assertUser();
   const parsed = profileSchema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "输入有误" };
+  if (!parsed.success) return { error: await firstError(parsed.error) };
   await upsertBrandProfile(user.id, parsed.data);
   revalidatePath("/profile");
-  return { ok: true, message: "商家资料已保存" };
+  return { ok: true, message: (await getTranslations("profile"))("savedMessage") };
 }

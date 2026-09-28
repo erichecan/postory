@@ -1,11 +1,16 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { Prisma } from "@/generated/prisma/client";
 import { createSession, destroySession } from "@/lib/auth/session";
 import { createUser, ensureDemoUser, findUserByPhone, verifyPassword } from "@/lib/db/users";
 import { DUMMY_HASH, safeNext } from "@/lib/safe-next";
 import { firstError, loginSchema, registerSchema, type FormState } from "@/lib/validation";
+
+async function authError(key: "phoneTaken" | "invalidCredentials" | "disabled" | "demoUnavailable") {
+  return (await getTranslations("auth.errors"))(key);
+}
 
 export async function registerAction(_: FormState, formData: FormData): Promise<FormState> {
   const parsed = registerSchema.safeParse(Object.fromEntries(formData));
@@ -15,7 +20,7 @@ export async function registerAction(_: FormState, formData: FormData): Promise<
     await createSession({ userId: user.id, role: user.role });
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
-      return { error: "该手机号已注册，请直接登录" };
+      return { error: await authError("phoneTaken") };
     }
     throw e;
   }
@@ -28,16 +33,16 @@ export async function loginAction(_: FormState, formData: FormData): Promise<For
   const user = await findUserByPhone(parsed.data.phone);
   const passwordOk = await verifyPassword(parsed.data.password, user?.passwordHash ?? DUMMY_HASH);
   if (!user || !passwordOk) {
-    return { error: "手机号或密码不正确" };
+    return { error: await authError("invalidCredentials") };
   }
-  if (user.disabled) return { error: "该账号已停用，请联系门店" };
+  if (user.disabled) return { error: await authError("disabled") };
   await createSession({ userId: user.id, role: user.role });
   redirect(safeNext(formData.get("next")));
 }
 
 export async function demoLoginAction(): Promise<FormState> {
   const user = await ensureDemoUser();
-  if (user.disabled || user.role !== "USER") return { error: "演示账号暂不可用，请用手机号登录" };
+  if (user.disabled || user.role !== "USER") return { error: await authError("demoUnavailable") };
   await createSession({ userId: user.id, role: user.role });
   redirect("/templates");
 }

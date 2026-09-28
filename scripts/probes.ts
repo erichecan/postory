@@ -150,6 +150,10 @@ async function main() {
   bigPages[0].elements.push({ type: "image", content: bigImage, ...{ id: "big", x: 0, y: 0, w: 1, h: 1, z: 1, rotation: 0, style: {} } });
   check("资源约束：超 2MB 图片的作品保存 → 拒绝", denied(await callAction("saveDesignAction", [design.id, { title: "big", pages: bigPages }], cookieA)));
 
+  const remotePages = structuredClone(tpl.pages) as { elements: { type: string; content?: string }[] }[];
+  remotePages[0].elements.push({ type: "image", content: "https://tracker.example/p.gif", ...{ id: "remote", x: 0, y: 0, w: 1, h: 1, z: 1, rotation: 0, style: {} } });
+  check("外链图片（可做追踪像素）的作品保存 → 拒绝", denied(await callAction("saveDesignAction", [design.id, { title: "remote", pages: remotePages }], cookieA)));
+
   await prisma.design.deleteMany({ where: { userId: { in: [a.id, b.id, admin.id] } } });
   await prisma.user.deleteMany({ where: { id: { in: [a.id, b.id, admin.id] } } });
   await prisma.$disconnect();

@@ -42,7 +42,7 @@ export async function requireAdmin(): Promise<CurrentUser> {
 
 export class AuthError extends Error {
   constructor(public status: 401 | 403) {
-    super(status === 401 ? "请先登录" : "没有权限");
+    super(status === 401 ? "Unauthorized" : "Forbidden");
   }
 }
 

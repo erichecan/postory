@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useState, useTransition } from "react";
 import { Layers, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { startDesignAction } from "@/lib/actions/designs";
 import { platformLabel } from "@/lib/platforms";
 import type { TemplateCard } from "@/lib/db/templates";
@@ -15,6 +16,8 @@ export const CARD_CAPTION = 104;
 export const CARD_TITLE: WrappingCaption<TemplateCard> = { text: (t) => t.title, font: "15px", lineHeight: 20, maxLines: 3, inset: 2 };
 
 export function GalleryCard({ t, eager }: { t: TemplateCard; eager: boolean }) {
+  const tg = useTranslations("gallery");
+  const tp = useTranslations("platforms");
   const [loaded, setLoaded] = useState(false);
   const [pending, start] = useTransition();
   const imgRef = useCallback((img: HTMLImageElement | null) => {
@@ -48,8 +51,8 @@ export function GalleryCard({ t, eager }: { t: TemplateCard; eager: boolean }) {
       <div className="flex flex-col gap-2 px-0.5 pt-3">
         <Link href={`/templates/${t.id}`} className="line-clamp-3 text-[15px] leading-5 hover:underline">{t.title}</Link>
         <div className="flex items-center gap-1.5">
-          <span className="rounded-md border border-white/10 px-1.5 py-0.5 text-[11px] leading-none text-muted-foreground">{platformLabel(t.platform)}</span>
-          {t.editable && <span className="rounded-md border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[11px] leading-none text-primary">全部可改</span>}
+          <span className="rounded-md border border-white/10 px-1.5 py-0.5 text-[11px] leading-none text-muted-foreground">{platformLabel(tp, t.platform)}</span>
+          {t.editable && <span className="rounded-md border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[11px] leading-none text-primary">{tg("fullyEditable")}</span>}
         </div>
         <div>
           <button
@@ -59,7 +62,7 @@ export function GalleryCard({ t, eager }: { t: TemplateCard; eager: boolean }) {
             className="inline-flex h-7 items-center gap-1.5 rounded-md border border-white/10 bg-white/[0.03] px-3 text-sm text-foreground/90 transition-colors hover:bg-white/[0.08] disabled:opacity-60"
           >
             {pending && <Loader2 className="size-3.5 animate-spin" />}
-            在编辑器中打开
+            {tg("openInEditor")}
           </button>
         </div>
       </div>
