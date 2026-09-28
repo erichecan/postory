@@ -11,7 +11,11 @@
       证据：commit f384234；tsc/eslint 通过
 - [x] T3 Orshot 图层渲染器 + 编辑（选中/改字/改色/换图/拖动/图层/页面）+ 导出 PNG
       证据：Playwright 实测改字、拖动、填入活动、导出 1080x1350 PNG，状态"已保存"
-- [ ] T4 账号：注册/登录/登出（已完成）+ 管理员线下开通 + 停用（未做）
-- [ ] T5 商家资料页 + onboarding（未做）；编辑器「商家资料」页签（已完成）
-- [ ] T6 作品保存 + 发布计划弹窗（已完成）/ 我的作品列表页（未做）
-- [ ] T7 verify.sh 全绿 + code-review + security-review + DEV-REPORT
+- [x] T4 账号：注册/登录/登出 + 管理员线下开通 + 停用
+      证据：浏览器实测开通"老街面馆"可登录、停用"阿杰烘焙"后登录被拒；verify 鉴权探针全过
+- [x] T5 商家资料页 + onboarding + 编辑器「商家资料」页签
+      可看物：docs/shots/20260927-onboarding.png
+- [x] T6 作品保存 / 发布计划 / 我的作品（分页）
+      可看物：docs/shots/20260927-designs.png
+- [x] T7 verify.sh 全绿 + code-review + security-review + DEV-REPORT
+      证据：docs/20260927-verify-output.txt（67 PASS / 0 FAIL）；审查发现全部处理或记入 DEV-REPORT 已知问题

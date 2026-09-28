@@ -1,0 +1,142 @@
+
+==== 类型检查 / Lint ====
+Generating route types...
+✓ Types generated successfully
+PASS  tsc --noEmit
+PASS  eslint
+
+==== 数据库迁移 ====
+◇ injected env (2) from .env.local
+Loaded Prisma config from prisma.config.ts.
+
+Prisma schema loaded from prisma/schema.prisma.
+Datasource "db": PostgreSQL database "social_shell", schema "public" at "localhost:5432"
+
+1 migration found in prisma/migrations
+
+Database schema is up to date!
+PASS  prisma migrate status
+PASS  Template 数量 = 167（实际 167）
+
+==== 生产构建 ====
+▲ Next.js 16.3.6 (Turbopack)
+- Environments: .env.local
+✓ Running next.config.ts took 10ms
+- Experiments (use with caution):
+  · serverActions
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 1048ms
+  Running TypeScript ...
+  Finished TypeScript in 1357ms ...
+  Collecting page data using 9 workers ...
+  Generating static pages using 9 workers (0/11) ...
+  Generating static pages using 9 workers (2/11) 
+  Generating static pages using 9 workers (5/11) 
+  Generating static pages using 9 workers (8/11) 
+✓ Generating static pages using 9 workers (11/11) in 122ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ○ /_not-found
+├ ƒ /admin/accounts
+├ ƒ /designs
+├ ƒ /editor/[designId]
+├ ƒ /login
+├ ƒ /onboarding
+├ ƒ /profile
+├ ƒ /register
+├ ƒ /templates
+└ ƒ /templates/[id]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+PASS  next build
+
+==== 启动生产服务 :3010 ====
+
+==== 路由 + 鉴权 + 资源约束探针 ====
+## 登录跳转白名单
+PASS  next="//evil.com" → 站内
+PASS  next="/\\evil.com" → 站内
+PASS  next="/\t/evil.com" → 站内
+PASS  next="https://evil.com" → 站内
+PASS  next="/%5Cevil.com" → 站内
+PASS  next=/designs?x=1 保留
+## 路由探针
+PASS  GET /templates 登录用户  (status=200)
+PASS  GET /templates?platform=youtube&page=2 登录用户  (status=200)
+PASS  GET /templates/orshot-2444 登录用户  (status=200)
+PASS  GET /designs 登录用户  (status=200)
+PASS  GET /profile 登录用户  (status=200)
+PASS  GET /onboarding 登录用户  (status=200)
+PASS  GET /editor/cmukk9ef50003gvsicaj4zgk5 登录用户  (status=200)
+PASS  GET /login 公开  (status=200)
+PASS  GET /register 公开  (status=200)
+PASS  GET /admin/accounts 管理员
+PASS  GET /templates/不存在 → 404
+## 鉴权探针（页面）
+PASS  无 token /templates → 跳登录  (status=307)
+PASS  伪造 token /templates → 跳登录  (status=307)
+PASS  无 token /designs → 跳登录  (status=307)
+PASS  伪造 token /designs → 跳登录  (status=307)
+PASS  无 token /admin/accounts → 跳登录  (status=307)
+PASS  伪造 token /admin/accounts → 跳登录  (status=307)
+PASS  无 token /editor/cmukk9ef50003gvsicaj4zgk5 → 跳登录  (status=307)
+PASS  伪造 token /editor/cmukk9ef50003gvsicaj4zgk5 → 跳登录  (status=307)
+PASS  普通用户 /admin/accounts → 拒绝  (status=307)
+PASS  普通用户伪造 role=ADMIN → 拒绝（以数据库角色为准）  (status=307)
+PASS  用户 B 打开用户 A 的作品 → 404
+## 鉴权探针（写操作 Server Actions）
+PASS  无 token saveDesignAction → 跳登录（≈401）
+PASS  伪造 token saveDesignAction → 跳登录（≈401）
+PASS  无 token scheduleDesignAction → 跳登录（≈401）
+PASS  伪造 token scheduleDesignAction → 跳登录（≈401）
+PASS  无 token deleteDesignAction → 跳登录（≈401）
+PASS  伪造 token deleteDesignAction → 跳登录（≈401）
+PASS  无 token adminToggleUserAction → 跳登录（≈401）
+PASS  伪造 token adminToggleUserAction → 跳登录（≈401）
+PASS  无 token adminCreateUserAction → 跳登录（≈401）
+PASS  伪造 token adminCreateUserAction → 跳登录（≈401）
+PASS  无 token saveProfileAction → 跳登录（≈401）
+PASS  伪造 token saveProfileAction → 跳登录（≈401）
+PASS  用户 B 保存用户 A 的作品 → 拒绝（≈403）
+PASS  用户 B 删除用户 A 的作品 → 拒绝（≈403）
+PASS  普通用户停用他人账号 → 拒绝（≈403）
+PASS  普通用户开通账号后用户总数不变
+PASS  普通用户开通账号 → 拒绝（≈403）
+PASS  伪造 role=ADMIN 停用他人 → 拒绝（≈403）
+PASS  以上攻击后 A 的作品未被修改/删除  (title=probe-original)
+PASS  以上攻击后 B 账号未被停用
+PASS  用户 A 保存自己的作品 → 成功  (status=200)
+PASS  管理员停用管理员账号 → 拒绝
+PASS  发布时间早于现在 → 拒绝
+PASS  发布时间在未来 → 成功
+PASS  资源约束：超 2MB 图片的作品保存 → 拒绝
+
+全部通过
+PASS  probes
+
+==== 查询探针 ====
+PASS  listOwnDesigns 查询数不随数据量增长  (10 条=5 次，200 条=5 次)
+PASS  listTemplates 查询数与页码无关  (第 1 页=3 次，第 7 页=3 次)
+PASS  我的作品草稿分页  (每页 24 条，共 9 页)
+PASS  模板列表分页  (每页 24 条，共 7 页)
+PASS  query-probe
+
+==== 密码存储 ====
+PASS  User.passwordHash 全部为 bcrypt（非 bcrypt 数=0）
+
+==== 性能基线（autocannon 10s，/templates 与 /templates/[id]） ====
+INFO  /templates  p50=35ms  p97.5=46ms  req/s=275  non2xx=0
+PASS  性能 /templates p97.5 < 300ms 且无非 2xx
+INFO  /templates/orshot-2427  p50=22ms  p97.5=27ms  req/s=435  non2xx=0
+PASS  性能 /templates/orshot-2427 p97.5 < 300ms 且无非 2xx
+
+==== 结论 ====
+VERIFY PASS
