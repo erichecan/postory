@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { readFileSync } from "node:fs";
 import { PrismaClient, type Prisma } from "../src/generated/prisma/client";
+import { DEMO_PROFILE, DEMO_USER } from "../src/lib/demo";
 
 type CatalogEntry = {
   id: string;
@@ -65,23 +66,8 @@ async function main() {
 
   const demo = await bcrypt.hash("demo12345", 10);
   await prisma.user.upsert({
-    where: { phone: "13900000000" },
-    create: {
-      phone: "13900000000",
-      name: "林小满",
-      passwordHash: demo,
-      source: "OFFLINE",
-      profile: {
-        create: {
-          shopName: "小满咖啡",
-          wechat: "xiaoman_coffee",
-          phone: "139-0000-0000",
-          address: "上海市徐汇区武康路 88 号",
-          slogan: "每一杯都是今天的小满足",
-          activity: "国庆限定：拿铁第二杯半价，10/1–10/7",
-        },
-      },
-    },
+    where: { phone: DEMO_USER.phone },
+    create: { ...DEMO_USER, passwordHash: demo, source: "OFFLINE", profile: { create: DEMO_PROFILE } },
     update: {},
   });
 

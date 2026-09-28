@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { Prisma } from "@/generated/prisma/client";
 import { createSession, destroySession } from "@/lib/auth/session";
-import { createUser, findUserByPhone, verifyPassword } from "@/lib/db/users";
+import { createUser, ensureDemoUser, findUserByPhone, verifyPassword } from "@/lib/db/users";
 import { DUMMY_HASH, safeNext } from "@/lib/safe-next";
 import { firstError, loginSchema, registerSchema, type FormState } from "@/lib/validation";
 
@@ -33,6 +33,13 @@ export async function loginAction(_: FormState, formData: FormData): Promise<For
   if (user.disabled) return { error: "该账号已停用，请联系门店" };
   await createSession({ userId: user.id, role: user.role });
   redirect(safeNext(formData.get("next")));
+}
+
+export async function demoLoginAction(): Promise<FormState> {
+  const user = await ensureDemoUser();
+  if (user.disabled || user.role !== "USER") return { error: "演示账号暂不可用，请用手机号登录" };
+  await createSession({ userId: user.id, role: user.role });
+  redirect("/templates");
 }
 
 export async function logoutAction() {
