@@ -10,6 +10,9 @@ const prisma = new PrismaClient({
 });
 
 async function main() {
+  if (process.env.NODE_ENV === "production" || !/@(localhost|127\.0\.0\.1)[:/]/.test(process.env.DATABASE_URL ?? "")) {
+    throw new Error("seed 只允许在本地数据库运行（含公开的演示账号密码）");
+  }
   for (const t of catalog) {
     const data = {
       source: t.source,

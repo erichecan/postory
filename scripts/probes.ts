@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient, type Prisma } from "../src/generated/prisma/client";
 import { SESSION_COOKIE, signSession } from "../src/lib/auth/token";
+import { safeNext } from "../src/lib/safe-next";
 
 const BASE = process.argv[2] ?? "http://localhost:3010";
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
@@ -52,6 +53,9 @@ async function ensureUser(phone: string, name: string, role: "USER" | "ADMIN") {
 }
 
 async function main() {
+  if (!/^http:\/\/localhost:/.test(BASE) || !/@(localhost|127\.0\.0\.1)[:/]/.test(process.env.DATABASE_URL ?? "")) {
+    throw new Error("探针会创建临时管理员账号，只允许对本地服务与本地数据库运行");
+  }
   const a = await ensureUser("19900000001", "探针用户A", "USER");
   const b = await ensureUser("19900000002", "探针用户B", "USER");
   const admin = await ensureUser("19900000009", "探针管理员", "ADMIN");
@@ -66,6 +70,12 @@ async function main() {
   const cookieAdmin = await ck(admin.id, "ADMIN");
   const forged = `${SESSION_COOKIE}=eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJ4Iiwicm9sZSI6IkFETUlOIn0.forged`;
   const adminForged = `${SESSION_COOKIE}=${await signSession({ userId: a.id, role: "ADMIN" })}`;
+
+  console.log("## 登录跳转白名单");
+  for (const evil of ["//evil.com", "/\\evil.com", "/\t/evil.com", "https://evil.com", "/%5Cevil.com"]) {
+    check(`next=${JSON.stringify(evil)} → 站内`, safeNext(evil).startsWith("/") && !safeNext(evil).startsWith("//") && new URL(safeNext(evil), "http://x").host === "x");
+  }
+  check("next=/designs?x=1 保留", safeNext("/designs?x=1") === "/designs?x=1");
 
   console.log("## 路由探针");
   const userRoutes = ["/templates", "/templates?platform=youtube&page=2", `/templates/${tpl.id}`, "/designs", "/profile", "/onboarding", `/editor/${design.id}`];
@@ -129,7 +139,8 @@ async function main() {
   bigPages[0].elements.push({ type: "image", content: bigImage, ...{ id: "big", x: 0, y: 0, w: 1, h: 1, z: 1, rotation: 0, style: {} } });
   check("资源约束：超 2MB 图片的作品保存 → 拒绝", denied(await callAction("saveDesignAction", [design.id, { title: "big", pages: bigPages }], cookieA)));
 
-  await prisma.design.delete({ where: { id: design.id } });
+  await prisma.design.deleteMany({ where: { userId: { in: [a.id, b.id, admin.id] } } });
+  await prisma.user.deleteMany({ where: { id: { in: [a.id, b.id, admin.id] } } });
   await prisma.$disconnect();
   console.log(failures ? `\n${failures} 项失败` : "\n全部通过");
   process.exit(failures ? 1 : 0);
