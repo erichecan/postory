@@ -6,11 +6,11 @@ import { z } from "zod";
 import { Prisma } from "@/generated/prisma/client";
 import { assertAdmin } from "@/lib/auth/session";
 import { createUser, findUserRole, setUserDisabled } from "@/lib/db/users";
-import { firstError, registerSchema, type FormState } from "@/lib/validation";
+import { firstError, offlineAccountSchema, type FormState } from "@/lib/validation";
 
 export async function adminCreateUserAction(_: FormState, formData: FormData): Promise<FormState> {
   await assertAdmin();
-  const parsed = registerSchema.safeParse(Object.fromEntries(formData));
+  const parsed = offlineAccountSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: await firstError(parsed.error) };
   const t = await getTranslations("admin");
   try {

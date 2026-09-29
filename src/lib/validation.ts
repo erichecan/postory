@@ -6,8 +6,15 @@ export const phoneSchema = z.string().trim().regex(/^1\d{10}$/, "phoneInvalid");
 export const passwordSchema = z.string().min(8, "passwordMin").max(64, "passwordMax");
 export const nameSchema = z.string().trim().min(1, "nameRequired").max(64, "nameMax");
 
-export const registerSchema = z.object({ phone: phoneSchema, name: nameSchema, password: passwordSchema });
-export const loginSchema = z.object({ phone: phoneSchema, password: z.string().min(1, "passwordRequired") });
+export const emailSchema = z.string().trim().toLowerCase().max(254, "emailInvalid").pipe(z.email("emailInvalid"));
+export const identifierSchema = z.union([emailSchema, phoneSchema], { error: "identifierInvalid" });
+export const codeSchema = z.string().trim().regex(/^\d{6}$/, "codeInvalid");
+
+export const registerSchema = z.object({ email: emailSchema, name: nameSchema, password: passwordSchema });
+export const offlineAccountSchema = z.object({ phone: phoneSchema, name: nameSchema, password: passwordSchema });
+export const loginSchema = z.object({ identifier: z.string().trim().toLowerCase().pipe(identifierSchema), password: z.string().min(1, "passwordRequired") });
+export const resetRequestSchema = z.object({ email: emailSchema });
+export const resetSchema = z.object({ email: emailSchema, token: z.string().min(20).max(100), password: passwordSchema });
 
 export type FormState = { error?: string; ok?: boolean; message?: string } | undefined;
 

@@ -18,5 +18,8 @@
   "imageReadFailed": "Couldn't read the image",
   "imageProcessFailed": "Couldn't process the image",
   "imageSource": "Images must be uploaded or come from a template",
-  "uploadTooLarge": "Image must be 15MB or smaller"
+  "uploadTooLarge": "Image must be 15MB or smaller",
+  "emailInvalid": "Enter a valid email address",
+  "identifierInvalid": "Enter your email or phone number",
+  "codeInvalid": "Enter the 6-digit code"
 }

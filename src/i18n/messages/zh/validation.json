@@ -18,5 +18,8 @@
   "imageReadFailed": "图片读取失败",
   "imageProcessFailed": "图片处理失败",
   "imageSource": "图片只能来自上传或模板素材",
-  "uploadTooLarge": "图片不能超过 15MB"
+  "uploadTooLarge": "图片不能超过 15MB",
+  "emailInvalid": "请输入有效的邮箱地址",
+  "identifierInvalid": "请输入邮箱或 11 位手机号",
+  "codeInvalid": "请输入 6 位数字验证码"
 }

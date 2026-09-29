@@ -3,11 +3,13 @@ import { OnboardingForm } from "@/components/profile/onboarding-form";
 import { requireUser } from "@/lib/auth/session";
 import { getBrandProfile } from "@/lib/db/profiles";
 
-export default async function OnboardingPage() {
+export default async function OnboardingPage({ searchParams }: PageProps<"/onboarding">) {
   const user = await requireUser();
-  const [profile, t] = await Promise.all([getBrandProfile(user.id), getTranslations("profile.onboarding")]);
+  const { gift } = await searchParams;
+  const [profile, t, tv] = await Promise.all([getBrandProfile(user.id), getTranslations("profile.onboarding"), getTranslations("auth.verify")]);
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-8">
+      {gift === "1" && <p className="mb-6 rounded-lg bg-emerald-500/15 px-4 py-3 text-sm text-emerald-300">{tv("gift")}</p>}
       <p className="text-sm text-primary">{t("step")}</p>
       <h1 className="mt-2 text-2xl font-semibold tracking-tight">{t("title", { name: user.name })}</h1>
       <p className="mt-1 mb-8 text-sm text-muted-foreground">{t("subtitle")}</p>

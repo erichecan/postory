@@ -23,7 +23,8 @@ export async function destroySession() {
 export const getCurrentUser = cache(async () => {
   const session = await verifySession((await cookies()).get(SESSION_COOKIE)?.value);
   if (!session) return null;
-  return findActiveSessionUser(session.userId);
+  const user = await findActiveSessionUser(session.userId);
+  return user && user.sessionVersion === (session.sv ?? 0) ? user : null;
 });
 
 export type CurrentUser = NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>;

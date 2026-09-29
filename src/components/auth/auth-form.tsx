@@ -16,10 +16,12 @@ export function AuthForm({
   mode,
   action,
   next,
+  notice,
 }: {
   mode: Mode;
   action: (state: FormState, data: FormData) => Promise<FormState>;
   next?: string;
+  notice?: string;
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
   const t = useTranslations("auth");
@@ -33,10 +35,17 @@ export function AuthForm({
         </p>
       </div>
       {next && <input type="hidden" name="next" value={next} />}
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="phone">{t("phone")}</Label>
-        <Input id="phone" name="phone" inputMode="numeric" autoComplete="tel" placeholder={t("phonePlaceholder")} required className="h-10" />
-      </div>
+      {mode === "login" ? (
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="identifier">{t("identifier")}</Label>
+          <Input id="identifier" name="identifier" autoComplete="username" placeholder={t("identifierPlaceholder")} required className="h-10" />
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="email">{t("email")}</Label>
+          <Input id="email" name="email" type="email" autoComplete="email" placeholder={t("emailPlaceholder")} required className="h-10" />
+        </div>
+      )}
       {mode === "register" && (
         <div className="flex flex-col gap-2">
           <Label htmlFor="name">{t("shopName")}</Label>
@@ -44,7 +53,10 @@ export function AuthForm({
         </div>
       )}
       <div className="flex flex-col gap-2">
-        <Label htmlFor="password">{t("password")}</Label>
+        <div className="flex items-baseline justify-between">
+          <Label htmlFor="password">{t("password")}</Label>
+          {mode === "login" && <Link href="/forgot-password" className="text-xs text-muted-foreground hover:text-foreground">{t("forgotLink")}</Link>}
+        </div>
         <Input
           id="password"
           name="password"
@@ -55,6 +67,7 @@ export function AuthForm({
           className="h-10"
         />
       </div>
+      {notice && !state?.error && <p className="rounded-md bg-emerald-500/15 px-3 py-2 text-sm text-emerald-300">{notice}</p>}
       {state?.error && <p className="rounded-md bg-destructive/15 px-3 py-2 text-sm text-destructive">{state.error}</p>}
       <Button type="submit" size="lg" className="h-10" disabled={pending}>
         {pending ? tc("loading") : t(`${mode}.submit`)}

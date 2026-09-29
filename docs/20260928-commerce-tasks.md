@@ -16,11 +16,14 @@
       偏离 DEV-PLAN：CreditGrant 加 unit(CREDIT|VIDEO)；CreditTxn 用 allocations Json 记录分摊（替代 grantId），@@unique(userId,kind,refId) 保证幂等；MembershipTier 加 slug/tagline/features/recommended
       遗留：/admin/accounts/[id] 仍是假数据（C3）；联系微信号待用户提供，用 NEXT_PUBLIC_CONTACT_WECHAT 配置
       依赖：C0 确认
-- [ ] C2 账号改造：邮箱注册、验证码、赠送 10、找回密码
+- [x] C2 账号改造：邮箱注册、验证码、赠送 10、找回密码
       验收命令：verify.sh 鉴权 + 赠送幂等
-      可看物：docs/shots/20260928-c2-*.png
+      可看物：docs/shots/20260928-c2-{register,verify,banner,gift,membership-gift,login,forgot-sent}.png
       定性状态：待你确认
-      证据：—
+      证据：VERIFY PASS 137 项；auth-probe 23/23（注册跳验证、邮箱小写、重复邮箱拒绝、60s 重发限流、错 5 次作废、过期拒绝、正确码送 10 仅模板且不重复送、邮箱大小写不敏感登录、找回密码不泄露是否注册、错/重复 token 拒绝、重设后旧会话失效、手机号老账号可登录）
+      偏离 DEV-PLAN：新增 User.sessionVersion（重设密码后旧会话失效）
+      上线前必须：Cloud Run 配 APP_URL（重设链接域名，生产缺失会报错，防 Host 头伪造）、RESEND_API_KEY + MAIL_FROM（没有时验证码只打印在日志里，线上用户收不到）
+      遗留：后台线下开通仍用手机号（C3 改为邮箱）；老手机号账号没有邮箱，收不到收据和找回密码
       依赖：C1
 - [ ] C3 后台：等级、客户方案、线下开通、调整 credit、流水
       验收命令：verify.sh admin 探针
