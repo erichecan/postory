@@ -61,7 +61,8 @@
     "unitPrice": "单价",
     "total": "合计",
     "submit": "去付款",
-    "needPlan": "开通会员后可以自助充值"
+    "needPlan": "开通会员后可以自助充值",
+    "demoNoTopup": "演示账号不能充值"
   },
   "insufficient": {
     "title": "credit 不够了",
@@ -69,7 +70,9 @@
     "templateOnlyHint": "注册赠送的额度只能用于模板出图。",
     "topup": "充值",
     "openPlan": "开通会员",
-    "later": "稍后再说"
+    "later": "稍后再说",
+    "verifyGift": "先验证邮箱，免费领 10 个模板",
+    "verifyAction": "去验证"
   },
   "txns": {
     "title": "消耗记录",

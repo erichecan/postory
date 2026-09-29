@@ -9,24 +9,24 @@ import { TxnTable } from "@/components/billing/txn-table";
 import { Pagination } from "@/components/templates/pagination";
 import { requireUser } from "@/lib/auth/session";
 import { getBalance, listTxns } from "@/lib/db/credits";
+import { getEntitlements } from "@/lib/db/entitlements";
 import { getPlanView, listTiers } from "@/lib/db/plans";
-import { DEMO_PHONE } from "@/lib/demo";
 
 export default async function MembershipPage({ searchParams }: PageProps<"/membership">) {
   const user = await requireUser();
   const { page } = await searchParams;
   const txnPage = Math.max(1, Number.parseInt(typeof page === "string" ? page : "1", 10) || 1);
   const locale = await getLocale();
-  const [t, tn, tp, plan, balance, txns] = await Promise.all([
+  const [t, tn, tp, plan, balance, txns, ent] = await Promise.all([
     getTranslations("billing.page"),
     getTranslations("billing.plan.none"),
     getTranslations("plans"),
     getPlanView(user.id, locale),
     getBalance(user.id),
     listTxns(user.id, txnPage),
+    getEntitlements(user.id),
   ]);
   const tiers = plan ? [] : await listTiers(locale);
-  const canTopup = plan?.status === "ACTIVE" && user.phone !== DEMO_PHONE;
 
   return (
     <div className="mx-auto flex max-w-[1080px] flex-col gap-8 px-4 py-10">
@@ -49,7 +49,7 @@ export default async function MembershipPage({ searchParams }: PageProps<"/membe
           </section>
         )}
         <div className="flex flex-col gap-5">
-          <BalanceCard balance={balance} topup={canTopup && plan ? { currency: plan.currency, unitPrice: plan.topupUnitPrice } : null} />
+          <BalanceCard balance={balance} topup={ent.topup} blocked={ent.topupBlocked} />
           <CostRules />
         </div>
       </div>

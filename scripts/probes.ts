@@ -143,7 +143,7 @@ async function main() {
   const past = await callAction("scheduleDesignAction", [design.id, { platforms: ["xiaohongshu"], scheduledAt: "2020-01-01T00:00:00.000Z" }], cookieA);
   check("发布时间早于现在 → 拒绝", /"ok":false/.test(past.body));
   const future = await callAction("scheduleDesignAction", [design.id, { platforms: ["xiaohongshu"], scheduledAt: new Date(Date.now() + 86400000).toISOString() }], cookieA);
-  check("发布时间在未来 → 成功", /"ok":true/.test(future.body));
+  check("没有会员时加入发布计划 → 拒绝（付费墙，见 paywall-probe）", /"code":"needPlan"/.test(future.body));
 
   const bigImage = "data:image/png;base64," + "A".repeat(3 * 1024 * 1024);
   const bigPages = structuredClone(tpl.pages) as { elements: { type: string; content?: string }[] }[];

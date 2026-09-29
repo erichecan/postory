@@ -97,6 +97,16 @@
     "saving": "保存中…",
     "submit": "加入发布计划",
     "saveFailed": "保存失败",
-    "scheduled": "已加入发布计划"
+    "scheduled": "已加入发布计划",
+    "needPlan": "开通会员后才能加入发布计划",
+    "needPlanLink": "查看会员",
+    "platformNotAllowed": "有平台不在你的方案里",
+    "insufficient": "credit 不够了",
+    "locked": "加开这个平台请联系我们",
+    "chargeNote": "加入发布计划时扣 1 credit，同一个作品只扣一次"
+  },
+  "charge": {
+    "exported": "已导出 · 扣 1 credit",
+    "exportedFree": "已导出（这个作品之前扣过，不再扣）"
   }
 }

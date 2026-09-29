@@ -61,7 +61,8 @@
     "unitPrice": "Unit price",
     "total": "Total",
     "submit": "Pay now",
-    "needPlan": "Top-ups are available to members"
+    "needPlan": "Top-ups are available to members",
+    "demoNoTopup": "Top-ups aren't available on the demo account"
   },
   "insufficient": {
     "title": "Not enough credits",
@@ -69,7 +70,9 @@
     "templateOnlyHint": "Sign-up gift credits can only be used on templates.",
     "topup": "Top up",
     "openPlan": "Become a member",
-    "later": "Maybe later"
+    "later": "Maybe later",
+    "verifyGift": "Verify your email first to get 10 free templates",
+    "verifyAction": "Verify"
   },
   "txns": {
     "title": "Activity",

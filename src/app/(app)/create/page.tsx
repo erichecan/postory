@@ -1,15 +1,14 @@
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { CreateStudio } from "@/components/create/create-studio";
 import { requireUser } from "@/lib/auth/session";
 import { getBalance } from "@/lib/db/credits";
-import { getPlanView } from "@/lib/db/plans";
+import { getEntitlements } from "@/lib/db/entitlements";
 import { getBrandProfile } from "@/lib/db/profiles";
 import { DEMO_PHONE } from "@/lib/demo";
 
 export default async function CreatePage() {
   const user = await requireUser();
-  const locale = await getLocale();
-  const [t, profile, plan, balance] = await Promise.all([getTranslations("create.page"), getBrandProfile(user.id), getPlanView(user.id, locale), getBalance(user.id)]);
+  const [t, profile, balance, ent] = await Promise.all([getTranslations("create.page"), getBrandProfile(user.id), getBalance(user.id), getEntitlements(user.id)]);
   const isDemo = user.phone === DEMO_PHONE;
 
   return (
@@ -23,7 +22,7 @@ export default async function CreatePage() {
         initialBalance={balance.total}
         aiBalance={balance.total - balance.templateOnly}
         isDemo={isDemo}
-        topup={plan?.status === "ACTIVE" && !isDemo ? { currency: plan.currency, unitPrice: plan.topupUnitPrice } : null}
+        topup={ent.topup}
       />
     </div>
   );

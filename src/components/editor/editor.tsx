@@ -4,7 +4,11 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useReducer, useRef, useState } from "react";
 import { toast } from "sonner";
+import { InsufficientDialog } from "@/components/billing/insufficient-dialog";
+import { TopupDialog } from "@/components/billing/topup-dialog";
 import { PageView } from "@/components/canvas/page-view";
+import { chargeDesignAction } from "@/lib/actions/billing";
+import type { Currency } from "@/types/commerce";
 import { cn } from "@/lib/utils";
 import type { DesignPage } from "@/types/design";
 import { BottomToolbar } from "./bottom-toolbar";
@@ -24,14 +28,17 @@ const TABS = ["pages", "style", "layers", "brand"] as const;
 type Tab = (typeof TABS)[number];
 
 export type EditorDesign = { id: string; title: string; pages: DesignPage[]; platforms: string[]; scheduledAt: string | null };
+export type EditorBilling = { hasPlan: boolean; allowedPlatforms: string[]; topup: { currency: Currency; unitPrice: number } | null; canClaimGift: boolean };
 
-export function Editor({ design, brand }: { design: EditorDesign; brand: BrandFields | null }) {
+export function Editor({ design, brand, billing }: { design: EditorDesign; brand: BrandFields | null; billing: EditorBilling }) {
   const [state, dispatch] = useReducer(editorReducer, design.pages, initEditor);
   const [title, setTitle] = useState(design.title);
   const [titleEdits, setTitleEdits] = useState(0);
   const [tab, setTab] = useState<Tab>("style");
   const [zoom, setZoom] = useState(1);
   const [exporting, setExporting] = useState(false);
+  const [short, setShort] = useState<{ need: number; have: number } | null>(null);
+  const [topupOpen, setTopupOpen] = useState(false);
   const router = useRouter();
   const t = useTranslations("editor");
   const exportRef = useRef<HTMLDivElement>(null);
@@ -46,8 +53,16 @@ export function Editor({ design, brand }: { design: EditorDesign; brand: BrandFi
     if (!exportRef.current) return;
     setExporting(true);
     try {
+      await flush();
+      const charge = await chargeDesignAction(design.id);
+      if (!charge.ok) {
+        if (charge.reason === "insufficient") setShort({ need: charge.need, have: charge.have });
+        else toast.error(t("exportFailed"));
+        return;
+      }
       const suffix = state.pages.length > 1 ? `-${page.name}` : "";
       await exportNodeAsPng(exportRef.current, page, `${title || t("exportFileName")}${suffix}.png`);
+      toast.success(t(charge.duplicate ? "charge.exportedFree" : "charge.exported"));
     } catch {
       toast.error(t("exportFailed"));
     } finally {
@@ -78,7 +93,17 @@ export function Editor({ design, brand }: { design: EditorDesign; brand: BrandFi
         onRedo={() => dispatch({ type: "redo" })}
         onExport={handleExport}
         exporting={exporting}
-        publish={<PublishDialog designId={design.id} initialPlatforms={design.platforms} initialAt={design.scheduledAt ? new Date(design.scheduledAt) : null} beforeSubmit={flush} />}
+        publish={
+          <PublishDialog
+            designId={design.id}
+            initialPlatforms={design.platforms.filter((p) => billing.allowedPlatforms.includes(p))}
+            initialAt={design.scheduledAt ? new Date(design.scheduledAt) : null}
+            beforeSubmit={flush}
+            hasPlan={billing.hasPlan}
+            allowedPlatforms={billing.allowedPlatforms}
+            onInsufficient={(need, have) => setShort({ need, have })}
+          />
+        }
       />
       <div className="flex min-h-0 flex-1">
         <div className="relative flex min-w-0 flex-1 flex-col">
@@ -103,6 +128,31 @@ export function Editor({ design, brand }: { design: EditorDesign; brand: BrandFi
           </div>
         </aside>
       </div>
+      <InsufficientDialog
+        open={short !== null}
+        onOpenChange={(o) => !o && setShort(null)}
+        need={short?.need ?? 1}
+        have={short?.have ?? 0}
+        hasPlan={billing.topup !== null}
+        templateOnlyExcluded={false}
+        canClaimGift={billing.canClaimGift}
+        onTopup={() => {
+          setShort(null);
+          setTopupOpen(true);
+        }}
+      />
+      {billing.topup && (
+        <TopupDialog
+          open={topupOpen}
+          onOpenChange={setTopupOpen}
+          currency={billing.topup.currency}
+          unitPrice={billing.topup.unitPrice}
+          onSubmit={() => {
+            setTopupOpen(false);
+            router.push("/membership");
+          }}
+        />
+      )}
       <div aria-hidden className="pointer-events-none fixed left-[-100000px] top-0">
         <PageView ref={exportRef} page={page} />
       </div>

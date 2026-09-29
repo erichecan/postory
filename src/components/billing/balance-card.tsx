@@ -16,7 +16,7 @@ function Meter({ value, max }: { value: number; max: number }) {
   );
 }
 
-export function BalanceCard({ balance, topup }: { balance: BalanceView; topup: { currency: Currency; unitPrice: number } | null }) {
+export function BalanceCard({ balance, topup, blocked = "noPlan" }: { balance: BalanceView; topup: { currency: Currency; unitPrice: number } | null; blocked?: "demo" | "noPlan" | null }) {
   const t = useTranslations("billing.balance");
   const tt = useTranslations("billing.topup");
   const format = useFormatter();
@@ -34,7 +34,7 @@ export function BalanceCard({ balance, topup }: { balance: BalanceView; topup: {
         {topup ? (
           <Button size="lg" onClick={() => setOpen(true)}>{t("topup")}</Button>
         ) : (
-          <span className="max-w-40 text-right text-xs text-muted-foreground">{tt("needPlan")}</span>
+          <span className="max-w-40 text-right text-xs text-muted-foreground">{tt(blocked === "demo" ? "demoNoTopup" : "needPlan")}</span>
         )}
       </div>
 

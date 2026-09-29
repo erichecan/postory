@@ -97,6 +97,16 @@
     "saving": "Saving…",
     "submit": "Add to schedule",
     "saveFailed": "Couldn't save",
-    "scheduled": "Added to schedule"
+    "scheduled": "Added to schedule",
+    "needPlan": "You need a membership to add designs to the schedule",
+    "needPlanLink": "View membership",
+    "platformNotAllowed": "Some platforms aren't in your plan",
+    "insufficient": "Not enough credits",
+    "locked": "Contact us to add this platform",
+    "chargeNote": "Scheduling uses 1 credit, once per design"
+  },
+  "charge": {
+    "exported": "Exported · 1 credit used",
+    "exportedFree": "Exported (already charged for this design)"
   }
 }

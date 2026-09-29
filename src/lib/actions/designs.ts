@@ -6,6 +6,7 @@ import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { assertUser, requireUser } from "@/lib/auth/session";
 import { createDesignFromTemplate, deleteOwnDesign, updateOwnDesign } from "@/lib/db/designs";
+import { chargeDesign, getEntitlements } from "@/lib/db/entitlements";
 import { designPagesSchema } from "@/lib/design-schema";
 import { PUBLISH_PLATFORMS } from "@/lib/platforms";
 import { firstError } from "@/lib/validation";
@@ -39,13 +40,27 @@ const scheduleSchema = z.object({
     .refine((d) => d.getTime() > Date.now() - 60_000, "publishTimePast"),
 });
 
-export async function scheduleDesignAction(id: string, input: unknown): Promise<{ ok: boolean; error?: string }> {
+export type ScheduleResult =
+  | { ok: true }
+  | { ok: false; error: string; code?: "insufficient" | "needPlan" | "platformNotAllowed"; need?: number; have?: number };
+
+export async function scheduleDesignAction(id: string, input: unknown): Promise<ScheduleResult> {
   const user = await assertUser();
+  const designId = z.string().max(40).parse(id);
   const parsed = scheduleSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: await firstError(parsed.error) };
-  const ok = await updateOwnDesign(user.id, z.string().max(40).parse(id), { ...parsed.data, status: "SCHEDULED" });
-  if (ok) revalidatePath("/designs");
-  return ok ? { ok } : { ok, error: await designError("notFound") };
+  const tb = await getTranslations("editor.publish");
+  const ent = await getEntitlements(user.id);
+  if (!ent.hasActivePlan) return { ok: false, code: "needPlan", error: tb("needPlan") };
+  if (parsed.data.platforms.some((p) => !ent.allowedPlatforms.includes(p))) return { ok: false, code: "platformNotAllowed", error: tb("platformNotAllowed") };
+  const charge = await chargeDesign(user.id, designId);
+  if (!charge.found) return { ok: false, error: await designError("notFound") };
+  if (!charge.ok) return { ok: false, code: "insufficient", error: tb("insufficient"), need: charge.need, have: charge.have };
+  const ok = await updateOwnDesign(user.id, designId, { ...parsed.data, status: "SCHEDULED" });
+  if (!ok) return { ok: false, error: await designError("notFound") };
+  revalidatePath("/designs");
+  if (!charge.duplicate) revalidatePath("/", "layout");
+  return { ok: true };
 }
 
 export async function deleteDesignAction(id: string): Promise<{ ok: boolean }> {

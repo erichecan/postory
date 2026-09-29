@@ -12,6 +12,7 @@ export function InsufficientDialog({
   have,
   hasPlan,
   templateOnlyExcluded,
+  canClaimGift = false,
   onTopup,
 }: {
   open: boolean;
@@ -20,6 +21,7 @@ export function InsufficientDialog({
   have: number;
   hasPlan: boolean;
   templateOnlyExcluded: boolean;
+  canClaimGift?: boolean;
   onTopup: () => void;
 }) {
   const t = useTranslations("billing.insufficient");
@@ -30,6 +32,12 @@ export function InsufficientDialog({
           <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription>{t("body", { need, have })}</DialogDescription>
         </DialogHeader>
+        {canClaimGift && (
+          <p className="flex items-center justify-between gap-3 rounded-md bg-emerald-500/10 px-3 py-2 text-sm text-emerald-300">
+            {t("verifyGift")}
+            <Link href="/verify-email" className="shrink-0 font-medium underline">{t("verifyAction")}</Link>
+          </p>
+        )}
         {templateOnlyExcluded && <p className="rounded-md bg-muted/50 px-3 py-2 text-xs text-muted-foreground">{t("templateOnlyHint")}</p>}
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>{t("later")}</Button>
