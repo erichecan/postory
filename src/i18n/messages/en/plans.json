@@ -1,0 +1,62 @@
+{
+  "meta": "Compare memberships",
+  "hero": {
+    "title": "Compare memberships",
+    "subtitle": "Everything each tier includes, in one table. Pricing is quoted for your business."
+  },
+  "recommended": "Recommended",
+  "cta": "Ask about joining",
+  "feature": "Feature",
+  "groups": {
+    "quota": "Monthly allowance",
+    "platforms": "Publishing platforms",
+    "create": "Creative tools",
+    "service": "Service"
+  },
+  "features": {
+    "monthlyCredits": "Image credits",
+    "monthlyVideos": "Videos",
+    "topup": "Top up anytime",
+    "basePlatforms": "Facebook · Instagram · TikTok · RedNote",
+    "extraPlatforms": "More platforms (X, YouTube, Pinterest…)",
+    "schedule": "Publishing schedule",
+    "templates": "Every template",
+    "aiImages": "AI images (photo enhance / text to image)",
+    "multiRound": "Multi-round AI edits",
+    "brandFill": "One-click business details",
+    "prioritySupport": "Priority support",
+    "dedicatedDesigner": "Dedicated designer",
+    "contentPlanning": "Monthly content planning"
+  },
+  "hints": {
+    "basePlatforms": "RedNote has no auto-publishing API, so you download the image and copy the caption, then post in the app",
+    "monthlyCredits": "A template image is 1 credit; AI images are 1 credit standard, 2 credits HD"
+  },
+  "values": {
+    "images": "{count} / mo",
+    "videos": "{count} / mo",
+    "custom": "Tailored",
+    "addon": "Add-on, priced per platform",
+    "all": "All included",
+    "no": "Not included",
+    "yes": "Included"
+  },
+  "faq": {
+    "title": "FAQ",
+    "q1": "What happens to unused monthly credits?",
+    "a1": "Monthly credits reset at the end of each period. Top-up credits never expire and are used once the monthly credits run out.",
+    "q2": "Can I add just one platform?",
+    "a2": "Yes. The base plan covers Facebook, Instagram, TikTok and RedNote; other platforms are added one at a time.",
+    "q3": "How do I pay?",
+    "a3": "Once we set up your custom plan, pay by card on your Membership page (EUR or CAD). It renews monthly and you can cancel anytime. Offline payment works too.",
+    "q4": "Do failed generations cost credits?",
+    "a4": "No. If an AI generation fails or is blocked by moderation, the credits are refunded automatically."
+  },
+  "bottom": {
+    "title": "Not sure which tier fits?",
+    "body": "Tell us where you post and roughly how much each month, and we'll send you a quote."
+  },
+  "login": "Log in",
+  "toApp": "Open workspace",
+  "compare": "Compare tiers"
+}

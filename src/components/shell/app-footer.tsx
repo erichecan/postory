@@ -14,6 +14,7 @@ export async function AppFooter() {
         { href: "/designs", label: t("footer.designs") },
         { href: "/designs", label: t("footer.schedule") },
         { href: "/profile", label: t("footer.profile") },
+        { href: "/plans", label: t("footer.plans") },
       ],
     },
   ];

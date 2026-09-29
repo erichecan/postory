@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { BalanceCard } from "@/components/billing/balance-card";
 import { CostRules } from "@/components/billing/cost-rules";
@@ -16,15 +17,18 @@ export default async function MembershipPage({ searchParams }: PageProps<"/membe
   await requireUser();
   const sp = await searchParams;
   const state = parseState(sp.state);
-  const [t, tn, locale] = await Promise.all([getTranslations("billing.page"), getTranslations("billing.plan.none"), getLocale()]);
+  const [t, tn, tp, locale] = await Promise.all([getTranslations("billing.page"), getTranslations("billing.plan.none"), getTranslations("plans"), getLocale()]);
   const plan = mockPlan(locale, state);
   const balance = mockBalance(state, sp.empty === "1");
 
   return (
     <div className="mx-auto flex max-w-[1080px] flex-col gap-8 px-4 py-10">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
+        </div>
+        <Link href="/plans" className="text-sm text-primary hover:underline">{tp("compare")} →</Link>
       </header>
 
       <div className="grid gap-5 lg:grid-cols-[1.2fr_1fr]">

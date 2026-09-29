@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Check } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { buttonVariants } from "@/components/ui/button";
@@ -5,12 +6,13 @@ import { cn } from "@/lib/utils";
 import type { TierView } from "@/types/commerce";
 
 export async function TierCards({ tiers, contactHref }: { tiers: TierView[]; contactHref: string }) {
-  const t = await getTranslations("billing.tiers");
+  const [t, tp] = await Promise.all([getTranslations("billing.tiers"), getTranslations("plans")]);
   return (
     <section className="flex flex-col gap-5">
       <div className="text-center">
         <h2 className="text-xl font-semibold tracking-tight">{t("title")}</h2>
         <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
+        <Link href="/plans" className="mt-2 inline-block text-sm text-primary hover:underline">{tp("compare")} →</Link>
       </div>
       <div className="grid gap-4 md:grid-cols-3">
         {tiers.map((tier, i) => (

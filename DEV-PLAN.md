@@ -57,8 +57,8 @@
 | M6 AI 生图 | 工作台两种模式：实拍美化（上传照片 → OpenAI images.edit）、文生图（images.generate）；场景预设（餐饮 / 美业 / 节日，中英文）+ 店铺资料自动带入；后台先用 LLM 把用户描述扩写成专业提示词；多轮：每轮以上一张为输入继续改；结果存储（本地盘 / GCS）；可"发送到编辑器"作为新作品或替换模板图片 |
 | M7 付费墙 | 顶栏余额徽章；导出 / 加入发布计划 / 生成前检查余额，不够弹出「余额不足」（有方案 → 充值；没方案 → 联系开通）；发布计划可选平台数按方案限制，没方案的不能加入发布计划 |
 | M8 平台权益 | 发布目标改为 id：基础 `facebook` `instagram` `tiktok` `xiaohongshu`；额外 `x` `youtube` `pinterest` `linkedin` `threads` `douyin` `wechat-moments`；老数据迁移 |
-| M9 后台 | 客户列表加"方案 / 余额"列；客户详情页（配方案、生成付款状态、线下开通、调整 credit、流水）；会员等级管理；生成日志与成本（每日 OpenAI 成本、credit 收入、毛利） |
-| M10 公开页 | 落地页改版（卖点 + AI 前后对比 + 会员等级权益，无价格 + 联系方式）；`/legal/terms` `/legal/privacy` `/legal/refund` |
+| M9 后台 | 客户列表加"方案 / 余额"列；客户详情页（配方案、生成付款状态、线下开通、调整 credit、流水）；会员等级管理（含权益对比矩阵逐项编辑）；生成日志与成本（每日 OpenAI 成本、credit 收入、毛利） |
+| M10 公开页 | `/plans` 会员权益对比（用户 2026-09-28 追加："没看到权益对比页面"）；落地页改版（卖点 + AI 前后对比 + 会员等级权益，无价格 + 联系方式）；`/legal/terms` `/legal/privacy` `/legal/refund` |
 
 ## 4. Schema 增量（Prisma）
 
@@ -102,6 +102,9 @@ model MembershipTier {
   nameEn                String  @db.VarChar(64)
   benefitsZh            String  @db.Text
   benefitsEn            String  @db.Text
+  taglineZh             String  @db.VarChar(64)
+  taglineEn             String  @db.VarChar(64)
+  features              Json                     // 权益对比矩阵：{ monthlyCredits: 60 | "custom", prioritySupport: true, ... }，键见 lib/billing/tier-features.ts
   defaultMonthlyCredits Int     @default(60)
   defaultMonthlyVideos  Int     @default(4)
   referenceFee          Int     @default(9900)   // 分，仅后台可见
@@ -198,6 +201,7 @@ model Design {
 | 路径 | 说明 | 鉴权 |
 | :-- | :-- | :-- |
 | `/` | 落地页改版：卖点、AI 前后对比、会员等级权益（无价格）、联系方式 | 公开 |
+| `/plans` | 会员权益对比：三档逐项对比（额度 / 平台 / 创作工具 / 服务），无价格，FAQ，咨询按钮；手机端每档一张卡 | 公开 |
 | `/legal/terms` `/legal/privacy` `/legal/refund` | 法律页 | 公开 |
 | `/register` | 邮箱 + 密码 → 验证码页 | 公开 |
 | `/verify-email` | 输入 6 位验证码；验证成功送 10 credit | 已登录未验证 |

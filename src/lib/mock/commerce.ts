@@ -1,5 +1,6 @@
 // C0 静态页假数据，C1 起由 src/lib/db/ 替换后删除
 import type { Locale } from "@/i18n/config";
+import type { TierFeatures } from "@/lib/billing/tier-features";
 import type { BalanceView, PlanView, TierView, TxnView } from "@/types/commerce";
 
 const DAY = 24 * 3600 * 1000;
@@ -19,6 +20,23 @@ const TIERS: Record<Locale, TierView[]> = {
 
 export function mockTiers(locale: Locale): TierView[] {
   return TIERS[locale];
+}
+
+const COMMON = { topup: true, basePlatforms: true, schedule: true, templates: true, aiImages: true, multiRound: true, brandFill: true } as const;
+
+export const MOCK_TIER_FEATURES: Record<string, TierFeatures> = {
+  basic: { ...COMMON, monthlyCredits: 60, monthlyVideos: 4, extraPlatforms: "addon", prioritySupport: false, dedicatedDesigner: false, contentPlanning: false },
+  growth: { ...COMMON, monthlyCredits: 150, monthlyVideos: 10, extraPlatforms: "addon", prioritySupport: true, dedicatedDesigner: false, contentPlanning: false },
+  "all-in": { ...COMMON, monthlyCredits: "custom", monthlyVideos: "custom", extraPlatforms: "all", prioritySupport: true, dedicatedDesigner: true, contentPlanning: true },
+};
+
+const TAGLINES: Record<Locale, Record<string, string>> = {
+  zh: { basic: "一家店日常发帖够用", growth: "多平台、发得勤的门店", "all-in": "内容全交给我们" },
+  en: { basic: "Everyday posting for one location", growth: "For busy shops on many platforms", "all-in": "Hand all your content to us" },
+};
+
+export function mockTagline(locale: Locale, tierId: string): string {
+  return TAGLINES[locale][tierId] ?? "";
 }
 
 export type MockPlanState = "active" | "pending" | "none";

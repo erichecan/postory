@@ -2,10 +2,10 @@
 
 进度唯一真相。每周期：读台账 → 做 → 验证 → 提交 → 回写。
 
-- [x] C0 静态页：/membership、/create、余额不足弹窗、/admin/accounts/[id] 方案表单、会员等级区块、顶栏余额
+- [x] C0 静态页：/membership、/create、余额不足弹窗、/admin/accounts/[id] 方案表单、会员等级区块、顶栏余额、/plans 权益对比（追加）
       验收命令：npm run typecheck && npm run lint && node scripts/check-i18n.mjs
-      可看物：docs/shots/20260928-c0-*.png（9 张）
-      定性状态：待你确认（2026-09-28 已发截图）
+      可看物：docs/shots/20260928-c0-*.png（12 张，含 plans / plans-390 / plans-en）
+      定性状态：导航顺序、三档名字已确认（2026-09-28）；权益对比页待你确认
       证据：tsc 通过；eslint 0 问题；i18n keys zh=425 en=425 OK；390px 下 /membership、/create 无横向滚动
       依赖：无
 - [ ] C1 Schema 迁移 + 平台 id 迁移 + credit 账本（并发测试）

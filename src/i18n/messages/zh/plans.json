@@ -1,0 +1,62 @@
+{
+  "meta": "会员权益对比",
+  "hero": {
+    "title": "会员权益对比",
+    "subtitle": "三档会员包含什么，一张表看清楚。价格按你的门店情况单独报价。"
+  },
+  "recommended": "推荐",
+  "cta": "咨询开通",
+  "feature": "权益",
+  "groups": {
+    "quota": "每月额度",
+    "platforms": "发布平台",
+    "create": "创作工具",
+    "service": "服务"
+  },
+  "features": {
+    "monthlyCredits": "图片额度",
+    "monthlyVideos": "视频条数",
+    "topup": "额度不够随时充值",
+    "basePlatforms": "Facebook · Instagram · TikTok · 小红书",
+    "extraPlatforms": "更多平台（X、YouTube、Pinterest 等）",
+    "schedule": "发布排期",
+    "templates": "全部模板",
+    "aiImages": "AI 生图（实拍美化 / 文生图）",
+    "multiRound": "AI 多轮修改",
+    "brandFill": "店铺资料一键填入",
+    "prioritySupport": "优先支持",
+    "dedicatedDesigner": "专人对接出图",
+    "contentPlanning": "月度内容规划"
+  },
+  "hints": {
+    "basePlatforms": "小红书没有开放自动发布接口，做成下载图片 + 复制文案，你在 App 里发",
+    "monthlyCredits": "用模板出一张图 1 credit；AI 标准图 1 credit、高清图 2 credit"
+  },
+  "values": {
+    "images": "{count} 张 / 月",
+    "videos": "{count} 条 / 月",
+    "custom": "按需定制",
+    "addon": "可加开，按个计费",
+    "all": "全部包含",
+    "no": "不包含",
+    "yes": "包含"
+  },
+  "faq": {
+    "title": "常见问题",
+    "q1": "当月额度没用完怎么办？",
+    "a1": "每月额度在当期结束时清零；充值的 credit 不过期，本月额度用完后自动使用。",
+    "q2": "可以只加一个平台吗？",
+    "a2": "可以。基础方案包含 Facebook、Instagram、TikTok、小红书，其他平台按个加开。",
+    "q3": "怎么付款？",
+    "a3": "我们给你配好专属方案后，你在「我的会员」页用银行卡付款（支持欧元、加元），每月自动续费，可随时取消；也可以线下付款。",
+    "q4": "生成失败会扣 credit 吗？",
+    "a4": "不会。AI 生成失败或被内容审核拦下，credit 自动退回。"
+  },
+  "bottom": {
+    "title": "想知道你的门店适合哪一档？",
+    "body": "告诉我们你在哪些平台发、每月大概发多少，我们给你单独报价。"
+  },
+  "login": "登录",
+  "toApp": "进入工作台",
+  "compare": "权益对比"
+}
