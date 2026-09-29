@@ -5,10 +5,10 @@ import { prisma } from "./client";
 import type { AccountSource } from "@/generated/prisma/client";
 import { DEMO_PROFILE, DEMO_USER } from "@/lib/demo";
 
-export async function createUser(input: { phone?: string; email?: string; name: string; password: string; source: AccountSource }) {
+export async function createUser(input: { phone?: string; email?: string; name: string; password: string; source: AccountSource; emailVerified?: boolean }) {
   const passwordHash = await bcrypt.hash(input.password, 10);
   return prisma.user.create({
-    data: { phone: input.phone ?? null, email: input.email ?? null, name: input.name, passwordHash, source: input.source },
+    data: { phone: input.phone ?? null, email: input.email ?? null, emailVerifiedAt: input.emailVerified ? new Date() : null, name: input.name, passwordHash, source: input.source },
     select: { id: true, role: true, sessionVersion: true },
   });
 }

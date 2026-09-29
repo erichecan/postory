@@ -2,6 +2,7 @@ import "./load-env";
 import bcrypt from "bcryptjs";
 import type { Prisma } from "../src/generated/prisma/client";
 import { prisma, takeQueryCount } from "../src/lib/db/client";
+import { CUSTOMERS_PER_PAGE, listCustomers } from "../src/lib/db/admin-customers";
 import { getBalanceAt, listTxns, TXN_PAGE_SIZE } from "../src/lib/db/credits";
 import { listOwnDesigns } from "../src/lib/db/designs";
 import { listTemplates, TEMPLATES_PER_PAGE } from "../src/lib/db/templates";
@@ -61,6 +62,15 @@ async function main() {
   report("流水与余额查询数不随数据量增长", t10 === t200 && t10 <= 3, `10 条=${t10} 次，200 条=${t200} 次`);
   const txns = await listTxns(user.id);
   report("流水分页", txns.items.length === TXN_PAGE_SIZE && txns.pageCount === Math.ceil(200 / TXN_PAGE_SIZE), `每页 ${txns.items.length} 条，共 ${txns.pageCount} 页`);
+
+  const c1 = await queriesOf(() => listCustomers(1));
+  const filler = await bcrypt.hash("x", 4);
+  await prisma.user.createMany({ data: Array.from({ length: 200 }, (_, i) => ({ email: `qp-${i}@example.com`, name: `qp${i}`, passwordHash: filler })) });
+  const c2 = await queriesOf(() => listCustomers(1));
+  const customers = await listCustomers(1);
+  report("后台客户列表查询数不随用户数增长", c1 === c2 && c1 <= 6, `之前=${c1} 次，+200 用户后=${c2} 次`);
+  report("后台客户列表分页", customers.items.length === CUSTOMERS_PER_PAGE, `每页 ${customers.items.length} 条，共 ${customers.pageCount} 页`);
+  await prisma.user.deleteMany({ where: { email: { startsWith: "qp-" } } });
 
   await prisma.user.delete({ where: { id: user.id } });
   await prisma.$disconnect();

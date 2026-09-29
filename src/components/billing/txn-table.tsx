@@ -2,7 +2,7 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import { cn } from "@/lib/utils";
 import type { TxnView } from "@/types/commerce";
 
-export async function TxnTable({ txns, title }: { txns: TxnView[]; title?: string }) {
+export async function TxnTable({ txns, title, showNotes = false }: { txns: TxnView[]; title?: string; showNotes?: boolean }) {
   const [t, format] = await Promise.all([getTranslations("billing.txns"), getFormatter()]);
 
   function label(x: TxnView) {
@@ -32,7 +32,10 @@ export async function TxnTable({ txns, title }: { txns: TxnView[]; title?: strin
               {txns.map((x) => (
                 <tr key={x.id} className="border-t">
                   <td className="px-4 py-3 whitespace-nowrap text-muted-foreground">{format.dateTime(x.createdAt, { dateStyle: "short", timeStyle: "short" })}</td>
-                  <td className="px-4 py-3">{label(x)}</td>
+                  <td className="px-4 py-3">
+                    {label(x)}
+                    {showNotes && x.note && <span className="ml-2 text-xs text-muted-foreground">· {x.note}</span>}
+                  </td>
                   <td className={cn("px-4 py-3 text-right font-medium tabular-nums", x.delta > 0 ? "text-emerald-400" : "text-foreground")}>
                     {x.delta > 0 ? `+${x.delta}` : x.delta}
                   </td>

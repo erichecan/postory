@@ -1,20 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Check } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { adminActivateOfflineAction, adminCancelPlanAction, adminSavePlanAction } from "@/lib/actions/admin-billing";
 import { formatMoney, monthlyTotal } from "@/lib/billing/plan-math";
 import { BASE_PUBLISH_PLATFORMS, EXTRA_PUBLISH_PLATFORMS } from "@/lib/platforms";
 import { cn } from "@/lib/utils";
-import type { Currency, PlanView, TierView } from "@/types/commerce";
+import type { Currency, PlanBilling, PlanStatus, PlanView, TierView } from "@/types/commerce";
 
 const CURRENCIES: Currency[] = ["EUR", "CAD"];
 
-type Draft = Omit<PlanView, "tierName" | "status" | "currentPeriodEnd" | "billing">;
+export type PlanDraft = Omit<PlanView, "tierName" | "status" | "currentPeriodEnd" | "billing">;
+type Draft = PlanDraft;
+type Saved = { status: PlanStatus; billing: PlanBilling; currentPeriodEnd: Date | null } | null;
 
 function MoneyInput({ id, label, cents, currency, onChange }: { id: string; label: string; cents: number; currency: Currency; onChange: (cents: number) => void }) {
   return (
@@ -37,10 +40,21 @@ function NumberInput({ id, label, value, onChange }: { id: string; label: string
   );
 }
 
-export function PlanForm({ tiers, initial }: { tiers: TierView[]; initial: Draft }) {
+export function PlanForm({ userId, tiers, initial, saved }: { userId: string; tiers: TierView[]; initial: Draft; saved: Saved }) {
   const t = useTranslations("admin.customer");
   const tp = useTranslations("platforms.publish");
+  const ts = useTranslations("billing.plan.status");
   const locale = useLocale();
+  const format = useFormatter();
+  const [pending, start] = useTransition();
+
+  function run(action: () => Promise<{ ok: boolean; error?: string }>, success: string) {
+    start(async () => {
+      const res = await action();
+      if (res.ok) toast.success(success);
+      else toast.error(res.error ?? t("invalid"));
+    });
+  }
   const [d, setD] = useState<Draft>(initial);
   const [months, setMonths] = useState(1);
   const set = (patch: Partial<Draft>) => setD((v) => ({ ...v, ...patch }));
@@ -132,15 +146,34 @@ export function PlanForm({ tiers, initial }: { tiers: TierView[]; initial: Draft
           <span className="text-xs text-muted-foreground">
             {d.monthlyCredits} credit · {d.monthlyVideos} video · {BASE_PUBLISH_PLATFORMS.length + d.extraPlatforms.length} platforms
           </span>
-          <Button size="lg" className="mt-1 h-10" onClick={() => toast.success(t("saved"))}>{t("save")}</Button>
+          <Button size="lg" className="mt-1 h-10" disabled={pending} onClick={() => run(() => adminSavePlanAction(userId, d), t("saved"))}>{t("save")}</Button>
+          <div className="flex items-center justify-between gap-2 border-t pt-3 text-xs">
+            <span className="text-muted-foreground">{t("status")}</span>
+            <span className="text-right">
+              {saved ? ts(saved.status) : t("noPlan")}
+              {saved?.currentPeriodEnd && <span className="block text-muted-foreground">{t("periodEnd", { date: format.dateTime(saved.currentPeriodEnd, { dateStyle: "medium" }) })}</span>}
+            </span>
+          </div>
+          {saved?.billing === "STRIPE" && saved.status === "ACTIVE" && <p className="text-xs text-muted-foreground">{t("activeStripeHint")}</p>}
+          {saved && saved.status !== "CANCELED" && (
+            <Button
+              variant="ghost"
+              className="text-destructive hover:bg-destructive/10"
+              disabled={pending}
+              onClick={() => window.confirm(t("cancelConfirm")) && run(() => adminCancelPlanAction(userId), t("canceled"))}
+            >
+              {t("cancel")}
+            </Button>
+          )}
         </div>
         <div className="flex flex-col gap-3 rounded-xl border bg-card p-5">
           <h3 className="text-sm font-semibold">{t("offlineTitle")}</h3>
           <p className="text-xs text-muted-foreground">{t("offlineHint")}</p>
           <div className="flex items-end gap-2">
             <NumberInput id="p-months" label={t("months")} value={months} onChange={(v) => setMonths(Math.min(24, Math.max(1, v)))} />
-            <Button variant="outline" size="lg" className="h-9" onClick={() => toast.success(t("offlineSubmit", { count: months }))}>{t("offlineSubmit", { count: months })}</Button>
+            <Button variant="outline" size="lg" className="h-9" disabled={pending || !saved} onClick={() => run(() => adminActivateOfflineAction(userId, months), t("offlineDone"))}>{t("offlineSubmit", { count: months })}</Button>
           </div>
+          {!saved && <p className="text-xs text-muted-foreground">{t("needSave")}</p>}
         </div>
       </aside>
     </div>

@@ -58,6 +58,9 @@ run "probes" npx tsx scripts/probes.ts "$BASE"
 step "邮箱注册 / 验证码 / 找回密码探针"
 run "auth-probe" npx tsx scripts/auth-probe.ts "$BASE"
 
+step "后台：客户方案 / 线下开通 / 调整 credit / 会员等级"
+run "admin-probe" npx tsx scripts/admin-probe.ts "$BASE"
+
 step "公开页与受保护页"
 PLANS_ANON=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/plans")
 run "/plans 未登录 200（实际 ${PLANS_ANON}）" test "$PLANS_ANON" = 200

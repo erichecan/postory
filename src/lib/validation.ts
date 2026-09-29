@@ -11,7 +11,7 @@ export const identifierSchema = z.union([emailSchema, phoneSchema], { error: "id
 export const codeSchema = z.string().trim().regex(/^\d{6}$/, "codeInvalid");
 
 export const registerSchema = z.object({ email: emailSchema, name: nameSchema, password: passwordSchema });
-export const offlineAccountSchema = z.object({ phone: phoneSchema, name: nameSchema, password: passwordSchema });
+export const offlineAccountSchema = z.object({ email: emailSchema, phone: z.union([z.literal(""), phoneSchema]).optional(), name: nameSchema, password: passwordSchema });
 export const loginSchema = z.object({ identifier: z.string().trim().toLowerCase().pipe(identifierSchema), password: z.string().min(1, "passwordRequired") });
 export const resetRequestSchema = z.object({ email: emailSchema });
 export const resetSchema = z.object({ email: emailSchema, token: z.string().min(20).max(100), password: passwordSchema });

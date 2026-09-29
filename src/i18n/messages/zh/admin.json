@@ -7,7 +7,10 @@
     "source": "开通方式",
     "designs": "作品数",
     "createdAt": "开通时间",
-    "status": "状态"
+    "status": "状态",
+    "contact": "邮箱 / 手机号",
+    "plan": "方案",
+    "balance": "余额"
   },
   "adminBadge": "管理员",
   "source": {
@@ -25,21 +28,23 @@
   },
   "form": {
     "title": "线下开通账号",
-    "hint": "客户在门店消费后，在这里给他建账号，把手机号和初始密码告诉他。",
+    "hint": "客户线下付款后，在这里用邮箱给他建账号，把邮箱和初始密码告诉他，然后进详情页配方案。",
     "phone": "手机号",
     "name": "店铺 / 客户名称",
     "password": "初始密码",
     "passwordPlaceholder": "至少 8 位",
     "submit": "开通账号",
     "submitting": "开通中…",
-    "success": "已开通"
+    "success": "已开通",
+    "email": "邮箱",
+    "phoneOptional": "手机号（选填）"
   },
   "errors": {
-    "phoneTaken": "该手机号已有账号",
     "notFound": "账号不存在",
-    "cannotDisableAdmin": "管理员账号不能在这里停用"
+    "cannotDisableAdmin": "管理员账号不能在这里停用",
+    "emailTaken": "该邮箱已有账号"
   },
-  "created": "已开通：{name}（{phone}）",
+  "created": "已开通：{name}（{email}）",
   "customer": {
     "back": "返回账号列表",
     "planTitle": "会员方案",
@@ -69,6 +74,56 @@
     "adjustSubmit": "确认调整",
     "balance": "当前余额",
     "txnsTitle": "流水",
-    "contact": "联系方式"
+    "contact": "联系方式",
+    "invalid": "输入有误，请检查后再保存",
+    "needPlan": "请先保存方案，再线下开通",
+    "insufficient": "余额不足，当前只有 {have}",
+    "cancel": "取消方案",
+    "cancelConfirm": "确定取消这个客户的方案？已发放的额度不受影响。",
+    "canceled": "方案已取消",
+    "offlineDone": "已开通，额度按月发放",
+    "adjusted": "已调整",
+    "needSave": "先保存方案",
+    "status": "方案状态",
+    "noPlan": "还没有方案",
+    "periodEnd": "有效期至 {date}",
+    "note": "备注",
+    "email": "邮箱",
+    "phone": "手机号",
+    "activeStripeHint": "客户已通过 Stripe 付款，改价将在下个扣费周期生效（接入 Stripe 后）"
+  },
+  "detail": "详情",
+  "planNone": "—",
+  "nav": {
+    "accounts": "客户账号",
+    "tiers": "会员等级"
+  },
+  "tiers": {
+    "title": "会员等级",
+    "subtitle": "这里改的名称、权益和对比表会直接显示在「会员权益对比」页。",
+    "nameZh": "名称（中文）",
+    "nameEn": "名称（英文）",
+    "taglineZh": "一句话介绍（中文）",
+    "taglineEn": "一句话介绍（英文）",
+    "benefitsZh": "权益卡片要点（中文，一行一条）",
+    "benefitsEn": "权益卡片要点（英文，一行一条）",
+    "defaults": "新客户默认额度",
+    "defaultCredits": "每月 credit",
+    "defaultVideos": "每月视频",
+    "referenceFee": "内部参考价（不公开）",
+    "recommended": "标为推荐",
+    "visible": "对外显示",
+    "sortOrder": "排序",
+    "matrix": "权益对比表",
+    "save": "保存",
+    "saved": "已保存",
+    "value": {
+      "yes": "包含",
+      "no": "不包含",
+      "custom": "按需定制",
+      "addon": "可加开",
+      "all": "全部包含",
+      "number": "数量"
+    }
   }
 }

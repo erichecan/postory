@@ -14,13 +14,13 @@ export async function adminCreateUserAction(_: FormState, formData: FormData): P
   if (!parsed.success) return { error: await firstError(parsed.error) };
   const t = await getTranslations("admin");
   try {
-    await createUser({ ...parsed.data, source: "OFFLINE" });
+    await createUser({ ...parsed.data, phone: parsed.data.phone || undefined, source: "OFFLINE", emailVerified: true });
   } catch (e) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") return { error: t("errors.phoneTaken") };
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") return { error: t("errors.emailTaken") };
     throw e;
   }
   revalidatePath("/admin/accounts");
-  return { ok: true, message: t("created", { name: parsed.data.name, phone: parsed.data.phone }) };
+  return { ok: true, message: t("created", { name: parsed.data.name, email: parsed.data.email }) };
 }
 
 export async function adminToggleUserAction(id: string, disabled: boolean): Promise<{ ok: boolean; error?: string }> {

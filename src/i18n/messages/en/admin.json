@@ -7,7 +7,10 @@
     "source": "Created via",
     "designs": "Designs",
     "createdAt": "Created",
-    "status": "Status"
+    "status": "Status",
+    "contact": "Email / phone",
+    "plan": "Plan",
+    "balance": "Balance"
   },
   "adminBadge": "Admin",
   "source": {
@@ -24,22 +27,24 @@
     "failed": "Action failed"
   },
   "form": {
-    "title": "Create an account in store",
-    "hint": "After a customer buys in store, create their account here and give them the phone number and initial password.",
+    "title": "Create an account (offline)",
+    "hint": "After a customer pays offline, create their account with their email here, share the email and starting password, then set up their plan on the details page.",
     "phone": "Phone",
     "name": "Shop / customer name",
     "password": "Initial password",
     "passwordPlaceholder": "At least 8 characters",
     "submit": "Create account",
     "submitting": "Creating…",
-    "success": "Account created"
+    "success": "Account created",
+    "email": "Email",
+    "phoneOptional": "Phone (optional)"
   },
   "errors": {
-    "phoneTaken": "An account with this phone number already exists",
     "notFound": "Account not found",
-    "cannotDisableAdmin": "Admin accounts can't be disabled here"
+    "cannotDisableAdmin": "Admin accounts can't be disabled here",
+    "emailTaken": "That email already has an account"
   },
-  "created": "Created: {name} ({phone})",
+  "created": "Created: {name} ({email})",
   "customer": {
     "back": "Back to accounts",
     "planTitle": "Membership plan",
@@ -69,6 +74,56 @@
     "adjustSubmit": "Apply",
     "balance": "Current balance",
     "txnsTitle": "Ledger",
-    "contact": "Contact"
+    "contact": "Contact",
+    "invalid": "Something's off. Check the fields and try again.",
+    "needPlan": "Save a plan before activating offline",
+    "insufficient": "Not enough credits. Current balance: {have}",
+    "cancel": "Cancel plan",
+    "cancelConfirm": "Cancel this customer's plan? Credits already issued are kept.",
+    "canceled": "Plan canceled",
+    "offlineDone": "Activated. Credits will be issued month by month.",
+    "adjusted": "Adjusted",
+    "needSave": "Save the plan first",
+    "status": "Plan status",
+    "noPlan": "No plan yet",
+    "periodEnd": "Valid until {date}",
+    "note": "Note",
+    "email": "Email",
+    "phone": "Phone",
+    "activeStripeHint": "The customer pays via Stripe. Price changes take effect next billing cycle (once Stripe is connected)."
+  },
+  "detail": "Details",
+  "planNone": "—",
+  "nav": {
+    "accounts": "Customers",
+    "tiers": "Tiers"
+  },
+  "tiers": {
+    "title": "Membership tiers",
+    "subtitle": "Names, benefits and the comparison table here show up directly on the Compare memberships page.",
+    "nameZh": "Name (Chinese)",
+    "nameEn": "Name (English)",
+    "taglineZh": "Tagline (Chinese)",
+    "taglineEn": "Tagline (English)",
+    "benefitsZh": "Card highlights (Chinese, one per line)",
+    "benefitsEn": "Card highlights (English, one per line)",
+    "defaults": "Defaults for new customers",
+    "defaultCredits": "Credits / month",
+    "defaultVideos": "Videos / month",
+    "referenceFee": "Internal reference price (private)",
+    "recommended": "Mark as recommended",
+    "visible": "Show publicly",
+    "sortOrder": "Order",
+    "matrix": "Comparison table",
+    "save": "Save",
+    "saved": "Saved",
+    "value": {
+      "yes": "Included",
+      "no": "Not included",
+      "custom": "Tailored",
+      "addon": "Add-on",
+      "all": "All included",
+      "number": "Amount"
+    }
   }
 }

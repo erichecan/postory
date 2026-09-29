@@ -24,8 +24,9 @@ export function CreateAccountForm() {
         <h2 className="font-semibold">{t("title")}</h2>
         <p className="mt-1 text-xs text-muted-foreground">{t("hint")}</p>
       </div>
-      <div className="grid gap-3 sm:grid-cols-3">
-        <div className="flex flex-col gap-1.5"><Label htmlFor="a-phone">{t("phone")}</Label><Input id="a-phone" name="phone" inputMode="numeric" required className="h-9" /></div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="flex flex-col gap-1.5"><Label htmlFor="a-email">{t("email")}</Label><Input id="a-email" name="email" type="email" required className="h-9" /></div>
+        <div className="flex flex-col gap-1.5"><Label htmlFor="a-phone">{t("phoneOptional")}</Label><Input id="a-phone" name="phone" inputMode="numeric" className="h-9" /></div>
         <div className="flex flex-col gap-1.5"><Label htmlFor="a-name">{t("name")}</Label><Input id="a-name" name="name" required className="h-9" /></div>
         <div className="flex flex-col gap-1.5"><Label htmlFor="a-pass">{t("password")}</Label><Input id="a-pass" name="password" placeholder={t("passwordPlaceholder")} required className="h-9" /></div>
       </div>

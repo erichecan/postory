@@ -20,7 +20,7 @@ for (const k of Object.keys(en)) if (!(k in zh)) problems.push(`zh 缺 ${k}`);
 for (const [k, v] of [...Object.entries(zh), ...Object.entries(en)]) if (typeof v !== "string" || !v.trim()) problems.push(`空值 ${k}`);
 for (const [k, v] of Object.entries(en)) if (/[一-鿿]/.test(v)) problems.push(`en 含中文 ${k}`);
 
-const ALLOW = ["src/lib/demo.ts", "src/lib/mock/"];
+const ALLOW = ["src/lib/demo.ts"];
 const hits = execSync(
   `grep -rnIE "[一-龥]" src --include=*.ts --include=*.tsx --exclude-dir=generated --exclude-dir=data --exclude-dir=messages || true`,
   { encoding: "utf8" },

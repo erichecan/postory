@@ -10,3 +10,5 @@ export const FEATURE_GROUPS = [
 export type FeatureId = (typeof FEATURE_GROUPS)[number]["features"][number]["id"];
 export type FeatureUnit = "images" | "videos";
 export type TierFeatures = Record<FeatureId, FeatureValue>;
+
+export const FEATURE_IDS: FeatureId[] = FEATURE_GROUPS.flatMap((g) => g.features.map((f): FeatureId => f.id));

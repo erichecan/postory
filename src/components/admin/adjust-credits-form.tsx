@@ -1,16 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { adminAdjustCreditsAction } from "@/lib/actions/admin-billing";
 
-export function AdjustCreditsForm({ balance }: { balance: number }) {
+export function AdjustCreditsForm({ userId, balance }: { userId: string; balance: number }) {
   const t = useTranslations("admin.customer");
   const [amount, setAmount] = useState("");
   const [reason, setReason] = useState("");
+  const [pending, start] = useTransition();
   const n = Number.parseInt(amount, 10);
   const valid = Number.isInteger(n) && n !== 0 && reason.trim().length > 0;
 
@@ -20,9 +22,13 @@ export function AdjustCreditsForm({ balance }: { balance: number }) {
       onSubmit={(e) => {
         e.preventDefault();
         if (!valid) return;
-        toast.success(`${n > 0 ? "+" : ""}${n}`);
-        setAmount("");
-        setReason("");
+        start(async () => {
+          const res = await adminAdjustCreditsAction(userId, { amount: n, reason: reason.trim() });
+          if (!res.ok) return void toast.error(res.error ?? t("invalid"));
+          toast.success(`${t("adjusted")} ${n > 0 ? "+" : ""}${n}`);
+          setAmount("");
+          setReason("");
+        });
       }}
     >
       <div className="flex items-baseline justify-between">
@@ -32,7 +38,7 @@ export function AdjustCreditsForm({ balance }: { balance: number }) {
       <div className="grid gap-3 sm:grid-cols-[160px_1fr_auto] sm:items-end">
         <div className="flex flex-col gap-1.5"><Label htmlFor="adj-amount">{t("adjustAmount")}</Label><Input id="adj-amount" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} className="h-9 tabular-nums" /></div>
         <div className="flex flex-col gap-1.5"><Label htmlFor="adj-reason">{t("adjustReason")}</Label><Input id="adj-reason" value={reason} maxLength={255} onChange={(e) => setReason(e.target.value)} className="h-9" /></div>
-        <Button type="submit" size="lg" className="h-9" disabled={!valid}>{t("adjustSubmit")}</Button>
+        <Button type="submit" size="lg" className="h-9" disabled={!valid || pending}>{t("adjustSubmit")}</Button>
       </div>
     </form>
   );
