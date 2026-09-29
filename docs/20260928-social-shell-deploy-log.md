@@ -32,5 +32,6 @@
 - **想达成什么**：让合作伙伴在线上看到商业化后的样子——会员权益对比页、我的会员、AI 生图工作台、后台客户方案表单。**全部是假数据**，不扣费、不收款、不调 OpenAI。
 - **新增路由**：`/plans`（公开）、`/membership`、`/create`、`/admin/accounts/[id]`
 - **技术观测（我负责）**：部署前 verify.sh VERIFY PASS；部署后线上探针 `/plans` 未登录 200、`/membership` `/create` 登录态 200、未登录跳登录；Playwright 线上截图。观测窗口 3 天：Cloud Run 5xx。
+- **部署结果**：commit 12f6413，GitHub Actions run 36513435381 成功；Verify login 200、asset 200；线上 `/plans` 未登录 200，`/membership` `/create` 未登录 307 → /login，一键登录后均 200，AI 生图假结果图加载成功（截图 docs/shots/20260928-c0-prod-*.png）
 - **定性观测（用户负责）**：把 `/plans` 链接发给一位目标客户，问一句：「看完这张表，你知道自己该选哪一档吗？」
 - **状态**：待观测
