@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { Check } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ContactButton } from "./contact-button";
 import type { TierView } from "@/types/commerce";
 
-export async function TierCards({ tiers, contactHref }: { tiers: TierView[]; contactHref: string }) {
+export async function TierCards({ tiers }: { tiers: (TierView & { recommended?: boolean })[] }) {
   const [t, tp] = await Promise.all([getTranslations("billing.tiers"), getTranslations("plans")]);
   return (
     <section className="flex flex-col gap-5">
@@ -15,8 +15,8 @@ export async function TierCards({ tiers, contactHref }: { tiers: TierView[]; con
         <Link href="/plans" className="mt-2 inline-block text-sm text-primary hover:underline">{tp("compare")} →</Link>
       </div>
       <div className="grid gap-4 md:grid-cols-3">
-        {tiers.map((tier, i) => (
-          <div key={tier.id} className={cn("flex flex-col gap-4 rounded-xl border bg-card p-5", i === 1 && "border-primary/60 ring-1 ring-primary/30")}>
+        {tiers.map((tier) => (
+          <div key={tier.id} className={cn("flex flex-col gap-4 rounded-xl border bg-card p-5", tier.recommended && "border-primary/60 ring-1 ring-primary/30")}>
             <h3 className="text-lg font-semibold">{tier.name}</h3>
             <ul className="flex flex-1 flex-col gap-2 text-sm">
               {tier.benefits.map((b) => (
@@ -26,7 +26,7 @@ export async function TierCards({ tiers, contactHref }: { tiers: TierView[]; con
                 </li>
               ))}
             </ul>
-            <a href={contactHref} className={cn(buttonVariants({ variant: i === 1 ? "default" : "outline", size: "lg" }), "w-full")}>{t("cta")}</a>
+            <ContactButton label={t("cta")} variant={tier.recommended ? "default" : "outline"} size="lg" className="w-full" />
           </div>
         ))}
       </div>

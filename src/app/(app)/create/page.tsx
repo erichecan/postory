@@ -1,17 +1,16 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { CreateStudio } from "@/components/create/create-studio";
 import { requireUser } from "@/lib/auth/session";
+import { getBalance } from "@/lib/db/credits";
+import { getPlanView } from "@/lib/db/plans";
 import { getBrandProfile } from "@/lib/db/profiles";
 import { DEMO_PHONE } from "@/lib/demo";
-import { mockBalance, mockPlan, type MockPlanState } from "@/lib/mock/commerce";
 
-export default async function CreatePage({ searchParams }: PageProps<"/create">) {
+export default async function CreatePage() {
   const user = await requireUser();
-  const sp = await searchParams;
-  const state: MockPlanState = sp.state === "none" ? "none" : "active";
-  const [t, profile, locale] = await Promise.all([getTranslations("create.page"), getBrandProfile(user.id), getLocale()]);
-  const plan = mockPlan(locale, state);
-  const balance = mockBalance(state, sp.empty === "1");
+  const locale = await getLocale();
+  const [t, profile, plan, balance] = await Promise.all([getTranslations("create.page"), getBrandProfile(user.id), getPlanView(user.id, locale), getBalance(user.id)]);
+  const isDemo = user.phone === DEMO_PHONE;
 
   return (
     <div className="mx-auto flex max-w-[1080px] flex-col gap-6 px-4 py-10">
@@ -23,8 +22,8 @@ export default async function CreatePage({ searchParams }: PageProps<"/create">)
         shopName={profile?.shopName ?? null}
         initialBalance={balance.total}
         aiBalance={balance.total - balance.templateOnly}
-        isDemo={user.phone === DEMO_PHONE && sp.demo !== "0"}
-        topup={plan ? { currency: plan.currency, unitPrice: plan.topupUnitPrice } : null}
+        isDemo={isDemo}
+        topup={plan?.status === "ACTIVE" && !isDemo ? { currency: plan.currency, unitPrice: plan.topupUnitPrice } : null}
       />
     </div>
   );

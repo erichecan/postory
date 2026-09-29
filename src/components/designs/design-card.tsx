@@ -3,7 +3,7 @@ import { CalendarClock } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { FitPreview } from "@/components/canvas/fit-preview";
 import type { DesignListItem } from "@/lib/db/designs";
-import { publishTargetLabel } from "@/lib/platforms";
+import { publishPlatformLabel } from "@/lib/platforms";
 import { DeleteDesignButton } from "./delete-design-button";
 
 export const DESIGN_CARD_PADDING = 8;
@@ -28,7 +28,7 @@ export function DesignCard({ d }: { d: DesignListItem }) {
         {d.status === "SCHEDULED" && d.scheduledAt ? (
           <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <CalendarClock className="size-3.5" />
-            {format.dateTime(d.scheduledAt, DATE_FORMAT)} · {format.list(d.platforms.map((p) => publishTargetLabel(tp, p)))}
+            {format.dateTime(d.scheduledAt, DATE_FORMAT)} · {format.list(d.platforms.map((p) => publishPlatformLabel(tp, p)))}
           </p>
         ) : (
           <p className="text-xs text-muted-foreground">{t("lastEdited", { time: format.dateTime(d.updatedAt, DATE_FORMAT) })}</p>

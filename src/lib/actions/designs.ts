@@ -7,7 +7,7 @@ import { z } from "zod";
 import { assertUser, requireUser } from "@/lib/auth/session";
 import { createDesignFromTemplate, deleteOwnDesign, updateOwnDesign } from "@/lib/db/designs";
 import { designPagesSchema } from "@/lib/design-schema";
-import { PUBLISH_TARGETS } from "@/lib/platforms";
+import { PUBLISH_PLATFORMS } from "@/lib/platforms";
 import { firstError } from "@/lib/validation";
 
 export async function startDesignAction(templateId: string) {
@@ -31,7 +31,7 @@ export async function saveDesignAction(id: string, input: unknown): Promise<{ ok
 }
 
 const scheduleSchema = z.object({
-  platforms: z.array(z.enum(PUBLISH_TARGETS)).min(1, "publishPlatformsRequired"),
+  platforms: z.array(z.enum(PUBLISH_PLATFORMS)).min(1, "publishPlatformsRequired"),
   scheduledAt: z
     .string({ error: "publishTimeRequired" })
     .transform((v) => new Date(v))

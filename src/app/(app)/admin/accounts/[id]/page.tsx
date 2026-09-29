@@ -5,14 +5,15 @@ import { AdjustCreditsForm } from "@/components/admin/adjust-credits-form";
 import { PlanForm } from "@/components/admin/plan-form";
 import { TxnTable } from "@/components/billing/txn-table";
 import { requireAdmin } from "@/lib/auth/session";
-import { mockBalance, mockCustomer, mockPlan, mockTiers, mockTxns } from "@/lib/mock/commerce";
+import { listTiers } from "@/lib/db/plans";
+import { mockBalance, mockCustomer, mockPlan, mockTxns } from "@/lib/mock/commerce";
 
 export default async function CustomerPage() {
   await requireAdmin();
-  const [t, locale] = await Promise.all([getTranslations("admin.customer"), getLocale()]);
+  const locale = await getLocale();
+  const [t, tiers] = await Promise.all([getTranslations("admin.customer"), listTiers(locale)]);
   const customer = mockCustomer();
-  const plan = mockPlan(locale, "pending");
-  if (!plan) return null;
+  const plan = mockPlan(tiers[0]?.id ?? "", tiers[0]?.name ?? "");
   const draft = {
     tierId: plan.tierId,
     currency: plan.currency,
@@ -36,8 +37,8 @@ export default async function CustomerPage() {
           <p className="mt-1 text-sm text-muted-foreground">{customer.name} · {customer.email}</p>
         </div>
       </header>
-      <PlanForm tiers={mockTiers(locale)} initial={draft} />
-      <AdjustCreditsForm balance={mockBalance("active").total} />
+      <PlanForm tiers={tiers} initial={draft} />
+      <AdjustCreditsForm balance={mockBalance().total} />
       <TxnTable txns={mockTxns()} title={t("txnsTitle")} />
     </div>
   );

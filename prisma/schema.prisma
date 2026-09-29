@@ -22,17 +22,201 @@ enum DesignStatus {
   SCHEDULED
 }
 
+enum Currency {
+  EUR
+  CAD
+}
+
+enum PlanStatus {
+  DRAFT
+  PENDING_PAYMENT
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
+enum PlanBilling {
+  STRIPE
+  OFFLINE
+}
+
+enum GrantSource {
+  SIGNUP_GIFT
+  MONTHLY
+  TOPUP
+  ADMIN
+  REFUND_RETURN
+}
+
+enum GrantScope {
+  ANY
+  TEMPLATE_ONLY
+}
+
+enum GrantUnit {
+  CREDIT
+  VIDEO
+}
+
+enum TxnKind {
+  GRANT
+  DEBIT
+  REFUND
+  EXPIRE
+  ADJUST
+}
+
+enum ChargeKind {
+  TEMPLATE_EXPORT
+  AI_STANDARD
+  AI_HD
+}
+
+enum GenerationMode {
+  PHOTO_ENHANCE
+  TEXT_TO_IMAGE
+}
+
+enum GenerationStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+}
+
 model User {
-  id           String        @id @default(cuid())
-  phone        String        @unique @db.VarChar(20)
-  passwordHash String
-  name         String        @db.VarChar(64)
-  role         Role          @default(USER)
-  source       AccountSource @default(SELF_SIGNUP)
-  disabled     Boolean       @default(false)
-  createdAt    DateTime      @default(now())
-  profile      BrandProfile?
-  designs      Design[]
+  id               String        @id @default(cuid())
+  phone            String?       @unique @db.VarChar(20)
+  email            String?       @unique @db.VarChar(254)
+  emailVerifiedAt  DateTime?
+  stripeCustomerId String?       @unique
+  passwordHash     String
+  name             String        @db.VarChar(64)
+  role             Role          @default(USER)
+  source           AccountSource @default(SELF_SIGNUP)
+  disabled         Boolean       @default(false)
+  createdAt        DateTime      @default(now())
+  profile          BrandProfile?
+  designs          Design[]
+  plan             CustomerPlan?
+  grants           CreditGrant[]
+  txns             CreditTxn[]
+  generations      Generation[]
+}
+
+model EmailToken {
+  id        String    @id @default(cuid())
+  email     String    @db.VarChar(254)
+  purpose   String    @db.VarChar(16)
+  codeHash  String
+  attempts  Int       @default(0)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([email, purpose])
+}
+
+model MembershipTier {
+  id                    String         @id @default(cuid())
+  slug                  String         @unique @db.VarChar(32)
+  nameZh                String         @db.VarChar(64)
+  nameEn                String         @db.VarChar(64)
+  taglineZh             String         @db.VarChar(64)
+  taglineEn             String         @db.VarChar(64)
+  benefitsZh            String[]
+  benefitsEn            String[]
+  features              Json
+  defaultMonthlyCredits Int            @default(60)
+  defaultMonthlyVideos  Int            @default(4)
+  referenceFee          Int            @default(9900)
+  recommended           Boolean        @default(false)
+  sortOrder             Int            @default(0)
+  visible               Boolean        @default(true)
+  plans                 CustomerPlan[]
+}
+
+model CustomerPlan {
+  userId               String         @id
+  user                 User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tierId               String
+  tier                 MembershipTier @relation(fields: [tierId], references: [id])
+  currency             Currency
+  billing              PlanBilling    @default(STRIPE)
+  baseFee              Int
+  extraPlatforms       String[]
+  extraPlatformFee     Int
+  allInclusiveFee      Int?
+  monthlyCredits       Int
+  monthlyVideos        Int
+  topupUnitPrice       Int            @default(100)
+  status               PlanStatus     @default(DRAFT)
+  stripeSubscriptionId String?        @unique
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+}
+
+model CreditGrant {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  unit      GrantUnit   @default(CREDIT)
+  source    GrantSource
+  scope     GrantScope  @default(ANY)
+  amount    Int
+  remaining Int
+  validFrom DateTime    @default(now())
+  expiresAt DateTime?
+  refId     String?     @unique
+  createdAt DateTime    @default(now())
+
+  @@index([userId, unit, expiresAt])
+}
+
+model CreditTxn {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind        TxnKind
+  charge      ChargeKind?
+  source      GrantSource?
+  delta       Int
+  allocations Json?
+  refId       String?
+  note        String?     @db.VarChar(255)
+  actorId     String?
+  createdAt   DateTime    @default(now())
+
+  @@unique([userId, kind, refId])
+  @@index([userId, createdAt])
+}
+
+model Generation {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parentId    String?
+  mode        GenerationMode
+  quality     String           @db.VarChar(8)
+  size        String           @db.VarChar(16)
+  userPrompt  String           @db.Text
+  finalPrompt String?          @db.Text
+  inputUrl    String?
+  outputUrl   String?
+  credits     Int
+  costMicros  Int?
+  status      GenerationStatus @default(PENDING)
+  error       String?          @db.VarChar(255)
+  createdAt   DateTime         @default(now())
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+}
+
+model StripeEvent {
+  id          String   @id
+  type        String
+  processedAt DateTime @default(now())
 }
 
 model BrandProfile {
@@ -76,6 +260,7 @@ model Design {
   platforms   String[]
   scheduledAt DateTime?
   status      DesignStatus @default(DRAFT)
+  chargedAt   DateTime?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 

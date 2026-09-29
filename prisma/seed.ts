@@ -5,6 +5,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { readFileSync } from "node:fs";
 import { PrismaClient, type Prisma } from "../src/generated/prisma/client";
 import { DEMO_PROFILE } from "../src/lib/demo";
+import { DEFAULT_TIERS } from "./seed-tiers";
 
 type CatalogEntry = {
   id: string;
@@ -52,6 +53,12 @@ async function main() {
 
   const removed = await prisma.template.deleteMany({ where: { id: { notIn: catalog.map((t) => t.id) } } });
   if (removed.count) console.log(`removed stale templates=${removed.count}`);
+
+  for (const { slug, features, ...tier } of DEFAULT_TIERS) {
+    const data = { ...tier, features: features as unknown as Prisma.InputJsonValue };
+    await prisma.membershipTier.upsert({ where: { slug }, create: { slug, ...data }, update: {} });
+  }
+  console.log(`tiers=${await prisma.membershipTier.count()}`);
   if (templatesOnly) {
     console.log(`seeded templates=${await prisma.template.count()}`);
     return;

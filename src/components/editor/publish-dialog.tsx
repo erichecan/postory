@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { scheduleDesignAction } from "@/lib/actions/designs";
-import { PUBLISH_TARGETS, publishTargetLabel } from "@/lib/platforms";
+import { PUBLISH_PLATFORMS, publishPlatformLabel } from "@/lib/platforms";
 import { cn } from "@/lib/utils";
 
 function toLocalInput(d: Date) {
@@ -44,7 +44,7 @@ export function PublishDialog({
         toast.error(res.error ?? t("saveFailed"));
         return;
       }
-      toast.success(t("scheduled"), { description: `${format.list(platforms.map((p) => publishTargetLabel(tp, p)))} · ${format.dateTime(new Date(at), { dateStyle: "medium", timeStyle: "short" })}` });
+      toast.success(t("scheduled"), { description: `${format.list(platforms.map((p) => publishPlatformLabel(tp, p)))} · ${format.dateTime(new Date(at), { dateStyle: "medium", timeStyle: "short" })}` });
       setOpen(false);
     });
   }
@@ -63,11 +63,11 @@ export function PublishDialog({
           <div className="flex flex-col gap-2">
             <span className="text-sm">{t("targets")}</span>
             <div className="grid grid-cols-2 gap-2">
-              {PUBLISH_TARGETS.map((p) => {
+              {PUBLISH_PLATFORMS.map((p) => {
                 const on = platforms.includes(p);
                 return (
                   <button key={p} type="button" onClick={() => toggle(p)} className={cn("flex h-10 items-center justify-between rounded-lg border px-3 text-sm", on && "border-primary bg-primary/10")}>
-                    {publishTargetLabel(tp, p)}
+                    {publishPlatformLabel(tp, p)}
                     {on && <Check className="size-4 text-primary" />}
                   </button>
                 );

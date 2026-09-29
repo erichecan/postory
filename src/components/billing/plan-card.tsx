@@ -3,7 +3,7 @@ import { CreditCard, ExternalLink } from "lucide-react";
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { buttonVariants } from "@/components/ui/button";
 import { formatMoney, monthlyTotal } from "@/lib/billing/plan-math";
-import { BASE_PUBLISH_PLATFORMS } from "@/lib/platforms";
+import { BASE_PUBLISH_PLATFORMS, publishPlatformLabel } from "@/lib/platforms";
 import { cn } from "@/lib/utils";
 import type { PlanStatus, PlanView } from "@/types/commerce";
 
@@ -25,7 +25,7 @@ function Row({ label, value, strong }: { label: string; value: string; strong?: 
 }
 
 export async function PlanCard({ plan, payHref, billingHref }: { plan: PlanView; payHref: string; billingHref: string }) {
-  const [t, tp, locale, format] = await Promise.all([getTranslations("billing.plan"), getTranslations("platforms.publish"), getLocale(), getFormatter()]);
+  const [t, tp, locale, format] = await Promise.all([getTranslations("billing.plan"), getTranslations("platforms"), getLocale(), getFormatter()]);
   const money = (cents: number) => formatMoney(cents, plan.currency, locale);
   const needsPayment = plan.status === "PENDING_PAYMENT" || plan.status === "DRAFT";
 
@@ -60,11 +60,11 @@ export async function PlanCard({ plan, payHref, billingHref }: { plan: PlanView;
         <span className="text-xs text-muted-foreground">{t("platforms")}</span>
         <div className="flex flex-wrap gap-1.5">
           {BASE_PUBLISH_PLATFORMS.map((p) => (
-            <span key={p} className="rounded-md border px-2 py-1 text-xs">{tp(p)}</span>
+            <span key={p} className="rounded-md border px-2 py-1 text-xs">{tp(`publish.${p}`)}</span>
           ))}
           {plan.extraPlatforms.map((p) => (
             <span key={p} className="rounded-md border border-primary/40 bg-primary/10 px-2 py-1 text-xs text-primary">
-              {tp(p as Parameters<typeof tp>[0])} · {t("extraTag")}
+              {publishPlatformLabel(tp, p)} · {t("extraTag")}
             </span>
           ))}
         </div>

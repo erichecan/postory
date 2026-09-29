@@ -1,12 +1,12 @@
 import { Check, Minus } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { buttonVariants } from "@/components/ui/button";
 import { FEATURE_GROUPS, type FeatureUnit, type FeatureValue, type TierFeatures } from "@/lib/billing/tier-features";
 import { cn } from "@/lib/utils";
+import { ContactButton } from "./contact-button";
 
 export type ComparisonTier = { id: string; name: string; tagline: string; features: TierFeatures; recommended?: boolean };
 
-export async function ComparisonTable({ tiers, contactHref }: { tiers: ComparisonTier[]; contactHref: string }) {
+export async function ComparisonTable({ tiers }: { tiers: ComparisonTier[] }) {
   const t = await getTranslations("plans");
 
   function cell(value: FeatureValue, unit?: FeatureUnit) {
@@ -42,7 +42,7 @@ export async function ComparisonTable({ tiers, contactHref }: { tiers: Compariso
               ))}
             </div>
           ))}
-          <a href={contactHref} className={cn(buttonVariants({ variant: tier.recommended ? "default" : "outline", size: "lg" }), "h-10 w-full")}>{t("cta")}</a>
+          <ContactButton label={t("cta")} variant={tier.recommended ? "default" : "outline"} size="lg" className="h-10 w-full" />
         </section>
       ))}
     </div>
@@ -62,7 +62,7 @@ export async function ComparisonTable({ tiers, contactHref }: { tiers: Compariso
                     {tier.recommended && <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-medium text-primary">{t("recommended")}</span>}
                     <span className="text-lg font-semibold">{tier.name}</span>
                     <span className="text-xs text-muted-foreground">{tier.tagline}</span>
-                    <a href={contactHref} className={cn(buttonVariants({ variant: tier.recommended ? "default" : "outline" }), "mt-2 w-full max-w-40")}>{t("cta")}</a>
+                    <ContactButton label={t("cta")} variant={tier.recommended ? "default" : "outline"} className="mt-2 w-full max-w-40" />
                   </div>
                 </th>
               ))}

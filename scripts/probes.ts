@@ -107,7 +107,7 @@ async function main() {
   const payload = { title: "HACKED", pages: tpl.pages };
   const writes: [string, unknown[]][] = [
     ["saveDesignAction", [design.id, payload]],
-    ["scheduleDesignAction", [design.id, { platforms: ["小红书"], scheduledAt: new Date().toISOString() }]],
+    ["scheduleDesignAction", [design.id, { platforms: ["xiaohongshu"], scheduledAt: new Date().toISOString() }]],
     ["deleteDesignAction", [design.id]],
     ["adminToggleUserAction", [b.id, true]],
     ["adminCreateUserAction", [undefined, "$K"]],
@@ -140,9 +140,9 @@ async function main() {
 
   const adminOnAdmin = await callAction("adminToggleUserAction", [admin.id, true], cookieAdmin);
   check("管理员停用管理员账号 → 拒绝", /"ok":false/.test(adminOnAdmin.body));
-  const past = await callAction("scheduleDesignAction", [design.id, { platforms: ["小红书"], scheduledAt: "2020-01-01T00:00:00.000Z" }], cookieA);
+  const past = await callAction("scheduleDesignAction", [design.id, { platforms: ["xiaohongshu"], scheduledAt: "2020-01-01T00:00:00.000Z" }], cookieA);
   check("发布时间早于现在 → 拒绝", /"ok":false/.test(past.body));
-  const future = await callAction("scheduleDesignAction", [design.id, { platforms: ["小红书"], scheduledAt: new Date(Date.now() + 86400000).toISOString() }], cookieA);
+  const future = await callAction("scheduleDesignAction", [design.id, { platforms: ["xiaohongshu"], scheduledAt: new Date(Date.now() + 86400000).toISOString() }], cookieA);
   check("发布时间在未来 → 成功", /"ok":true/.test(future.body));
 
   const bigImage = "data:image/png;base64," + "A".repeat(3 * 1024 * 1024);

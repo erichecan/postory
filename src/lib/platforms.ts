@@ -9,24 +9,18 @@ export const PLATFORMS = [
 
 export type PlatformId = (typeof PLATFORMS)[number]["id"];
 
-export const PUBLISH_TARGETS = ["小红书", "微信朋友圈", "抖音", "Instagram", "Facebook", "X / Twitter"] as const; // i18n-allow: 存库的值
-
-export type PublishTarget = (typeof PUBLISH_TARGETS)[number];
-
-type PublishTargetKey = "xiaohongshu" | "wechatMoments" | "douyin" | "instagram" | "facebook" | "twitter";
-
-const PUBLISH_TARGET_KEYS: Record<PublishTarget, PublishTargetKey> = {
-  小红书: "xiaohongshu", // i18n-allow
-  微信朋友圈: "wechatMoments", // i18n-allow
-  抖音: "douyin", // i18n-allow
-  Instagram: "instagram",
-  Facebook: "facebook",
-  "X / Twitter": "twitter",
-};
-
 export const BASE_PUBLISH_PLATFORMS = ["facebook", "instagram", "tiktok", "xiaohongshu"] as const;
 export const EXTRA_PUBLISH_PLATFORMS = ["x", "youtube", "pinterest", "linkedin", "threads", "douyin", "wechat-moments"] as const;
-export type PublishPlatformId = (typeof BASE_PUBLISH_PLATFORMS)[number] | (typeof EXTRA_PUBLISH_PLATFORMS)[number];
+export const PUBLISH_PLATFORMS = [...BASE_PUBLISH_PLATFORMS, ...EXTRA_PUBLISH_PLATFORMS] as const;
+export type PublishPlatformId = (typeof PUBLISH_PLATFORMS)[number];
+
+export function isPublishPlatform(value: string): value is PublishPlatformId {
+  return (PUBLISH_PLATFORMS as readonly string[]).includes(value);
+}
+
+export function isExtraPlatform(value: string): value is (typeof EXTRA_PUBLISH_PLATFORMS)[number] {
+  return (EXTRA_PUBLISH_PLATFORMS as readonly string[]).includes(value);
+}
 
 type Translate<K extends string> = (key: K) => string;
 
@@ -38,10 +32,6 @@ export function platformLabel(t: Translate<`platform.${PlatformId}`>, id: string
   return isPlatformId(id) ? t(`platform.${id}`) : id;
 }
 
-function isPublishTarget(value: string): value is PublishTarget {
-  return Object.hasOwn(PUBLISH_TARGET_KEYS, value);
-}
-
-export function publishTargetLabel(t: Translate<`target.${PublishTargetKey}`>, value: string) {
-  return isPublishTarget(value) ? t(`target.${PUBLISH_TARGET_KEYS[value]}`) : value;
+export function publishPlatformLabel(t: Translate<`publish.${PublishPlatformId}`>, value: string) {
+  return isPublishPlatform(value) ? t(`publish.${value}`) : value;
 }

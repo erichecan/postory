@@ -2,6 +2,7 @@ import "./load-env";
 import bcrypt from "bcryptjs";
 import type { Prisma } from "../src/generated/prisma/client";
 import { prisma, takeQueryCount } from "../src/lib/db/client";
+import { getBalanceAt, listTxns, TXN_PAGE_SIZE } from "../src/lib/db/credits";
 import { listOwnDesigns } from "../src/lib/db/designs";
 import { listTemplates, TEMPLATES_PER_PAGE } from "../src/lib/db/templates";
 
@@ -46,6 +47,20 @@ async function main() {
   report("我的作品草稿分页", mine.drafts.length === 24 && mine.draftPageCount === Math.ceil(200 / 24), `每页 ${mine.drafts.length} 条，共 ${mine.draftPageCount} 页`);
   const page = await listTemplates({ page: 1 });
   report("模板列表分页", page.items.length === TEMPLATES_PER_PAGE && page.pageCount === Math.ceil(page.total / TEMPLATES_PER_PAGE), `每页 ${page.items.length} 条，共 ${page.pageCount} 页`);
+
+  const seedTxns = async (n: number) => {
+    await prisma.creditGrant.deleteMany({ where: { userId: user.id } });
+    await prisma.creditTxn.deleteMany({ where: { userId: user.id } });
+    await prisma.creditGrant.createMany({ data: Array.from({ length: n }, () => ({ userId: user.id, source: "TOPUP" as const, amount: 1, remaining: 1 })) });
+    await prisma.creditTxn.createMany({ data: Array.from({ length: n }, (_, i) => ({ userId: user.id, kind: "GRANT" as const, source: "TOPUP" as const, delta: 1, refId: `q-${i}` })) });
+  };
+  await seedTxns(10);
+  const t10 = await queriesOf(() => Promise.all([listTxns(user.id), getBalanceAt(user.id, new Date())]));
+  await seedTxns(200);
+  const t200 = await queriesOf(() => Promise.all([listTxns(user.id), getBalanceAt(user.id, new Date())]));
+  report("流水与余额查询数不随数据量增长", t10 === t200 && t10 <= 3, `10 条=${t10} 次，200 条=${t200} 次`);
+  const txns = await listTxns(user.id);
+  report("流水分页", txns.items.length === TXN_PAGE_SIZE && txns.pageCount === Math.ceil(200 / TXN_PAGE_SIZE), `每页 ${txns.items.length} 条，共 ${txns.pageCount} 页`);
 
   await prisma.user.delete({ where: { id: user.id } });
   await prisma.$disconnect();

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Prisma } from "@/generated/prisma/client";
 import { createSession, destroySession } from "@/lib/auth/session";
+import { ensureDemoCommerce } from "@/lib/db/demo-commerce";
 import { createUser, ensureDemoUser, findUserByPhone, verifyPassword } from "@/lib/db/users";
 import { DUMMY_HASH, safeNext } from "@/lib/safe-next";
 import { firstError, loginSchema, registerSchema, type FormState } from "@/lib/validation";
@@ -43,6 +44,7 @@ export async function loginAction(_: FormState, formData: FormData): Promise<For
 export async function demoLoginAction(): Promise<FormState> {
   const user = await ensureDemoUser();
   if (user.disabled || user.role !== "USER") return { error: await authError("demoUnavailable") };
+  await ensureDemoCommerce(user.id);
   await createSession({ userId: user.id, role: user.role });
   redirect("/templates");
 }

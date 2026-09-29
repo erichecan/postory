@@ -102,5 +102,14 @@
     "title": "Membership tiers",
     "subtitle": "Pricing is quoted for each business",
     "cta": "Ask about joining"
+  },
+  "contact": {
+    "title": "Add us on WeChat",
+    "body": "Mention your business name when you add us and we'll send you a quote within one business day.",
+    "idLabel": "WeChat ID",
+    "copy": "Copy",
+    "copied": "WeChat ID copied",
+    "qrAlt": "WeChat QR code",
+    "missing": "WeChat ID not configured yet"
   }
 }

@@ -41,10 +41,10 @@ for _ in $(seq 1 60); do curl -s -o /dev/null "$BASE/login" && break; sleep 0.5;
 COOKIE=$(npx tsx -e 'import "./scripts/load-env"; import { signSession, SESSION_COOKIE } from "./src/lib/auth/token"; import { prisma } from "./src/lib/db/client"; (async()=>{const u=await prisma.user.findUniqueOrThrow({where:{phone:"13900000000"}}); console.log(`${SESSION_COOKIE}=${await signSession({userId:u.id,role:u.role})}`); await prisma.$disconnect();})()')
 
 step "双语路由探针（NEXT_LOCALE=zh/en → <html lang> 与状态码）"
-for path in "/login" "/register" "/templates" "/templates?platform=instagram-post" "/templates/orshot-2427" "/designs" "/profile"; do
+for path in "/login" "/register" "/plans" "/templates" "/templates?platform=instagram-post" "/templates/orshot-2427" "/designs" "/profile" "/membership" "/create"; do
   for loc in zh en; do
     want=$([ "$loc" = zh ] && echo "zh-CN" || echo "en")
-    SESSION=$([[ "$path" == /login || "$path" == /register ]] || echo "; $COOKIE")
+    SESSION=$([[ "$path" == /login || "$path" == /register || "$path" == /plans ]] || echo "; $COOKIE")
     RES=$(curl -s -w '\n%{http_code}' -H "Cookie: NEXT_LOCALE=$loc$SESSION" "$BASE$path")
     CODE=$(tail -n1 <<<"$RES")
     OK=0; [[ "$CODE" == 200 ]] && grep -q "<html lang=\"$want\"" <<<"$RES" && OK=1
@@ -54,6 +54,17 @@ done
 
 step "路由 + 鉴权 + 资源约束探针"
 run "probes" npx tsx scripts/probes.ts "$BASE"
+
+step "公开页与受保护页"
+PLANS_ANON=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/plans")
+run "/plans 未登录 200（实际 ${PLANS_ANON}）" test "$PLANS_ANON" = 200
+for path in /membership /create; do
+  C=$(curl -s -o /dev/null -w '%{http_code}' "$BASE$path")
+  run "$path 未登录 → 307 跳登录（实际 ${C}）" test "$C" = 307
+done
+
+step "Credit 账本不变量"
+run "ledger-probe" env NODE_OPTIONS="--conditions=react-server" npx tsx scripts/ledger-probe.ts
 
 step "查询探针"
 run "query-probe" env PRISMA_QUERY_COUNT=1 NODE_OPTIONS="--conditions=react-server" npx tsx scripts/query-probe.ts

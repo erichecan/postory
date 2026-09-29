@@ -10,7 +10,7 @@ export async function TxnTable({ txns, title }: { txns: TxnView[]; title?: strin
     if (x.kind === "REFUND" && x.charge) return t("refund", { item: t(`charge.${x.charge}`) });
     if (x.kind === "GRANT" && x.source) return t(`source.${x.source}`);
     if (x.kind === "EXPIRE") return t("expire");
-    return x.note ?? t("adjust");
+    return t("adjust");
   }
 
   return (

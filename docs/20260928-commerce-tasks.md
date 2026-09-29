@@ -8,11 +8,13 @@
       定性状态：导航顺序、三档名字已确认（2026-09-28）；权益对比页待你确认
       证据：tsc 通过；eslint 0 问题；i18n keys zh=425 en=425 OK；390px 下 /membership、/create 无横向滚动
       依赖：无
-- [ ] C1 Schema 迁移 + 平台 id 迁移 + credit 账本（并发测试）
+- [x] C1 Schema 迁移 + 平台 id 迁移 + credit 账本（并发测试）
       验收命令：bash scripts/verify.sh（账本不变量段）
-      可看物：verify 输出
-      定性状态：—
-      证据：—
+      可看物：docs/shots/20260928-c1-membership-demo.png、20260928-c1-wechat-dialog.png
+      定性状态：—（技术单元）
+      证据：VERIFY PASS 109 项；ledger-probe 13/13（并发 20 扣 5 恰好 5 成功、退款成对、重复退款拒绝、同作品只扣一次、赠送仅模板、先到期先用、过期/未生效不可扣、refId 幂等）；query-probe 流水+余额 10 条=3 次、200 条=3 次
+      偏离 DEV-PLAN：CreditGrant 加 unit(CREDIT|VIDEO)；CreditTxn 用 allocations Json 记录分摊（替代 grantId），@@unique(userId,kind,refId) 保证幂等；MembershipTier 加 slug/tagline/features/recommended
+      遗留：/admin/accounts/[id] 仍是假数据（C3）；联系微信号待用户提供，用 NEXT_PUBLIC_CONTACT_WECHAT 配置
       依赖：C0 确认
 - [ ] C2 账号改造：邮箱注册、验证码、赠送 10、找回密码
       验收命令：verify.sh 鉴权 + 赠送幂等
