@@ -1,0 +1,64 @@
+{
+  "page": {
+    "title": "AI images",
+    "subtitle": "Turn a phone photo into a promo image, or pick a scene and describe it in one line"
+  },
+  "mode": {
+    "photo": "Enhance photo",
+    "text": "Text to image"
+  },
+  "upload": {
+    "label": "Upload a photo",
+    "hint": "Dishes, drinks, products or your storefront · JPG / PNG / WebP · up to 10MB",
+    "replace": "Replace",
+    "tooLarge": "Photo is larger than 10MB",
+    "badType": "Only JPG, PNG and WebP are supported"
+  },
+  "scenes": {
+    "label": "Scene",
+    "dishCloseup": "Dish close-up",
+    "drinkPoster": "Drink poster",
+    "newArrival": "New arrival",
+    "beforeAfter": "Before & after",
+    "salonInterior": "Salon interior",
+    "holidaySale": "Holiday sale"
+  },
+  "prompt": {
+    "label": "Describe the image",
+    "photoPlaceholder": "e.g. on a wooden table with coffee beans, warm morning light",
+    "textPlaceholder": "e.g. autumn pumpkin latte, falling leaves, warm orange tones"
+  },
+  "brand": {
+    "label": "Use my business details",
+    "hint": "Adds the style and name of \"{shop}\"",
+    "missing": "Business profile not filled in yet"
+  },
+  "ratio": {
+    "label": "Ratio",
+    "square": "1:1 Post",
+    "portrait": "4:5 Portrait",
+    "story": "9:16 Story",
+    "landscape": "16:9 Landscape"
+  },
+  "quality": {
+    "label": "Quality",
+    "standard": "Standard",
+    "hd": "HD"
+  },
+  "generate": "Generate · {count, plural, one {# credit} other {# credits}}",
+  "generating": "Generating, usually 15–40 seconds…",
+  "balance": "{count} credits left",
+  "demoDisabled": "AI images aren't available on the demo account. Sign up to use them.",
+  "result": {
+    "emptyTitle": "Your image will appear here",
+    "emptyBody": "Not quite right? Say what to change below. Each round counts as one image.",
+    "round": "Round {n}",
+    "refineLabel": "Keep editing",
+    "refinePlaceholder": "e.g. brighter background, remove the cup on the left",
+    "refine": "Apply · {count, plural, one {# credit} other {# credits}}",
+    "download": "Download",
+    "toEditor": "Add text in editor",
+    "failed": "That one didn't work. Your credits were refunded."
+  },
+  "history": "History"
+}

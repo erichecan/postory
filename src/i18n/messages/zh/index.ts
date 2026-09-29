@@ -9,7 +9,9 @@ import designs from "./designs.json";
 import admin from "./admin.json";
 import platforms from "./platforms.json";
 import editor from "./editor.json";
+import billing from "./billing.json";
+import create from "./create.json";
 
-const messages = { common, auth, profile, validation, nav, gallery, templates, designs, admin, platforms, editor };
+const messages = { common, auth, profile, validation, nav, gallery, templates, designs, admin, platforms, editor, billing, create };
 
 export default messages;

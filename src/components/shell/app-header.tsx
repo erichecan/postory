@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { LogOut } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { CreditBadge } from "@/components/billing/credit-badge";
 import { Logo } from "@/components/brand/logo";
 import { LocaleSwitcher } from "@/components/i18n/locale-switcher";
 import { logoutAction } from "@/lib/actions/auth";
 import type { CurrentUser } from "@/lib/auth/session";
 import { NavLinks } from "./nav-links";
 
-export async function AppHeader({ user }: { user: CurrentUser }) {
+export async function AppHeader({ user, credits }: { user: CurrentUser; credits: number }) {
   const t = await getTranslations("nav");
   return (
     <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-background/80 backdrop-blur-md">
@@ -17,6 +18,7 @@ export async function AppHeader({ user }: { user: CurrentUser }) {
           <NavLinks isAdmin={user.role === "ADMIN"} />
         </div>
         <div className="ml-auto flex h-14 shrink-0 items-center gap-2 md:ml-0">
+          <CreditBadge count={credits} />
           <LocaleSwitcher />
           <Link href="/profile" className="hidden items-center gap-2 rounded-lg px-2 py-1 text-sm text-foreground/80 hover:text-foreground sm:flex">
             <span className="grid size-7 place-items-center rounded-full bg-primary/20 text-xs font-medium text-primary">{user.name.slice(0, 1)}</span>

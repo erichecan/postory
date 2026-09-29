@@ -39,5 +39,36 @@
     "notFound": "账号不存在",
     "cannotDisableAdmin": "管理员账号不能在这里停用"
   },
-  "created": "已开通：{name}（{phone}）"
+  "created": "已开通：{name}（{phone}）",
+  "customer": {
+    "back": "返回账号列表",
+    "planTitle": "会员方案",
+    "planHint": "每个客户单独定价。保存后客户在「我的会员」页看到方案并自己付款；线下收了钱就直接开通。",
+    "tier": "会员等级",
+    "currency": "币种",
+    "allInclusive": "全包一口价",
+    "allInclusiveHint": "打开后只收这一个价，忽略基础月费和额外平台单价",
+    "allInclusiveFee": "全包月费",
+    "baseFee": "基础月费",
+    "basePlatforms": "基础平台（固定包含）",
+    "extraPlatforms": "额外平台",
+    "extraPlatformFee": "额外平台单价 / 个",
+    "monthlyCredits": "每月 credit",
+    "monthlyVideos": "每月视频条数",
+    "topupUnitPrice": "充值单价 / credit",
+    "summary": "客户每月支付",
+    "save": "保存方案",
+    "saved": "方案已保存，客户可以去付款了",
+    "offlineTitle": "线下已收款",
+    "offlineHint": "不走 Stripe，按月发放额度，每个月的额度只在当月有效",
+    "months": "开通月数",
+    "offlineSubmit": "开通 {count} 个月",
+    "adjustTitle": "调整 credit",
+    "adjustAmount": "数量（负数为扣减）",
+    "adjustReason": "原因（必填，客户看不到）",
+    "adjustSubmit": "确认调整",
+    "balance": "当前余额",
+    "txnsTitle": "流水",
+    "contact": "联系方式"
+  }
 }

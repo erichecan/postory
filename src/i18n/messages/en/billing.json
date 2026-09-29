@@ -1,0 +1,106 @@
+{
+  "page": {
+    "title": "Membership",
+    "subtitle": "Your plan, this month's credits and every charge, in one place"
+  },
+  "plan": {
+    "title": "My plan",
+    "exclusive": "Your custom plan",
+    "status": {
+      "DRAFT": "Not active",
+      "PENDING_PAYMENT": "Awaiting payment",
+      "ACTIVE": "Active",
+      "PAST_DUE": "Payment failed",
+      "CANCELED": "Canceled"
+    },
+    "baseFee": "Base fee (4 platforms included)",
+    "extraPlatforms": "Extra platforms × {count}",
+    "allInclusive": "All-inclusive fee",
+    "monthlyTotal": "Monthly total",
+    "perMonth": "/ mo",
+    "includes": "Includes {credits} credits · {videos} videos every month",
+    "renewsOn": "Renews on {date}",
+    "offlineUntil": "Activated offline, valid until {date}",
+    "pay": "Pay now",
+    "payHint": "Secure payment by Stripe. Renews monthly, cancel anytime.",
+    "manageBilling": "Payment methods & invoices",
+    "platforms": "Publishing platforms",
+    "baseTag": "Included",
+    "extraTag": "Add-on",
+    "none": {
+      "title": "No membership yet",
+      "body": "Membership is priced for each business. Browse the benefits below and get in touch when you're ready.",
+      "contact": "Contact us"
+    },
+    "pastDue": "Your last automatic payment failed. Update your payment method or next month's credits won't be issued."
+  },
+  "balance": {
+    "title": "Credits left",
+    "unit": "credits",
+    "monthly": "This month",
+    "monthlyExpires": "Resets {date}",
+    "templateOnly": "Sign-up gift (templates only)",
+    "lasting": "Top-up (never expires)",
+    "videos": "Videos this month",
+    "videosUnit": "{remaining} / {amount}",
+    "topup": "Top up"
+  },
+  "rules": {
+    "title": "How credits are used",
+    "template": "One image from a template",
+    "aiStandard": "AI image · Standard",
+    "aiHd": "AI image · HD",
+    "credits": "{count, plural, one {# credit} other {# credits}}",
+    "note": "Editing a template is free; you're charged when you export it or add it to the schedule, and only once per design. Every AI round counts as one image, and failed generations are refunded automatically."
+  },
+  "topup": {
+    "title": "Top up credits",
+    "description": "Top-up credits never expire and kick in once this month's credits run out.",
+    "quantity": "Quantity",
+    "min": "Minimum {count}",
+    "unitPrice": "Unit price",
+    "total": "Total",
+    "submit": "Pay now",
+    "needPlan": "Top-ups are available to members"
+  },
+  "insufficient": {
+    "title": "Not enough credits",
+    "body": "This needs {need} credits and you have {have} left.",
+    "templateOnlyHint": "Sign-up gift credits can only be used on templates.",
+    "topup": "Top up",
+    "openPlan": "Become a member",
+    "later": "Maybe later"
+  },
+  "txns": {
+    "title": "Activity",
+    "empty": "Nothing here yet",
+    "columns": {
+      "time": "Time",
+      "item": "Item",
+      "change": "Change"
+    },
+    "charge": {
+      "TEMPLATE_EXPORT": "Template image",
+      "AI_STANDARD": "AI image · Standard",
+      "AI_HD": "AI image · HD"
+    },
+    "source": {
+      "SIGNUP_GIFT": "Sign-up gift",
+      "MONTHLY": "Monthly credits",
+      "TOPUP": "Top-up",
+      "ADMIN": "Manual adjustment",
+      "REFUND_RETURN": "Refund"
+    },
+    "refund": "{item} · refunded",
+    "expire": "Credits expired",
+    "adjust": "Manual adjustment"
+  },
+  "badge": {
+    "label": "{count} credits left"
+  },
+  "tiers": {
+    "title": "Membership tiers",
+    "subtitle": "Pricing is quoted for each business",
+    "cta": "Ask about joining"
+  }
+}

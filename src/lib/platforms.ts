@@ -24,6 +24,10 @@ const PUBLISH_TARGET_KEYS: Record<PublishTarget, PublishTargetKey> = {
   "X / Twitter": "twitter",
 };
 
+export const BASE_PUBLISH_PLATFORMS = ["facebook", "instagram", "tiktok", "xiaohongshu"] as const;
+export const EXTRA_PUBLISH_PLATFORMS = ["x", "youtube", "pinterest", "linkedin", "threads", "douyin", "wechat-moments"] as const;
+export type PublishPlatformId = (typeof BASE_PUBLISH_PLATFORMS)[number] | (typeof EXTRA_PUBLISH_PLATFORMS)[number];
+
 type Translate<K extends string> = (key: K) => string;
 
 export function isPlatformId(value: string | undefined): value is PlatformId {

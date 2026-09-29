@@ -1,0 +1,64 @@
+{
+  "page": {
+    "title": "AI 生图",
+    "subtitle": "上传手机拍的照片做成宣传图，或者选个场景写一句话直接出图"
+  },
+  "mode": {
+    "photo": "实拍美化",
+    "text": "文生图"
+  },
+  "upload": {
+    "label": "上传照片",
+    "hint": "菜品、饮品、产品、店面都行 · JPG / PNG / WebP · 10MB 以内",
+    "replace": "换一张",
+    "tooLarge": "照片超过 10MB",
+    "badType": "只支持 JPG、PNG、WebP"
+  },
+  "scenes": {
+    "label": "场景",
+    "dishCloseup": "菜品特写",
+    "drinkPoster": "饮品海报",
+    "newArrival": "新品上市",
+    "beforeAfter": "美业前后对比",
+    "salonInterior": "店内环境",
+    "holidaySale": "节日促销"
+  },
+  "prompt": {
+    "label": "描述你想要的画面",
+    "photoPlaceholder": "比如：放在木桌上，旁边有咖啡豆，暖色晨光",
+    "textPlaceholder": "比如：秋天限定南瓜拿铁，落叶背景，温暖的橙色调"
+  },
+  "brand": {
+    "label": "带上店铺资料",
+    "hint": "自动加入「{shop}」的风格和名字",
+    "missing": "还没填商家资料"
+  },
+  "ratio": {
+    "label": "比例",
+    "square": "1:1 帖子",
+    "portrait": "4:5 竖版",
+    "story": "9:16 快拍",
+    "landscape": "16:9 横版"
+  },
+  "quality": {
+    "label": "清晰度",
+    "standard": "标准",
+    "hd": "高清"
+  },
+  "generate": "生成 · {count} credit",
+  "generating": "生成中，通常 15–40 秒…",
+  "balance": "剩余 {count} credit",
+  "demoDisabled": "演示账号不能使用 AI 生图，注册后可用",
+  "result": {
+    "emptyTitle": "生成的图会出现在这里",
+    "emptyBody": "不满意就在下面写哪里要改，每改一轮算一张。",
+    "round": "第 {n} 轮",
+    "refineLabel": "继续修改",
+    "refinePlaceholder": "比如：背景再亮一点，去掉左边的杯子",
+    "refine": "按这个改 · {count} credit",
+    "download": "下载",
+    "toEditor": "送到编辑器加字",
+    "failed": "这次没生成出来，credit 已退回"
+  },
+  "history": "生成历史"
+}

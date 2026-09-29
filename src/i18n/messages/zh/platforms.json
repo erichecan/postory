@@ -14,5 +14,18 @@
     "instagram": "Instagram",
     "facebook": "Facebook",
     "twitter": "X / Twitter"
+  },
+  "publish": {
+    "facebook": "Facebook",
+    "instagram": "Instagram",
+    "tiktok": "TikTok",
+    "xiaohongshu": "小红书",
+    "x": "X / Twitter",
+    "youtube": "YouTube",
+    "pinterest": "Pinterest",
+    "linkedin": "LinkedIn",
+    "threads": "Threads",
+    "douyin": "抖音",
+    "wechat-moments": "微信朋友圈"
   }
 }

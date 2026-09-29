@@ -1,0 +1,106 @@
+{
+  "page": {
+    "title": "我的会员",
+    "subtitle": "你的专属方案、本月额度和每一笔消耗都在这里"
+  },
+  "plan": {
+    "title": "我的方案",
+    "exclusive": "你的专属方案",
+    "status": {
+      "DRAFT": "未生效",
+      "PENDING_PAYMENT": "待付款",
+      "ACTIVE": "生效中",
+      "PAST_DUE": "扣款失败",
+      "CANCELED": "已取消"
+    },
+    "baseFee": "基础月费（含 4 个平台）",
+    "extraPlatforms": "额外平台 × {count}",
+    "allInclusive": "全包月费",
+    "monthlyTotal": "每月合计",
+    "perMonth": "/ 月",
+    "includes": "每月包含 {credits} credit · {videos} 条视频",
+    "renewsOn": "下次续费：{date}",
+    "offlineUntil": "线下开通，有效期至 {date}",
+    "pay": "去付款",
+    "payHint": "通过 Stripe 安全支付，每月自动续费，可随时取消",
+    "manageBilling": "管理付款方式与发票",
+    "platforms": "可发布平台",
+    "baseTag": "基础",
+    "extraTag": "加开",
+    "none": {
+      "title": "还没有开通会员",
+      "body": "会员价格按门店情况单独定制。看看下面的权益，想开通就联系我们。",
+      "contact": "联系我们开通"
+    },
+    "pastDue": "上次自动扣款没有成功，请更新付款方式，否则下个月的额度不会发放。"
+  },
+  "balance": {
+    "title": "剩余额度",
+    "unit": "credit",
+    "monthly": "本月额度",
+    "monthlyExpires": "{date} 清零",
+    "templateOnly": "注册赠送（仅限模板）",
+    "lasting": "充值（不过期）",
+    "videos": "本月视频",
+    "videosUnit": "{remaining} / {amount} 条",
+    "topup": "充值"
+  },
+  "rules": {
+    "title": "怎么扣",
+    "template": "用模板出一张图",
+    "aiStandard": "AI 生图 · 标准",
+    "aiHd": "AI 生图 · 高清",
+    "credits": "{count} credit",
+    "note": "打开模板随便改不扣；导出或加入发布计划时才扣，同一个作品只扣一次。AI 每重新生成一轮算一张，生成失败自动退回。"
+  },
+  "topup": {
+    "title": "充值 credit",
+    "description": "充值的 credit 不过期，本月额度用完后自动使用。",
+    "quantity": "数量",
+    "min": "最少 {count} 个",
+    "unitPrice": "单价",
+    "total": "合计",
+    "submit": "去付款",
+    "needPlan": "开通会员后可以自助充值"
+  },
+  "insufficient": {
+    "title": "credit 不够了",
+    "body": "这次需要 {need} credit，你还剩 {have}。",
+    "templateOnlyHint": "注册赠送的额度只能用于模板出图。",
+    "topup": "充值",
+    "openPlan": "开通会员",
+    "later": "稍后再说"
+  },
+  "txns": {
+    "title": "消耗记录",
+    "empty": "还没有记录",
+    "columns": {
+      "time": "时间",
+      "item": "项目",
+      "change": "变动"
+    },
+    "charge": {
+      "TEMPLATE_EXPORT": "模板出图",
+      "AI_STANDARD": "AI 生图 · 标准",
+      "AI_HD": "AI 生图 · 高清"
+    },
+    "source": {
+      "SIGNUP_GIFT": "注册赠送",
+      "MONTHLY": "每月额度发放",
+      "TOPUP": "充值",
+      "ADMIN": "人工调整",
+      "REFUND_RETURN": "退回"
+    },
+    "refund": "{item} · 失败退回",
+    "expire": "额度到期清零",
+    "adjust": "人工调整"
+  },
+  "badge": {
+    "label": "剩余 {count} credit"
+  },
+  "tiers": {
+    "title": "会员等级",
+    "subtitle": "价格按你的门店情况单独报价",
+    "cta": "咨询开通"
+  }
+}

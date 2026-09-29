@@ -1,0 +1,82 @@
+# Postory 商业化框架（讨论稿 v2）
+
+日期：2026-09-28　状态：讨论中，未进入 DEV-PLAN
+原话出处：`docs/20260927-social-shell-需求原话.md`「2026-09-28 商业化讨论」
+
+## 一、已定（用户原话）
+
+| # | 决定 | 原话 |
+| :-- | :-- | :-- |
+| 1 | 不做公开价格页，只展示会员等级和权益；每个客户单独定价，另有全包价 | "不要有 priceing 价格,只有会员等级和权益,因为我需要卖给不同人不同的价格,还有全包的价格" |
+| 2 | 基础包含 FB、IG、TikTok、小红书 4 个平台，每多一个平台加一份钱 | "基础包含 FB,IG,TikTok,小红书,其他平台,每多一个平台,就多一份钱" |
+| 3 | 基础报价里写明包含多少张图片、多少条视频 | "基础报价里包含图片有多少张,视频多少条" |
+| 4 | Stripe 收欧元、加元 | "stripe 准备接欧元,加币的" |
+| 5 | 用模板出图也扣 credit，AI 生图也扣 credit | "客户选模板就相当于生成图片,也扣 credit,然后 AI 生图也是扣 credit" |
+| 6 | 注册送 10 个模板 | "注册可以送 10 个模板" |
+| 7 | AI 生图 1 元一张，每轮改提示词重新生成都算一张 | "AI 生图 1 元一张,因为有往返,会不断完善提示词" |
+| 8 | 标准图 1 credit，高清 2 credit | "标准图就是 1 个 credit,高清就是 2 个 credit" |
+| 9 | 包月 99，含 4 个平台，每多一个平台 +30 | "订阅是包月 99,可以生成多少张图,发布 4 个平台,然后多发一个平台,多 30" |
+
+## 二、计费模型
+
+```
+会员等级（模板）          客户方案（每人一份，管理员填）
+─────────────────        ──────────────────────────────────
+名称 / 权益说明           等级 · 币种(EUR/CAD)
+默认：4 平台              基础月费（默认 99，可改）
+默认：N 张图 / M 条视频    额外平台数 × 单价（默认 30，可改）
+参考价（内部，不公开）     每月图片 credit · 每月视频条数
+                         全包：一口价，覆盖以上所有
+```
+
+- **credit 一种货币**：模板出图 1、AI 标准图 1、AI 高清图 2。视频单独按"条"计数
+- **每月发放**：Stripe 每月扣款成功（`invoice.paid`）→ 发放当月图片 credit 与视频额度
+- **失败不扣**：AI 生成失败或被审核拒绝，自动退回 credit
+- **账本**：CreditLedger 只增不改，余额 = 流水之和
+
+## 三、专属价怎么收钱（Stripe）
+
+1. 管理员在后台给客户配方案：等级、币种、月费、额外平台、额度，或者全包一口价
+2. 客户登录后，「我的会员」页显示"你的专属方案 · 待付款"
+3. 客户点「付款」→ 服务器按这份方案现场生成 Stripe Checkout（订阅模式，`price_data` 动态金额，EUR/CAD）
+4. webhook：订阅生效 → 发放额度；续费成功 → 每月发放；扣款失败 / 取消 → 停止发放
+5. 改价或升降级：管理员改方案 → Stripe 订阅项更新，下个周期生效
+
+现场生成 Checkout，就不用为每个客户预建 Price，也没有链接 24 小时过期的问题。
+
+## 四、页面清单（v2）
+
+| 区域 | 页面 | 说明 |
+| :-- | :-- | :-- |
+| 公开 | `/` 落地页 | 卖点 + AI 前后对比 + 会员等级权益（无价格）+ 联系我们 |
+| 公开 | `/legal/terms` `/privacy` `/refund` | Stripe 审核需要 |
+| 账号 | 注册验证、找回密码 | 送额度就要防批量注册 |
+| 用户 | `/membership` 我的会员 | 专属方案、付款按钮、本月剩余图片/视频、已用/可用平台数、Stripe 账单管理入口 |
+| 用户 | `/create` AI 生图工作台 | 实拍美化 / 文生图，多轮改提示词，每轮显示扣了几个 credit |
+| 用户 | `/generations` 生成历史 | |
+| 用户 | 顶栏余额 + 余额不足弹窗 | 付费墙本体 |
+| 后台 | `/admin/accounts/[id]` 客户方案 | 配方案、手动加减 credit、看流水 |
+| 后台 | `/admin/tiers` 会员等级 | 等级名称、默认权益、内部参考价 |
+| 后台 | `/admin/generations` | 生成日志、OpenAI 成本、毛利 |
+
+## 五、Schema 增量（草稿）
+
+```
+MembershipTier  id, name, benefits, defaultPlatforms(4), defaultMonthlyCredits, defaultMonthlyVideos
+CustomerPlan    userId, tierId, currency(EUR|CAD), baseFee, extraPlatforms, extraPlatformFee,
+                monthlyCredits, monthlyVideos, allInclusive, allInclusiveFee,
+                stripeSubscriptionId, status(PENDING|ACTIVE|PAST_DUE|CANCELED), periodEnd
+CreditLedger    userId, kind(CREDIT|VIDEO), delta, reason, refId, expiresAt, createdAt
+Generation      userId, mode, prompt, inputImageUrl, quality, credits, costUsd, status, imageUrl, error, parentId
+Design          + chargedAt（首次扣费时间，同一作品再编辑不重复扣）
+```
+
+## 六、技术事实（影响权益设计）
+
+- **小红书没有给第三方用的发布 API**。Ayrshare 支持的 14 个平台里没有小红书，"发布到小红书"只能做成：生成图 + 文案 → 一键复制 / 下载 → 客户自己在 App 里发
+- 目前"发布计划"只记录不真实发布；平台数权益在接入 Ayrshare 前只限制"能选几个平台"
+- AI 生图接 OpenAI Images API，需要用户提供 API Key
+
+## 七、待定
+
+见对话中的问题清单，确认后写入本节并进 DEV-PLAN。

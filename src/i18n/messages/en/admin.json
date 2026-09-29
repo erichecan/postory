@@ -39,5 +39,36 @@
     "notFound": "Account not found",
     "cannotDisableAdmin": "Admin accounts can't be disabled here"
   },
-  "created": "Created: {name} ({phone})"
+  "created": "Created: {name} ({phone})",
+  "customer": {
+    "back": "Back to accounts",
+    "planTitle": "Membership plan",
+    "planHint": "Each customer gets their own price. Once saved, the customer sees the plan on their Membership page and pays there. If they paid you offline, activate it directly.",
+    "tier": "Tier",
+    "currency": "Currency",
+    "allInclusive": "All-inclusive price",
+    "allInclusiveHint": "When on, only this price is charged; the base fee and add-on platform price are ignored",
+    "allInclusiveFee": "All-inclusive monthly fee",
+    "baseFee": "Base monthly fee",
+    "basePlatforms": "Core platforms (always included)",
+    "extraPlatforms": "Add-on platforms",
+    "extraPlatformFee": "Price per add-on platform",
+    "monthlyCredits": "Credits per month",
+    "monthlyVideos": "Videos per month",
+    "topupUnitPrice": "Top-up price per credit",
+    "summary": "Customer pays monthly",
+    "save": "Save plan",
+    "saved": "Plan saved. The customer can now pay.",
+    "offlineTitle": "Paid offline",
+    "offlineHint": "Skips Stripe. Credits are issued month by month and each month's credits are only valid that month.",
+    "months": "Months",
+    "offlineSubmit": "Activate {count, plural, one {# month} other {# months}}",
+    "adjustTitle": "Adjust credits",
+    "adjustAmount": "Amount (negative to deduct)",
+    "adjustReason": "Reason (required, not shown to the customer)",
+    "adjustSubmit": "Apply",
+    "balance": "Current balance",
+    "txnsTitle": "Ledger",
+    "contact": "Contact"
+  }
 }
