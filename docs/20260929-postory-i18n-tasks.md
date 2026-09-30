@@ -1,6 +1,6 @@
 # 双语 · 任务台账
 
-计划：docs/20260929-social-shell-i18n-plan.md（用户 2026-09-28 确认）
+计划：docs/20260929-postory-i18n-plan.md（用户 2026-09-28 确认）
 
 - [x] 1. 基础设施：next-intl、cookie 语言、html lang、切换组件、按命名空间拆分的 messages
       验收命令：npx tsc --noEmit；curl 带 NEXT_LOCALE=en 断言 <html lang="en">
