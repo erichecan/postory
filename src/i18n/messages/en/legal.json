@@ -1,0 +1,108 @@
+{
+  "nav": {
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "refund": "Refund Policy",
+    "label": "Legal"
+  },
+  "updated": "Last updated: {date}",
+  "contactLine": "Questions? Reach us via {channel}.",
+  "channelEmail": "email at {email}",
+  "channelChat": "\"Contact us\" on the website (WeChat)",
+  "terms": {
+    "title": "Terms of Service",
+    "intro": "Welcome to {brand}. {brand} is operated by {entity} (\"we\", \"us\"). By signing up for or using the service, you agree to these terms.",
+    "s1": {
+      "h": "1. Your account",
+      "p": "Sign up with a real email address. You're responsible for everything done under your account, so keep your password safe and tell us right away if you think it has been compromised.\nEach account is for one shop or business and may not be transferred or rented out."
+    },
+    "s2": {
+      "h": "2. Membership and credits",
+      "p": "Membership plans are priced individually for each shop and include a monthly credit allowance, a number of videos and a number of publishing platforms, as shown on your My membership page.\nMonthly credits reset at the end of each billing period and don't roll over. Purchased top-up credits and sign-up gift credits don't expire. Gift credits can only be used for templates.\nTemplate designs are charged when you export them or add them to your posting plan, and only once per design. AI images are charged per image generated. Failed generations and images that don't pass content review are refunded automatically."
+    },
+    "s3": {
+      "h": "3. Payment and renewal",
+      "p": "Online payments are processed by Stripe. Memberships renew monthly until you cancel. You can update your card or cancel at any time under \"Manage payment method and invoices\". After cancelling, you keep access until the end of the current period.\nIf an automatic payment fails, your membership shows as \"Payment failed\" and next period's credits are issued once payment succeeds."
+    },
+    "s4": {
+      "h": "4. Content you upload and create",
+      "p": "You own the photos you upload, the shop details you enter, and the designs you create and edit. To run the service, you allow us to store and process that content and show it to you.\nYou confirm you have the right to use what you upload and that it doesn't infringe anyone's likeness, trademark or copyright. Don't upload illegal, sexual, violent, discriminatory or misleading content.\nAI-generated images may not match reality exactly. Check them before posting so customers aren't misled, for example about portion sizes, prices or results."
+    },
+    "s5": {
+      "h": "5. Templates",
+      "p": "Template layouts, illustrations and fonts are licensed to you only for editing within the service and promoting your own business. You may not resell them, distribute them in bulk, or use them to make competing template products."
+    },
+    "s6": {
+      "h": "6. Prohibited use",
+      "p": "Don't create accounts in bulk, farm gift credits, bypass charges, attack or disrupt the system, or scrape templates with automated tools. If we find this kind of activity, we may suspend or close the account, and used credits won't be refunded."
+    },
+    "s7": {
+      "h": "7. Changes and termination",
+      "p": "We keep improving the service and may change features, templates or third-party providers. We'll give advance notice of significant changes to pricing or credits.\nYou can stop using the service at any time and ask us to delete your account. We may suspend or end the service for accounts that break these terms."
+    },
+    "s8": {
+      "h": "8. Limitation of liability",
+      "p": "The service is provided as is. We aren't liable for losses caused by rule changes on third-party platforms (such as Instagram, Facebook or Xiaohongshu), network outages or events beyond our control. To the extent the law allows, our total liability is limited to what you paid us in the 3 months before the event."
+    },
+    "s9": {
+      "h": "9. Other",
+      "p": "We may update these terms from time to time and will show the date on this page. We'll notify you of significant changes by email or in the app. Continuing to use the service means you accept the updated terms."
+    }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "intro": "This policy explains what information {entity} collects when running {brand}, how it's used, who processes it, and your rights.",
+    "s1": {
+      "h": "1. What we collect",
+      "p": "Account details: email, name and an encrypted password.\nShop details: shop name, WeChat, phone, address, slogan, promotions and logo, which you choose to provide.\nYour content: uploaded photos, AI-generated images, prompts and designs.\nPayment details: collected and stored directly by Stripe. We only keep your Stripe customer ID and subscription status and never see your full card number.\nUsage records: sign-in times, credit history, generation history and necessary server logs."
+    },
+    "s2": {
+      "h": "2. How we use it",
+      "p": "To provide and maintain the service, calculate and charge credits, send verification and billing emails, handle support requests, and prevent abuse and fraud. We don't sell your personal information and we don't use your photos to train our own models."
+    },
+    "s3": {
+      "h": "3. Service providers",
+      "p": "To run the service, we share the necessary data with these providers:\nStripe: payments and subscriptions.\nOpenAI: processes your prompts and uploaded photos when you generate AI images.\nGoogle Cloud: servers and file storage.\nResend: sending email.\nThese providers may only process data on our instructions, and data may be stored outside your country."
+    },
+    "s4": {
+      "h": "4. How long we keep it",
+      "p": "We keep your information while your account is active. After you delete your account, we delete your shop details and uploaded and generated images within 30 days. Payment records are kept for as long as tax and accounting laws require."
+    },
+    "s5": {
+      "h": "5. Your rights",
+      "p": "You can view and edit your shop details at any time, and you can contact us to export or delete your data, withdraw consent or object to processing. If you're in the EU or Canada, you also have other rights under local data protection laws (such as the GDPR and PIPEDA) and can complain to your local regulator."
+    },
+    "s6": {
+      "h": "6. Cookies",
+      "p": "We only use cookies needed to keep you signed in and remember your language. We don't use advertising or tracking cookies."
+    },
+    "s7": {
+      "h": "7. Security",
+      "p": "Passwords are stored with one-way encryption, verification codes and reset links are stored only as hashes, and all data is encrypted in transit. No system is perfectly secure, so please tell us promptly if you notice anything suspicious."
+    }
+  },
+  "refund": {
+    "title": "Refund Policy",
+    "intro": "We want you to feel confident using {brand}. Here's how refunds work.",
+    "s1": {
+      "h": "1. Membership fees",
+      "p": "Memberships are billed monthly and can be cancelled at any time. After cancelling, you keep access until the end of the current period and won't be charged again. Periods that have already started generally aren't refunded pro rata.\nIf you haven't used any credits within 7 days of your first payment, contact us for a full refund."
+    },
+    "s2": {
+      "h": "2. Top-up credits",
+      "p": "Top-up credits don't expire. If you haven't used any within 14 days of purchase, you can request a full refund. If you've used some, the used portion isn't refundable and we can discuss refunding the rest."
+    },
+    "s3": {
+      "h": "3. Failed AI images",
+      "p": "If an AI image fails, times out or doesn't pass content review, the credits are returned to your account automatically. You don't need to ask."
+    },
+    "s4": {
+      "h": "4. Duplicate or incorrect charges",
+      "p": "If you're charged twice or the amount is wrong, contact us within 30 days and we'll refund the difference in full once we've checked."
+    },
+    "s5": {
+      "h": "5. How to request a refund",
+      "p": "Send us your account email, the payment date and the amount. We'll reply within 3 business days. Refunds go back to the original payment method and usually arrive within 5–10 business days, depending on your bank.\nFor memberships paid offline, refunds follow the arrangement we agreed with you."
+    }
+  }
+}

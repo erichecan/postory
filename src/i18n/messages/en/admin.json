@@ -97,7 +97,8 @@
   "planNone": "—",
   "nav": {
     "accounts": "Customers",
-    "tiers": "Tiers"
+    "tiers": "Tiers",
+    "generations": "AI cost"
   },
   "tiers": {
     "title": "Membership tiers",
@@ -125,6 +126,41 @@
       "addon": "Add-on",
       "all": "All included",
       "number": "Amount"
+    }
+  },
+  "generations": {
+    "title": "AI generations & cost",
+    "subtitle": "Daily totals for the last 30 days (UTC). Cost is actual OpenAI billing in USD.",
+    "tiles": {
+      "today": "Cost today",
+      "cap": "Cap ${cap}",
+      "cost30": "Cost, last 30 days",
+      "credits30": "Credits used, last 30 days",
+      "perCredit": "Cost per credit",
+      "perCreditHint": "Reference price €1.00 / credit",
+      "failRate": "Failure rate",
+      "failRateHint": "All failures were refunded automatically"
+    },
+    "daily": {
+      "title": "Daily totals",
+      "day": "Date",
+      "total": "Generated",
+      "succeeded": "Succeeded",
+      "failed": "Failed",
+      "credits": "Credits used",
+      "cost": "Cost",
+      "empty": "No generations in the last 30 days"
+    },
+    "log": {
+      "title": "Generation log",
+      "time": "Time",
+      "user": "Customer",
+      "type": "Type",
+      "status": "Status",
+      "credits": "Credits",
+      "cost": "Cost",
+      "error": "Reason",
+      "empty": "No generations yet"
     }
   }
 }

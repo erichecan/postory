@@ -5,7 +5,7 @@ import { BRAND } from "@/lib/brand";
 import { PLATFORMS, platformLabel } from "@/lib/platforms";
 
 export async function AppFooter() {
-  const [t, tc, tp] = await Promise.all([getTranslations("nav"), getTranslations("common"), getTranslations("platforms")]);
+  const [t, tc, tp, tl] = await Promise.all([getTranslations("nav"), getTranslations("common"), getTranslations("platforms"), getTranslations("legal.nav")]);
   const columns = [
     { title: t("footer.templates"), links: PLATFORMS.map((p) => ({ href: `/templates?platform=${p.id}`, label: platformLabel(tp, p.id) })) },
     {
@@ -35,7 +35,14 @@ export async function AppFooter() {
         ))}
       </div>
       <div className="border-t border-white/[0.06]">
-        <p className="mx-auto max-w-[1080px] px-4 py-5 text-xs text-muted-foreground">{t("footer.copyright", { brand: BRAND.name })}</p>
+        <div className="mx-auto flex max-w-[1080px] flex-wrap items-center justify-between gap-3 px-4 py-5 text-xs text-muted-foreground">
+          <p>{t("footer.copyright", { brand: BRAND.name })}</p>
+          <nav aria-label={tl("label")} className="flex gap-4">
+            {(["terms", "privacy", "refund"] as const).map((d) => (
+              <Link key={d} href={`/legal/${d}`} className="hover:text-foreground">{tl(d)}</Link>
+            ))}
+          </nav>
+        </div>
       </div>
     </footer>
   );

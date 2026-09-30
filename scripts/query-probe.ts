@@ -6,6 +6,7 @@ import { CUSTOMERS_PER_PAGE, listCustomers } from "../src/lib/db/admin-customers
 import { getBalanceAt, listTxns, TXN_PAGE_SIZE } from "../src/lib/db/credits";
 import { listOwnDesigns } from "../src/lib/db/designs";
 import { GENERATIONS_PER_PAGE, listOwnGenerations } from "../src/lib/db/generations";
+import { dailyGenerationStats, listGenerationLog } from "../src/lib/db/admin-generations";
 import { listTemplates, TEMPLATES_PER_PAGE } from "../src/lib/db/templates";
 
 async function queriesOf(fn: () => Promise<unknown>) {
@@ -73,6 +74,11 @@ async function main() {
   await seedGens(200);
   const g200 = await queriesOf(() => listOwnGenerations(user.id));
   report("生成历史查询数不随数据量增长", g10 === g200 && g10 <= 4, `10 条=${g10} 次，200 条=${g200} 次`);
+  await seedGens(10);
+  const a10 = await queriesOf(() => Promise.all([listGenerationLog(1), dailyGenerationStats()]));
+  await seedGens(200);
+  const a200 = await queriesOf(() => Promise.all([listGenerationLog(1), dailyGenerationStats()]));
+  report("后台生成日志 + 每日汇总查询数不随数据量增长", a10 === a200 && a10 <= 5, `10 条=${a10} 次，200 条=${a200} 次`);
   const gens = await listOwnGenerations(user.id);
   report("生成历史分页", gens.items.length === GENERATIONS_PER_PAGE && gens.pageCount === Math.ceil(200 / GENERATIONS_PER_PAGE), `每页 ${gens.items.length} 条，共 ${gens.pageCount} 页`);
 

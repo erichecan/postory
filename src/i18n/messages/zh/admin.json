@@ -97,7 +97,8 @@
   "planNone": "—",
   "nav": {
     "accounts": "客户账号",
-    "tiers": "会员等级"
+    "tiers": "会员等级",
+    "generations": "AI 成本"
   },
   "tiers": {
     "title": "会员等级",
@@ -125,6 +126,41 @@
       "addon": "可加开",
       "all": "全部包含",
       "number": "数量"
+    }
+  },
+  "generations": {
+    "title": "AI 生成与成本",
+    "subtitle": "近 30 天按天汇总（UTC），成本为 OpenAI 实际计费（美元）",
+    "tiles": {
+      "today": "今日成本",
+      "cap": "上限 ${cap}",
+      "cost30": "近 30 天成本",
+      "credits30": "近 30 天消耗 credit",
+      "perCredit": "每 credit 成本",
+      "perCreditHint": "参考售价 €1.00 / credit",
+      "failRate": "失败率",
+      "failRateHint": "失败的都已自动退回"
+    },
+    "daily": {
+      "title": "每日汇总",
+      "day": "日期",
+      "total": "生成",
+      "succeeded": "成功",
+      "failed": "失败",
+      "credits": "消耗 credit",
+      "cost": "成本",
+      "empty": "近 30 天没有生成记录"
+    },
+    "log": {
+      "title": "生成日志",
+      "time": "时间",
+      "user": "客户",
+      "type": "类型",
+      "status": "状态",
+      "credits": "credit",
+      "cost": "成本",
+      "error": "原因",
+      "empty": "还没有生成记录"
     }
   }
 }

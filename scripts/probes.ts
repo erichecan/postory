@@ -88,15 +88,18 @@ async function main() {
     check(`GET ${p} 公开`, r.status === 200, `status=${r.status}`);
   }
   check("GET /admin/accounts 管理员", (await get("/admin/accounts", cookieAdmin)).status === 200);
+  check("GET /admin/generations 管理员", (await get("/admin/generations", cookieAdmin)).status === 200);
   check("GET /templates/不存在 → 404", (await get("/templates/nope", cookieA)).status === 404);
 
   console.log("## 鉴权探针（页面）");
-  for (const p of ["/templates", "/designs", "/admin/accounts", `/editor/${design.id}`]) {
+  for (const p of ["/templates", "/designs", "/admin/accounts", "/admin/generations", `/editor/${design.id}`]) {
     const none = await get(p);
     check(`无 token ${p} → 跳登录`, none.status === 307 && (none.headers.get("location") ?? "").includes("/login"), `status=${none.status}`);
     const bad = await get(p, forged);
     check(`伪造 token ${p} → 跳登录`, bad.status === 307 && (bad.headers.get("location") ?? "").includes("/login"), `status=${bad.status}`);
   }
+  const lowGen = await get("/admin/generations", cookieA);
+  check("普通用户 /admin/generations → 拒绝", lowGen.status === 307 && !(lowGen.headers.get("location") ?? "").includes("/admin"), `status=${lowGen.status}`);
   const low = await get("/admin/accounts", cookieA);
   check("普通用户 /admin/accounts → 拒绝", low.status === 307 && !(low.headers.get("location") ?? "").includes("/admin"), `status=${low.status}`);
   const lowForgedRole = await get("/admin/accounts", adminForged);

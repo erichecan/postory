@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 const TABS = [
   { href: "/admin/accounts", key: "accounts" },
   { href: "/admin/tiers", key: "tiers" },
+  { href: "/admin/generations", key: "generations" },
 ] as const;
 
 export async function AdminSubnav({ active }: { active: (typeof TABS)[number]["key"] }) {

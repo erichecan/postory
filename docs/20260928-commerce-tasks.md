@@ -58,11 +58,14 @@
       上线前必须：STRIPE_SECRET_KEY、STRIPE_WEBHOOK_SECRET（生产缺 key 会直接报错，不会走模拟）；Stripe 后台开 EUR/CAD、配 Customer Portal、webhook 订阅 6 个事件（checkout.session.completed、invoice.paid、invoice.payment_failed、customer.subscription.updated/deleted、charge.refunded）指向 /api/stripe/webhook
       遗留：部分退款（charge.refunded=false）不处理；订阅费退款不收回月度额度
       依赖：C3
-- [ ] C7 落地页 + 法律页 + 后台成本看板
+- [x] C7 落地页 + 法律页 + 后台成本看板
       验收命令：verify.sh 路由
-      可看物：docs/shots/20260928-c7-*.png
-      定性状态：待你确认
-      证据：—
+      可看物：docs/shots/20260929-c7-{landing,landing-hero,landing-390,landing-en,legal-refund,admin-generations}.png
+      定性状态：待你确认（落地页文案与版式、法律条款内容）
+      证据：VERIFY PASS 297 项；/、/legal/{terms,privacy,refund} 中英 200 且 lang 正确、未登录 200、/legal/不存在 404；/admin/generations 管理员 200、普通用户/无 token/伪造 token 跳走；后台生成日志+每日汇总 10 条=200 条=5 次查询；390px 无横向滚动
+      决策：首页对所有人开放（原来登录后直接跳 /templates，现在顶栏按钮显示"进入工作台"）；成本看板不跨币种算毛利，给"每 credit 实际 OpenAI 成本（USD）"对比参考售价 €1；首页模板图人工精选 9 个餐饮/美业模板
+      待你提供：运营主体名称（NEXT_PUBLIC_LEGAL_ENTITY，默认 Postory）、联系邮箱（NEXT_PUBLIC_CONTACT_EMAIL，没有时法律页写"通过网站联系我们（微信）"）；法律条款是按已实现规则起草的通用版本，未经律师审阅，未写适用法律/管辖地
+      遗留：AI 前后对比是用 CSS 滤镜做的示意图（已标"示意图"），接 OpenAI 后换成真实前后对比图
       依赖：C3
 - [ ] C8 code-review high + security-review + DEV-REPORT；部署前停下确认
       验收命令：bash scripts/verify.sh 全绿

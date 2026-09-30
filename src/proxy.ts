@@ -6,7 +6,7 @@ const PUBLIC_PATHS = ["/", "/login", "/register", "/plans", "/forgot-password", 
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const session = await verifySession(request.cookies.get(SESSION_COOKIE)?.value);
-  const isPublic = PUBLIC_PATHS.includes(pathname);
+  const isPublic = PUBLIC_PATHS.includes(pathname) || pathname.startsWith("/legal/");
 
   if (!session && !isPublic) {
     const url = new URL("/login", request.url);

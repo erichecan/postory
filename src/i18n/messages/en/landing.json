@@ -1,0 +1,58 @@
+{
+  "meta": "Postory · Social media content studio for local shops",
+  "hero": {
+    "eyebrow": "Content made easy for local shops",
+    "title": "Turn a phone photo\ninto a post-ready promo",
+    "subtitle": "{count} editable templates plus AI images. Drop in your shop name, offer and contact, and have Instagram, Facebook and Xiaohongshu posts ready in minutes, scheduled and waiting.",
+    "primary": "Sign up free, get 10 templates",
+    "secondary": "See membership benefits",
+    "note": "Just an email. No card needed."
+  },
+  "features": {
+    "title": "This week's posts, done in one place",
+    "templates": {
+      "title": "{count} templates, fully editable",
+      "body": "Restaurants, beauty, retail and holiday sales. Change any text, colour or photo, and fill in your shop details in one click."
+    },
+    "ai": {
+      "title": "AI turns snapshots into promos",
+      "body": "Upload a phone photo of a dish or product, pick a scene and say what you want. Not quite right? Keep refining."
+    },
+    "platforms": {
+      "title": "One design, every platform",
+      "body": "Facebook, Instagram, TikTok and Xiaohongshu. Pick platforms and times, and see your whole posting plan at a glance."
+    },
+    "bilingual": {
+      "title": "Works in Chinese and English",
+      "body": "The app and templates are bilingual, so you can write in Chinese and still make English posts for local customers."
+    }
+  },
+  "compare": {
+    "title": "AI photo enhance",
+    "subtitle": "Drag the handle to compare",
+    "before": "Phone snapshot",
+    "after": "After AI",
+    "note": "Illustration only. Actual results depend on your photo."
+  },
+  "steps": {
+    "title": "Three steps to a finished post",
+    "s1": {
+      "title": "Fill in your shop once",
+      "body": "Name, contact, address and slogan are added to every design automatically."
+    },
+    "s2": {
+      "title": "Pick a template or use AI",
+      "body": "Start from the template library, or upload a photo and let AI handle the background and lighting."
+    },
+    "s3": {
+      "title": "Export or schedule",
+      "body": "Download a high-res PNG, or pick platforms and a time to add it to your posting plan."
+    }
+  },
+  "bottom": {
+    "title": "Try a few designs for free",
+    "body": "Verify your email to get 10 template credits. Contact us for a membership when you're ready.",
+    "primary": "Sign up free",
+    "contact": "Chat with us"
+  }
+}

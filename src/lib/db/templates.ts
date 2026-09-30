@@ -61,3 +61,14 @@ export async function listSimilarTemplates(id: string, platform: string, take = 
     take,
   });
 }
+
+const SHOWCASE_IDS = ["orshot-1041", "orshot-1404", "orshot-1744", "orshot-161", "orshot-1129", "orshot-1714", "orshot-2040", "orshot-1821", "orshot-1518"];
+
+export const listShowcaseTemplates = unstable_cache(
+  async () => {
+    const rows = await prisma.template.findMany({ where: { id: { in: SHOWCASE_IDS } }, select: cardSelect });
+    return SHOWCASE_IDS.flatMap((id) => rows.filter((r) => r.id === id));
+  },
+  ["template-showcase-v2"],
+  { revalidate: 3600 },
+);
