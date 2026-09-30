@@ -7,6 +7,58 @@
 | 演示商家（已填好"小满咖啡"资料） | 13900000000 | demo12345 |
 | 管理员 | 13800000000 | admin12345 |
 
+## 2026-09-29 商业化（C1–C8）：会员 · credit · AI 生图 · Stripe
+
+本地地址：**http://localhost:3002**（`npm run dev`）。线上还是 C0 的静态页版本，**这一轮全部没有部署**，等你确认后再上线。
+
+### 给你看的
+
+| 场景 | 来源 | 截图 | 状态 |
+| :-- | :-- | :-- | :-- |
+| 不公开价格，只有会员等级和权益；三档权益对比页 | 你说的："不要有 priceing 价格,只有会员等级和权益" + "没看到权益对比页面" | ![](docs/shots/20260928-c0-plans.png) | 待你确认（三档名字你已确认） |
+| 每个客户一份专属方案：可单独定价、可设全包一口价 | 你说的："我需要卖给不同人不同的价格,还有全包的价格" | ![](docs/shots/20260928-c3-customer.png) | 待你确认 |
+| 包月 99，含 FB / IG / TikTok / 小红书，每多一个平台 +30 | 你说的："订阅是包月 99…发布 4 个平台,然后多发一个平台,多 30" | ![](docs/shots/20260929-c6-pending-plan.png) | 符合（99 + 2 × 30 → 付款页两行共 €159，探针核对金额） |
+| 用 Stripe 收欧元、加币：订阅、自助充值、管理卡片和发票 | 你说的："stripe 准备接欧元,加币的" | ![](docs/shots/20260929-c6-active-plan.png) | 待你确认（用模拟 Stripe 跑通；真实付款要你的 Stripe 密钥） |
+| 选模板出图扣 credit：导出或加入发布计划时扣 1，同一作品只扣一次 | 你说的："客户选模板就相当于生成图片,也扣 credit" | ![](docs/shots/20260928-c4-export-charged.png) | 待你确认（"导出时才扣、只扣一次"是我推断的，你已按推荐确认） |
+| 注册送 10 个模板（验证邮箱后发放，只能用于模板） | 你说的："注册可以送 10 个模板" | ![](docs/shots/20260928-c2-gift.png) | 待你确认 |
+| AI 生图：标准 1 credit、高清 2 credit，每改一轮算一张 | 你说的："标准图就是 1 个 credit,高清就是 2 个 credit" + "因为有往返,会不断完善提示词" | ![](docs/shots/20260928-c5-refine-round2.png) | 符合（1 / 2 credit 探针实测） |
+| AI 生图真正调用 ChatGPT 的生图模型 | 你说的："套壳一个 ChatGPT 的生成图片的功能" | ![](docs/shots/20260928-c5-photo-round1.png) | 没做到（还没有 OpenAI API Key，现在出的是占位图；整条扣费链路已跑通） |
+| 联系方式用微信 | 你说的："联系方式用微信" | ![](docs/shots/20260928-c1-wechat-dialog.png) | 待你确认（微信号 / 二维码还没给，配 `NEXT_PUBLIC_CONTACT_WECHAT`） |
+| AI 生成失败自动退回 credit | [我推断的] | ![](docs/shots/20260928-c5-failed-refund.png) | 待你确认 |
+| 生成历史，可接着改、送到编辑器加字、下载 | [我推断的] | ![](docs/shots/20260928-c5-history.png) | 待你确认 |
+| 线下收款：后台开通 N 个月、手动加减 credit（必填原因） | [我推断的] | ![](docs/shots/20260928-c3-customer.png) | 待你确认 |
+| 首页改成落地页：卖点、AI 前后对比、会员权益、注册 / 微信咨询 | [我推断的] | ![](docs/shots/20260929-c7-landing.png) | 待你确认（首屏写"给海外华人门店用的内容工具"是我推断的定位） |
+| 服务条款 / 隐私政策 / 退款政策 | [我推断的] | ![](docs/shots/20260929-c7-legal-refund.png) | 待你确认（未经律师审阅；运营主体、联系邮箱待你提供） |
+| 后台 AI 成本看板：每日成本、每 credit 成本、生成日志 | [我推断的] | ![](docs/shots/20260929-c7-admin-generations.png) | 待你确认 |
+
+**上线前需要你提供**：Stripe 密钥与 webhook 密钥 · OpenAI API Key · 联系微信号（和二维码） · 运营主体名称、对外联系邮箱 · Resend 发信密钥与发信域名（没有的话，注册验证码线上收不到）。
+
+### 存档用的
+
+- **verify.sh**：VERIFY PASS 310 项（本轮开始前 86 项）。分项：auth-probe、admin-probe、paywall-probe、gen-probe、stripe-probe、ledger-probe、query-probe，外加双语路由、未登录跳转、`.next/static` 密钥泄露检查
+- **性能基线**（本地生产构建，autocannon 10s，10 并发，p50 / p97.5）：/templates 44 / 56ms · /templates/[id] 38 / 67ms · /generations 33 / 47ms · /membership 40 / 56ms；全部无非 2xx
+- **查询数**：我的作品、流水、生成历史、后台客户列表、后台生成日志在 10 条与 200 条数据下查询数相同（3–5 次），列表全部 24 条分页
+- **审查**（commit 1ce4775）：
+  - 代码审查 high 10 条：修 9 条，1 条不改（"9–10MB 照片超过请求体上限"——浏览器端先压到 1600px 再上传，实际只有几百 KB）
+  - 安全审查 3 条，全部修复：执行中的生成被超时回收误杀导致免费出图（中危）；生产环境漏配 AI_PROVIDER 时退回占位生成器（低危）；密码登录没有防暴力破解（低危）
+  - 新增 13 条回归断言，全部通过
+- **⚠️ 未验证**（没有命令输出证明，不标通过）：
+  - 注册时验证码发送失败的提示：Resend 的失败没法在本地模拟
+  - 生产环境未配 AI_PROVIDER 时直接报错：verify 显式配了 fake，走不到这条路径
+  - 真实 Stripe / OpenAI 调用：还没有密钥
+- **上线前必须**：
+  - Cloud Run 环境变量：`APP_URL`、`RESEND_API_KEY` + `MAIL_FROM`、`STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET`、`AI_PROVIDER`（真实 OpenAI 生成器待写）
+  - `STORAGE=gcs` 还没实现，目前只有本地盘，Cloud Run 一重启生成图就丢
+  - Cloud Run 请求超时调到 300s
+  - Stripe 后台：开 EUR / CAD、配 Customer Portal、订阅 6 个 webhook 事件
+  - 线上库 `prisma migrate deploy`，新增 4 个迁移
+- **技术债**：
+  - 删除用户时不清理生成图文件
+  - 部分退款（`charge.refunded=false`）不处理；月费退款不收回当月额度
+  - 同时开两个付款页都付完时，多出来的订阅会自动取消，但它的首期费用要人工在 Stripe 后台退款（日志里有 `[stripe] duplicate subscription` 记录）
+  - AI 前后对比图是 CSS 滤镜做的示意图
+- **下一步（等你定）**：部署到线上（按 GCP 规定停下等你确认）→ 拿到 OpenAI Key 后接真实生图 + GCS 存储 → 拿到 Stripe 密钥后用测试模式真实付一笔
+
 ## 2026-09-29 更新：上线 · 一键登录 · 中英双语
 
 线上地址：**https://postory-dfd7b2qpra-ew.a.run.app**（登录页点「用演示店铺一键登录」即可进入）

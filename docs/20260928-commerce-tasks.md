@@ -67,9 +67,10 @@
       待你提供：运营主体名称（NEXT_PUBLIC_LEGAL_ENTITY，默认 Postory）、联系邮箱（NEXT_PUBLIC_CONTACT_EMAIL，没有时法律页写"通过网站联系我们（微信）"）；法律条款是按已实现规则起草的通用版本，未经律师审阅，未写适用法律/管辖地
       遗留：AI 前后对比是用 CSS 滤镜做的示意图（已标"示意图"），接 OpenAI 后换成真实前后对比图
       依赖：C3
-- [ ] C8 code-review high + security-review + DEV-REPORT；部署前停下确认
+- [x] C8 code-review high + security-review + DEV-REPORT；部署前停下确认
       验收命令：bash scripts/verify.sh 全绿
-      可看物：DEV-REPORT.md
+      可看物：DEV-REPORT.md「2026-09-29 商业化（C1–C8）」
       定性状态：—
-      证据：—
+      证据：VERIFY PASS 310 项；代码审查 high 10 条（修 9，1 条误报：上传前浏览器已压缩）；安全审查 3 条全修；新增 13 条回归断言全过；commit 1ce4775
+      下一步：部署前停下等你确认（GCP 铁律）
       依赖：C1–C7
