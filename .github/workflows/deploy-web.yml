@@ -44,6 +44,8 @@ jobs:
             --allow-unauthenticated \
             --min-instances=0 --max-instances=3 \
             --memory=1Gi --cpu=1 \
+            --timeout=300 \
+            --set-env-vars="APP_URL=https://postory-dfd7b2qpra-ew.a.run.app,STORAGE=gcs,GCS_BUCKET=postory-user-media,AI_PROVIDER=fake,STRIPE_MODE=fake" \
             --set-secrets="DATABASE_URL=postory-database-url:latest,AUTH_SECRET=postory-auth-secret:latest" \
             --quiet
 
@@ -54,4 +56,6 @@ jobs:
             --format="value(status.url)")
           echo "✅ $URL"
           curl -sf -o /dev/null -w "login HTTP %{http_code}\n" "$URL/login"
+          curl -sf -o /dev/null -w "landing HTTP %{http_code}\n" "$URL/"
+          curl -sf -o /dev/null -w "legal HTTP %{http_code}\n" "$URL/legal/terms"
           curl -sf -o /dev/null -w "asset HTTP %{http_code}\n" "$URL/assets/templates/orshot/orshot-2444-1.png"
