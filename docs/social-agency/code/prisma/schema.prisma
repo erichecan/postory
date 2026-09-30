@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum AdminRole {
+  OWNER
+  STAFF
+}
+
+enum ClientStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum Platform {
+  INSTAGRAM
+  FACEBOOK
+  LINKEDIN
+  TIKTOK
+  YOUTUBE
+  PINTEREST
+  X
+  GOOGLE_BUSINESS
+}
+
+enum SubmissionStatus {
+  DRAFT
+  GENERATING_CAPTION
+  GENERATING_ASSET
+  PENDING_REVIEW
+  SCHEDULED
+  PUBLISHED
+  FAILED
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  role         AdminRole @default(STAFF)
+  createdAt    DateTime  @default(now())
+}
+
+model Client {
+  id           String        @id @default(cuid())
+  businessName String
+  contactEmail String        @unique
+  passwordHash String
+  logoUrl      String?
+  brandColors  Json?
+  toneKeywords String[]      @default([])
+  status       ClientStatus  @default(ACTIVE)
+  creditLimit  Int?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  // Ayrshare 一个客户只建一个 Profile,同一个 profileKey 覆盖该客户连接的所有平台
+  // (不像最初 DEV-PLAN 草稿设想的那样按平台各存一份,那样会导致同一个值冗余写 N 份、
+  // 且在任何平台都还没连接时无处存放这个 key)。
+  ayrshareProfileKeyEncrypted String?
+  ayrshareRefId               String?
+
+  channels     ConnectedChannel[]
+  submissions  Submission[]
+  auditLogs    AuditLog[]
+
+  @@index([status])
+}
+
+model ConnectedChannel {
+  id             String    @id @default(cuid())
+  clientId       String
+  client         Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  platform       Platform
+  connected      Boolean   @default(false)
+  accountHandle  String?
+  connectedAt    DateTime?
+  needsReconnect Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@unique([clientId, platform])
+  @@index([clientId])
+}
+
+model Template {
+  id               String   @id @default(cuid())
+  orshotTemplateId Int
+  name             String
+  category         String
+  thumbnailUrl     String
+  fieldSchema      Json
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  submissions      Submission[]
+
+  @@index([isActive, category])
+}
+
+model Submission {
+  id                String            @id @default(cuid())
+  clientId          String
+  client            Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  templateId        String
+  template          Template          @relation(fields: [templateId], references: [id])
+
+  briefText         String
+  fieldValues       Json              @default("{}")
+  uploadedPhotos    String[]          @default([])
+
+  status            SubmissionStatus  @default(DRAFT)
+  generatedAssetUrl String?
+  captionText       String?
+  hashtags          String[]          @default([])
+
+  targetPlatforms   Platform[]        @default([])
+  scheduledAt       DateTime?
+  ayrsharePostId    String?
+  publishStatus     String?
+  errorMessage      String?
+
+  orshotCreditsUsed Int               @default(0)
+
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@index([clientId, createdAt])
+  @@index([status, updatedAt])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  clientId  String?
+  client    Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  actorType String
+  actorId   String?
+  action    String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([clientId, createdAt])
+}

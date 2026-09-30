@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: social-agency-pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: social_agency
+      POSTGRES_PASSWORD: social_agency_dev
+      POSTGRES_DB: social_agency
+    ports:
+      - "5434:5432"
+    volumes:
+      - social-agency-pgdata:/var/lib/postgresql/data
+
+volumes:
+  social-agency-pgdata:
