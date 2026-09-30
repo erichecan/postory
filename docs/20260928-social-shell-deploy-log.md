@@ -35,3 +35,23 @@
 - **部署结果**：commit 12f6413，GitHub Actions run 36513435381 成功；Verify login 200、asset 200；线上 `/plans` 未登录 200，`/membership` `/create` 未登录 307 → /login，一键登录后均 200，AI 生图假结果图加载成功（截图 docs/shots/20260928-c0-prod-*.png）
 - **定性观测（用户负责）**：把 `/plans` 链接发给一位目标客户，问一句：「看完这张表，你知道自己该选哪一档吗？」
 - **状态**：待观测
+
+## 2026-09-30 · 商业化演示版（C1–C8，方案 A）
+
+- **想达成什么**：合作伙伴在线上看到完整的商业化流程——落地页、注册与邮箱验证、会员方案、credit 扣费、AI 生图（占位图）、生成历史、送到编辑器、付款流程（模拟 Stripe）、后台方案与成本看板。**不收真钱、不调 OpenAI。**
+- **部署结果**：commit 7180190，GitHub Actions run 36656278591 成功；Verify：login、landing、legal、asset 均 200
+- **本次变更**：
+  - 线上库 `migrate deploy` 4 个迁移（commerce、session_version、generation_started_at、login_lockout），执行前后行数一致（User 1 / Template 273 / BrandProfile 1）
+  - `SEED_SCOPE=templates` 写入 3 档会员等级
+  - 新建私有桶 `gs://postory-user-media`（europe-west1，禁止公开访问），只有运行时 SA 有 objectAdmin
+  - Cloud Run 环境变量：APP_URL、STORAGE=gcs、GCS_BUCKET、AI_PROVIDER=fake、STRIPE_MODE=fake；timeout 300s；min 0 / max 3
+- **技术观测（我负责）**：
+  - 部署后：公开页 7 个 200，/legal/nope 404；受保护页 4 个未登录跳 /login；webhook 无签名 400；media 未登录 401
+  - 线上临时账号实测：文生图扣 1（3→2），结果图写入 GCS 并经 /api/media 加载，生成历史、送到编辑器正常；测试账号与 GCS 对象已删除；部署后 ERROR 日志 0 条
+  - 观测窗口 7 天：Cloud Run 5xx、`[stripe]` / `[generation` 错误日志、GCS 桶用量
+- **定性观测（用户负责）**：把线上地址发给一位合作伙伴，问一句：「从首页到做出一张图，哪一步让你犹豫了？」
+- **已知限制（演示版）**：
+  - 没配 Resend，线上注册收不到验证码（能跳过验证继续用，但领不到注册赠送的 10 个模板）
+  - 点"去付款"会停在"还在确认付款结果"：模拟模式下没有 Stripe 通知
+  - 线上还没有管理员账号，没法给合作伙伴手动加 credit 来试 AI 生图
+- **状态**：待观测

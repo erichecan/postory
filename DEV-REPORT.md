@@ -9,7 +9,7 @@
 
 ## 2026-09-29 商业化（C1–C8）：会员 · credit · AI 生图 · Stripe
 
-本地地址：**http://localhost:3002**（`npm run dev`）。线上还是 C0 的静态页版本，**这一轮全部没有部署**，等你确认后再上线。
+线上地址：**https://postory-dfd7b2qpra-ew.a.run.app**（2026-09-30 部署的演示版：支付和 AI 生图都是模拟模式，不收真钱、不调 OpenAI）。本地：http://localhost:3002
 
 ### 给你看的
 
