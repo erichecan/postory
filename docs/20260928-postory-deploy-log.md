@@ -55,3 +55,23 @@
   - 点"去付款"会停在"还在确认付款结果"：模拟模式下没有 Stripe 通知
   - 线上还没有管理员账号，没法给合作伙伴手动加 credit 来试 AI 生图
 - **状态**：待观测
+
+## 2026-09-30 · Ayrshare 真实发布集成（多租户，fake 模式）
+
+- **想达成什么**：让"设定发布"从假的本地状态机变成真的会调用 Ayrshare 发布网关（多租户：每个用户各自连接各自账号）；这一步先用 fake 模式把整条链路铺好，不产生真实调用和费用，等你决定注册 Ayrshare 付费试用再切换。
+- **部署结果**：commit 37e3d37，GitHub Actions run 36667416178 成功；Verify：login/landing/legal/asset 均 200
+- **本次变更**：
+  - 线上库 `migrate deploy` 1 个迁移（新增 SocialAccount 表、User/Design 若干字段），执行前后行数一致（User 1 / Design 1 / Template 273）
+  - 新建 Secret Manager 密钥 `postory-encryption-key`（复用现有项目级 secretAccessor 授权，未新增 IAM 绑定）
+  - Cloud Run 环境变量新增 `AYRSHARE_MODE=fake`
+- **技术观测（我负责）**：
+  - 部署后线上实测：演示账号一键登录 → /profile 点 Facebook「连接」→ 新标签页 fake 秒连接 → 原页面自动刷新显示"已连接 demo"
+  - 本地对同一套代码额外跑通了"上传导出图→真实调用发布网关→写回 publishStatus=SUCCESS/ayrsharePostId"，线上未重复这一步（避免在共用演示账号上留测试作品）
+  - `verify.sh` 337 PASS / 0 FAIL；code-review high 6 条修复 5 条；security-review 未发现高置信度漏洞
+  - 观测窗口 7 天：Cloud Run 5xx、`[ayrshare` 相关错误日志（目前没有任何真实 API 调用，理论上不会有）
+- **定性观测（用户负责）**：没有新的用户可见界面变化需要单独问——这次是给已有的「设定发布」按钮接上真实后端，界面上多了 /profile 里的"已连接的社交账号"区块，可以自己点一次"连接"看看体验对不对
+- **已知限制**：
+  - 还没有真实 Ayrshare 账号，所有"发布"都是 fake 模式模拟成功，实际没有发到任何社交平台
+  - X/Twitter 真实发布需要额外的 Twitter Developer OAuth1.0a Key，这次没接
+  - 共用演示账号的 Facebook 现在处于"已连接（demo）"状态，是我验证时留下的，无害（fake 模式无真实副作用），未清理
+- **状态**：待观测
