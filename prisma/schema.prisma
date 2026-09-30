@@ -83,27 +83,50 @@ enum GenerationStatus {
   FAILED
 }
 
+enum PublishStatus {
+  PENDING
+  SUCCESS
+  PARTIAL
+  FAILED
+}
+
 model User {
-  id               String        @id @default(cuid())
-  phone            String?       @unique @db.VarChar(20)
-  email            String?       @unique @db.VarChar(254)
-  emailVerifiedAt  DateTime?
-  stripeCustomerId String?       @unique
-  passwordHash     String
-  sessionVersion   Int           @default(0)
-  loginFailures    Int           @default(0)
-  loginLockedUntil DateTime?
-  name             String        @db.VarChar(64)
-  role             Role          @default(USER)
-  source           AccountSource @default(SELF_SIGNUP)
-  disabled         Boolean       @default(false)
-  createdAt        DateTime      @default(now())
-  profile          BrandProfile?
-  designs          Design[]
-  plan             CustomerPlan?
-  grants           CreditGrant[]
-  txns             CreditTxn[]
-  generations      Generation[]
+  id                    String          @id @default(cuid())
+  phone                 String?         @unique @db.VarChar(20)
+  email                 String?         @unique @db.VarChar(254)
+  emailVerifiedAt       DateTime?
+  stripeCustomerId      String?         @unique
+  passwordHash          String
+  sessionVersion        Int             @default(0)
+  loginFailures         Int             @default(0)
+  loginLockedUntil      DateTime?
+  name                  String          @db.VarChar(64)
+  role                  Role            @default(USER)
+  source                AccountSource   @default(SELF_SIGNUP)
+  disabled              Boolean         @default(false)
+  createdAt             DateTime        @default(now())
+  ayrshareProfileKeyEnc String?
+  ayrshareRefId         String?
+  profile               BrandProfile?
+  designs               Design[]
+  plan                  CustomerPlan?
+  grants                CreditGrant[]
+  txns                  CreditTxn[]
+  generations           Generation[]
+  socialAccounts        SocialAccount[]
+}
+
+model SocialAccount {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  platform    String    @db.VarChar(32)
+  handle      String?   @db.VarChar(128)
+  connectedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([userId, platform])
 }
 
 model EmailToken {
@@ -254,19 +277,24 @@ model Template {
 }
 
 model Design {
-  id          String       @id @default(cuid())
-  userId      String
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  templateId  String?
-  template    Template?    @relation(fields: [templateId], references: [id], onDelete: SetNull)
-  title       String       @db.VarChar(128)
-  pages       Json
-  platforms   String[]
-  scheduledAt DateTime?
-  status      DesignStatus @default(DRAFT)
-  chargedAt   DateTime?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id               String         @id @default(cuid())
+  userId           String
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  templateId       String?
+  template         Template?      @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  title            String         @db.VarChar(128)
+  pages            Json
+  platforms        String[]
+  scheduledAt      DateTime?
+  status           DesignStatus   @default(DRAFT)
+  chargedAt        DateTime?
+  caption          String?        @db.Text
+  exportedImageUrl String?
+  ayrsharePostId   String?
+  publishStatus    PublishStatus?
+  publishError     String?        @db.Text
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 
   @@index([userId, updatedAt])
 }

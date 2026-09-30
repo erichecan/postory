@@ -27,8 +27,14 @@ import { useShortcuts } from "./use-shortcuts";
 const TABS = ["pages", "style", "layers", "brand"] as const;
 type Tab = (typeof TABS)[number];
 
-export type EditorDesign = { id: string; title: string; pages: DesignPage[]; platforms: string[]; scheduledAt: string | null };
-export type EditorBilling = { hasPlan: boolean; allowedPlatforms: string[]; topup: { currency: Currency; unitPrice: number } | null; canClaimGift: boolean };
+export type EditorDesign = { id: string; title: string; pages: DesignPage[]; platforms: string[]; scheduledAt: string | null; caption: string | null };
+export type EditorBilling = {
+  hasPlan: boolean;
+  allowedPlatforms: string[];
+  connectedPlatforms: string[];
+  topup: { currency: Currency; unitPrice: number } | null;
+  canClaimGift: boolean;
+};
 
 export function Editor({ design, brand, billing }: { design: EditorDesign; brand: BrandFields | null; billing: EditorBilling }) {
   const [state, dispatch] = useReducer(editorReducer, design.pages, initEditor);
@@ -98,9 +104,13 @@ export function Editor({ design, brand, billing }: { design: EditorDesign; brand
             designId={design.id}
             initialPlatforms={design.platforms.filter((p) => billing.allowedPlatforms.includes(p))}
             initialAt={design.scheduledAt ? new Date(design.scheduledAt) : null}
+            initialCaption={design.caption}
             beforeSubmit={flush}
             hasPlan={billing.hasPlan}
             allowedPlatforms={billing.allowedPlatforms}
+            connectedPlatforms={billing.connectedPlatforms}
+            exportRef={exportRef}
+            page={page}
             onInsufficient={(need, have) => setShort({ need, have })}
           />
         }

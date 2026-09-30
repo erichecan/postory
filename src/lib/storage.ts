@@ -1,22 +1,27 @@
 import "server-only";
+import { randomBytes } from "node:crypto";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { Storage } from "@google-cloud/storage";
+import { appUrl } from "@/lib/app-url";
 
 export type StoredObject = { bytes: Buffer; mime: string };
 
 const MIME_BY_EXT: Record<string, string> = { png: "image/png", jpg: "image/jpeg", webp: "image/webp", svg: "image/svg+xml" };
 const EXT_BY_MIME: Record<string, string> = Object.fromEntries(Object.entries(MIME_BY_EXT).map(([ext, mime]) => [mime, ext]));
-const KEY_PATTERN = /^gen\/([a-z0-9]{10,40})\/([a-z0-9]{10,40})-(in|out)\.(?:png|jpg|webp|svg)$/;
+const GEN_KEY_PATTERN = /^gen\/([a-z0-9]{10,40})\/([a-z0-9]{10,40})-(in|out)\.(?:png|jpg|webp|svg)$/;
+// pub/ 前缀存放"用户主动要发到公网社交平台"的导出图，允许匿名读取（Ayrshare 等外部服务要能直接抓取），
+// 和 gen/ 私有前缀严格分开，/api/media 只认 GEN_KEY_PATTERN，不会误读到公开前缀。
+const PUB_KEY_PATTERN = /^pub\/([a-z0-9]{10,40})\/([a-z0-9]{10,40})-([a-f0-9]{16,32})\.(?:png|jpg|webp)$/;
 
 const LOCAL_ROOT = path.join(process.cwd(), ".data", "uploads");
 
 export function isMediaKey(key: string) {
-  return KEY_PATTERN.test(key);
+  return GEN_KEY_PATTERN.test(key) || PUB_KEY_PATTERN.test(key);
 }
 
 export function parseMediaKey(key: string) {
-  const m = KEY_PATTERN.exec(key);
+  const m = GEN_KEY_PATTERN.exec(key);
   return m ? { userId: m[1], generationId: m[2], role: m[3] as "in" | "out" } : null;
 }
 
@@ -33,6 +38,25 @@ export function mediaUrl(key: string) {
 export function keyFromMediaUrl(url: string) {
   const key = url.replace(/^\/api\/media\//, "");
   return isMediaKey(key) ? key : null;
+}
+
+export function isPublicMediaKey(key: string) {
+  return PUB_KEY_PATTERN.test(key);
+}
+
+export function parsePublicMediaKey(key: string) {
+  const m = PUB_KEY_PATTERN.exec(key);
+  return m ? { userId: m[1], designId: m[2] } : null;
+}
+
+export function publicMediaKey(userId: string, designId: string, mime: string) {
+  const ext = EXT_BY_MIME[mime];
+  if (!ext || ext === "svg") throw new Error(`unsupported mime ${mime}`);
+  return `pub/${userId}/${designId}-${randomBytes(12).toString("hex")}.${ext}`;
+}
+
+export function publicMediaUrl(key: string) {
+  return `${appUrl()}/api/public-media/${key}`;
 }
 
 type Backend = {

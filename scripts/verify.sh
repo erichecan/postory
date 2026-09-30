@@ -34,7 +34,7 @@ run "next build" npm run -s build
 
 step "启动生产服务 :$PORT"
 lsof -iTCP:"$PORT" -sTCP:LISTEN -t | xargs -r kill 2>/dev/null
-AI_PROVIDER=fake FAKE_AI_DELAY_MS=50 STORAGE=local STRIPE_MODE=fake STRIPE_WEBHOOK_SECRET="$STRIPE_WHSEC" npx next start -p "$PORT" > .next/verify-server.log 2>&1 &
+AI_PROVIDER=fake FAKE_AI_DELAY_MS=50 STORAGE=local STRIPE_MODE=fake STRIPE_WEBHOOK_SECRET="$STRIPE_WHSEC" AYRSHARE_MODE=fake APP_URL="$BASE" npx next start -p "$PORT" > .next/verify-server.log 2>&1 &
 SERVER=$!
 trap 'kill $SERVER 2>/dev/null' EXIT
 for _ in $(seq 1 60); do curl -s -o /dev/null "$BASE/login" && break; sleep 0.5; done
@@ -65,6 +65,9 @@ run "admin-probe" npx tsx scripts/admin-probe.ts "$BASE"
 step "付费墙：导出 / 发布计划扣费、平台权益"
 run "paywall-probe" npx tsx scripts/paywall-probe.ts "$BASE"
 
+step "Ayrshare 发布：加密存储、多租户隔离、连接 + 真实（fake）发布流程"
+run "social-probe" env NODE_OPTIONS="--conditions=react-server" npx tsx scripts/social-probe.ts "$BASE"
+
 step "AI 生图：扣费 / 失败退款 / 限流 / 送到编辑器"
 run "gen-probe" npx tsx scripts/gen-probe.ts "$BASE"
 
@@ -90,7 +93,7 @@ step "查询探针"
 run "query-probe" env PRISMA_QUERY_COUNT=1 NODE_OPTIONS="--conditions=react-server" npx tsx scripts/query-probe.ts
 
 step "密钥不进浏览器端代码"
-LEAK=$(grep -rlE "STRIPE_SECRET_KEY|STRIPE_WEBHOOK_SECRET|OPENAI_API_KEY|sk_(live|test)_[A-Za-z0-9]|whsec_" .next/static 2>/dev/null | wc -l | tr -d ' ')
+LEAK=$(grep -rlE "STRIPE_SECRET_KEY|STRIPE_WEBHOOK_SECRET|OPENAI_API_KEY|AYRSHARE_API_KEY|ENCRYPTION_KEY|sk_(live|test)_[A-Za-z0-9]|whsec_" .next/static 2>/dev/null | wc -l | tr -d ' ')
 run ".next/static 中无 Stripe / OpenAI 密钥（命中文件数=${LEAK}）" test "$LEAK" = "0"
 
 step "密码存储"

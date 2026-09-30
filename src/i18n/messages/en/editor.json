@@ -103,7 +103,17 @@
     "platformNotAllowed": "Some platforms aren't in your plan",
     "insufficient": "Not enough credits",
     "locked": "Contact us to add this platform",
-    "chargeNote": "Scheduling uses 1 credit, once per design"
+    "chargeNote": "Scheduling uses 1 credit, once per design",
+    "captionLabel": "Caption",
+    "captionPlaceholder": "Write something to go with the post…",
+    "notConnected": "Connect this platform's account first",
+    "connectHint": "Platforms that really publish need a connected account first.",
+    "connectHintLink": "Connect now",
+    "exportMissing": "Couldn't export the image, try again",
+    "exportFailed": "Couldn't export the image, try again",
+    "platformNotConnected": "Some platforms aren't connected yet — connect them first",
+    "publishFailed": "Publish failed, it's recorded — you can retry later",
+    "publishPartial": "Some platforms failed to publish, recorded"
   },
   "charge": {
     "exported": "Exported · 1 credit used",

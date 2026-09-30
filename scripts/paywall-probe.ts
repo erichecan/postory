@@ -48,6 +48,12 @@ async function main() {
   const cA = `${SESSION_COOKIE}=${await signSession({ userId: a.id, role: "USER" })}`;
   const cB = `${SESSION_COOKIE}=${await signSession({ userId: b.id, role: "USER" })}`;
   const future = new Date(Date.now() + 86400000).toISOString();
+  const img = "https://example.com/probe-export.png";
+  // 本文件测试的是付费墙/entitlement 逻辑，不是连接流程本身（见 social-probe.ts），
+  // 所以这里预先给 A 连上会用到的平台，避免被新加的"未连接账号"挡住。
+  await prisma.socialAccount.createMany({
+    data: ["facebook", "x", "instagram", "tiktok"].map((platform) => ({ userId: a.id, platform, connectedAt: new Date() })),
+  });
 
   try {
     console.log("## 导出扣费");
@@ -66,26 +72,26 @@ async function main() {
     check("同一作品再次导出不再扣", /"duplicate":true/.test(second.body) && (await balance(a.id)) === 1);
 
     console.log("## 发布计划");
-    const noPlan = await call("scheduleDesignAction", [d2.id, { platforms: ["facebook"], scheduledAt: future }], cA);
+    const noPlan = await call("scheduleDesignAction", [d2.id, { platforms: ["facebook"], scheduledAt: future, caption: "probe caption", exportedImageUrl: img }], cA);
     check("没有会员 → 需要开通，且不扣费", /"code":"needPlan"/.test(noPlan.body) && (await balance(a.id)) === 1);
     await prisma.customerPlan.create({ data: { userId: a.id, tierId: tier.id, currency: "EUR", baseFee: 9900, extraPlatforms: ["x"], extraPlatformFee: 3000, monthlyCredits: 60, monthlyVideos: 4, status: "ACTIVE", billing: "OFFLINE" } });
-    const locked = await call("scheduleDesignAction", [d2.id, { platforms: ["facebook", "youtube"], scheduledAt: future }], cA);
+    const locked = await call("scheduleDesignAction", [d2.id, { platforms: ["facebook", "youtube"], scheduledAt: future, caption: "probe caption", exportedImageUrl: img }], cA);
     check("方案外的平台（YouTube）→ 拒绝，且不扣费", /"code":"platformNotAllowed"/.test(locked.body) && (await balance(a.id)) === 1);
-    const okSched = await call("scheduleDesignAction", [d2.id, { platforms: ["facebook", "xiaohongshu", "x"], scheduledAt: future }], cA);
+    const okSched = await call("scheduleDesignAction", [d2.id, { platforms: ["facebook", "xiaohongshu", "x"], scheduledAt: future, caption: "probe caption", exportedImageUrl: img }], cA);
     const d2Row = await prisma.design.findUniqueOrThrow({ where: { id: d2.id } });
     check("基础平台 + 加开平台（X）→ 成功并扣 1", /"ok":true/.test(okSched.body) && d2Row.status === "SCHEDULED" && (await balance(a.id)) === 0);
-    const again = await call("scheduleDesignAction", [d2.id, { platforms: ["facebook"], scheduledAt: future }], cA);
+    const again = await call("scheduleDesignAction", [d2.id, { platforms: ["facebook"], scheduledAt: future, caption: "probe caption", exportedImageUrl: img }], cA);
     check("同一作品改发布时间不再扣", /"ok":true/.test(again.body) && (await balance(a.id)) === 0);
-    const exported = await call("scheduleDesignAction", [d1.id, { platforms: ["instagram"], scheduledAt: future }], cA);
+    const exported = await call("scheduleDesignAction", [d1.id, { platforms: ["instagram"], scheduledAt: future, caption: "probe caption", exportedImageUrl: img }], cA);
     check("已导出过的作品加入发布计划不再扣", /"ok":true/.test(exported.body) && (await balance(a.id)) === 0);
-    const broke = await call("scheduleDesignAction", [d3.id, { platforms: ["instagram"], scheduledAt: future }], cA);
+    const broke = await call("scheduleDesignAction", [d3.id, { platforms: ["instagram"], scheduledAt: future, caption: "probe caption", exportedImageUrl: img }], cA);
     const d3Row = await prisma.design.findUniqueOrThrow({ where: { id: d3.id } });
     check("余额不足 → credit 不够，作品保持草稿", /"code":"insufficient"/.test(broke.body) && d3Row.status === "DRAFT");
     await prisma.customerPlan.update({ where: { userId: a.id }, data: { status: "PAST_DUE" } });
     await prisma.creditGrant.create({ data: { userId: a.id, source: "TOPUP", amount: 1, remaining: 1 } });
-    check("扣款失败（PAST_DUE）期间仍可发布", /"ok":true/.test((await call("scheduleDesignAction", [d3.id, { platforms: ["tiktok"], scheduledAt: future }], cA)).body));
+    check("扣款失败（PAST_DUE）期间仍可发布", /"ok":true/.test((await call("scheduleDesignAction", [d3.id, { platforms: ["tiktok"], scheduledAt: future, caption: "probe caption", exportedImageUrl: img }], cA)).body));
     await prisma.customerPlan.update({ where: { userId: a.id }, data: { status: "CANCELED" } });
-    check("方案取消后 → 需要开通", /"code":"needPlan"/.test((await call("scheduleDesignAction", [d3.id, { platforms: ["tiktok"], scheduledAt: future }], cA)).body));
+    check("方案取消后 → 需要开通", /"code":"needPlan"/.test((await call("scheduleDesignAction", [d3.id, { platforms: ["tiktok"], scheduledAt: future, caption: "probe caption", exportedImageUrl: img }], cA)).body));
   } finally {
     await prisma.user.deleteMany({ where: { id: { in: [a.id, b.id] } } });
     await prisma.$disconnect();

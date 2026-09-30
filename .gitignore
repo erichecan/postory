@@ -55,3 +55,4 @@ __pycache__/
 
 # 本地存储（STORAGE=local）
 /.data
+.playwright-mcp/

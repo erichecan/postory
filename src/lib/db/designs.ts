@@ -37,7 +37,18 @@ export async function getOwnDesign(userId: string, id: string) {
 export async function updateOwnDesign(
   userId: string,
   id: string,
-  data: { pages?: DesignPage[]; title?: string; platforms?: string[]; scheduledAt?: Date | null; status?: "DRAFT" | "SCHEDULED" },
+  data: {
+    pages?: DesignPage[];
+    title?: string;
+    platforms?: string[];
+    scheduledAt?: Date | null;
+    status?: "DRAFT" | "SCHEDULED";
+    caption?: string;
+    exportedImageUrl?: string | null;
+    ayrsharePostId?: string;
+    publishStatus?: "PENDING" | "SUCCESS" | "PARTIAL" | "FAILED";
+    publishError?: string | null;
+  },
 ) {
   const { pages, ...rest } = data;
   const res = await prisma.design.updateMany({

@@ -91,6 +91,12 @@ async function main() {
   check("GET /admin/generations 管理员", (await get("/admin/generations", cookieAdmin)).status === 200);
   check("GET /templates/不存在 → 404", (await get("/templates/nope", cookieA)).status === 404);
 
+  console.log("## 发布相关路由");
+  check("POST /api/designs/[id]/publish-asset 未登录 → 401", (await fetch(`${BASE}/api/designs/${design.id}/publish-asset`, { method: "POST", body: "{}" })).status === 401);
+  check("GET /api/social/callback 未登录 → 跳登录", (await get("/api/social/callback?platform=facebook")).status === 302);
+  check("GET /api/public-media/不存在 → 404", (await get("/api/public-media/pub/x/y-0011223344556677.png")).status === 404);
+  check("GET /api/public-media 用私有 gen/ 前缀 → 404（不会误读私有对象）", (await get("/api/public-media/gen/u/g-in.png")).status === 404);
+
   console.log("## 鉴权探针（页面）");
   for (const p of ["/templates", "/designs", "/admin/accounts", "/admin/generations", `/editor/${design.id}`]) {
     const none = await get(p);
@@ -110,11 +116,13 @@ async function main() {
   const payload = { title: "HACKED", pages: tpl.pages };
   const writes: [string, unknown[]][] = [
     ["saveDesignAction", [design.id, payload]],
-    ["scheduleDesignAction", [design.id, { platforms: ["xiaohongshu"], scheduledAt: new Date().toISOString() }]],
+    ["scheduleDesignAction", [design.id, { platforms: ["xiaohongshu"], scheduledAt: new Date().toISOString(), caption: "probe" }]],
     ["deleteDesignAction", [design.id]],
     ["adminToggleUserAction", [b.id, true]],
     ["adminCreateUserAction", [undefined, "$K"]],
     ["saveProfileAction", [undefined, "$K"]],
+    ["connectSocialAction", ["facebook"]],
+    ["disconnectSocialAction", ["facebook"]],
   ];
   for (const [name, args] of writes) {
     check(`无 token ${name} → 跳登录（≈401）`, sentToLogin(await callAction(name, args)));
@@ -143,9 +151,9 @@ async function main() {
 
   const adminOnAdmin = await callAction("adminToggleUserAction", [admin.id, true], cookieAdmin);
   check("管理员停用管理员账号 → 拒绝", /"ok":false/.test(adminOnAdmin.body));
-  const past = await callAction("scheduleDesignAction", [design.id, { platforms: ["xiaohongshu"], scheduledAt: "2020-01-01T00:00:00.000Z" }], cookieA);
+  const past = await callAction("scheduleDesignAction", [design.id, { platforms: ["xiaohongshu"], scheduledAt: "2020-01-01T00:00:00.000Z", caption: "probe" }], cookieA);
   check("发布时间早于现在 → 拒绝", /"ok":false/.test(past.body));
-  const future = await callAction("scheduleDesignAction", [design.id, { platforms: ["xiaohongshu"], scheduledAt: new Date(Date.now() + 86400000).toISOString() }], cookieA);
+  const future = await callAction("scheduleDesignAction", [design.id, { platforms: ["xiaohongshu"], scheduledAt: new Date(Date.now() + 86400000).toISOString(), caption: "probe" }], cookieA);
   check("没有会员时加入发布计划 → 拒绝（付费墙，见 paywall-probe）", /"code":"needPlan"/.test(future.body));
 
   const bigImage = "data:image/png;base64," + "A".repeat(3 * 1024 * 1024);

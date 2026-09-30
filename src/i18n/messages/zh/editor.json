@@ -103,7 +103,17 @@
     "platformNotAllowed": "有平台不在你的方案里",
     "insufficient": "credit 不够了",
     "locked": "加开这个平台请联系我们",
-    "chargeNote": "加入发布计划时扣 1 credit，同一个作品只扣一次"
+    "chargeNote": "加入发布计划时扣 1 credit，同一个作品只扣一次",
+    "captionLabel": "发布文案",
+    "captionPlaceholder": "写点什么配文…",
+    "notConnected": "先去连接这个平台的账号",
+    "connectHint": "选了需要真实发布的平台，要先连接账号。",
+    "connectHintLink": "去连接",
+    "exportMissing": "出图失败，请重试",
+    "exportFailed": "出图失败，请重试",
+    "platformNotConnected": "有平台还没连接账号，请先去连接",
+    "publishFailed": "发布失败，已记录，你可以稍后重试",
+    "publishPartial": "部分平台发布失败，已记录"
   },
   "charge": {
     "exported": "已导出 · 扣 1 credit",

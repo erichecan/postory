@@ -14,6 +14,8 @@
   "publishPlatformsRequired": "Choose at least one platform",
   "publishTimeRequired": "Choose a publish time",
   "publishTimePast": "Publish time can't be in the past",
+  "captionRequired": "Write a caption for the post",
+  "captionTooLong": "Caption is at most {max} characters",
   "imageFormat": "Only PNG, JPG and WebP images are supported",
   "imageReadFailed": "Couldn't read the image",
   "imageProcessFailed": "Couldn't process the image",

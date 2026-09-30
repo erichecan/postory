@@ -7,6 +7,34 @@
 | 演示商家（已填好"小满咖啡"资料） | 13900000000 | demo12345 |
 | 管理员 | 13800000000 | admin12345 |
 
+## 2026-09-30 Ayrshare 真实发布（多租户）+ Orshot 现状澄清
+
+本地：http://localhost:3002（演示店铺一键登录 → 商家资料页新增"已连接的社交账号"）。默认 `AYRSHARE_MODE=fake`，代码走完整链路但不产生真实调用和费用；要做真实发布验证需先注册 Ayrshare Launch 试用（见 DEV-PLAN 风险点第 2 条），线上还未切换。
+
+### 给你看的
+
+| 场景 | 来源 | 截图 | 状态 |
+| :-- | :-- | :-- | :-- |
+| 通过 API Key 接入 Ayrshare，发布到各个平台 | 你说的："我是通过 API key 的方式接入 ayrshare,然后使用各个平台的发布" | ![](docs/shots/20260929-publish-flow-en.png) | 待你确认（fake 模式全链路跑通：连接→上传导出图→调用发布→写回状态，实测截图见下；真实调用 Ayrshare 还没做，需要你先决定要不要现在注册试用） |
+| 先不做多租户，后面再改 → 中途改主意，直接做多租户 | 你说的（先）："先不要多租户,后面我们再改" → 你说的（后）："如果免费 28 天是可以多租户,那当然试用一下多租户啊" | ![](docs/shots/20260929-social-connect-zh.png) ![](docs/shots/20260929-social-connect-en.png) | 符合（已按后一句改成多租户：每个用户各自连接自己的账号，互相隔离） |
+| Orshot 也通过 API 调用模板显示，最好把编辑器整合进来 | 你说的："orshot 也是通过 API 调用模板的显示,最好也是把编辑器全部整合进来" | — | **没做到，按你确认的计划不接入**：查证后 Orshot 官方 API 不提供完整图层数据，现有 273 模板的图层 JSON 无法证实来自官方接口；Embed 编辑器要 $160/月起才能去水印且是 iframe。你在计划确认阶段没有反对这条建议，维持现有自建渲染器 |
+| [我推断的] 发布时需要一个"文案"输入框 | 我推断的（你确认计划时未反对） | ![](docs/shots/20260929-publish-flow-en.png) | 符合 |
+| Ayrshare 能不能自部署到自己服务器 | 你问的："ayrshare 是可以有源代码部署到我自己的服务器上吗?" | — | 不能——官方确认是纯托管 SaaS，只能走云端 API，无开源/自部署选项 |
+
+**实测路径**（浏览器 + 数据库核对）：登录演示账号 → 商家资料页点 Facebook「连接」→ 新标签页秒连接（fake 模式）→ 原页面自动刷新显示"已连接 demo" → 编辑器点「设定发布」→ 勾选 Facebook（未连接的平台按钮锁灰）→ 填文案 + 选未来时间 → 提交 → 数据库确认 `publishStatus=SUCCESS`、`ayrsharePostId` 有值、导出图公开可读。
+
+### 存档用的
+
+- **verify.sh**：VERIFY PASS，337 项（新增 `social-probe.ts` 覆盖加密往返、fake 网关零出站请求、平台名映射、多租户隔离、连接+上传+发布全流程、重复提交不重复真实发布）
+- **code-review high**：6 条发现
+  - 已修：①`scheduleDesignAction` 重复提交同一作品会对真实平台重复发布（补 `charge.duplicate` 判断 + 回归探针）②真实模式下 `getConnectedAccounts` 没把 Ayrshare 平台名（"twitter"）转换回内部 id（"x"），导致 X 永远显示未连接 ③重试成功后旧的 `publishError` 残留（Prisma 静默丢弃 `undefined` 字段）④`ensureAyrshareProfile` 并发建 Profile 的竞态，改为条件更新避免后到请求覆盖先到的 ⑤`SocialAccountsPanel` 的连接弹窗轮询 `setInterval` 组件卸载后未清理
+  - 不处理：`AYRSHARE_MODE=real` 但缺 `AYRSHARE_API_KEY` 时静默降级为 fake——这和现有 `STRIPE_MODE`/`AI_PROVIDER` 的选择逻辑完全一致，是项目既定约定，单独改这一处会造成不一致，如果要改应该是三处一起改的独立决定
+- **security-review**（独立子 agent 复核，未采信我自己的判断）：未发现高置信度可利用漏洞；重点核实过公开/私有媒体 key 正则互斥、`/api/social/callback` 的 CSRF 影响面仅限用户自己账号、`ayrshareProfileKeyEnc` 不会被任何面向客户端的查询带出、所有 SocialAccount 操作都锁定在 `assertUser()` 的用户自己身上
+- **自测中发现并修复的 bug**（不在 code-review 范围内，是我自己动手测试时撞见的）：已选中的平台如果后来被锁定（比如断开连接），按钮变灰点不动，没法取消勾选，导致提交必然失败又无法修正——改成"已选中的锁定平台仍可点击取消，只是不能新选中"
+- **⚠️ 未验证**：真实调用 Ayrshare 发布到真实社交账号——需要你决定何时注册 Launch 试用（28 天免费、不需要信用卡，但从注册当天开始计时）
+- **已知限制**：X/Twitter 自 2026-03-31 起需要额外的 OAuth1.0a Key（应用级），这次没接，等你有 Twitter Developer 账号再补；小红书/抖音/微信朋友圈没有公开 API，继续保留"仅记录计划、不真实发布"
+- **下一步（等你定）**：要不要现在就注册 Ayrshare Launch 试用做真实发布验证；Orshot 的建议维持现状你是否认可
+
 ## 2026-09-29 商业化（C1–C8）：会员 · credit · AI 生图 · Stripe
 
 线上地址：**https://postory-dfd7b2qpra-ew.a.run.app**（2026-09-30 部署的演示版：支付和 AI 生图都是模拟模式，不收真钱、不调 OpenAI）。本地：http://localhost:3002

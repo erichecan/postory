@@ -27,5 +27,13 @@
   },
   "saving": "Saving…",
   "saved": "Saved",
-  "savedMessage": "Business profile saved"
+  "savedMessage": "Business profile saved",
+  "social": {
+    "title": "Connected social accounts",
+    "subtitle": "Connect an account once here, and every design can publish there for real.",
+    "connect": "Connect",
+    "connected": "Connected",
+    "connectedDemo": "demo connection",
+    "unsupported": "This platform isn't supported yet"
+  }
 }

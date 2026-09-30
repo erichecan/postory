@@ -1,292 +1,110 @@
-# DEV-PLAN · Postory 商业化（会员 · credit · AI 生图 · Stripe）
+# DEV-PLAN · Postory 真实发布（Ayrshare）+ Orshot 现状核实
 
-日期：2026-09-28　上一版（演示原型）：`docs/20260927-DEV-PLAN-v1-原型.md`
+日期：2026-09-29　上一版（商业化）：`docs/20260928-DEV-PLAN-v2-商业化.md`
 
 ## 0. 读取的文档
 
-- 无 PRD 文件。需求来源：用户对话原话，逐字存档于 `docs/20260927-postory-需求原话.md`「2026-09-28 商业化讨论」
-- 讨论稿：`docs/20260928-postory-商业化框架.md`
-- 用户确认：6 个待定点"都按推荐来"（2026-09-28）
+- 无 PRD 文件。需求来源：用户对话原话，逐字存档于 `docs/20260927-postory-需求原话.md`「2026-09-29 Ayrshare / Orshot 接入讨论」
+- 早期归档方案（不同产品形态，仅作技术参考）：`docs/social-agency/20260927-DEV-PLAN.md`、`系统架构设计.md`、`详细设计.md`、`social-agency-tasks.md`、`code/src/lib/providers/{ayrshare,orshot,types}.ts`、`code/src/lib/crypto.ts`
+- 当前代码现状核查：`prisma/schema.prisma`（User/Design/Template/Generation）、`src/lib/platforms.ts`、`src/components/editor/publish-dialog.tsx`、`src/lib/actions/designs.ts`、`src/lib/storage.ts`、`src/app/api/media/[...key]/route.ts`、`src/components/editor/export-page.ts`
+- 官方文档实时核实（WebFetch，2026-09-29）：Ayrshare `apis/overview`、`apis/profiles/overview`、`multiple-users/*`、`apis/post/post`、`additional/mcp-action-server`、`pricing`；Orshot `api-reference/render-from-template`、`orshot-embed/introduction`、`pricing`
 
 ## 1. 目标与范围
 
-**目标**：把演示原型变成能收钱的产品——会员方案每人单独定价，用 credit 计量模板出图和 AI 生图，通过 Stripe 收 EUR / CAD。
+**目标**：把现在"点发布只是本地扣费、状态机打勾"的假发布，换成真的调用 Ayrshare 把设计图发到社交平台；同时把 Orshot 的定位说清楚——不是"模板库哪来的"这件事有歧义，而是要不要真的接 Orshot 的 API/编辑器。
 
-**做**
-- 会员等级（只展示权益，不公开价格）+ 每个客户一份专属方案（管理员配置）
-- Credit 账本：模板出图 1 · AI 标准图 1 · AI 高清图 2；月度额度月底清零，赠送和充值的不过期
-- AI 生图工作台：实拍美化（上传照片）+ 文生图，多轮改提示词，每轮扣费
-- Stripe：专属方案订阅（Checkout 现场生成金额）、自助充值、账单管理、webhook
-- 线下收款：管理员手动开通 N 个月 / 手动加减 credit
-- 发布平台权益：基础 4 个（FB、IG、TikTok、小红书），额外平台按方案开通
-- 注册改邮箱 + 验证码，验证后送 10 credit；找回密码
-- 法律页（条款 / 隐私 / 退款）
+**做**（2026-09-29 更新：既然免费试用本身就含多租户能力，改为直接做多租户，不留后补）
+
+- 服务端真实调用 Ayrshare `/post`，**多租户 Profile 模式**：每个 postory 用户对应一个 Ayrshare Profile，各自连接各自的社交账号，互相隔离
+- 每个用户一个"连接社交账号"页面：点某平台 → 后端建/取该用户的 Profile-Key → 生成 Ayrshare 托管的连接链接 → **新标签页打开**（官方明确不支持 iframe 嵌入）→ 连接完跳回站内 → 站内刷新该用户已连接平台列表
+- 设计导出图从"纯浏览器截图下载"改为额外上传到服务器 → 生成公开可访问 URL → 传给 Ayrshare 当 `mediaUrls`
+- Ayrshare 提供商自适配层：`AYRSHARE_MODE=fake|real`，仿照现有 `AI_PROVIDER`/`STRIPE_MODE` 的假档模式，默认 fake，代码全部走完整链路（含建 Profile、连接、发布）但不花钱、不真调用
+- `PublishDialog` 只能勾选**当前用户自己**真正连接了的平台，不会出现选了却发不出去的情况
+- Ayrshare Profile-Key 按 social-agency 方案的 `crypto.ts`（AES-256-GCM）加密落库，不明文存
+- Orshot：**不接入**（详见第 5 节理由），继续用现有自建 canvas 渲染引擎；把这个决定和理由写清楚，避免以后有人以为"模板显示"还差一步 Orshot 集成
 
 **不做**
-- 公开价格页
-- 真实发布到社交平台（仍然只记录发布计划；平台数权益只限制"能选几个"）
-- 视频生成（方案里记录每月视频条数并展示，暂时没有消耗入口）
-- Stripe Tax / 增值税计算
-- 移动端 App
 
-## 2. 已定规则（来自用户）
+- 真去注册 Ayrshare Launch 试用账号、真的调用真实平台连接/发一条帖子——这一步需要你先决定"现在就要真验证"还是"先把代码全部写完、demo 走通再验证"，见下方确认点
+- Orshot Render API / Embed 编辑器接入
+- Webhook 接收 Ayrshare 发布状态回调（要 Business 档才有，暂时用"发布时同步拿到的状态"，不做异步回调）
+- X/Twitter 自 2026-03-31 起需要额外的 OAuth1.0a Key/Secret（应用级，不分用户）——先不接 X 平台的真实发布，等你有自己的 Twitter Developer 账号再补
 
-| 规则 | 值 | 来源 |
-| :-- | :-- | :-- |
-| 包月基础价 | 99（EUR 客户 €99，CAD 客户 C$99） | 原话 6 + 推荐 A |
-| 基础平台 | FB、IG、TikTok、小红书 | 原话 1、6 |
-| 额外平台 | 每个 +30 / 月 | 原话 6 |
-| 包月默认额度 | 60 credit + 4 条视频 | 推荐 |
-| 模板出图 | 1 credit，**导出或加入发布计划时扣**，同一作品只扣一次 | 原话 3 + 推荐 A |
-| AI 生图 | 标准 1 / 高清 2，每轮重新生成都扣 | 原话 4、5 |
-| 注册赠送 | 10 credit，**只能用于模板** | 原话 4 + 推荐 A |
-| 月度额度 | 到期清零 | 推荐 A |
-| 超额充值 | 客户登录后自助充值，单价取方案价，默认 1 / credit | 推荐 A |
-| 币种 | EUR、CAD | 原话 2 |
-| 价格 | 不公开；每人单独定价；可设全包一口价 | 原话 1 |
+## 2. 模块拆解
 
-## 3. 模块拆解
+1. **Provider 适配层** `src/lib/ayrshare.ts`：`createProfile(userId)`、`createConnectLink(profileKey, redirectUrl)`、`getConnectedAccounts(profileKey)`、`publish({ profileKey, platforms, mediaUrl, caption, scheduleDate })`；fake 模式全部返回构造好的成功结果，不发请求。平台名映射表（本项目 `"x"` → Ayrshare `"twitter"`；`"xiaohongshu"`/`"douyin"`/`"wechat-moments"` 不在 Ayrshare 支持列表内，标记为"仅记录、暂不真实发布"）
+2. **社交账号连接页**（新增 `/profile` 下的一个区块或独立页面）：按平台列出连接状态，未连接显示"连接"按钮（`window.open` 打开 Ayrshare 托管页，禁止用 `<a>` 普通跳转——官方要求用 `window.open`）；已连接显示账号名 + "断开"
+3. **导出转公开图**：复用现有 `export-page.ts` 的浏览器端渲染，产出 PNG 后 `POST /api/designs/[id]/publish-asset` 上传到服务器，存 GCS 一个新前缀 `pub/`，返回公开 URL（这类图本来就是要给用户拿去公开发布的内容，公开托管没有隐私问题）
+4. **发布动作改造**：`scheduleDesignAction` 拆成"校验+扣费"（不变）+ 新增"用该用户的 Profile-Key 真调用 Ayrshare"一步；写回 `Design.ayrsharePostId`/`publishStatus`/`publishError`
 
-| 模块 | 内容 |
-| :-- | :-- |
-| M1 账号改造 | 注册改为邮箱 + 密码 + 6 位邮件验证码；登录支持邮箱或手机号（兼容老账号）；找回密码（邮件链接，30 分钟有效）；邮箱验证成功时发放 10 个赠送 credit（每个邮箱只发一次）；演示账号保留一键登录，但不能 AI 生图、不能充值 |
-| M2 Credit 账本 | `CreditGrant`（一笔额度：来源、总数、剩余、可用范围、生效/到期）+ `CreditTxn`（只增不改的流水）。扣费在事务内锁用户行，按"先到期先用"从可用的 grant 里扣；失败退回原 grant。余额 = 当前有效 grant 的剩余之和 |
-| M3 会员与方案 | `MembershipTier`（等级名、中英文权益说明、默认额度 / 平台数，内部参考价）；`CustomerPlan`（每客户一份：等级、币种、基础价、额外平台列表 + 单价、每月 credit / 视频、全包一口价、充值单价、状态、Stripe 订阅号）|
-| M4 Stripe | 订阅：客户在「我的会员」点付款 → 服务器按方案现场建 Checkout（subscription 模式，`price_data` 动态金额）；充值：payment 模式，最少 10 credit；Customer Portal 管理卡和发票；webhook 处理 `checkout.session.completed` / `invoice.paid` / `invoice.payment_failed` / `customer.subscription.updated/deleted` / `charge.refunded`，按 event id 幂等 |
-| M5 线下开通 | 管理员「线下已收款 · 开通 N 个月」→ 一次生成 N 个月度 grant，每个只在对应月份有效（不需要定时任务）；手动加减 credit，必填原因 |
-| M6 AI 生图 | 工作台两种模式：实拍美化（上传照片 → OpenAI images.edit）、文生图（images.generate）；场景预设（餐饮 / 美业 / 节日，中英文）+ 店铺资料自动带入；后台先用 LLM 把用户描述扩写成专业提示词；多轮：每轮以上一张为输入继续改；结果存储（本地盘 / GCS）；可"发送到编辑器"作为新作品或替换模板图片 |
-| M7 付费墙 | 顶栏余额徽章；导出 / 加入发布计划 / 生成前检查余额，不够弹出「余额不足」（有方案 → 充值；没方案 → 联系开通）；发布计划可选平台数按方案限制，没方案的不能加入发布计划 |
-| M8 平台权益 | 发布目标改为 id：基础 `facebook` `instagram` `tiktok` `xiaohongshu`；额外 `x` `youtube` `pinterest` `linkedin` `threads` `douyin` `wechat-moments`；老数据迁移 |
-| M9 后台 | 客户列表加"方案 / 余额"列；客户详情页（配方案、生成付款状态、线下开通、调整 credit、流水）；会员等级管理（含权益对比矩阵逐项编辑）；生成日志与成本（每日 OpenAI 成本、credit 收入、毛利） |
-| M10 公开页 | `/plans` 会员权益对比（用户 2026-09-28 追加："没看到权益对比页面"）；落地页改版（卖点 + AI 前后对比 + 会员等级权益，无价格 + 联系方式）；`/legal/terms` `/legal/privacy` `/legal/refund` |
-
-## 4. Schema 增量（Prisma）
+## 3. Schema 设计
 
 ```prisma
-enum Currency { EUR CAD }
-enum PlanStatus { DRAFT PENDING_PAYMENT ACTIVE PAST_DUE CANCELED }
-enum PlanBilling { STRIPE OFFLINE }
-enum GrantSource { SIGNUP_GIFT MONTHLY TOPUP ADMIN REFUND_RETURN }
-enum GrantScope { ANY TEMPLATE_ONLY }
-enum TxnKind { GRANT DEBIT REFUND EXPIRE ADJUST }
-enum ChargeKind { TEMPLATE_EXPORT AI_STANDARD AI_HD }
-enum GenerationMode { PHOTO_ENHANCE TEXT_TO_IMAGE }
-enum GenerationStatus { PENDING SUCCEEDED FAILED }
+enum PublishStatus {
+  PENDING
+  SUCCESS
+  PARTIAL
+  FAILED
+}
 
 model User {
-  // 现有字段 + ↓
-  email            String?   @unique @db.VarChar(254)
-  emailVerifiedAt  DateTime?
-  stripeCustomerId String?   @unique
-  phone            String?   @unique @db.VarChar(20)   // 改为可空，兼容老账号
-  plan             CustomerPlan?
-  grants           CreditGrant[]
-  txns             CreditTxn[]
-  generations      Generation[]
+  // ...现有字段不变，新增：
+  ayrshareProfileKeyEnc String?  // AES-256-GCM 加密存储，复用 social-agency 版 crypto.ts
+  ayrshareRefId         String?  // Ayrshare 返回的 profile 标识
+  socialAccounts        SocialAccount[]
 }
 
-model EmailToken {            // 注册验证码 / 找回密码
-  id        String   @id @default(cuid())
-  email     String   @db.VarChar(254)
-  purpose   String   @db.VarChar(16)   // verify | reset
-  codeHash  String
-  attempts  Int      @default(0)
-  expiresAt DateTime
-  usedAt    DateTime?
-  @@index([email, purpose])
-}
-
-model MembershipTier {
-  id                    String  @id @default(cuid())
-  nameZh                String  @db.VarChar(64)
-  nameEn                String  @db.VarChar(64)
-  benefitsZh            String  @db.Text
-  benefitsEn            String  @db.Text
-  taglineZh             String  @db.VarChar(64)
-  taglineEn             String  @db.VarChar(64)
-  features              Json                     // 权益对比矩阵：{ monthlyCredits: 60 | "custom", prioritySupport: true, ... }，键见 lib/billing/tier-features.ts
-  defaultMonthlyCredits Int     @default(60)
-  defaultMonthlyVideos  Int     @default(4)
-  referenceFee          Int     @default(9900)   // 分，仅后台可见
-  sortOrder             Int     @default(0)
-  visible               Boolean @default(true)
-  plans                 CustomerPlan[]
-}
-
-model CustomerPlan {
-  userId               String      @id
-  user                 User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tierId               String
-  tier                 MembershipTier @relation(fields: [tierId], references: [id])
-  currency             Currency
-  billing              PlanBilling @default(STRIPE)
-  baseFee              Int         // 分
-  extraPlatforms       String[]
-  extraPlatformFee     Int         // 分 / 个
-  allInclusiveFee      Int?        // 有值则忽略上面两项
-  monthlyCredits       Int
-  monthlyVideos        Int
-  topupUnitPrice       Int         @default(100)   // 分 / credit
-  status               PlanStatus  @default(DRAFT)
-  stripeSubscriptionId String?     @unique
-  currentPeriodEnd     DateTime?
-  updatedAt            DateTime    @updatedAt
-}
-
-model CreditGrant {
-  id        String      @id @default(cuid())
-  userId    String
-  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  source    GrantSource
-  scope     GrantScope  @default(ANY)
-  amount    Int
-  remaining Int
-  validFrom DateTime    @default(now())
-  expiresAt DateTime?
-  refId     String?     @unique        // invoice id / checkout id / 赠送标记，保证幂等
-  createdAt DateTime    @default(now())
-  @@index([userId, expiresAt])
-}
-
-model CreditTxn {
-  id        String      @id @default(cuid())
-  userId    String
-  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  kind      TxnKind
-  charge    ChargeKind?
-  delta     Int
-  grantId   String?
-  refId     String?                     // designId / generationId / stripe id
-  note      String?     @db.VarChar(255)
-  actorId   String?                     // 管理员操作人
-  createdAt DateTime    @default(now())
-  @@index([userId, createdAt])
-}
-
-model Generation {
-  id          String           @id @default(cuid())
+model SocialAccount {
+  id          String    @id @default(cuid())
   userId      String
-  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  parentId    String?                       // 多轮：上一轮
-  mode        GenerationMode
-  quality     String           @db.VarChar(8)   // standard | hd
-  size        String           @db.VarChar(16)
-  userPrompt  String           @db.Text
-  finalPrompt String?          @db.Text
-  inputUrl    String?
-  outputUrl   String?
-  credits     Int
-  costMicros  Int?                           // OpenAI 实际成本（百万分之一美元）
-  status      GenerationStatus @default(PENDING)
-  error       String?          @db.VarChar(255)
-  createdAt   DateTime         @default(now())
-  @@index([userId, createdAt])
-  @@index([status, createdAt])
-}
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  platform    String    // ayrshare 平台名，如 "facebook" "instagram" "twitter"
+  handle      String?
+  connectedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-model StripeEvent {            // webhook 幂等
-  id          String   @id    // evt_xxx
-  type        String
-  processedAt DateTime @default(now())
+  @@unique([userId, platform])
 }
 
 model Design {
-  // 现有字段 + ↓
-  chargedAt DateTime?          // 首次扣费时间，之后不再扣
+  // ...现有字段不变，新增：
+  caption           String?        @db.Text
+  exportedImageUrl  String?
+  ayrsharePostId    String?
+  publishStatus     PublishStatus?
+  publishError      String?        @db.Text
 }
 ```
 
-## 5. 路由清单
+对齐早期 social-agency 方案的踩坑：Profile-Key 是"一个用户一把，8 个平台共用"，所以挂在 `User` 上而不是 `SocialAccount` 上（`SocialAccount` 只存纯连接状态，避免同一个 key 在多行里冗余存多份）。
 
-| 路径 | 说明 | 鉴权 |
+## 4. 路由 / Actions 清单
+
+| 路径 | 方法 | 说明 |
 | :-- | :-- | :-- |
-| `/` | 落地页改版：卖点、AI 前后对比、会员等级权益（无价格）、联系方式 | 公开 |
-| `/plans` | 会员权益对比：三档逐项对比（额度 / 平台 / 创作工具 / 服务），无价格，FAQ，咨询按钮；手机端每档一张卡 | 公开 |
-| `/legal/terms` `/legal/privacy` `/legal/refund` | 法律页 | 公开 |
-| `/register` | 邮箱 + 密码 → 验证码页 | 公开 |
-| `/verify-email` | 输入 6 位验证码；验证成功送 10 credit | 已登录未验证 |
-| `/forgot-password` `/reset-password` | 找回密码 | 公开 |
-| `/membership` | 我的会员：专属方案、付款、本月剩余、平台权益、充值、Stripe 账单入口、流水 | USER |
-| `/membership/success` `/membership/cancel` | 支付回跳 | USER |
-| `/create` | AI 生图工作台 | USER（非演示） |
-| `/generations` | 生成历史（瀑布流，24 条分页） | USER |
-| `/admin/accounts/[id]` | 客户详情：方案、线下开通、调整 credit、流水 | ADMIN |
-| `/admin/tiers` | 会员等级 | ADMIN |
-| `/admin/generations` | 生成日志与成本 | ADMIN |
-| `POST /api/stripe/webhook` | Stripe webhook（验签） | Stripe 签名 |
-| `POST /api/generations/[id]/run` | 执行一次生成（同步调用 OpenAI，最长 300s） | 本人 |
-| Server Actions | sendVerifyCode / verifyEmail / requestReset / resetPassword / startCheckout / startTopup / openBillingPortal / chargeDesign / createGeneration / sendToEditor / adminSavePlan / adminActivateOffline / adminAdjustCredits / adminSaveTier | 按上表 |
+| `connectSocialAction(platform)` | Server Action | 若用户还没有 Profile 先建一个，再建 link session，返回 URL 给前端 `window.open` |
+| `/api/social/callback` | GET | Ayrshare 连接页跳回来的落地页，刷新该用户 `GET /user`（带其 Profile-Key）写回 `SocialAccount`，再跳回站内连接页 |
+| `disconnectSocialAction(platform)` | Server Action | 删除本地 `SocialAccount` 记录（Ayrshare 侧断开需要用户自己在其托管页操作，我们只能清本地状态） |
+| `/api/designs/[id]/publish-asset` | POST | 登录用户上传导出的 PNG，存 GCS `pub/` 前缀，返回公开 URL |
+| `/api/public-media/[...key]` | GET | 公开只读，仅匹配 `pub/` 前缀 key（正则拦截，不会读到 `gen/` 私有前缀） |
+| `scheduleDesignAction`（改造）| Server Action | 扣费后用当前用户的 Profile-Key 调用 `ayrshare.publish()`，写回状态 |
 
-## 6. 关键技术决策（L2，我已决）
+## 5. 风险点 / 需要你确认的判断
 
-1. **扣费一致性**：`chargeCredits(userId, kind, refId)` 在单个事务里 `SELECT … FOR UPDATE` 锁用户行 → 查有效 grant（`validFrom ≤ now < expiresAt`，按 expiresAt 升序、空值最后；模板扣费时 TEMPLATE_ONLY 优先）→ 扣减 + 写流水。同一 refId 重复扣费直接返回已扣结果
-2. **生成流程**：createGeneration（扣费 + 建 PENDING 记录）→ 前端调 `/api/generations/[id]/run` 同步执行 → 成功写结果；失败或被审核拒绝 → 退回 credit。超过 10 分钟仍 PENDING 的，在列表页加载时标记 FAILED 并退款（Cloud Run 请求结束后 CPU 会被限流，不做后台线程）
-3. **AI 提供方**：OpenAI `gpt-image` 系列（开工时核实当前最新型号和价格）；标准 = medium 质量，高清 = high 质量；尺寸 1:1 / 4:5 / 9:16 / 16:9。提示词扩写用 OpenAI 小模型。`AI_PROVIDER=fake` 时返回本地占位图，verify.sh 和本地开发不花钱
-4. **风控**：每人同时只能跑 1 个生成、每小时 30 次；全站每日成本上限 `AI_DAILY_COST_CAP_USD`（默认 50），超出拒绝且不扣费；上传 ≤ 10MB，浏览器端压到 ≤ 4MB
-5. **存储**：`STORAGE=local`（dev，写 `.data/uploads/`，已 gitignore）/ `STORAGE=gcs`（prod，新建桶 `postory-user-media`）
-6. **Stripe 专属价**：只建一个 Product「Postory Membership」，每次 Checkout 用 `price_data` 动态金额；基础价、额外平台（quantity = N）分两行；全包是一行。管理员改价 → 更新订阅项，下个周期生效
-7. **月度额度**：`invoice.paid` → 发一个 MONTHLY grant（refId = invoice id，expiresAt = 本期结束）；线下开通一次生成 N 个 grant，每个只在对应月份有效
-8. **邮件**：Resend（免费档每月 3000 封）；没有 key 时把邮件打印到服务端日志，本地和 verify 可用
-9. **导出扣费**：导出 PNG 在浏览器端完成，先调 `chargeDesign` 成功后才导出。截图绕过无法防，接受
-10. **平台 id 迁移**：老数据里的中文平台值映射到新 id（小红书 → xiaohongshu、抖音 → douyin、微信朋友圈 → wechat-moments、Instagram → instagram、Facebook → facebook、X / Twitter → x）
+1. **Orshot：建议不接入，维持现状**——官方 Render API 只返回渲染后的图片，不暴露完整图层坐标数据；现有 273 个模板的图层 JSON（含 position/parameterizable 等）大概率不是 Orshot 官方 API 导出格式，无法证实这些模板 ID 在 Orshot 上还有效。Embed 编辑器是 iframe 方案，去水印要 Grow 档 $160/月起，且受 Orshot 自家 SDK 能力边界限制（双语支持、深度产品化都不确定）。现有自建渲染器已经上线在用、免费、双语、完全可控。**这条和你最初"最好整合 Orshot 编辑器"的期望不一样，如果你仍然想做，请明确说，我会按 Embed 方案单独评估成本。**
+2. **Ayrshare 试用时机与上限**：Launch 档 28 天免费试用从注册那天开始计时，不是"用了才算"；且 Launch 档上限 **10 个 Profile**（10 个用户连接账号），够开发/demo/小范围验证用，真上线给更多真实用户用之前要决定续费 Business 档（阶梯计费，$599/月起）还是别的方案。建议代码先按 fake 模式全部写完、demo 环境走通"建 Profile → 连接 → 发布"整条链路，你看完截图确认没问题后，我们再去注册试用、切 `AYRSHARE_MODE=real` 做真实发布验证，避免试用期在开发阶段被空耗。新增环境变量 `AYRSHARE_API_KEY`（主账号）、`ENCRYPTION_KEY`（AES 密钥，`openssl rand -base64 32` 生成，和 `AUTH_SECRET` 分开）。
+3. **平台覆盖缺口**：Ayrshare 不支持小红书、抖音、微信朋友圈（没有这三个平台的公开 API）。现有 `PUBLISH_PLATFORMS` 里的 `xiaohongshu`/`douyin`/`wechat-moments` 会继续保留为"仅记录发布计划，不真实调用"，其余（Facebook/Instagram/TikTok/X/YouTube/Pinterest/LinkedIn/Threads）走真实发布。
+4. **MCP Action Server 不用**：官方说明它和 REST API 走同一套后端逻辑，是给 AI Agent 直接操作用的，我们是普通 Next.js 后端服务间调用，直接用 REST `/post` 更直接，不引入这层。
+5. **图片公开托管**：发布用的导出图会放在公开可读的存储路径下（Ayrshare 服务器要能直接抓取），不再是私有权限。这些图本来就是用户主动要发到公网社交平台的内容，公开托管本身不产生新的隐私暴露。
 
-## 7. 执行顺序（静态页先行）
+## 附录 A · 技术验收标准（verify.sh 新增项）
 
-| 周期 | 单元 | 可看物 |
-| :-- | :-- | :-- |
-| 0 | **静态页**：`/membership`、`/create`、余额不足弹窗、`/admin/accounts/[id]` 方案表单、落地页会员区（真实文案 + 假数据 + 能点） | 截图发你，等"对 / 不对" |
-| 1 | Schema 迁移 + 平台 id 迁移 + credit 账本（含并发测试） | verify 输出 |
-| 2 | 账号改造：邮箱注册、验证码、赠送、找回密码 | 截图 |
-| 3 | 后台：等级、客户方案、线下开通、调整 credit | 截图 |
-| 4 | 付费墙：模板导出 / 发布计划扣费、平台数限制、余额徽章 | 截图 |
-| 5 | AI 生图工作台 + 生成历史 + 发送到编辑器（先 fake provider，拿到 key 后接 OpenAI） | 截图 + 前后对比样图 |
-| 6 | Stripe：订阅、充值、Portal、webhook | 测试模式付款录屏截图 |
-| 7 | 落地页 + 法律页 + 后台成本看板 | 截图 |
-| 8 | `/code-review high` + `/security-review` → 部署（GCP 操作前停下确认） | 生产 URL 验证 |
+- `npx tsc --noEmit`、`npm run build`、`npx prisma migrate status` 照旧
+- 路由探针：`/api/designs/[id]/publish-asset`、`/api/social/callback` 未登录 401；`connectSocialAction`/`disconnectSocialAction` 未登录/无权限拒绝；`/api/public-media/xxx` 不存在的 key → 404，且用私有 `gen/` 前缀的 key 必须 404（拦截生效，探针里专门造一个 `gen/` key 断言不可读）
+- `AYRSHARE_MODE=fake` 时：跑一次完整"建 Profile → 连接 → 发布"流程（unit/集成测试用 mock），断言不产生任何出站 HTTP 请求到 `api.ayrshare.com`
+- 单元测试：平台名映射表（`x` → `twitter`）、小红书/抖音/朋友圈不触发真实调用只走本地记录；`crypto.ts` 加解密往返、篡改密文后必须报错、`ENCRYPTION_KEY` 未配置时明确报错
+- A 用户不能读到 B 用户的 `SocialAccount`/发布状态（多租户隔离探针）
+- 泄露扫描：新增 `AYRSHARE_API_KEY`、`ENCRYPTION_KEY` 加入 `.next/static` 密钥泄露 grep 清单
 
-进度台账：`docs/20260928-commerce-tasks.md`（确认后建立）。
-
-## 8. 风险点
-
-1. **小红书没有第三方发布 API**：以后接入真实发布，小红书也只能是"下载 + 复制文案，客户自己发"
-2. **OpenAI 成本波动**：高清图单张成本可能接近 $0.2；定价 2 credit ≈ €2 仍有余量；每日成本上限兜底
-3. **生成超时**：高清图偶尔要超过 60s，Cloud Run 请求超时调到 300s；超时自动退款
-4. **导出扣费可被截图绕过**：客户端导出无法防，接受
-5. **老账号**：现有手机号账号可以继续登录，但没有邮箱就收不到收据和找回密码邮件；「我的会员」提示补邮箱
-6. **Stripe webhook 乱序**：`invoice.paid` 可能早于 `checkout.session.completed`，两边都按 subscription id 找方案，幂等处理
-
-## 9. 需要的外部账号（开发不阻塞，上线前必须有）
-
-| 账号 | 用途 | 没有时 |
-| :-- | :-- | :-- |
-| OpenAI API Key | AI 生图、提示词扩写 | fake provider 出占位图 |
-| Stripe（测试 + 正式，开通 EUR / CAD） | 收款 | verify 用本地签名的 webhook 事件 + Stripe 假客户端 |
-| Resend + 发信域名 | 验证码、找回密码邮件 | 邮件打印到日志 |
-| GCS 桶 `postory-user-media` | 存用户生成图 | 本地盘 |
-
----
-
-## 附录 A · 技术验收标准与 verify.sh 增量
-
-在现有 `scripts/verify.sh`（86 项）基础上增加，退出码 0 = 通过：
-
-1. **基础**：tsc、lint、build、`prisma migrate status`、check-i18n（新增文案中英 key 一致）
-2. **路由探针**：第 5 节所有页面 × 中英文，登录态非 404/500；未登录访问受保护页 → 跳转登录
-3. **鉴权探针**
-   - 新 Server Actions：无 session / 伪造 session / 普通用户调 admin 类 → 401 / 401 / 403，且数据库不变
-   - 用户 A 访问 B 的生成记录、调 B 的 `/api/generations/[id]/run` → 404
-   - 演示账号调 createGeneration / startTopup → 拒绝
-   - webhook：无签名 / 错签名 → 400，数据库不变
-4. **账本不变量**
-   - 余额 5 时并发 20 次扣 1 → 恰好 5 次成功，余额 0，无负数
-   - 生成失败 → credit 退回原 grant，流水 DEBIT + REFUND 成对
-   - 同一作品导出 3 次 → 只扣 1 次
-   - TEMPLATE_ONLY 赠送额度不能用于 AI 生图
-   - 过期 grant 不计入余额、不可扣；未生效的线下月度 grant 不可扣
-   - 同一 Stripe event 投递 2 次 → 只发 1 次额度；同一邮箱验证 2 次 → 只送 1 次
-   - 全站每日成本超上限 → 拒绝且不扣费
-5. **Stripe 金额**：假客户端记录 Checkout 参数，断言 99 + 2 × 30 → 两行、15900 分、币种正确；全包方案 → 一行一口价
-6. **查询探针**：`/generations`、`/admin/accounts`、流水列表在 10 条与 200 条数据下查询数相同；分页 24 条
-7. **资源约束**：上传 > 10MB 或非 png/jpeg/webp → 拒绝；每人每小时 30 次生成限流生效；验证码错 5 次作废
-8. **性能基线**：autocannon `/membership`、`/generations` 10s，本地 p97.5 < 300ms，数值写入 DEV-REPORT
-9. **安全**：验证码与重置 token 只存哈希；Stripe / OpenAI key 不出现在客户端 bundle（build 产物 grep）
+verify.sh 不过不许写完成报告；本阶段不接入真实 Ayrshare 账号，"真实发布成功"这一条在你决定开始付费验证前，DEV-REPORT 里标 **⚠️ 未验证**，不冒充已完成。

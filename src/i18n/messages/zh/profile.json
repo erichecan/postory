@@ -27,5 +27,13 @@
   },
   "saving": "保存中…",
   "saved": "已保存",
-  "savedMessage": "商家资料已保存"
+  "savedMessage": "商家资料已保存",
+  "social": {
+    "title": "已连接的社交账号",
+    "subtitle": "在这里连接一次账号，以后每个作品都能真的发到这个平台。",
+    "connect": "连接",
+    "connected": "已连接",
+    "connectedDemo": "demo 连接",
+    "unsupported": "这个平台暂不支持"
+  }
 }
