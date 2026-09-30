@@ -4,7 +4,7 @@
 
 - **想达成什么**：Postory 帖事首次公开上线，任何人可注册；代码公开到 GitHub，但模板素材（Orshot / Bannerbear）不进公开库。
 - **线上地址**：https://postory-dfd7b2qpra-ew.a.run.app
-- **仓库**：https://github.com/erichecan/social-shell（public，历史已用 filter-repo 清除模板素材）
+- **仓库**：https://github.com/erichecan/postory（public，历史已用 filter-repo 清除模板素材）
 - **架构**：
   - Cloud Run `postory` · supply-491510 · europe-west1（europe-west3 报 region quota exceeded）· min 0 / max 3 · 1 vCPU / 1Gi
   - 镜像：`europe-west3-docker.pkg.dev/supply-491510/postory/web:<sha>`

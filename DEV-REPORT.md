@@ -68,7 +68,7 @@
 | 场景 | 来源 | 截图 | 状态 |
 | :-- | :-- | :-- | :-- |
 | 瀑布流按"图 + 标题"总高度错落，标题完整换行（最多 3 行） | 你说的："如果把名字也算进来,那不应该是等高啊" | ![](docs/shots/20260929-i18n-en-1440-templates.png) | 符合 |
-| 代码在公开 GitHub 库，模板素材不进库 | 你说的："创建一个公开的 GitHub…素材不进库" | https://github.com/erichecan/social-shell | 符合（历史中素材已清除，图片在 GCS） |
+| 代码在公开 GitHub 库，模板素材不进库 | 你说的："创建一个公开的 GitHub…素材不进库" | https://github.com/erichecan/postory | 符合（历史中素材已清除，图片在 GCS） |
 | 部署在 erichecan 的 GCP（supply-491510） | 你说的："部署到 gcp,erichecan 管理的 gcp" | 线上地址 | 符合 |
 | 登录页一键进入演示店铺，大家共用 | 你说的："先做成一键登录" + 你选的「大家共用一个演示账号」 | ![](docs/shots/20260929-i18n-prod-en-login.png) | 待你确认 |
 | 整个网站中英文切换 | 你说的："整个网站做成中英文双语切换的" | ![](docs/shots/20260929-i18n-prod-en-templates.png) | 待你确认 |
