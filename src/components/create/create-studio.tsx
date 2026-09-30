@@ -119,10 +119,6 @@ export function CreateStudio({
           onOpenChange={setTopupOpen}
           currency={topup.currency}
           unitPrice={topup.unitPrice}
-          onSubmit={(q) => {
-            setTopupOpen(false);
-            toast.info(`Stripe Checkout · ${q}`);
-          }}
         />
       )}
     </div>

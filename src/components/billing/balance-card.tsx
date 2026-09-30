@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import type { BalanceView, Currency } from "@/types/commerce";
 import { TopupDialog } from "./topup-dialog";
@@ -74,10 +73,6 @@ export function BalanceCard({ balance, topup, blocked = "noPlan" }: { balance: B
           onOpenChange={setOpen}
           currency={topup.currency}
           unitPrice={topup.unitPrice}
-          onSubmit={(q) => {
-            setOpen(false);
-            toast.info(`Stripe Checkout · ${q}`);
-          }}
         />
       )}
     </section>

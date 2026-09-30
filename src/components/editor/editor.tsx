@@ -147,10 +147,6 @@ export function Editor({ design, brand, billing }: { design: EditorDesign; brand
           onOpenChange={setTopupOpen}
           currency={billing.topup.currency}
           unitPrice={billing.topup.unitPrice}
-          onSubmit={() => {
-            setTopupOpen(false);
-            router.push("/membership");
-          }}
         />
       )}
       <div aria-hidden className="pointer-events-none fixed left-[-100000px] top-0">

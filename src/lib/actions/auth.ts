@@ -12,6 +12,7 @@ import { createUser, ensureDemoUser, findUserByEmail, findUserByIdentifier, mark
 import { sendMail } from "@/lib/mail";
 import { DUMMY_HASH, safeNext } from "@/lib/safe-next";
 import { codeSchema, firstError, loginSchema, registerSchema, resetRequestSchema, resetSchema, type FormState } from "@/lib/validation";
+import { appUrl } from "@/lib/app-url";
 
 type AuthErrorKey = "emailTaken" | "invalidCredentials" | "disabled" | "demoUnavailable" | "codeInvalid" | "codeExpired" | "codeTooMany" | "sendFailed";
 
@@ -21,13 +22,6 @@ async function authError(key: AuthErrorKey) {
 
 async function issueError(result: Extract<IssueResult, { ok: false }>) {
   return (await getTranslations("auth.errors"))(result.reason, { sec: result.retryAfterSec });
-}
-
-function appUrl() {
-  const url = process.env.APP_URL;
-  if (url) return url.replace(/\/$/, "");
-  if (process.env.NODE_ENV === "production") throw new Error("APP_URL is required in production");
-  return "http://localhost:3002";
 }
 
 async function sendVerifyCode(email: string): Promise<string | null> {

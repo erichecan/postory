@@ -90,7 +90,8 @@
     "note": "备注",
     "email": "邮箱",
     "phone": "手机号",
-    "activeStripeHint": "客户已通过 Stripe 付款，改价将在下个扣费周期生效（接入 Stripe 后）"
+    "activeStripeHint": "客户已通过 Stripe 付款，改价将在下个扣费周期生效（接入 Stripe 后）",
+    "stripeSyncFailed": "已保存，但同步到 Stripe 失败，稍后再操作一次"
   },
   "detail": "详情",
   "planNone": "—",

@@ -40,7 +40,7 @@ export default async function MembershipPage({ searchParams }: PageProps<"/membe
 
       <div className="grid gap-5 lg:grid-cols-[1.2fr_1fr]">
         {plan ? (
-          <PlanCard plan={plan} payHref="/membership" billingHref="/membership" />
+          <PlanCard plan={plan} isDemo={ent.topupBlocked === "demo"} />
         ) : (
           <section className="flex flex-col justify-center gap-3 rounded-xl border border-dashed p-6">
             <h2 className="text-lg font-semibold">{tn("title")}</h2>

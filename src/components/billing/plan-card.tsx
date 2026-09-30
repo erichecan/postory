@@ -1,11 +1,11 @@
-import Link from "next/link";
 import { CreditCard, ExternalLink } from "lucide-react";
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
-import { buttonVariants } from "@/components/ui/button";
+import { openBillingPortalAction, startCheckoutAction } from "@/lib/actions/billing";
 import { formatMoney, monthlyTotal } from "@/lib/billing/plan-math";
 import { BASE_PUBLISH_PLATFORMS, publishPlatformLabel } from "@/lib/platforms";
 import { cn } from "@/lib/utils";
 import type { PlanStatus, PlanView } from "@/types/commerce";
+import { StripeRedirectButton } from "./stripe-redirect-button";
 
 const STATUS_STYLE: Record<PlanStatus, string> = {
   DRAFT: "bg-muted text-muted-foreground",
@@ -24,10 +24,10 @@ function Row({ label, value, strong }: { label: string; value: string; strong?: 
   );
 }
 
-export async function PlanCard({ plan, payHref, billingHref }: { plan: PlanView; payHref: string; billingHref: string }) {
+export async function PlanCard({ plan, isDemo }: { plan: PlanView; isDemo: boolean }) {
   const [t, tp, locale, format] = await Promise.all([getTranslations("billing.plan"), getTranslations("platforms"), getLocale(), getFormatter()]);
   const money = (cents: number) => formatMoney(cents, plan.currency, locale);
-  const needsPayment = plan.status === "PENDING_PAYMENT" || plan.status === "DRAFT";
+  const needsPayment = plan.status === "PENDING_PAYMENT" || plan.status === "DRAFT" || plan.status === "CANCELED";
 
   return (
     <section className="flex flex-col gap-5 rounded-xl border bg-card p-5">
@@ -72,9 +72,11 @@ export async function PlanCard({ plan, payHref, billingHref }: { plan: PlanView;
 
       {needsPayment ? (
         <div className="flex flex-col gap-2">
-          <Link href={payHref} className={cn(buttonVariants({ size: "lg" }), "h-10 w-full gap-2 sm:w-auto sm:self-start sm:px-6")}>
-            <CreditCard className="size-4" /> {t("pay")} · {money(monthlyTotal(plan))}
-          </Link>
+          {!isDemo && (
+            <StripeRedirectButton action={startCheckoutAction} className="h-10 w-full sm:w-auto sm:self-start sm:px-6">
+              <CreditCard className="size-4" /> {t("pay")} · {money(monthlyTotal(plan))}
+            </StripeRedirectButton>
+          )}
           <p className="text-xs text-muted-foreground">{t("payHint")}</p>
         </div>
       ) : (
@@ -84,9 +86,9 @@ export async function PlanCard({ plan, payHref, billingHref }: { plan: PlanView;
               t(plan.billing === "OFFLINE" ? "offlineUntil" : "renewsOn", { date: format.dateTime(plan.currentPeriodEnd, { dateStyle: "medium" }) })}
           </span>
           {plan.billing === "STRIPE" && (
-            <Link href={billingHref} className={cn(buttonVariants({ variant: "outline" }), "gap-1.5")}>
+            <StripeRedirectButton action={openBillingPortalAction} variant="outline">
               {t("manageBilling")} <ExternalLink className="size-3.5" />
-            </Link>
+            </StripeRedirectButton>
           )}
         </div>
       )}

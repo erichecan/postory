@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { Minus, Plus } from "lucide-react";
+import { useState, useTransition } from "react";
+import { Loader2, Minus, Plus } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { formatMoney, MIN_TOPUP_CREDITS } from "@/lib/billing/plan-math";
+import { startTopupAction } from "@/lib/actions/billing";
+import { formatMoney, MAX_TOPUP_CREDITS, MIN_TOPUP_CREDITS } from "@/lib/billing/plan-math";
 import type { Currency } from "@/types/commerce";
 
 const STEP = 10;
@@ -15,19 +17,19 @@ export function TopupDialog({
   onOpenChange,
   currency,
   unitPrice,
-  onSubmit,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   currency: Currency;
   unitPrice: number;
-  onSubmit: (quantity: number) => void;
 }) {
   const t = useTranslations("billing.topup");
   const locale = useLocale();
+  const tc = useTranslations("billing.checkout");
   const [quantity, setQuantity] = useState(50);
+  const [pending, start] = useTransition();
   const money = (cents: number) => formatMoney(cents, currency, locale);
-  const clamp = (n: number) => Math.min(10_000, Math.max(MIN_TOPUP_CREDITS, Number.isFinite(n) ? Math.round(n) : MIN_TOPUP_CREDITS));
+  const clamp = (n: number) => Math.min(MAX_TOPUP_CREDITS, Math.max(MIN_TOPUP_CREDITS, Number.isFinite(n) ? Math.round(n) : MIN_TOPUP_CREDITS));
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -63,7 +65,25 @@ export function TopupDialog({
           </div>
         </div>
         <DialogFooter>
-          <Button size="lg" className="w-full sm:w-auto" onClick={() => onSubmit(quantity)}>{t("submit")} · {money(unitPrice * quantity)}</Button>
+          <Button
+            size="lg"
+            className="w-full gap-2 sm:w-auto"
+            disabled={pending}
+            onClick={() =>
+              start(async () => {
+                const res = await startTopupAction(quantity);
+                if (res && !res.ok) toast.error(res.error);
+              })
+            }
+          >
+            {pending ? (
+              <>
+                <Loader2 className="size-4 animate-spin" /> {tc("redirecting")}
+              </>
+            ) : (
+              `${t("submit")} · ${money(unitPrice * quantity)}`
+            )}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

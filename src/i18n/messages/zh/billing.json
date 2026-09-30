@@ -114,5 +114,28 @@
     "copied": "已复制微信号",
     "qrAlt": "微信二维码",
     "missing": "微信号还没配置"
+  },
+  "checkout": {
+    "demo": "演示账号不能付款",
+    "noPlan": "还没有给你配置专属方案，联系我们开通",
+    "alreadyActive": "会员已经生效，不用再付款",
+    "freePlan": "这个方案不需要付款，联系我们开通",
+    "invalidQuantity": "充值数量不对",
+    "noCustomer": "还没有付款记录，没有账单可以管理",
+    "stripeFailed": "支付页面没打开，稍后再试",
+    "redirecting": "正在打开支付页面…"
+  },
+  "result": {
+    "successTitle": "付款成功",
+    "successSubscription": "会员正在开通，通常几秒内生效，本月额度会自动发到账户里。",
+    "successTopup": "{count} 个 credit 正在到账，通常几秒内完成。",
+    "pending": "还在确认付款结果",
+    "pendingHint": "Stripe 通知可能晚一点到，稍后刷新这个页面。",
+    "active": "会员已生效",
+    "backToMembership": "回到我的会员",
+    "refresh": "刷新",
+    "cancelTitle": "已取消付款",
+    "cancelBody": "没有扣款。想付款的时候回到「我的会员」再点一次就行。",
+    "activeBody": "本月额度已经发到账户里，可以开始用了。"
   }
 }

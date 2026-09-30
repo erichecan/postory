@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { assertAdmin } from "@/lib/auth/session";
+import { subscriptionLines } from "@/lib/billing/plan-math";
+import { getStripeGateway } from "@/lib/billing/stripe-gateway";
 import { FEATURE_IDS } from "@/lib/billing/tier-features";
 import { activateOffline, cancelCustomerPlan, saveCustomerPlan, saveTier } from "@/lib/db/admin-customers";
 import { deductCredits, grantCredits } from "@/lib/db/credits";
@@ -42,17 +44,38 @@ export async function adminSavePlanAction(userId: string, input: unknown): Promi
   const uid = id.safeParse(userId);
   const parsed = planSchema.safeParse(input);
   if (!uid.success || !parsed.success) return fail();
-  await saveCustomerPlan(uid.data, parsed.data);
+  const saved = await saveCustomerPlan(uid.data, parsed.data);
   refresh(uid.data);
+  const live = saved.billing === "STRIPE" && (saved.status === "ACTIVE" || saved.status === "PAST_DUE") && saved.stripeSubscriptionId;
+  if (live) {
+    try {
+      await getStripeGateway().replaceSubscriptionItems(saved.stripeSubscriptionId!, parsed.data.currency, subscriptionLines(parsed.data));
+    } catch (err) {
+      console.error("[stripe sync]", err);
+      return stripeSyncFailed();
+    }
+  }
   return { ok: true };
+}
+
+async function stripeSyncFailed(): Promise<Result> {
+  return { ok: false, error: (await getTranslations("admin.customer"))("stripeSyncFailed") };
 }
 
 export async function adminCancelPlanAction(userId: string): Promise<Result> {
   await assertAdmin();
   const uid = id.safeParse(userId);
   if (!uid.success) return fail();
-  await cancelCustomerPlan(uid.data);
+  const subscriptionId = await cancelCustomerPlan(uid.data);
   refresh(uid.data);
+  if (subscriptionId) {
+    try {
+      await getStripeGateway().cancelSubscription(subscriptionId);
+    } catch (err) {
+      console.error("[stripe cancel]", err);
+      return stripeSyncFailed();
+    }
+  }
   return { ok: true };
 }
 

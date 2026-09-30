@@ -90,7 +90,8 @@
     "note": "Note",
     "email": "Email",
     "phone": "Phone",
-    "activeStripeHint": "The customer pays via Stripe. Price changes take effect next billing cycle (once Stripe is connected)."
+    "activeStripeHint": "The customer pays via Stripe. Price changes take effect next billing cycle (once Stripe is connected).",
+    "stripeSyncFailed": "Saved, but syncing to Stripe failed. Try again shortly."
   },
   "detail": "Details",
   "planNone": "—",

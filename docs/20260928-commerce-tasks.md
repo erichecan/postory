@@ -49,11 +49,14 @@
       上线前必须：OPENAI_API_KEY + AI_PROVIDER=openai（真实 provider 待写）；STORAGE=gcs 待实现（目前只有本地盘，Cloud Run 上重启即丢）；Cloud Run 请求超时调到 300s
       遗留：>10MB 上传由 Next 请求体上限直接拒绝（500，前端已压缩到 1600px 正常用户碰不到）；删除用户时生成图文件不清理；多轮改图时占位图会把上一轮文字叠上去（仅占位图现象）
       依赖：C1
-- [ ] C6 Stripe：订阅、充值、Portal、webhook
+- [x] C6 Stripe：订阅、充值、Portal、webhook
       验收命令：verify.sh 金额 + webhook 幂等 + 验签
-      可看物：测试模式截图
+      可看物：docs/shots/20260929-c6-{pending-plan,success-pending,success-active,active-plan,topup-dialog,topup-success,cancel}.png（模拟 Stripe + 本地签名 webhook）
       定性状态：待你确认
-      证据：—
+      证据：VERIFY PASS 278 项；stripe-probe 30/30（无会话跳登录；无方案/演示账号不能付款也不建 Stripe 客户；99+2×30 EUR → 两行 15900 分；全包 C$200 → 一行；复用同一 Stripe 客户；无签名/错签名 400 且库不变；checkout 完成 → 生效+订阅号；invoice.paid 同事件 2 次+同发票新事件 1 次 → 只发 1 次 60+4 视频，本期末过期；invoice.paid 先于 checkout 到达 → 按客户号找到方案；payment_failed → 扣款失败；subscription.updated/deleted 状态同步；取消后可重新付款、生效中不能重复付；充值 <10 拒绝、50×€1.20 金额正确、到账不过期且只到一次、未付款不发；退款收回剩余只收一次；Portal；后台改价 → 订阅项替换；普通用户改价拒绝；后台取消 → 取消 Stripe 订阅）；.next/static 无密钥；/membership p50=36ms p97.5=51ms
+      决策：Checkout 与订阅项都挂在固定 id 的 Product（postory_membership / postory_credits，首次调用自动创建），金额用 price_data 现场生成；改价 proration_behavior=none，下个周期生效；后台取消 = 立即取消 Stripe 订阅（不退款）；充值退款只收回这笔充值还没用掉的部分
+      上线前必须：STRIPE_SECRET_KEY、STRIPE_WEBHOOK_SECRET（生产缺 key 会直接报错，不会走模拟）；Stripe 后台开 EUR/CAD、配 Customer Portal、webhook 订阅 6 个事件（checkout.session.completed、invoice.paid、invoice.payment_failed、customer.subscription.updated/deleted、charge.refunded）指向 /api/stripe/webhook
+      遗留：部分退款（charge.refunded=false）不处理；订阅费退款不收回月度额度
       依赖：C3
 - [ ] C7 落地页 + 法律页 + 后台成本看板
       验收命令：verify.sh 路由

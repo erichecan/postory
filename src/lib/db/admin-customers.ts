@@ -90,12 +90,14 @@ export async function saveCustomerPlan(userId: string, input: PlanInput) {
     where: { userId },
     create: { userId, ...input, status: "PENDING_PAYMENT", billing: "STRIPE" },
     update: { ...input, ...(keepStatus ? {} : { status: "PENDING_PAYMENT", billing: "STRIPE" }) },
-    select: { status: true },
+    select: { status: true, billing: true, stripeSubscriptionId: true },
   });
 }
 
 export async function cancelCustomerPlan(userId: string) {
-  return prisma.customerPlan.updateMany({ where: { userId }, data: { status: "CANCELED" } });
+  const plan = await prisma.customerPlan.findUnique({ where: { userId }, select: { billing: true, status: true, stripeSubscriptionId: true } });
+  await prisma.customerPlan.updateMany({ where: { userId }, data: { status: "CANCELED" } });
+  return plan?.billing === "STRIPE" && plan.status !== "CANCELED" ? plan.stripeSubscriptionId : null;
 }
 
 function addMonths(d: Date, n: number) {

@@ -114,5 +114,28 @@
     "copied": "WeChat ID copied",
     "qrAlt": "WeChat QR code",
     "missing": "WeChat ID not configured yet"
+  },
+  "checkout": {
+    "demo": "The demo account can't make payments",
+    "noPlan": "No plan has been set up for you yet. Contact us to get started.",
+    "alreadyActive": "Your membership is already active. No payment needed.",
+    "freePlan": "This plan doesn't need a payment. Contact us to activate it.",
+    "invalidQuantity": "Invalid top-up amount",
+    "noCustomer": "No payments yet, so there's no billing to manage",
+    "stripeFailed": "The payment page didn't open. Try again later.",
+    "redirecting": "Opening the payment page…"
+  },
+  "result": {
+    "successTitle": "Payment received",
+    "successSubscription": "Your membership is being activated. It usually takes a few seconds, and this month's credits will be added automatically.",
+    "successTopup": "{count} credits are on the way. This usually takes a few seconds.",
+    "pending": "Still confirming your payment",
+    "pendingHint": "Stripe's notification may arrive a little later. Refresh this page in a moment.",
+    "active": "Membership active",
+    "backToMembership": "Back to My membership",
+    "refresh": "Refresh",
+    "cancelTitle": "Payment canceled",
+    "cancelBody": "You weren't charged. Go back to My membership whenever you're ready to pay.",
+    "activeBody": "This month's credits are in your account. You're all set."
   }
 }
