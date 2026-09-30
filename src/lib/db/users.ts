@@ -81,3 +81,17 @@ export async function ensureDemoUser() {
     select: { id: true, role: true, disabled: true, sessionVersion: true },
   });
 }
+
+export const MAX_LOGIN_FAILURES = 10;
+export const LOGIN_LOCK_MS = 15 * 60_000;
+
+export async function recordLoginFailure(userId: string, now = new Date()) {
+  const u = await prisma.user.update({ where: { id: userId }, data: { loginFailures: { increment: 1 } }, select: { loginFailures: true } });
+  if (u.loginFailures >= MAX_LOGIN_FAILURES) {
+    await prisma.user.update({ where: { id: userId }, data: { loginFailures: 0, loginLockedUntil: new Date(now.getTime() + LOGIN_LOCK_MS) } });
+  }
+}
+
+export async function clearLoginFailures(userId: string) {
+  await prisma.user.updateMany({ where: { id: userId, OR: [{ loginFailures: { gt: 0 } }, { loginLockedUntil: { not: null } }] }, data: { loginFailures: 0, loginLockedUntil: null } });
+}

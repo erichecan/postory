@@ -116,6 +116,18 @@ async function main() {
     const stRow = await prisma.generation.findUniqueOrThrow({ where: { id: stId } });
     check("超过 10 分钟仍 PENDING → 打开生成历史时标记失败并退款", stRow.status === "FAILED" && (await balance(a.id)) === beforeStale + 1);
     check("超时的生成不能再执行", (await runGen(stId, cA)).status === 409);
+    const rn = await call("createGenerationAction", [text("running long")], cA);
+    const rnId = genId(rn.body);
+    await prisma.generation.update({ where: { id: rnId }, data: { createdAt: new Date(Date.now() - 11 * 60_000), startedAt: new Date(Date.now() - 60_000) } });
+    await fetch(`${BASE}/generations`, { headers: { cookie: cA } });
+    check("已经在执行的生成（1 分钟前开始）不会被当成超时回收", (await prisma.generation.findUniqueOrThrow({ where: { id: rnId } })).status === "PENDING");
+    const beforeLong = await balance(a.id);
+    await prisma.generation.update({ where: { id: rnId }, data: { startedAt: new Date(Date.now() - 7 * 60_000) } });
+    await fetch(`${BASE}/generations`, { headers: { cookie: cA } });
+    check("执行超过 6 分钟仍没结束 → 回收并退款", (await prisma.generation.findUniqueOrThrow({ where: { id: rnId } })).status === "FAILED" && (await balance(a.id)) === beforeLong + 1);
+    await prisma.generation.update({ where: { id: id1 }, data: { status: "FAILED" } });
+    check("生成记录不是成功状态时，结果图不对外提供", (await fetch(BASE + row1.outputUrl!, { headers: { cookie: cA } })).status === 404);
+    await prisma.generation.update({ where: { id: id1 }, data: { status: "SUCCEEDED" } });
 
     console.log("## 上传");
     const bad = await call("createGenerationAction", [text("", { mode: "photo", photo: "data:image/gif;base64,R0lGODlhAQABAAAAACw=" })], cA);
@@ -150,6 +162,13 @@ async function main() {
     const capped = await call("createGenerationAction", [text("over cap")], cD);
     check("全站当日成本超上限 → 拒绝，不扣费", code(capped.body) === "capReached" && (await balance(d.id)) === 10);
     await prisma.generation.deleteMany({ where: { userId: d.id } });
+    const capUsd = Number(process.env.AI_DAILY_COST_CAP_USD ?? "50") * 1_000_000;
+    const spentToday = (await prisma.generation.aggregate({ where: { createdAt: { gte: new Date(new Date().setUTCHours(0, 0, 0, 0)) }, costMicros: { not: null } }, _sum: { costMicros: true } }))._sum.costMicros ?? 0;
+    await prisma.generation.create({ data: { userId: d.id, mode: "TEXT_TO_IMAGE", quality: "standard", size: "square", userPrompt: "x", credits: 1, status: "SUCCEEDED", costMicros: capUsd - spentToday - 100_000 } });
+    await prisma.generation.create({ data: { userId: c.id, mode: "TEXT_TO_IMAGE", quality: "standard", size: "square", userPrompt: "in flight", credits: 1, status: "PENDING" } });
+    const cappedByPending = await call("createGenerationAction", [text("pending counts")], cB);
+    check("进行中的生成也计入当日成本上限（剩余额度只够 1 张，另一张在跑）→ 拒绝", code(cappedByPending.body) === "capReached", code(cappedByPending.body));
+    await prisma.generation.deleteMany({ where: { userId: { in: [c.id, d.id] }, OR: [{ userPrompt: "in flight" }, { costMicros: { gt: 0 } }] } });
     const burst = await Promise.all(Array.from({ length: 6 }, () => call("createGenerationAction", [text("burst")], cE)));
     const okCount = burst.filter((r) => genId(r.body)).length;
     check("同一人并发 6 次 → 只有 1 次成功，只扣 1", okCount === 1 && (await balance(e.id)) === 9, `成功 ${okCount}`);

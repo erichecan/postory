@@ -4,6 +4,7 @@ import { refundCharge } from "./credits";
 import type { GenerationMode, Prisma } from "@/generated/prisma/client";
 
 export const GENERATION_STALE_MS = 10 * 60_000;
+export const GENERATION_RUN_LIMIT_MS = 6 * 60_000;
 export const GENERATION_HOURLY_LIMIT = 30;
 export const GENERATIONS_PER_PAGE = 24;
 
@@ -28,16 +29,20 @@ function startOfUtcDay(now: Date) {
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 }
 
-export async function reserveGeneration(userId: string, input: ReserveInput, now = new Date()): Promise<ReserveResult> {
+export async function reserveGeneration(userId: string, input: ReserveInput, estimateFor: (quality: string) => number, now = new Date()): Promise<ReserveResult> {
   const { estimateMicros, capMicros, ...data } = input;
   return prisma.$transaction(async (tx) => {
     await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${userId} FOR UPDATE`;
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('ai-daily-cost-cap'))`;
     const running = await tx.generation.count({ where: { userId, status: "PENDING", createdAt: { gt: new Date(now.getTime() - GENERATION_STALE_MS) } } });
     if (running > 0) return { ok: false, code: "busy" };
     const lastHour = await tx.generation.count({ where: { userId, createdAt: { gt: new Date(now.getTime() - 3_600_000) } } });
     if (lastHour >= GENERATION_HOURLY_LIMIT) return { ok: false, code: "rateLimited" };
-    const spent = await tx.generation.aggregate({ where: { createdAt: { gte: startOfUtcDay(now) }, costMicros: { not: null } }, _sum: { costMicros: true } });
-    if ((spent._sum.costMicros ?? 0) + estimateMicros > capMicros) return { ok: false, code: "capReached" };
+    const today = startOfUtcDay(now);
+    const spent = await tx.generation.aggregate({ where: { createdAt: { gte: today }, costMicros: { not: null } }, _sum: { costMicros: true } });
+    const inFlight = await tx.generation.groupBy({ by: ["quality"], where: { createdAt: { gte: today }, status: "PENDING" }, _count: { _all: true } });
+    const reserved = inFlight.reduce((s, g) => s + g._count._all * estimateFor(g.quality), 0);
+    if ((spent._sum.costMicros ?? 0) + reserved + estimateMicros > capMicros) return { ok: false, code: "capReached" };
     const gen = await tx.generation.create({ data: { ...data, userId }, select: { id: true } });
     return { ok: true, id: gen.id };
   });
@@ -73,7 +78,14 @@ export async function failGeneration(userId: string, id: string, error: string) 
 
 export async function reapStaleGenerations(userId: string, now = new Date()) {
   const stale = await prisma.generation.findMany({
-    where: { userId, status: "PENDING", createdAt: { lte: new Date(now.getTime() - GENERATION_STALE_MS) } },
+    where: {
+      userId,
+      status: "PENDING",
+      OR: [
+        { startedAt: null, createdAt: { lte: new Date(now.getTime() - GENERATION_STALE_MS) } },
+        { startedAt: { lte: new Date(now.getTime() - GENERATION_RUN_LIMIT_MS) } },
+      ],
+    },
     select: { id: true },
   });
   for (const g of stale) await failGeneration(userId, g.id, "timeout");
@@ -96,6 +108,11 @@ const ownSelect = {
 } satisfies Prisma.GenerationSelect;
 
 export type GenerationView = Prisma.GenerationGetPayload<{ select: typeof ownSelect }>;
+
+export async function isServableMedia(userId: string, generationId: string, role: "in" | "out") {
+  const g = await prisma.generation.findFirst({ where: { id: generationId, userId }, select: { status: true } });
+  return !!g && (role === "in" || g.status === "SUCCEEDED");
+}
 
 export async function getOwnGeneration(userId: string, id: string): Promise<GenerationView | null> {
   return prisma.generation.findFirst({ where: { id, userId }, select: ownSelect });

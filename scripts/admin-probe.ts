@@ -118,7 +118,10 @@ async function main() {
     check("扣 3 成功", (await call("adminAdjustCreditsAction", [target.id, { amount: -3, reason: "误发" }], cAdmin)).ok);
 
     console.log("## 取消方案");
+    const futureBefore = await prisma.creditGrant.count({ where: { userId: target.id, source: "MONTHLY", validFrom: { gt: new Date() } } });
     check("取消成功", (await call("adminCancelPlanAction", [target.id], cAdmin)).ok && (await prisma.customerPlan.findUniqueOrThrow({ where: { userId: target.id } })).status === "CANCELED");
+    const futureAfter = await prisma.creditGrant.count({ where: { userId: target.id, source: "MONTHLY", validFrom: { gt: new Date() } } });
+    check("取消后，线下开通的未来月份额度一并作废", futureBefore > 0 && futureAfter === 0, `之前 ${futureBefore} 笔，之后 ${futureAfter} 笔`);
 
     console.log("## 会员等级");
     const base = { nameZh: tier.nameZh, nameEn: "Basic Probe", taglineZh: tier.taglineZh, taglineEn: tier.taglineEn, benefitsZh: tier.benefitsZh, benefitsEn: tier.benefitsEn, features: tier.features, defaultMonthlyCredits: 60, defaultMonthlyVideos: 4, referenceFee: 9900, recommended: true, visible: true, sortOrder: tier.sortOrder };

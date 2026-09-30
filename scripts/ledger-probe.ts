@@ -1,7 +1,8 @@
 import "./load-env";
 import bcrypt from "bcryptjs";
 import { prisma } from "../src/lib/db/client";
-import { chargeCredits, deductCredits, getBalanceAt, grantCredits, grantMany, refundCharge } from "../src/lib/db/credits";
+import { chargeCredits, deductCredits, getAiBalance, getBalanceAt, grantCredits, grantMany, refundCharge } from "../src/lib/db/credits";
+import { grantTopup, revokeTopup } from "../src/lib/db/stripe-billing";
 
 let failures = 0;
 function check(name: string, ok: boolean, detail = "") {
@@ -96,6 +97,13 @@ async function main() {
     const over = await deductCredits(g, 3, `adj-${g}`, "probe", g);
     const ok = await deductCredits(g, 2, `adj2-${g}`, "probe", g);
     check("人工扣减超过余额被拒，足额时成功", !over.ok && ok.ok && (await getBalanceAt(g, new Date())).total === 0);
+
+    const h = await mk("充值退款后生成失败");
+    await grantTopup(h, `pi_ledger_${h}`, 10);
+    const genCharge = await chargeCredits(h, "AI_STANDARD", `gen:ledger-${h}`);
+    const revoked = await revokeTopup(`pi_ledger_${h}`);
+    await refundCharge(h, `gen:ledger-${h}`);
+    check("充值被退款收回后，AI 失败退款不会让这笔钱复活", genCharge.ok && revoked === 9 && (await getAiBalance(h)) === 0, `收回 ${revoked}，可用 ${await getAiBalance(h)}`);
   } finally {
     await prisma.user.deleteMany({ where: { id: { in: users } } });
     await prisma.$disconnect();

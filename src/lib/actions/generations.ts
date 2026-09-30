@@ -85,7 +85,7 @@ export async function createGenerationAction(raw: CreateGenerationInput): Promis
     credits: CHARGE_CREDITS[charge],
     estimateMicros: estimateCostMicros(input.quality),
     capMicros: dailyCostCapMicros(),
-  });
+  }, (q) => estimateCostMicros(q === "hd" ? "hd" : "standard"));
   if (!reserved.ok) return fail(reserved.code);
 
   const paid = await chargeCredits(user.id, charge, chargeRef(reserved.id));

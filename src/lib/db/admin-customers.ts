@@ -94,10 +94,21 @@ export async function saveCustomerPlan(userId: string, input: PlanInput) {
   });
 }
 
-export async function cancelCustomerPlan(userId: string) {
+export async function cancelCustomerPlan(userId: string, now = new Date()) {
   const plan = await prisma.customerPlan.findUnique({ where: { userId }, select: { billing: true, status: true, stripeSubscriptionId: true } });
-  await prisma.customerPlan.updateMany({ where: { userId }, data: { status: "CANCELED" } });
+  await prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${userId} FOR UPDATE`;
+    await tx.customerPlan.updateMany({ where: { userId }, data: { status: "CANCELED" } });
+    const future = await tx.creditGrant.findMany({ where: { userId, source: "MONTHLY", validFrom: { gt: now } }, select: { id: true } });
+    const ids = future.map((g) => g.id);
+    await tx.creditTxn.deleteMany({ where: { userId, kind: "GRANT", refId: { in: ids }, createdAt: { gt: now } } });
+    await tx.creditGrant.deleteMany({ where: { id: { in: ids } } });
+  });
   return plan?.billing === "STRIPE" && plan.status !== "CANCELED" ? plan.stripeSubscriptionId : null;
+}
+
+export function isLiveStripePlan(plan: { billing: string; status: string; stripeSubscriptionId: string | null } | null) {
+  return !!plan && plan.billing === "STRIPE" && (plan.status === "ACTIVE" || plan.status === "PAST_DUE") && !!plan.stripeSubscriptionId;
 }
 
 function addMonths(d: Date, n: number) {
@@ -108,7 +119,8 @@ function addMonths(d: Date, n: number) {
 
 export async function activateOffline(userId: string, months: number, actorId: string, now = new Date()) {
   const plan = await prisma.customerPlan.findUnique({ where: { userId } });
-  if (!plan) return null;
+  if (!plan) return { error: "needPlan" as const };
+  if (isLiveStripePlan(plan)) return { error: "stripeActive" as const };
   const extending = plan.billing === "OFFLINE" && plan.status === "ACTIVE" && plan.currentPeriodEnd && plan.currentPeriodEnd > now;
   const start = extending && plan.currentPeriodEnd ? plan.currentPeriodEnd : now;
   const batch = randomBytes(6).toString("hex");
@@ -124,7 +136,7 @@ export async function activateOffline(userId: string, months: number, actorId: s
   const end = addMonths(start, months);
   await prisma.customerPlan.update({ where: { userId }, data: { billing: "OFFLINE", status: "ACTIVE", currentPeriodEnd: end } });
   await grantMany(grants.filter((g) => g.amount > 0));
-  return { start, end };
+  return { start, end, error: null };
 }
 
 export async function listAllTiers() {

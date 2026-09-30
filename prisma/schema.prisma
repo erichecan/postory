@@ -91,6 +91,8 @@ model User {
   stripeCustomerId String?       @unique
   passwordHash     String
   sessionVersion   Int           @default(0)
+  loginFailures    Int           @default(0)
+  loginLockedUntil DateTime?
   name             String        @db.VarChar(64)
   role             Role          @default(USER)
   source           AccountSource @default(SELF_SIGNUP)

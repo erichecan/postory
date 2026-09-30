@@ -2,7 +2,7 @@ import "server-only";
 import type Stripe from "stripe";
 import type { PlanStatus } from "@/generated/prisma/client";
 import {
-  activateStripePlan,
+  claimSubscription,
   grantTopup,
   isEventProcessed,
   markEventProcessed,
@@ -10,7 +10,9 @@ import {
   resolveStripeUser,
   revokeTopup,
   setStatusBySubscription,
+  type SubscriptionClaim,
 } from "@/lib/db/stripe-billing";
+import { getStripeGateway } from "./stripe-gateway";
 import { MAX_TOPUP_CREDITS, MIN_TOPUP_CREDITS } from "./plan-math";
 
 const idOf = (v: string | { id: string } | null | undefined) => (typeof v === "string" ? v : (v?.id ?? null));
@@ -25,14 +27,24 @@ const SUBSCRIPTION_STATUS: Partial<Record<Stripe.Subscription.Status, PlanStatus
   incomplete_expired: "CANCELED",
 };
 
+async function settleClaim(claim: SubscriptionClaim, userId: string, subscriptionId: string): Promise<"processed" | "ignored"> {
+  if (claim === "claimed") return "processed";
+  if (claim === "duplicate") {
+    console.error(`[stripe] duplicate subscription ${subscriptionId} for user ${userId}: canceling it; refund its first invoice manually`);
+    await getStripeGateway()
+      .cancelSubscription(subscriptionId)
+      .catch((err: unknown) => console.error(`[stripe] cancel duplicate ${subscriptionId} failed`, err));
+  }
+  return "ignored";
+}
+
 async function onCheckoutCompleted(session: Stripe.Checkout.Session) {
   const userId = await resolveStripeUser({ userId: session.metadata?.userId ?? session.client_reference_id, customerId: idOf(session.customer) });
   if (!userId) return "ignored";
   if (session.mode === "subscription") {
     const subscriptionId = idOf(session.subscription);
     if (!subscriptionId) return "ignored";
-    await activateStripePlan(userId, subscriptionId);
-    return "processed";
+    return settleClaim(await claimSubscription(userId, subscriptionId), userId, subscriptionId);
   }
   if (session.mode === "payment" && session.metadata?.kind === "topup" && session.payment_status === "paid") {
     const credits = Number(session.metadata.credits);
@@ -51,7 +63,8 @@ async function onInvoicePaid(invoice: Stripe.Invoice) {
   const userId = await resolveStripeUser({ subscriptionId, customerId: idOf(invoice.customer), userId: details?.metadata?.userId });
   if (!userId) return "ignored";
   const period = invoice.lines.data.find((l) => l.period)?.period ?? { start: invoice.period_start, end: invoice.period_end };
-  return (await recordInvoicePaid(userId, { id: invoice.id, subscriptionId, periodStart: fromUnix(period.start), periodEnd: fromUnix(period.end) })) ? "processed" : "ignored";
+  const claim = await recordInvoicePaid(userId, { id: invoice.id, subscriptionId, periodStart: fromUnix(period.start), periodEnd: fromUnix(period.end) });
+  return settleClaim(claim, userId, subscriptionId);
 }
 
 async function onInvoiceFailed(invoice: Stripe.Invoice) {

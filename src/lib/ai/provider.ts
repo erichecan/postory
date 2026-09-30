@@ -17,7 +17,8 @@ export function dailyCostCapMicros() {
 }
 
 export function getImageProvider(): ImageProvider {
-  const name = process.env.AI_PROVIDER ?? "fake";
+  const name = process.env.AI_PROVIDER ?? (process.env.NODE_ENV === "production" ? "" : "fake");
+  if (!name) throw new Error("AI_PROVIDER is required in production");
   if (name === "fake") return fakeProvider;
   throw new Error(`AI_PROVIDER=${name} is not wired up yet`);
 }

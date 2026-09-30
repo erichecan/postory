@@ -45,29 +45,39 @@ export async function resolveStripeUser(ref: { userId?: string | null; customerI
   return null;
 }
 
-export async function activateStripePlan(userId: string, subscriptionId: string, currentPeriodEnd?: Date) {
-  const res = await prisma.customerPlan.updateMany({
-    where: { userId },
-    data: { status: "ACTIVE", billing: "STRIPE", stripeSubscriptionId: subscriptionId, ...(currentPeriodEnd ? { currentPeriodEnd } : {}) },
+export type SubscriptionClaim = "claimed" | "duplicate" | "stale" | "noPlan";
+
+export async function claimSubscription(userId: string, subscriptionId: string, currentPeriodEnd?: Date): Promise<SubscriptionClaim> {
+  return prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${userId} FOR UPDATE`;
+    const plan = await tx.customerPlan.findUnique({ where: { userId }, select: { status: true, stripeSubscriptionId: true } });
+    if (!plan) return "noPlan";
+    if (plan.stripeSubscriptionId === subscriptionId && plan.status === "CANCELED") return "stale";
+    const live = plan.status === "ACTIVE" || plan.status === "PAST_DUE";
+    if (plan.stripeSubscriptionId !== subscriptionId && live) return "duplicate";
+    await tx.customerPlan.update({
+      where: { userId },
+      data: { status: "ACTIVE", billing: "STRIPE", stripeSubscriptionId: subscriptionId, ...(currentPeriodEnd ? { currentPeriodEnd } : {}) },
+    });
+    return "claimed";
   });
-  return res.count === 1;
 }
 
-export async function recordInvoicePaid(userId: string, invoice: { id: string; subscriptionId: string; periodStart: Date; periodEnd: Date }) {
-  const plan = await prisma.customerPlan.findUnique({ where: { userId }, select: { monthlyCredits: true, monthlyVideos: true } });
-  if (!plan) return false;
-  await activateStripePlan(userId, invoice.subscriptionId, invoice.periodEnd);
+export async function recordInvoicePaid(userId: string, invoice: { id: string; subscriptionId: string; periodStart: Date; periodEnd: Date }): Promise<SubscriptionClaim> {
+  const claim = await claimSubscription(userId, invoice.subscriptionId, invoice.periodEnd);
+  if (claim !== "claimed") return claim;
+  const plan = await prisma.customerPlan.findUniqueOrThrow({ where: { userId }, select: { monthlyCredits: true, monthlyVideos: true } });
   const base = { userId, source: "MONTHLY" as const, validFrom: invoice.periodStart, expiresAt: invoice.periodEnd };
   const grants: GrantInput[] = [
     { ...base, amount: plan.monthlyCredits, refId: `invoice:${invoice.id}`, note: `stripe ${invoice.id}` },
     { ...base, unit: "VIDEO", amount: plan.monthlyVideos, refId: `invoice-video:${invoice.id}` },
   ];
   await grantMany(grants.filter((g) => g.amount > 0));
-  return true;
+  return claim;
 }
 
 export async function setStatusBySubscription(subscriptionId: string, status: PlanStatus, currentPeriodEnd?: Date) {
-  const res = await prisma.customerPlan.updateMany({ where: { stripeSubscriptionId: subscriptionId }, data: { status, ...(currentPeriodEnd ? { currentPeriodEnd } : {}) } });
+  const res = await prisma.customerPlan.updateMany({ where: { stripeSubscriptionId: subscriptionId, status: { not: "CANCELED" } }, data: { status, ...(currentPeriodEnd ? { currentPeriodEnd } : {}) } });
   return res.count > 0;
 }
 
@@ -83,8 +93,8 @@ export async function revokeTopup(paymentId: string) {
     if (!grant) return 0;
     await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${grant.userId} FOR UPDATE`;
     const fresh = await tx.creditGrant.findUniqueOrThrow({ where: { id: grant.id }, select: { remaining: true } });
-    if (fresh.remaining === 0) return 0;
-    await tx.creditGrant.update({ where: { id: grant.id }, data: { remaining: 0 } });
+    if (fresh.remaining === 0 || (grant.expiresAt && grant.expiresAt <= new Date())) return 0;
+    await tx.creditGrant.update({ where: { id: grant.id }, data: { remaining: 0, expiresAt: new Date() } });
     await tx.creditTxn.create({
       data: { userId: grant.userId, kind: "EXPIRE", source: "TOPUP", delta: -fresh.remaining, refId: `refund:${paymentId}`, allocations: [{ grantId: grant.id, amount: fresh.remaining }], note: `stripe refund ${paymentId}` },
     });

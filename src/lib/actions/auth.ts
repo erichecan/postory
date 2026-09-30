@@ -8,13 +8,13 @@ import { SIGNUP_GIFT_CREDITS } from "@/lib/billing/plan-math";
 import { grantCredits } from "@/lib/db/credits";
 import { ensureDemoCommerce } from "@/lib/db/demo-commerce";
 import { consumeResetToken, consumeVerifyCode, issueResetToken, issueVerifyCode, type IssueResult } from "@/lib/db/email-tokens";
-import { createUser, ensureDemoUser, findUserByEmail, findUserByIdentifier, markEmailVerified, resetPassword, verifyPassword } from "@/lib/db/users";
+import { clearLoginFailures, createUser, ensureDemoUser, findUserByEmail, findUserByIdentifier, markEmailVerified, recordLoginFailure, resetPassword, verifyPassword } from "@/lib/db/users";
 import { sendMail } from "@/lib/mail";
 import { DUMMY_HASH, safeNext } from "@/lib/safe-next";
 import { codeSchema, firstError, loginSchema, registerSchema, resetRequestSchema, resetSchema, type FormState } from "@/lib/validation";
 import { appUrl } from "@/lib/app-url";
 
-type AuthErrorKey = "emailTaken" | "invalidCredentials" | "disabled" | "demoUnavailable" | "codeInvalid" | "codeExpired" | "codeTooMany" | "sendFailed";
+type AuthErrorKey = "emailTaken" | "invalidCredentials" | "disabled" | "demoUnavailable" | "codeInvalid" | "codeExpired" | "codeTooMany" | "sendFailed" | "loginLocked";
 
 async function authError(key: AuthErrorKey) {
   return (await getTranslations("auth.errors"))(key);
@@ -49,18 +49,21 @@ export async function registerAction(_: FormState, formData: FormData): Promise<
     }
     throw e;
   }
-  await sendVerifyCode(parsed.data.email);
-  redirect("/verify-email");
+  const sendError = await sendVerifyCode(parsed.data.email);
+  redirect(sendError ? "/verify-email?sendFailed=1" : "/verify-email");
 }
 
 export async function loginAction(_: FormState, formData: FormData): Promise<FormState> {
   const parsed = loginSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: await firstError(parsed.error) };
   const user = await findUserByIdentifier(parsed.data.identifier);
+  if (user?.loginLockedUntil && user.loginLockedUntil > new Date()) return { error: await authError("loginLocked") };
   const passwordOk = await verifyPassword(parsed.data.password, user?.passwordHash ?? DUMMY_HASH);
   if (!user || !passwordOk) {
+    if (user) await recordLoginFailure(user.id);
     return { error: await authError("invalidCredentials") };
   }
+  await clearLoginFailures(user.id);
   if (user.disabled) return { error: await authError("disabled") };
   await createSession({ userId: user.id, role: user.role, sv: user.sessionVersion });
   redirect(safeNext(formData.get("next")));

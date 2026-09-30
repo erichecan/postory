@@ -1,17 +1,22 @@
 import "server-only";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 export type StoredObject = { bytes: Buffer; mime: string };
 
 const MIME_BY_EXT: Record<string, string> = { png: "image/png", jpg: "image/jpeg", webp: "image/webp", svg: "image/svg+xml" };
 const EXT_BY_MIME: Record<string, string> = Object.fromEntries(Object.entries(MIME_BY_EXT).map(([ext, mime]) => [mime, ext]));
-const KEY_PATTERN = /^gen\/[a-z0-9]{10,40}\/[a-z0-9]{10,40}-(in|out)\.(png|jpg|webp|svg)$/;
+const KEY_PATTERN = /^gen\/([a-z0-9]{10,40})\/([a-z0-9]{10,40})-(in|out)\.(?:png|jpg|webp|svg)$/;
 
 const LOCAL_ROOT = path.join(process.cwd(), ".data", "uploads");
 
 export function isMediaKey(key: string) {
   return KEY_PATTERN.test(key);
+}
+
+export function parseMediaKey(key: string) {
+  const m = KEY_PATTERN.exec(key);
+  return m ? { userId: m[1], generationId: m[2], role: m[3] as "in" | "out" } : null;
 }
 
 export function mediaKey(userId: string, generationId: string, role: "in" | "out", mime: string) {
@@ -51,4 +56,10 @@ export async function getObject(key: string): Promise<StoredObject | null> {
   } catch {
     return null;
   }
+}
+
+export async function deleteObject(key: string) {
+  if (!isMediaKey(key)) return;
+  assertBackend();
+  await rm(path.join(LOCAL_ROOT, key), { force: true });
 }

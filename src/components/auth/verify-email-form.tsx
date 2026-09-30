@@ -11,11 +11,11 @@ import { resendVerifyCodeAction, verifyEmailAction } from "@/lib/actions/auth";
 
 const COOLDOWN_SEC = 60;
 
-export function VerifyEmailForm({ email }: { email: string }) {
+export function VerifyEmailForm({ email, sendFailed = false }: { email: string; sendFailed?: boolean }) {
   const t = useTranslations("auth.verify");
   const tc = useTranslations("common");
   const [state, action, pending] = useActionState(verifyEmailAction, undefined);
-  const [left, setLeft] = useState(COOLDOWN_SEC);
+  const [left, setLeft] = useState(sendFailed ? 0 : COOLDOWN_SEC);
   const [resending, startResend] = useTransition();
 
   useEffect(() => {
@@ -45,6 +45,7 @@ export function VerifyEmailForm({ email }: { email: string }) {
         <Label htmlFor="code">{t("code")}</Label>
         <Input id="code" name="code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} pattern="\d{6}" placeholder="000000" required autoFocus className="h-12 text-center font-mono text-2xl tracking-[0.5em]" />
       </div>
+      {sendFailed && !state?.error && <p className="rounded-md bg-amber-400/15 px-3 py-2 text-sm text-amber-300">{t("sendFailedNotice")}</p>}
       {state?.error && <p className="rounded-md bg-destructive/15 px-3 py-2 text-sm text-destructive">{state.error}</p>}
       <Button type="submit" size="lg" className="h-10" disabled={pending}>{pending ? tc("loading") : t("submit")}</Button>
       <div className="flex items-center justify-between text-sm">

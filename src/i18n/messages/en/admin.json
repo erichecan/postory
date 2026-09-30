@@ -91,7 +91,10 @@
     "email": "Email",
     "phone": "Phone",
     "activeStripeHint": "The customer pays via Stripe. Price changes take effect next billing cycle (once Stripe is connected).",
-    "stripeSyncFailed": "Saved, but syncing to Stripe failed. Try again shortly."
+    "stripeSyncFailed": "Saved, but syncing to Stripe failed. Try again shortly.",
+    "currencyLocked": "This customer pays monthly via Stripe, so the currency can't be changed. Cancel the plan first, then set it up again in the new currency.",
+    "freeLive": "This customer pays via Stripe, so the plan amount can't be set to 0. Cancel the plan first.",
+    "stripeActive": "This customer is on Stripe auto-renewal, so activating offline would charge them twice. Cancel the plan first, then activate offline."
   },
   "detail": "Details",
   "planNone": "—",

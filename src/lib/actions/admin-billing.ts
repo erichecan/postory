@@ -8,7 +8,8 @@ import { assertAdmin } from "@/lib/auth/session";
 import { subscriptionLines } from "@/lib/billing/plan-math";
 import { getStripeGateway } from "@/lib/billing/stripe-gateway";
 import { FEATURE_IDS } from "@/lib/billing/tier-features";
-import { activateOffline, cancelCustomerPlan, saveCustomerPlan, saveTier } from "@/lib/db/admin-customers";
+import { activateOffline, cancelCustomerPlan, isLiveStripePlan, saveCustomerPlan, saveTier } from "@/lib/db/admin-customers";
+import { getCustomerPlanRow } from "@/lib/db/stripe-billing";
 import { deductCredits, grantCredits } from "@/lib/db/credits";
 import { EXTRA_PUBLISH_PLATFORMS } from "@/lib/platforms";
 
@@ -44,22 +45,30 @@ export async function adminSavePlanAction(userId: string, input: unknown): Promi
   const uid = id.safeParse(userId);
   const parsed = planSchema.safeParse(input);
   if (!uid.success || !parsed.success) return fail();
-  const saved = await saveCustomerPlan(uid.data, parsed.data);
-  refresh(uid.data);
-  const live = saved.billing === "STRIPE" && (saved.status === "ACTIVE" || saved.status === "PAST_DUE") && saved.stripeSubscriptionId;
-  if (live) {
+  const current = await getCustomerPlanRow(uid.data);
+  if (isLiveStripePlan(current)) {
+    const lines = subscriptionLines(parsed.data);
+    if (parsed.data.currency !== current!.currency) return adminError("currencyLocked");
+    if (lines.length === 0) return adminError("freeLive");
     try {
-      await getStripeGateway().replaceSubscriptionItems(saved.stripeSubscriptionId!, parsed.data.currency, subscriptionLines(parsed.data));
+      await getStripeGateway().replaceSubscriptionItems(current!.stripeSubscriptionId!, parsed.data.currency, lines);
     } catch (err) {
       console.error("[stripe sync]", err);
-      return stripeSyncFailed();
+      return adminError("stripeSyncFailed");
     }
   }
+  await saveCustomerPlan(uid.data, parsed.data);
+  refresh(uid.data);
   return { ok: true };
 }
 
+async function adminError(key: "stripeSyncFailed" | "currencyLocked" | "freeLive" | "stripeActive" | "needPlan"): Promise<Result> {
+  const t = await getTranslations("admin.customer");
+  return { ok: false, error: t(key) };
+}
+
 async function stripeSyncFailed(): Promise<Result> {
-  return { ok: false, error: (await getTranslations("admin.customer"))("stripeSyncFailed") };
+  return adminError("stripeSyncFailed");
 }
 
 export async function adminCancelPlanAction(userId: string): Promise<Result> {
@@ -85,7 +94,7 @@ export async function adminActivateOfflineAction(userId: string, months: unknown
   const n = z.number().int().min(1).max(24).safeParse(months);
   if (!uid.success || !n.success) return fail();
   const res = await activateOffline(uid.data, n.data, admin.id);
-  if (!res) return { ok: false, error: (await getTranslations("admin.customer"))("needPlan") };
+  if (res.error) return adminError(res.error);
   refresh(uid.data);
   return { ok: true };
 }

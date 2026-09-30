@@ -84,6 +84,11 @@ async function main() {
     const fifth = await formAction("/verify-email", "verifyEmailAction", { code: "000000" }, session);
     const locked = await formAction("/verify-email", "verifyEmailAction", { code: "123456" }, session);
     check("错 5 次后验证码作废，正确码也不行", fifth.status === 200 && locked.status === 200 && !(await prisma.user.findUniqueOrThrow({ where: { email } })).emailVerifiedAt);
+    await plantToken(email, "verify", "777777");
+    await Promise.all(Array.from({ length: 20 }, (_, i) => formAction("/verify-email", "verifyEmailAction", { code: String(100000 + i) }, session)));
+    const raced = await prisma.emailToken.findFirstOrThrow({ where: { email, purpose: "verify", usedAt: null } });
+    const afterRace = await formAction("/verify-email", "verifyEmailAction", { code: "777777" }, session);
+    check("并发 20 次猜码只计 5 次，之后正确码也作废", raced.attempts === 5 && afterRace.status === 200 && !(await prisma.user.findUniqueOrThrow({ where: { email } })).emailVerifiedAt, `attempts=${raced.attempts}`);
     await plantToken(email, "verify", "222222", new Date(Date.now() - 1000));
     const expired = await formAction("/verify-email", "verifyEmailAction", { code: "222222" }, session);
     check("过期验证码被拒", expired.status === 200 && !(await prisma.user.findUniqueOrThrow({ where: { email } })).emailVerifiedAt);
@@ -101,6 +106,10 @@ async function main() {
     check("错误密码被拒", wrong.status === 200 && wrong.cookie === "");
     const login = await formAction("/login", "loginAction", { identifier: email.toUpperCase(), password });
     check("邮箱（大小写不敏感）+ 密码登录成功", login.cookie !== "" && login.location.startsWith("/templates"), `location=${login.location}`);
+    for (let i = 0; i < 10; i++) await formAction("/login", "loginAction", { identifier: email, password: "wrong-password" });
+    const lockedLogin = await formAction("/login", "loginAction", { identifier: email, password });
+    check("连错 10 次后锁定 15 分钟，正确密码也登不上", lockedLogin.cookie === "" && (await prisma.user.findUniqueOrThrow({ where: { email } })).loginLockedUntil !== null);
+    await prisma.user.update({ where: { email }, data: { loginLockedUntil: null, loginFailures: 0 } });
 
     console.log("## 找回密码");
     const unknown = await formAction("/forgot-password", "requestResetAction", { email: "nobody-here@example.com" });

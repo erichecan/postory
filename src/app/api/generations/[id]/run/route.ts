@@ -5,7 +5,7 @@ import type { Quality, RatioId } from "@/components/create/studio-options";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getAiBalance } from "@/lib/db/credits";
 import { claimGeneration, completeGeneration, failGeneration, GENERATION_STALE_MS, getGenerationPrompt } from "@/lib/db/generations";
-import { getObject, keyFromMediaUrl, mediaKey, mediaUrl, putObject } from "@/lib/storage";
+import { deleteObject, getObject, keyFromMediaUrl, mediaKey, mediaUrl, putObject } from "@/lib/storage";
 
 export const maxDuration = 300;
 
@@ -32,7 +32,10 @@ export async function POST(_req: NextRequest, ctx: RouteContext<"/api/generation
     const out = await getImageProvider().generate({ prompt: gen.finalPrompt, ratio: gen.size as RatioId, quality: gen.quality as Quality, input });
     const key = mediaKey(user.id, id, "out", out.mime);
     await putObject(key, out.bytes);
-    if (!(await completeGeneration(id, mediaUrl(key), out.costMicros))) throw new Error("no longer pending");
+    if (!(await completeGeneration(id, mediaUrl(key), out.costMicros))) {
+      await deleteObject(key);
+      throw new Error("no longer pending");
+    }
     return Response.json({ ok: true, id, url: mediaUrl(key) });
   } catch (err) {
     if (err instanceof ProviderError) reason = err.code;

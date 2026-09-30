@@ -91,7 +91,10 @@
     "email": "邮箱",
     "phone": "手机号",
     "activeStripeHint": "客户已通过 Stripe 付款，改价将在下个扣费周期生效（接入 Stripe 后）",
-    "stripeSyncFailed": "已保存，但同步到 Stripe 失败，稍后再操作一次"
+    "stripeSyncFailed": "已保存，但同步到 Stripe 失败，稍后再操作一次",
+    "currencyLocked": "这个客户正在用 Stripe 按月付款，不能直接改币种；请先取消方案，再按新币种重新配置",
+    "freeLive": "这个客户正在用 Stripe 付款，方案金额不能改成 0；请先取消方案",
+    "stripeActive": "这个客户正在用 Stripe 自动续费，线下开通会重复收费；请先取消方案再线下开通"
   },
   "detail": "详情",
   "planNone": "—",

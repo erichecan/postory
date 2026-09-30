@@ -59,10 +59,10 @@ async function consume(email: string, purpose: Purpose, secret: string, now = ne
   const token = await prisma.emailToken.findFirst({ where: { email, purpose, usedAt: null }, orderBy: { createdAt: "desc" } });
   if (!token) return "invalid";
   if (token.expiresAt <= now) return "expired";
-  if (token.attempts >= MAX_CODE_ATTEMPTS) return "tooMany";
+  const slot = await prisma.emailToken.updateMany({ where: { id: token.id, usedAt: null, attempts: { lt: MAX_CODE_ATTEMPTS } }, data: { attempts: { increment: 1 } } });
+  if (slot.count === 0) return "tooMany";
   if (!same(token.codeHash, digest(purpose, email, secret))) {
-    const updated = await prisma.emailToken.update({ where: { id: token.id }, data: { attempts: { increment: 1 } }, select: { attempts: true } });
-    return updated.attempts >= MAX_CODE_ATTEMPTS ? "tooMany" : "invalid";
+    return token.attempts + 1 >= MAX_CODE_ATTEMPTS ? "tooMany" : "invalid";
   }
   const claimed = await prisma.emailToken.updateMany({ where: { id: token.id, usedAt: null }, data: { usedAt: now } });
   return claimed.count === 1 ? "ok" : "invalid";

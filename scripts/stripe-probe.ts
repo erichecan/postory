@@ -42,6 +42,11 @@ async function send(type: string, object: Record<string, unknown>, opts: { id?: 
   return { status: res.status, body: await res.text() };
 }
 
+async function adminCall(name: string, args: unknown[], cookie: string, userId: string) {
+  const res = await fetch(`${BASE}/admin/accounts/${userId}`, { method: "POST", redirect: "manual", headers: { "Next-Action": actionId(name), "Content-Type": "text/plain;charset=UTF-8", Accept: "text/x-component", cookie }, body: JSON.stringify(args) });
+  return { status: res.status, body: await res.text() };
+}
+
 const invoice = (id: string, sub: string, customer: string, start: number, end: number, userId?: string) => ({
   id,
   object: "invoice",
@@ -119,6 +124,14 @@ async function main() {
     const planA2 = await prisma.customerPlan.findUniqueOrThrow({ where: { userId: a.id } });
     check("月度额度在本期结束时过期，续费日 = 本期结束", grants.every((g) => g.expiresAt?.getTime() === end * 1000) && planA2.currentPeriodEnd?.getTime() === end * 1000);
 
+    console.log("## 重复订阅 / 与线下开通冲突");
+    await send("checkout.session.completed", { id: "cs_dup_a", object: "checkout.session", mode: "subscription", customer: custA, subscription: `sub_dup_a_${stamp}`, metadata: { userId: a.id }, payment_status: "paid" });
+    await send("invoice.paid", invoice(`in_dup_a_${stamp}`, `sub_dup_a_${stamp}`, custA!, now - 60, end, a.id));
+    const planDup = await prisma.customerPlan.findUniqueOrThrow({ where: { userId: a.id } });
+    check("同一客户第二个订阅付款成功 → 不替换原订阅、不重复发额度，并自动取消多出来的订阅", planDup.stripeSubscriptionId === `sub_probe_a_${stamp}` && (await balance(a.id)) === 60 && !!lastLog("subscription.cancel", (e) => e.subscriptionId === `sub_dup_a_${stamp}`));
+    const offline = await adminCall("adminActivateOfflineAction", [a.id, 3], cAdmin, a.id);
+    check("Stripe 自动续费中 → 线下开通被拒，不重复发额度", /"ok":false/.test(offline.body) && (await prisma.customerPlan.findUniqueOrThrow({ where: { userId: a.id } })).billing === "STRIPE" && (await balance(a.id)) === 60);
+
     console.log("## 乱序：invoice.paid 先于 checkout 完成");
     const custB = (await prisma.user.findUniqueOrThrow({ where: { id: b.id } })).stripeCustomerId!;
     await send("invoice.paid", invoice(`in_probe_b_${stamp}`, `sub_probe_b_${stamp}`, custB, now - 60, end, b.id));
@@ -135,6 +148,9 @@ async function main() {
     check("subscription.updated active → 恢复生效，续费日更新", planA3.status === "ACTIVE" && planA3.currentPeriodEnd?.getTime() === (end + 86400) * 1000);
     await send("customer.subscription.deleted", { id: `sub_probe_b_${stamp}`, object: "subscription", status: "canceled", items: { object: "list", data: [] } });
     check("subscription.deleted → 已取消", (await prisma.customerPlan.findUniqueOrThrow({ where: { userId: b.id } })).status === "CANCELED");
+    await send("invoice.paid", invoice(`in_late_b_${stamp}`, `sub_probe_b_${stamp}`, custB, now, end + 86400, b.id));
+    await send("customer.subscription.updated", { id: `sub_probe_b_${stamp}`, object: "subscription", status: "active", items: { object: "list", data: [{ id: "si_b", current_period_end: end + 86400 }] } });
+    check("已取消后迟到的 invoice.paid / subscription.updated 不会让方案复活、不发额度", (await prisma.customerPlan.findUniqueOrThrow({ where: { userId: b.id } })).status === "CANCELED" && (await balance(b.id)) === 60);
     check("取消后可以重新付款", /\/membership\/success/.test((await call("startCheckoutAction", [], cB)).location));
     check("生效中的方案不能重复付款", /"ok":false/.test((await call("startCheckoutAction", [], cA)).body));
 
@@ -164,6 +180,12 @@ async function main() {
     const saved = await fetch(`${BASE}/admin/accounts/${a.id}`, { method: "POST", redirect: "manual", headers: { "Next-Action": actionId("adminSavePlanAction"), "Content-Type": "text/plain;charset=UTF-8", Accept: "text/x-component", cookie: cAdmin }, body: JSON.stringify([a.id, newPlan]) });
     const sync = lastLog("subscription.replaceItems", (e) => e.subscriptionId === `sub_probe_a_${stamp}`);
     check("生效中的 Stripe 方案改价 → 订阅项替换为 129 + 1 × 30", saved.status === 200 && sync?.lines?.length === 2 && sync.lines[0].unitAmount === 12900 && sync.lines[1].quantity === 1);
+    const cadPlan = { ...newPlan, currency: "CAD" };
+    const cad = await adminCall("adminSavePlanAction", [a.id, cadPlan], cAdmin, a.id);
+    check("Stripe 付款中的方案改币种 → 拒绝，数据库不变", /"ok":false/.test(cad.body) && (await prisma.customerPlan.findUniqueOrThrow({ where: { userId: a.id } })).currency === "EUR");
+    const freePlan = { ...newPlan, baseFee: 0, extraPlatforms: [], allInclusiveFee: null };
+    const free = await adminCall("adminSavePlanAction", [a.id, freePlan], cAdmin, a.id);
+    check("Stripe 付款中的方案改成 0 元 → 拒绝，数据库不变", /"ok":false/.test(free.body) && (await prisma.customerPlan.findUniqueOrThrow({ where: { userId: a.id } })).baseFee === 12900);
     check("普通用户调改价 → 拒绝", /"ok":false|E\{/.test((await call("adminSavePlanAction", [a.id, newPlan], cD)).body));
     await fetch(`${BASE}/admin/accounts/${a.id}`, { method: "POST", redirect: "manual", headers: { "Next-Action": actionId("adminCancelPlanAction"), "Content-Type": "text/plain;charset=UTF-8", Accept: "text/x-component", cookie: cAdmin }, body: JSON.stringify([a.id]) });
     check("后台取消方案 → 同时取消 Stripe 订阅", !!lastLog("subscription.cancel", (e) => e.subscriptionId === `sub_probe_a_${stamp}`));
