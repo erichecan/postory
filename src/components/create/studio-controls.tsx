@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { CHARGE_CREDITS } from "@/lib/billing/plan-math";
+import { ImageFileError, readImageFile } from "@/lib/image-file";
 import { cn } from "@/lib/utils";
 import { RATIOS, SCENES, UPLOAD_MAX_BYTES, UPLOAD_TYPES, type Quality, type RatioId, type SceneId, type StudioMode } from "./studio-options";
 
@@ -60,11 +61,15 @@ export function StudioControls({
   const cost = CHARGE_CREDITS[state.quality === "hd" ? "AI_HD" : "AI_STANDARD"];
   const ready = state.mode === "text" ? state.prompt.trim().length > 0 || state.scene !== null : state.photo !== null;
 
-  function pickFile(file: File | undefined) {
+  async function pickFile(file: File | undefined) {
     if (!file) return;
     if (!(UPLOAD_TYPES as readonly string[]).includes(file.type)) return onUploadError(t("upload.badType"));
     if (file.size > UPLOAD_MAX_BYTES) return onUploadError(t("upload.tooLarge"));
-    onChange({ photo: URL.createObjectURL(file) });
+    try {
+      onChange({ photo: await readImageFile(file) });
+    } catch (err) {
+      onUploadError(t(err instanceof ImageFileError && err.key === "imageFormat" ? "upload.badType" : "upload.readFailed"));
+    }
   }
 
   return (
@@ -85,7 +90,7 @@ export function StudioControls({
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
               e.preventDefault();
-              pickFile(e.dataTransfer.files[0]);
+              void pickFile(e.dataTransfer.files[0]);
             }}
             className="relative grid aspect-[4/3] place-items-center overflow-hidden rounded-lg border border-dashed bg-input/20 text-center hover:border-primary/60"
           >
@@ -102,7 +107,10 @@ export function StudioControls({
               </span>
             )}
           </button>
-          <input ref={fileRef} type="file" accept={UPLOAD_TYPES.join(",")} className="hidden" onChange={(e) => pickFile(e.target.files?.[0])} />
+          <input ref={fileRef} type="file" accept={UPLOAD_TYPES.join(",")} className="hidden" onChange={(e) => {
+              void pickFile(e.target.files?.[0]);
+              e.target.value = "";
+            }} />
         </Field>
       )}
 

@@ -40,11 +40,14 @@
       决策：先扣费再导出——导出失败时这个作品之后再导出免费，用户不会白花钱；截图绕过无法防，接受
       附带：新用户余额为 0 时，弹窗提示"先验证邮箱免费领 10 个模板"；演示账号余额卡显示"演示账号不能充值"
       依赖：C1、C3
-- [ ] C5 AI 生图工作台 + 生成历史 + 送到编辑器（fake provider）
+- [x] C5 AI 生图工作台 + 生成历史 + 送到编辑器（fake provider）
       验收命令：verify.sh 生成/退款/限流
-      可看物：docs/shots/20260928-c5-*.png
+      可看物：docs/shots/20260928-c5-{photo-round1,refine-round2,failed-refund,history,history-390,editor}.png
       定性状态：待你确认
-      证据：—
+      证据：VERIFY PASS 240 项；gen-probe 29/29（无会话跳登录/run 401/media 401；演示账号拒绝；仅模板赠送不能生图且不留记录；标准扣 1、高清扣 2；上一张未完成再点→忙且不扣；B 调 A 的 run/取 A 的图/以 A 的图为底→404/拒绝；重复执行 409；路径穿越 404；[fail]/[reject] → FAILED + DEBIT/REFUND 成对；超 10 分钟 PENDING 打开历史即失败退款且不可再执行；GIF/伪装 PNG 拒绝；>10MB 拒绝不扣；每小时 30 次限流不扣；全站当日成本超上限拒绝不扣；同人并发 6 次只成 1 次只扣 1；送到编辑器生成新作品）；query-probe 生成历史 10 条=200 条=3 次、每页 24；/generations autocannon p50=28ms p97.5=37ms 341 req/s
+      偏离 DEV-PLAN：Generation 加 startedAt（防同一条被执行两次）；提示词扩写先用固定模板拼英文提示词，接 OpenAI 时再加 LLM 扩写；"替换模板图片"未做，只做"送到编辑器新建作品"
+      上线前必须：OPENAI_API_KEY + AI_PROVIDER=openai（真实 provider 待写）；STORAGE=gcs 待实现（目前只有本地盘，Cloud Run 上重启即丢）；Cloud Run 请求超时调到 300s
+      遗留：>10MB 上传由 Next 请求体上限直接拒绝（500，前端已压缩到 1600px 正常用户碰不到）；删除用户时生成图文件不清理；多轮改图时占位图会把上一轮文字叠上去（仅占位图现象）
       依赖：C1
 - [ ] C6 Stripe：订阅、充值、Portal、webhook
       验收命令：verify.sh 金额 + webhook 幂等 + 验签

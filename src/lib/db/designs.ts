@@ -12,6 +12,20 @@ export async function createDesignFromTemplate(userId: string, templateId: strin
   });
 }
 
+export async function createDesignFromImage(userId: string, input: { title: string; imageUrl: string; width: number; height: number }) {
+  const page: DesignPage = {
+    name: "1",
+    width: input.width,
+    height: input.height,
+    background: "#ffffff",
+    elements: [{ id: "ai-image", type: "image", name: "AI", x: 0, y: 0, w: input.width, h: input.height, z: 0, rotation: 0, style: { objectFit: "cover" }, content: input.imageUrl }],
+  };
+  return prisma.design.create({
+    data: { userId, title: input.title.slice(0, 128), pages: [page] as unknown as Prisma.InputJsonValue },
+    select: { id: true },
+  });
+}
+
 export async function getOwnDesign(userId: string, id: string) {
   const d = await prisma.design.findFirst({
     where: { id, userId },

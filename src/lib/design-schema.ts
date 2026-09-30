@@ -7,7 +7,7 @@ const contentSchema = z
   .max(MAX_IMAGE_DATA_URL, "imageTooLarge")
   .refine((v) => !/^\s*javascript:/i.test(v), "forbiddenContent");
 
-const IMAGE_SOURCE = /^(data:image\/(png|jpeg|webp|gif|svg\+xml)[;,]|\/assets\/templates\/)/;
+const IMAGE_SOURCE = /^(data:image\/(png|jpeg|webp|gif|svg\+xml)[;,]|\/assets\/templates\/|\/api\/media\/gen\/)/;
 
 const elementSchema = z
   .object({

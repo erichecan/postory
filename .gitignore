@@ -52,3 +52,6 @@ next-env.d.ts
 /docs/shots
 
 __pycache__/
+
+# 本地存储（STORAGE=local）
+/.data

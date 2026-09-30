@@ -12,7 +12,8 @@
     "hint": "菜品、饮品、产品、店面都行 · JPG / PNG / WebP · 10MB 以内",
     "replace": "换一张",
     "tooLarge": "照片超过 10MB",
-    "badType": "只支持 JPG、PNG、WebP"
+    "badType": "只支持 JPG、PNG、WebP",
+    "readFailed": "这张照片读不出来，换一张试试"
   },
   "scenes": {
     "label": "场景",
@@ -58,7 +59,25 @@
     "refine": "按这个改 · {count} credit",
     "download": "下载",
     "toEditor": "送到编辑器加字",
-    "failed": "这次没生成出来，credit 已退回"
+    "failed": "这次没生成出来，credit 已退回",
+    "rejected": "这张图没通过内容审核，credit 已退回",
+    "sending": "正在打开编辑器…",
+    "networkFailed": "网络断了，稍后到生成历史里看结果",
+    "continuing": "接着第 {n} 轮改"
   },
-  "history": "生成历史"
+  "history": "生成历史",
+  "errors": {
+    "demo": "演示账号不能使用 AI 生图，注册后可用",
+    "invalid": "参数不对，刷新页面再试一次",
+    "needPhoto": "先上传一张照片",
+    "needPrompt": "写一句你想要的画面",
+    "badType": "只支持 JPG、PNG、WebP",
+    "tooLarge": "照片超过 10MB",
+    "parentNotFound": "找不到这张图，可能已被删除",
+    "busy": "上一张还在生成，等它出来再点",
+    "rateLimited": "一小时内最多生成 30 张，稍后再试",
+    "capReached": "今天的 AI 生图名额用完了，明天再来，credit 没有扣",
+    "insufficient": "credit 不够",
+    "storageFailed": "照片没存上，credit 已退回，再试一次"
+  }
 }

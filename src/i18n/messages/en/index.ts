@@ -12,7 +12,8 @@ import editor from "./editor.json";
 import billing from "./billing.json";
 import create from "./create.json";
 import plans from "./plans.json";
+import generations from "./generations.json";
 
-const messages = { common, auth, profile, validation, nav, gallery, templates, designs, admin, platforms, editor, billing, create, plans };
+const messages = { common, auth, profile, validation, nav, gallery, templates, designs, admin, platforms, editor, billing, create, plans, generations };
 
 export default messages;

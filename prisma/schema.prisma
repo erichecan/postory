@@ -208,6 +208,7 @@ model Generation {
   costMicros  Int?
   status      GenerationStatus @default(PENDING)
   error       String?          @db.VarChar(255)
+  startedAt   DateTime?
   createdAt   DateTime         @default(now())
 
   @@index([userId, createdAt])

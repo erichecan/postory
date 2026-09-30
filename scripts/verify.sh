@@ -33,7 +33,7 @@ run "next build" npm run -s build
 
 step "启动生产服务 :$PORT"
 lsof -iTCP:"$PORT" -sTCP:LISTEN -t | xargs -r kill 2>/dev/null
-npx next start -p "$PORT" > .next/verify-server.log 2>&1 &
+AI_PROVIDER=fake FAKE_AI_DELAY_MS=50 STORAGE=local npx next start -p "$PORT" > .next/verify-server.log 2>&1 &
 SERVER=$!
 trap 'kill $SERVER 2>/dev/null' EXIT
 for _ in $(seq 1 60); do curl -s -o /dev/null "$BASE/login" && break; sleep 0.5; done
@@ -41,7 +41,7 @@ for _ in $(seq 1 60); do curl -s -o /dev/null "$BASE/login" && break; sleep 0.5;
 COOKIE=$(npx tsx -e 'import "./scripts/load-env"; import { signSession, SESSION_COOKIE } from "./src/lib/auth/token"; import { prisma } from "./src/lib/db/client"; (async()=>{const u=await prisma.user.findUniqueOrThrow({where:{phone:"13900000000"}}); console.log(`${SESSION_COOKIE}=${await signSession({userId:u.id,role:u.role})}`); await prisma.$disconnect();})()')
 
 step "双语路由探针（NEXT_LOCALE=zh/en → <html lang> 与状态码）"
-for path in "/login" "/register" "/forgot-password" "/plans" "/templates" "/templates?platform=instagram-post" "/templates/orshot-2427" "/designs" "/profile" "/membership" "/create"; do
+for path in "/login" "/register" "/forgot-password" "/plans" "/templates" "/templates?platform=instagram-post" "/templates/orshot-2427" "/designs" "/profile" "/membership" "/create" "/generations"; do
   for loc in zh en; do
     want=$([ "$loc" = zh ] && echo "zh-CN" || echo "en")
     SESSION=$([[ "$path" == /login || "$path" == /register || "$path" == /forgot-password || "$path" == /plans ]] || echo "; $COOKIE")
@@ -64,10 +64,13 @@ run "admin-probe" npx tsx scripts/admin-probe.ts "$BASE"
 step "付费墙：导出 / 发布计划扣费、平台权益"
 run "paywall-probe" npx tsx scripts/paywall-probe.ts "$BASE"
 
+step "AI 生图：扣费 / 失败退款 / 限流 / 送到编辑器"
+run "gen-probe" npx tsx scripts/gen-probe.ts "$BASE"
+
 step "公开页与受保护页"
 PLANS_ANON=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/plans")
 run "/plans 未登录 200（实际 ${PLANS_ANON}）" test "$PLANS_ANON" = 200
-for path in /membership /create; do
+for path in /membership /create /generations; do
   C=$(curl -s -o /dev/null -w '%{http_code}' "$BASE$path")
   run "$path 未登录 → 307 跳登录（实际 ${C}）" test "$C" = 307
 done
@@ -82,8 +85,8 @@ step "密码存储"
 PLAIN=$(psql "$DB" -Atc "select count(*) from \"User\" where \"passwordHash\" not like '\$2%'")
 run "User.passwordHash 全部为 bcrypt（非 bcrypt 数=${PLAIN}）" test "$PLAIN" = "0"
 
-step "性能基线（autocannon 10s，/templates 与 /templates/[id]）"
-for path in "/templates" "/templates/orshot-2427"; do
+step "性能基线（autocannon 10s，/templates、/templates/[id]、/generations）"
+for path in "/templates" "/templates/orshot-2427" "/generations"; do
   OUT=$(npx autocannon -d 10 -c 10 -j -H "cookie=$COOKIE" "$BASE$path" 2>/dev/null)
   read -r P50 P97 RPS NON2XX <<<"$(echo "$OUT" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const r=JSON.parse(s);console.log(r.latency.p50,r.latency.p97_5,Math.round(r.requests.average),r.non2xx)})')"
   echo "INFO  $path  p50=${P50}ms  p97.5=${P97}ms  req/s=${RPS}  non2xx=${NON2XX}"

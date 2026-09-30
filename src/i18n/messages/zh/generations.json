@@ -1,0 +1,20 @@
+{
+  "title": "生成历史",
+  "subtitle": "所有 AI 生成的图都在这里，可以接着改、送到编辑器加字或者下载",
+  "empty": "还没有生成过图",
+  "goCreate": "去 AI 生图",
+  "status": {
+    "PENDING": "生成中",
+    "SUCCEEDED": "已完成",
+    "FAILED": "失败"
+  },
+  "refunded": "没生成出来，{count} credit 已退回",
+  "continue": "接着改",
+  "toEditor": "送到编辑器",
+  "download": "下载",
+  "credits": "{count} credit",
+  "mode": {
+    "PHOTO_ENHANCE": "实拍美化",
+    "TEXT_TO_IMAGE": "文生图"
+  }
+}

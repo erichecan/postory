@@ -1,0 +1,20 @@
+{
+  "title": "Generation history",
+  "subtitle": "Every AI image you've made. Keep editing, send it to the editor to add text, or download it.",
+  "empty": "No images generated yet",
+  "goCreate": "Go to AI images",
+  "status": {
+    "PENDING": "Generating",
+    "SUCCEEDED": "Done",
+    "FAILED": "Failed"
+  },
+  "refunded": "Not generated. {count} credits refunded.",
+  "continue": "Keep editing",
+  "toEditor": "Send to editor",
+  "download": "Download",
+  "credits": "{count} credits",
+  "mode": {
+    "PHOTO_ENHANCE": "Photo enhance",
+    "TEXT_TO_IMAGE": "Text to image"
+  }
+}

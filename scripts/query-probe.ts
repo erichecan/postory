@@ -5,6 +5,7 @@ import { prisma, takeQueryCount } from "../src/lib/db/client";
 import { CUSTOMERS_PER_PAGE, listCustomers } from "../src/lib/db/admin-customers";
 import { getBalanceAt, listTxns, TXN_PAGE_SIZE } from "../src/lib/db/credits";
 import { listOwnDesigns } from "../src/lib/db/designs";
+import { GENERATIONS_PER_PAGE, listOwnGenerations } from "../src/lib/db/generations";
 import { listTemplates, TEMPLATES_PER_PAGE } from "../src/lib/db/templates";
 
 async function queriesOf(fn: () => Promise<unknown>) {
@@ -62,6 +63,18 @@ async function main() {
   report("流水与余额查询数不随数据量增长", t10 === t200 && t10 <= 3, `10 条=${t10} 次，200 条=${t200} 次`);
   const txns = await listTxns(user.id);
   report("流水分页", txns.items.length === TXN_PAGE_SIZE && txns.pageCount === Math.ceil(200 / TXN_PAGE_SIZE), `每页 ${txns.items.length} 条，共 ${txns.pageCount} 页`);
+
+  const seedGens = async (n: number) => {
+    await prisma.generation.deleteMany({ where: { userId: user.id } });
+    await prisma.generation.createMany({ data: Array.from({ length: n }, () => ({ userId: user.id, mode: "TEXT_TO_IMAGE" as const, quality: "standard", size: "square", userPrompt: "q", credits: 1, status: "SUCCEEDED" as const })) });
+  };
+  await seedGens(10);
+  const g10 = await queriesOf(() => listOwnGenerations(user.id));
+  await seedGens(200);
+  const g200 = await queriesOf(() => listOwnGenerations(user.id));
+  report("生成历史查询数不随数据量增长", g10 === g200 && g10 <= 4, `10 条=${g10} 次，200 条=${g200} 次`);
+  const gens = await listOwnGenerations(user.id);
+  report("生成历史分页", gens.items.length === GENERATIONS_PER_PAGE && gens.pageCount === Math.ceil(200 / GENERATIONS_PER_PAGE), `每页 ${gens.items.length} 条，共 ${gens.pageCount} 页`);
 
   const c1 = await queriesOf(() => listCustomers(1));
   const filler = await bcrypt.hash("x", 4);

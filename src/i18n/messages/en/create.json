@@ -12,7 +12,8 @@
     "hint": "Dishes, drinks, products or your storefront · JPG / PNG / WebP · up to 10MB",
     "replace": "Replace",
     "tooLarge": "Photo is larger than 10MB",
-    "badType": "Only JPG, PNG and WebP are supported"
+    "badType": "Only JPG, PNG and WebP are supported",
+    "readFailed": "That photo couldn't be read. Try another one."
   },
   "scenes": {
     "label": "Scene",
@@ -58,7 +59,25 @@
     "refine": "Apply · {count, plural, one {# credit} other {# credits}}",
     "download": "Download",
     "toEditor": "Add text in editor",
-    "failed": "That one didn't work. Your credits were refunded."
+    "failed": "That one didn't work. Your credits were refunded.",
+    "rejected": "This image didn't pass content review. Your credits were refunded.",
+    "sending": "Opening the editor…",
+    "networkFailed": "Connection lost. Check Generation history for the result later.",
+    "continuing": "Editing round {n}"
   },
-  "history": "History"
+  "history": "History",
+  "errors": {
+    "demo": "The demo account can't use AI images. Sign up to use them.",
+    "invalid": "Something was off. Refresh the page and try again.",
+    "needPhoto": "Upload a photo first",
+    "needPrompt": "Describe the image you want",
+    "badType": "Only JPG, PNG and WebP are supported",
+    "tooLarge": "Photo is larger than 10MB",
+    "parentNotFound": "That image can't be found. It may have been deleted.",
+    "busy": "The previous image is still generating. Wait for it to finish.",
+    "rateLimited": "You can generate up to 30 images per hour. Try again later.",
+    "capReached": "Today's AI image capacity is used up. Come back tomorrow. No credits were charged.",
+    "insufficient": "Not enough credits",
+    "storageFailed": "The photo couldn't be saved. Your credits were refunded. Try again."
+  }
 }

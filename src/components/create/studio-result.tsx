@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Loader2, PenLine, Wand2 } from "lucide-react";
+import { Download, Loader2, Wand2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CHARGE_CREDITS } from "@/lib/billing/plan-math";
 import { cn } from "@/lib/utils";
+import { SendToEditorButton } from "./send-to-editor-button";
 import { RATIOS, type Quality, type RatioId, type Round } from "./studio-options";
 
 export function StudioResult({
@@ -17,7 +18,6 @@ export function StudioResult({
   ratio,
   quality,
   onRefine,
-  onToEditor,
 }: {
   rounds: Round[];
   activeId: string | null;
@@ -26,7 +26,6 @@ export function StudioResult({
   ratio: RatioId;
   quality: Quality;
   onRefine: (text: string) => void;
-  onToEditor: (round: Round) => void;
 }) {
   const t = useTranslations("create.result");
   const [text, setText] = useState("");
@@ -68,6 +67,7 @@ export function StudioResult({
             ))}
           </div>
 
+          {active && <p className="text-xs text-muted-foreground">{t("continuing", { n: rounds.indexOf(active) + 1 })}</p>}
           <form
             className="flex flex-col gap-2 sm:flex-row"
             onSubmit={(e) => {
@@ -88,9 +88,7 @@ export function StudioResult({
               <a href={active.url} download className="inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm hover:bg-muted">
                 <Download className="size-4" /> {t("download")}
               </a>
-              <Button variant="outline" size="lg" className="gap-1.5" onClick={() => onToEditor(active)}>
-                <PenLine className="size-4" /> {t("toEditor")}
-              </Button>
+              <SendToEditorButton generationId={active.id} label={t("toEditor")} />
             </div>
           )}
         </>
