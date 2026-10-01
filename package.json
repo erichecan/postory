@@ -9,6 +9,7 @@
     "lint": "eslint",
     "postinstall": "prisma generate",
     "db:seed": "prisma db seed",
+    "ai:daily-templates": "tsx scripts/generate-daily-templates.ts",
     "typecheck": "next typegen && tsc --noEmit",
     "verify": "bash scripts/verify.sh"
   },

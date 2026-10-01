@@ -251,6 +251,7 @@ def main():
             "source": "orshot",
             "title": re.sub(r"\s+", " ", layers["name"]).strip(),
             "description": layers.get("description"),
+            "categories": layers.get("categories") or [],
             "platform": platform_of(first["width"], first["height"]),
             "width": first["width"],
             "height": first["height"],

@@ -21,6 +21,7 @@ export type TemplateCard = Prisma.TemplateGetPayload<{ select: typeof cardSelect
 
 export async function listTemplates(opts: { platform?: PlatformId; q?: string; page: number }) {
   const where: Prisma.TemplateWhereInput = {
+    status: "published",
     ...(opts.platform ? { platform: opts.platform } : {}),
     ...(opts.q ? { title: { contains: opts.q, mode: "insensitive" } } : {}),
   };
@@ -38,12 +39,12 @@ export async function listTemplates(opts: { platform?: PlatformId; q?: string; p
 }
 
 export async function countTemplatesByPlatform() {
-  const rows = await prisma.template.groupBy({ by: ["platform"], _count: { _all: true } });
+  const rows = await prisma.template.groupBy({ by: ["platform"], where: { status: "published" }, _count: { _all: true } });
   return Object.fromEntries(rows.map((r) => [r.platform, r._count._all])) as Record<string, number>;
 }
 
 export const countAllTemplatesCached = unstable_cache(
-  async () => prisma.template.count(),
+  async () => prisma.template.count({ where: { status: "published" } }),
   ["template-count"],
   { revalidate: 3600 },
 );
@@ -55,7 +56,7 @@ export async function getTemplate(id: string) {
 
 export async function listSimilarTemplates(id: string, platform: string, take = 6) {
   return prisma.template.findMany({
-    where: { platform, id: { not: id } },
+    where: { platform, id: { not: id }, status: "published" },
     select: cardSelect,
     orderBy: { sortOrder: "asc" },
     take,

@@ -1,0 +1,46 @@
+{
+  "type": "object",
+  "required": ["name", "width", "height", "background", "elements"],
+  "properties": {
+    "name": { "type": "string" },
+    "width": { "type": "number" },
+    "height": { "type": "number" },
+    "background": { "type": "string" },
+    "elements": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 9,
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "x", "y", "w", "h", "z", "rotation", "style"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string", "enum": ["text", "shape", "image"] },
+          "x": { "type": "number" },
+          "y": { "type": "number" },
+          "w": { "type": "number" },
+          "h": { "type": "number" },
+          "z": { "type": "number" },
+          "rotation": { "type": "number" },
+          "content": { "type": "string" },
+          "shapeType": { "type": "string", "enum": ["rectangle", "circle", "line"] },
+          "style": {
+            "type": "object",
+            "properties": {
+              "color": { "type": "string" },
+              "fontSize": { "type": "string" },
+              "fontFamily": { "type": "string" },
+              "fontWeight": { "type": "string" },
+              "textAlign": { "type": "string", "enum": ["left", "center", "right"] },
+              "backgroundColor": { "type": "string" },
+              "fill": { "type": "string" },
+              "borderRadius": { "type": "string" },
+              "objectFit": { "type": "string", "enum": ["cover", "contain"] },
+              "opacity": { "type": "number" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

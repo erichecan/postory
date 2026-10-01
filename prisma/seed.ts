@@ -12,6 +12,7 @@ type CatalogEntry = {
   source: string;
   title: string;
   description: string;
+  categories?: string[];
   platform: string;
   width: number;
   height: number;
@@ -39,6 +40,8 @@ async function main() {
       source: t.source,
       title: t.title,
       description: t.description,
+      categories: t.categories ?? [],
+      status: "published",
       platform: t.platform,
       width: t.width,
       height: t.height,
@@ -51,7 +54,10 @@ async function main() {
     await prisma.template.upsert({ where: { id: t.id }, create: { id: t.id, ...data }, update: data });
   }
 
-  const removed = await prisma.template.deleteMany({ where: { id: { notIn: catalog.map((t) => t.id) } } });
+  // catalog.json 只收录 Orshot 来源的模板；AI 每日生成的草稿模板（source="ai-generated"）
+  // 不在 catalog.json 里，这里只清理失效的 Orshot 模板，不动 AI 生成的那批。
+  const orshotIds = catalog.filter((t) => t.source === "orshot").map((t) => t.id);
+  const removed = await prisma.template.deleteMany({ where: { source: "orshot", id: { notIn: orshotIds } } });
   if (removed.count) console.log(`removed stale templates=${removed.count}`);
 
   for (const { slug, features, ...tier } of DEFAULT_TIERS) {

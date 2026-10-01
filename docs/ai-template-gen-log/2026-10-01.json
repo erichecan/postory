@@ -1,0 +1,466 @@
+{
+  "date": "2026-10-01",
+  "totalCost": 0.5166552,
+  "results": [
+    {
+      "industry": {
+        "slug": "restaurant",
+        "name": "餐饮",
+        "type": "service"
+      },
+      "theme": "国庆黄金周",
+      "isCalendarEvent": true,
+      "ok": true,
+      "id": "ai-restaurant-2026-10-01-1",
+      "cost": 0.079066,
+      "usage": {
+        "input_tokens": 2,
+        "cache_creation_input_tokens": 15523,
+        "cache_read_input_tokens": 0,
+        "output_tokens": 1697,
+        "output_tokens_details": {
+          "thinking_tokens": 349
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 15523,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "not_available",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 1697,
+            "cache_read_input_tokens": 0,
+            "cache_creation_input_tokens": 15523,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 15523
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard",
+        "fallback_credit": null
+      }
+    },
+    {
+      "industry": {
+        "slug": "nail",
+        "name": "美甲",
+        "type": "service"
+      },
+      "theme": "国庆黄金周",
+      "isCalendarEvent": true,
+      "ok": true,
+      "id": "ai-nail-2026-10-01-2",
+      "cost": 0.0334438,
+      "usage": {
+        "input_tokens": 2,
+        "cache_creation_input_tokens": 3533,
+        "cache_read_input_tokens": 11989,
+        "output_tokens": 1691,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 3533,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "not_available",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 1691,
+            "cache_read_input_tokens": 11989,
+            "cache_creation_input_tokens": 3533,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 3533
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard",
+        "fallback_credit": null
+      }
+    },
+    {
+      "industry": {
+        "slug": "beauty",
+        "name": "美容",
+        "type": "service"
+      },
+      "theme": "国庆黄金周",
+      "isCalendarEvent": true,
+      "ok": true,
+      "id": "ai-beauty-2026-10-01-3",
+      "cost": 0.045829800000000004,
+      "usage": {
+        "input_tokens": 2,
+        "cache_creation_input_tokens": 3532,
+        "cache_read_input_tokens": 11989,
+        "output_tokens": 2930,
+        "output_tokens_details": {
+          "thinking_tokens": 1716
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 3532,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "not_available",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 2930,
+            "cache_read_input_tokens": 11989,
+            "cache_creation_input_tokens": 3532,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 3532
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard",
+        "fallback_credit": null
+      }
+    },
+    {
+      "industry": {
+        "slug": "hair",
+        "name": "美发",
+        "type": "service"
+      },
+      "theme": "国庆黄金周",
+      "isCalendarEvent": true,
+      "ok": true,
+      "id": "ai-hair-2026-10-01-4",
+      "cost": 0.0352298,
+      "usage": {
+        "input_tokens": 2,
+        "cache_creation_input_tokens": 3532,
+        "cache_read_input_tokens": 11989,
+        "output_tokens": 1870,
+        "output_tokens_details": {
+          "thinking_tokens": 345
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 3532,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "not_available",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 1870,
+            "cache_read_input_tokens": 11989,
+            "cache_creation_input_tokens": 3532,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 3532
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard",
+        "fallback_credit": null
+      }
+    },
+    {
+      "industry": {
+        "slug": "fitness",
+        "name": "健身",
+        "type": "service"
+      },
+      "theme": "国庆黄金周",
+      "isCalendarEvent": true,
+      "ok": true,
+      "id": "ai-fitness-2026-10-01-5",
+      "cost": 0.050509799999999994,
+      "usage": {
+        "input_tokens": 2,
+        "cache_creation_input_tokens": 3532,
+        "cache_read_input_tokens": 11989,
+        "output_tokens": 3398,
+        "output_tokens_details": {
+          "thinking_tokens": 1997
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 3532,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "not_available",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 3398,
+            "cache_read_input_tokens": 11989,
+            "cache_creation_input_tokens": 3532,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 3532
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard",
+        "fallback_credit": null
+      }
+    },
+    {
+      "industry": {
+        "slug": "phonecase",
+        "name": "手机壳批发",
+        "type": "product"
+      },
+      "theme": "国庆黄金周",
+      "isCalendarEvent": true,
+      "ok": true,
+      "id": "ai-phonecase-2026-10-01-6",
+      "cost": 0.054087399999999994,
+      "usage": {
+        "input_tokens": 2,
+        "cache_creation_input_tokens": 5109,
+        "cache_read_input_tokens": 10437,
+        "output_tokens": 3156,
+        "output_tokens_details": {
+          "thinking_tokens": 1599
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 5109,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "not_available",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 3156,
+            "cache_read_input_tokens": 10437,
+            "cache_creation_input_tokens": 5109,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 5109
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard",
+        "fallback_credit": null
+      }
+    },
+    {
+      "industry": {
+        "slug": "phonerepair",
+        "name": "手机维修",
+        "type": "product"
+      },
+      "theme": "国庆黄金周",
+      "isCalendarEvent": true,
+      "ok": true,
+      "id": "ai-phonerepair-2026-10-01-7",
+      "cost": 0.064882,
+      "usage": {
+        "input_tokens": 2,
+        "cache_creation_input_tokens": 3534,
+        "cache_read_input_tokens": 12010,
+        "output_tokens": 4834,
+        "output_tokens_details": {
+          "thinking_tokens": 3120
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 3534,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "not_available",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 4834,
+            "cache_read_input_tokens": 12010,
+            "cache_creation_input_tokens": 3534,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 3534
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard",
+        "fallback_credit": null
+      }
+    },
+    {
+      "industry": {
+        "slug": "cable",
+        "name": "数据线",
+        "type": "product"
+      },
+      "theme": "国庆黄金周",
+      "isCalendarEvent": true,
+      "ok": true,
+      "id": "ai-cable-2026-10-01-8",
+      "cost": 0.053947999999999996,
+      "usage": {
+        "input_tokens": 2,
+        "cache_creation_input_tokens": 3533,
+        "cache_read_input_tokens": 12010,
+        "output_tokens": 3741,
+        "output_tokens_details": {
+          "thinking_tokens": 1881
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 3533,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "not_available",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 3741,
+            "cache_read_input_tokens": 12010,
+            "cache_creation_input_tokens": 3533,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 3533
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard",
+        "fallback_credit": null
+      }
+    },
+    {
+      "industry": {
+        "slug": "3c",
+        "name": "3C数码产品",
+        "type": "product"
+      },
+      "theme": "国庆黄金周",
+      "isCalendarEvent": true,
+      "ok": true,
+      "id": "ai-3c-2026-10-01-9",
+      "cost": 0.05989,
+      "usage": {
+        "input_tokens": 2,
+        "cache_creation_input_tokens": 3536,
+        "cache_read_input_tokens": 12010,
+        "output_tokens": 4334,
+        "output_tokens_details": {
+          "thinking_tokens": 2794
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 3536,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "not_available",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 4334,
+            "cache_read_input_tokens": 12010,
+            "cache_creation_input_tokens": 3536,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 3536
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard",
+        "fallback_credit": null
+      }
+    },
+    {
+      "industry": {
+        "slug": "restaurant",
+        "name": "餐饮",
+        "type": "service"
+      },
+      "theme": "国庆黄金周",
+      "isCalendarEvent": true,
+      "ok": true,
+      "id": "ai-restaurant-2026-10-01-10",
+      "cost": 0.039768599999999994,
+      "usage": {
+        "input_tokens": 2,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 15523,
+        "output_tokens": 3666,
+        "output_tokens_details": {
+          "thinking_tokens": 2429
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "not_available",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 3666,
+            "cache_read_input_tokens": 15523,
+            "cache_creation_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard",
+        "fallback_credit": null
+      }
+    }
+  ]
+}
