@@ -198,6 +198,14 @@ def split_scenes(p):
     kept = [f for i, f in enumerate(frames) if f and not any(ids[i] <= ids[j] for j in range(i + 1, len(frames)))]
     if len(kept) < 2:
         return [p]
+    # 编辑器默认打开第一页，但这批模板的营销缩略图是 Orshot 自己挑的"最好看那一帧"（通常在时间线靠后、
+    # 带图片），不一定是时间上最早的那一幕。按时间排最早的一幕常常是纯文字片头，没有图片——
+    # 进编辑器第一眼就"背景图不见了"。这里把有图片的场景排到前面（保持各自原有的相对顺序），
+    # 纯文字/图形场景挪到后面，不丢任何一页，只是改变默认打开看到哪一页。
+    has_hero = lambda f: any(e["type"] == "image" and covers_canvas(e, w, h) for e in f)
+    with_image = [f for f in kept if has_hero(f)]
+    without_image = [f for f in kept if not has_hero(f)]
+    kept = with_image + without_image
     return [{**p, "name": f"{p.get('name') or 'Scene'} {k + 1}/{len(kept)}", "elements": f} for k, f in enumerate(kept)]
 
 
