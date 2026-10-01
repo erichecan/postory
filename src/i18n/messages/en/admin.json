@@ -101,7 +101,8 @@
   "nav": {
     "accounts": "Customers",
     "tiers": "Tiers",
-    "generations": "AI cost"
+    "generations": "AI cost",
+    "aiDrafts": "AI drafts"
   },
   "tiers": {
     "title": "Membership tiers",
@@ -164,6 +165,20 @@
       "cost": "Cost",
       "error": "Reason",
       "empty": "No generations yet"
+    }
+  },
+  "aiDrafts": {
+    "title": "AI daily draft templates",
+    "subtitle": "Generated automatically every day at 3am, status defaults to draft — only visible in the public gallery after you approve it.",
+    "empty": "No drafts generated yet",
+    "noThumbnail": "No preview",
+    "preview": "Preview",
+    "approve": "Approve & publish",
+    "revertToDraft": "Revert to draft",
+    "toggleFailed": "Action failed",
+    "status": {
+      "draft": "Pending review",
+      "published": "Published"
     }
   }
 }

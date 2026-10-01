@@ -101,7 +101,8 @@
   "nav": {
     "accounts": "客户账号",
     "tiers": "会员等级",
-    "generations": "AI 成本"
+    "generations": "AI 成本",
+    "aiDrafts": "AI 草稿"
   },
   "tiers": {
     "title": "会员等级",
@@ -164,6 +165,20 @@
       "cost": "成本",
       "error": "原因",
       "empty": "还没有生成记录"
+    }
+  },
+  "aiDrafts": {
+    "title": "AI 每日生成草稿",
+    "subtitle": "每天凌晨 3 点自动生成，默认草稿状态，审核通过后才会出现在对外模板库里。",
+    "empty": "还没有生成过草稿",
+    "noThumbnail": "无预览图",
+    "preview": "预览",
+    "approve": "通过，上线",
+    "revertToDraft": "撤回为草稿",
+    "toggleFailed": "操作失败",
+    "status": {
+      "draft": "待审核",
+      "published": "已上线"
     }
   }
 }
