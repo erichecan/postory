@@ -75,3 +75,24 @@
   - X/Twitter 真实发布需要额外的 Twitter Developer OAuth1.0a Key，这次没接
   - 共用演示账号的 Facebook 现在处于"已连接（demo）"状态，是我验证时留下的，无害（fake 模式无真实副作用），未清理
 - **状态**：待观测
+
+## 2026-10-01 · 模板库按行业分类扩充至 428 个 + AI 每日自动生成草稿
+
+- **想达成什么**：模板库补上行业分类（之前 Orshot 自带的分类数据被转换脚本丢弃），并从 Orshot 公开接口批量抓更多餐饮/美容/健身/医疗类模板；同时上线每天凌晨 3 点自动生成 10 个行业海报草稿的本地定时任务。
+- **部署结果**：commit 81ee0da，GitHub Actions run 36813164366 成功；Verify：login/landing/legal/asset 均 200
+- **本次变更**：
+  - 线上库 `migrate deploy` 1 个迁移（Template 新增 categories/status 字段），执行前后行数一致（User 1 / Design 2）
+  - 模板素材同步 `gcloud storage rsync` 到 `gs://postory-templates`，新增 338 个文件，dry-run 确认零删除
+  - `SEED_SCOPE=templates` 重新导入模板：线上 Template 273 → **428**
+  - 修复 `listTemplates`/`countTemplatesByPlatform`/`listSimilarTemplates` 未按 `status` 过滤的问题——这个漏洞发现于本地验证阶段，部署前已修复，AI 草稿从未在生产环境暴露过
+  - 本地新增定时任务 `com.eric.postory.ai-daily-templates`（launchd，每天 3:00），用 `claude -p` headless 生成图层 JSON，status=draft，**不随本次 seed 上生产**，只在本地库
+- **技术观测（我负责）**：
+  - 部署后线上实测（Playwright，一键登录 → `/templates`）：分类筛选条显示"全部428"，新抓模板（orshot-999 美发、orshot-2084 美甲）图片 200 可加载
+  - 本地实跑一次 AI 每日生成：10/10 成功，总成本 $0.5167（含 prompt cache 命中），数据只在本地库，未进生产
+  - 观测窗口 7 天：Cloud Run 5xx、本地 launchd 任务是否按时触发（`~/Library/Logs/postory/ai-daily-templates.log`）
+- **定性观测（用户负责）**：打开线上模板库，按行业关键词搜一下"餐饮"/"beauty"，看搜出来的结果是不是你想要的那种调性
+- **已知限制**：
+  - Orshot 库存里美发/美甲模板天然稀缺，批量抓取后关键词兜底只命中 2 条真实相关，这两个垂直目前基本是空的
+  - AI 每日生成的草稿没有审核 UI，也没有背景图（image 图层只有文字描述占位），要看内容目前只能用 Prisma Studio 直接查本地库
+  - 营销日历（`src/data/marketing-calendar.json`）里的农历节日日期是 2026 年专用，明年要手动更新
+- **状态**：待观测
