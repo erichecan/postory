@@ -84,7 +84,17 @@ function liveGateway(apiKey: string): AyrshareGateway {
       return { platforms: (json.activeSocialAccounts ?? []).map((slug) => FROM_AYRSHARE_PLATFORM[slug]).filter((p): p is PublishPlatformId => Boolean(p)) };
     },
     async publish({ profileKey, caption, mediaUrl, platforms, scheduleDate }) {
-      const json = await call<{ id?: string; postIds: { platform: string; status: string; id?: string; postUrl?: string }[] }>("/post", {
+      // 真实响应把每条帖子包在 posts[0] 里，顶层没有 postIds（2026-10-02 用生产 key 实测核实，
+      // 之前按文档示例误以为 postIds 在顶层）。仅排期（未立即发布）时 posts[0] 连 postIds 都没有，
+      // 只有 status:"scheduled"；立即发布成功/失败时才有 postIds（失败时为空数组，改用 errors）。
+      const json = await call<{
+        posts: {
+          status: string;
+          id?: string;
+          postIds?: { platform: string; status: string; id?: string; postUrl?: string }[];
+          errors?: { platform?: string; message?: string }[];
+        }[];
+      }>("/post", {
         profileKey,
         body: {
           post: caption,
@@ -93,13 +103,22 @@ function liveGateway(apiKey: string): AyrshareGateway {
           ...(scheduleDate ? { scheduleDate: scheduleDate.toISOString() } : {}),
         },
       });
-      const perPlatform: PerPlatformResult[] = json.postIds.map((p) => ({
-        platform: p.platform,
-        status: p.status === "success" ? "success" : "error",
-        postUrl: p.postUrl,
-        error: p.status !== "success" ? p.status : undefined,
-      }));
-      return { postId: json.id ?? json.postIds[0]?.id ?? "", overallStatus: statusFromResults(perPlatform), perPlatform };
+      const entry = json.posts[0];
+      if (entry.status === "scheduled") {
+        const perPlatform: PerPlatformResult[] = platforms.map((p) => ({ platform: AYRSHARE_PLATFORM[p] ?? p, status: "success" }));
+        return { postId: entry.id ?? "", overallStatus: "SUCCESS", perPlatform };
+      }
+      const postIds = entry.postIds ?? [];
+      const perPlatform: PerPlatformResult[] =
+        postIds.length > 0
+          ? postIds.map((p) => ({
+              platform: p.platform,
+              status: p.status === "success" ? "success" : "error",
+              postUrl: p.postUrl,
+              error: p.status !== "success" ? p.status : undefined,
+            }))
+          : (entry.errors ?? []).map((e) => ({ platform: e.platform ?? "unknown", status: "error", error: e.message ?? entry.status }));
+      return { postId: entry.id ?? "", overallStatus: statusFromResults(perPlatform), perPlatform };
     },
   };
 }
