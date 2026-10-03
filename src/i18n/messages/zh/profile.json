@@ -25,6 +25,26 @@
     "address": { "label": "门店地址", "placeholder": "省市区 + 街道门牌" },
     "activity": { "label": "常用活动文案", "placeholder": "例如：国庆限定，拿铁第二杯半价，10/1–10/7" }
   },
+  "calendarFields": {
+    "sectionTitle": "营销日历设置",
+    "sectionSubtitle": "填了行业和地区，才能帮你排出合适的节日和活动日历。",
+    "industry": { "label": "行业", "placeholder": "选择行业" },
+    "country": { "label": "所在地区", "placeholder": "选择地区" },
+    "whatsappNumber": { "label": "WhatsApp 号码", "placeholder": "用于内容审核推送，选填" },
+    "marketingEmailOptIn": "同意给我的顾客发营销邮件（欢迎/生日/召回等自动化）",
+    "marketingSmsOptIn": "同意给我的顾客发营销短信"
+  },
+  "industryOptions": {
+    "FOOD_TAKEAWAY": "餐饮外卖",
+    "BEAUTY_HAIR": "美容美发",
+    "FITNESS": "健身",
+    "PHONE_REPAIR": "手机维修",
+    "OTHER": "其他"
+  },
+  "countryOptions": {
+    "IE": "爱尔兰",
+    "CA": "加拿大"
+  },
   "saving": "保存中…",
   "saved": "已保存",
   "savedMessage": "商家资料已保存",

@@ -25,6 +25,26 @@
     "address": { "label": "Shop address", "placeholder": "City, district, street and number" },
     "activity": { "label": "Go-to promotion copy", "placeholder": "e.g. National Day special: second latte half price, 10/1–10/7" }
   },
+  "calendarFields": {
+    "sectionTitle": "Marketing calendar settings",
+    "sectionSubtitle": "We need your industry and country to plan the right holidays and campaigns for you.",
+    "industry": { "label": "Industry", "placeholder": "Select an industry" },
+    "country": { "label": "Country", "placeholder": "Select a country" },
+    "whatsappNumber": { "label": "WhatsApp number", "placeholder": "Used for content approval pushes, optional" },
+    "marketingEmailOptIn": "Send marketing emails to my customers (welcome / birthday / win-back automations)",
+    "marketingSmsOptIn": "Send marketing SMS to my customers"
+  },
+  "industryOptions": {
+    "FOOD_TAKEAWAY": "Food & takeaway",
+    "BEAUTY_HAIR": "Beauty & hair",
+    "FITNESS": "Fitness",
+    "PHONE_REPAIR": "Phone repair",
+    "OTHER": "Other"
+  },
+  "countryOptions": {
+    "IE": "Ireland",
+    "CA": "Canada"
+  },
   "saving": "Saving…",
   "saved": "Saved",
   "savedMessage": "Business profile saved",

@@ -28,6 +28,13 @@ const profileSchema = z.object({
     .max(MAX_LOGO_DATA_URL, "logoTooLarge")
     .refine((v) => v === "" || /^data:image\/(png|jpeg|webp);base64,/.test(v), "logoFormat")
     .transform((v) => (v === "" ? null : v)),
+  industry: z
+    .enum(["FOOD_TAKEAWAY", "BEAUTY_HAIR", "FITNESS", "PHONE_REPAIR", "OTHER", ""])
+    .transform((v) => (v === "" ? null : v)),
+  country: z.enum(["IE", "CA", ""]).transform((v) => (v === "" ? null : v)),
+  whatsappNumber: optional(20),
+  marketingEmailOptIn: z.string().optional().transform(Boolean),
+  marketingSmsOptIn: z.string().optional().transform(Boolean),
 });
 
 export async function saveProfileAction(_: FormState, formData: FormData): Promise<FormState> {
