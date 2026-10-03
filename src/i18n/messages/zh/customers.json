@@ -1,0 +1,36 @@
+{
+  "title": "顾客名单",
+  "subtitle": "维护你认识的老顾客，生日/消费后感谢/召回这些自动化都靠这份名单发出去。",
+  "backToProfile": "返回商家资料",
+  "empty": "还没有顾客，先在下面添加一个吧。",
+  "columns": {
+    "name": "姓名",
+    "contact": "联系方式",
+    "birthday": "生日",
+    "lastVisit": "上次到店",
+    "createdAt": "添加时间",
+    "actions": ""
+  },
+  "noContact": "未填",
+  "never": "无记录",
+  "delete": "删除",
+  "deleteConfirm": "确定删除这位顾客吗？之后的自动化消息不会再发给他。",
+  "deleteFailed": "删除失败，刷新页面再试一次",
+  "form": {
+    "title": "添加顾客",
+    "hint": "姓名/邮箱/电话/生日都可以选填，但邮箱和电话至少要填一个，不然自动化消息发不出去。",
+    "name": "姓名",
+    "email": "邮箱",
+    "phone": "电话",
+    "birthday": "生日",
+    "submit": "添加",
+    "submitting": "添加中…",
+    "success": "已添加"
+  },
+  "errors": {
+    "emailInvalid": "邮箱格式不对",
+    "phoneInvalid": "电话格式不对",
+    "birthdayInvalid": "生日格式不对",
+    "needContact": "邮箱和电话至少填一个"
+  }
+}

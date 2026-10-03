@@ -1,0 +1,36 @@
+{
+  "title": "Customers",
+  "subtitle": "Keep a list of customers you know by name — birthday, post-visit thanks and win-back automations all send from this list.",
+  "backToProfile": "Back to profile",
+  "empty": "No customers yet — add one below.",
+  "columns": {
+    "name": "Name",
+    "contact": "Contact",
+    "birthday": "Birthday",
+    "lastVisit": "Last visit",
+    "createdAt": "Added",
+    "actions": ""
+  },
+  "noContact": "Not set",
+  "never": "No record",
+  "delete": "Delete",
+  "deleteConfirm": "Delete this customer? Automations will stop sending to them.",
+  "deleteFailed": "Delete failed, refresh and try again",
+  "form": {
+    "title": "Add a customer",
+    "hint": "Name / email / phone / birthday are all optional, but fill in at least an email or phone — otherwise automations can't reach them.",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "birthday": "Birthday",
+    "submit": "Add",
+    "submitting": "Adding…",
+    "success": "Added"
+  },
+  "errors": {
+    "emailInvalid": "Invalid email",
+    "phoneInvalid": "Invalid phone",
+    "birthdayInvalid": "Invalid date",
+    "needContact": "Fill in at least an email or phone"
+  }
+}

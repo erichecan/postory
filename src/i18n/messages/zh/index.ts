@@ -16,7 +16,8 @@ import generations from "./generations.json";
 import landing from "./landing.json";
 import legal from "./legal.json";
 import calendar from "./calendar.json";
+import customers from "./customers.json";
 
-const messages = { common, auth, profile, validation, nav, gallery, templates, designs, admin, platforms, editor, billing, create, plans, generations, landing, legal, calendar };
+const messages = { common, auth, profile, validation, nav, gallery, templates, designs, admin, platforms, editor, billing, create, plans, generations, landing, legal, calendar, customers };
 
 export default messages;
