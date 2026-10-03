@@ -1,110 +1,123 @@
-# DEV-PLAN · Postory 真实发布（Ayrshare）+ Orshot 现状核实
+# DEV-PLAN：营销日历模块（全量版，含代运营自动化四件套）
 
-日期：2026-09-29　上一版（商业化）：`docs/20260928-DEV-PLAN-v2-商业化.md`
+## 读取了哪些文档
 
-## 0. 读取的文档
+- 用户分享的 claude.ai 对话（定价与营销日历讨论全文，2026-09-30 ~ 2026-10-02）
+- 该对话里链接的 Claude Docs 文档《本地商家营销日历手册》（第一~九节全文）
+- 现有代码：`prisma/schema.prisma`、`src/lib/ayrshare.ts`、`src/lib/mail.ts`（已有 Resend 封装，fake/真实两种模式）、`src/lib/platforms.ts`、`src/data/marketing-calendar.json`（另一个东西，见风险点）
 
-- 无 PRD 文件。需求来源：用户对话原话，逐字存档于 `docs/20260927-postory-需求原话.md`「2026-09-29 Ayrshare / Orshot 接入讨论」
-- 早期归档方案（不同产品形态，仅作技术参考）：`docs/social-agency/20260927-DEV-PLAN.md`、`系统架构设计.md`、`详细设计.md`、`social-agency-tasks.md`、`code/src/lib/providers/{ayrshare,orshot,types}.ts`、`code/src/lib/crypto.ts`
-- 当前代码现状核查：`prisma/schema.prisma`（User/Design/Template/Generation）、`src/lib/platforms.ts`、`src/components/editor/publish-dialog.tsx`、`src/lib/actions/designs.ts`、`src/lib/storage.ts`、`src/app/api/media/[...key]/route.ts`、`src/components/editor/export-page.ts`
-- 官方文档实时核实（WebFetch，2026-09-29）：Ayrshare `apis/overview`、`apis/profiles/overview`、`multiple-users/*`、`apis/post/post`、`additional/mcp-action-server`、`pricing`；Orshot `api-reference/render-from-template`、`orshot-embed/introduction`、`pricing`
+2026-10-03 更新：用户明确要求把原计划里标"本轮不做"的四项（WhatsApp 审核自动发布、邮件短信自动化、一句话下单、官网公开获客页）**全部纳入这轮**，所需的外部账号/Key 由用户后续提供，我先把代码路径和 fake 模式搭好，key 到位后切真实模式——沿用这个项目里 `AYRSHARE_MODE=fake` 已经验证过的模式，不是新发明。
 
-## 1. 目标与范围
+## 一、这个模块是什么
 
-**目标**：把现在"点发布只是本地扣费、状态机打勾"的假发布，换成真的调用 Ayrshare 把设计图发到社交平台；同时把 Orshot 的定位说清楚——不是"模板库哪来的"这件事有歧义，而是要不要真的接 Orshot 的 API/编辑器。
+Postory 从"选模板→填字→发布"的工具，升级成"社交媒体代运营"：商家登录后看到一份已经替他排好的内容日历，日历自动生成候选内容，WhatsApp 推送审核，24 小时不回复自动发布；同时系统按节奏自动发营销邮件/短信触达老客户；商家也可以直接打字说"周二搞促销"让系统即时生成一条内容；未登录的潜在客户在官网能看到"你这个行业的全年日历长什么样"并留资。
 
-**做**（2026-09-29 更新：既然免费试用本身就含多租户能力，改为直接做多租户，不留后补）
+## 二、模块拆解
 
-- 服务端真实调用 Ayrshare `/post`，**多租户 Profile 模式**：每个 postory 用户对应一个 Ayrshare Profile，各自连接各自的社交账号，互相隔离
-- 每个用户一个"连接社交账号"页面：点某平台 → 后端建/取该用户的 Profile-Key → 生成 Ayrshare 托管的连接链接 → **新标签页打开**（官方明确不支持 iframe 嵌入）→ 连接完跳回站内 → 站内刷新该用户已连接平台列表
-- 设计导出图从"纯浏览器截图下载"改为额外上传到服务器 → 生成公开可访问 URL → 传给 Ayrshare 当 `mediaUrls`
-- Ayrshare 提供商自适配层：`AYRSHARE_MODE=fake|real`，仿照现有 `AI_PROVIDER`/`STRIPE_MODE` 的假档模式，默认 fake，代码全部走完整链路（含建 Profile、连接、发布）但不花钱、不真调用
-- `PublishDialog` 只能勾选**当前用户自己**真正连接了的平台，不会出现选了却发不出去的情况
-- Ayrshare Profile-Key 按 social-agency 方案的 `crypto.ts`（AES-256-GCM）加密落库，不明文存
-- Orshot：**不接入**（详见第 5 节理由），继续用现有自建 canvas 渲染引擎；把这个决定和理由写清楚，避免以后有人以为"模板显示"还差一步 Orshot 集成
+### 2.1 数据层（schema 变更）
 
-**不做**
+**BrandProfile 新增字段：**
+- `industry`: enum `FOOD_TAKEAWAY / BEAUTY_HAIR / FITNESS / PHONE_REPAIR / OTHER`
+- `country`: enum `IE / CA`
+- `whatsappNumber`: String?（用于审核推送）
+- `marketingEmailOptIn` / `marketingSmsOptIn`: Boolean（GDPR/CASL 合规要求的明示同意，手册第八章原文提到两地法规都要求，不能省）
 
-- 真去注册 Ayrshare Launch 试用账号、真的调用真实平台连接/发一条帖子——这一步需要你先决定"现在就要真验证"还是"先把代码全部写完、demo 走通再验证"，见下方确认点
-- Orshot Render API / Embed 编辑器接入
-- Webhook 接收 Ayrshare 发布状态回调（要 Business 档才有，暂时用"发布时同步拿到的状态"，不做异步回调）
-- X/Twitter 自 2026-03-31 起需要额外的 OAuth1.0a Key/Secret（应用级，不分用户）——先不接 X 平台的真实发布，等你有自己的 Twitter Developer 账号再补
+**新表 `MarketingEvent`**（全年节点库，手册第二章 ~25 条）：
+`id, startDate, endDate, nameZh, nameEn, region(IE/CA/BOTH/CHINESE_COMMUNITY), industries(String[]), prepWeeks, source`
 
-## 2. 模块拆解
+**新表 `CampaignTemplate`**（行业活动库，手册三~七章）：
+`id, industry, nameZh, nameEn, mechanism, suggestedPostCount, eventId?, captionAngle`
 
-1. **Provider 适配层** `src/lib/ayrshare.ts`：`createProfile(userId)`、`createConnectLink(profileKey, redirectUrl)`、`getConnectedAccounts(profileKey)`、`publish({ profileKey, platforms, mediaUrl, caption, scheduleDate })`；fake 模式全部返回构造好的成功结果，不发请求。平台名映射表（本项目 `"x"` → Ayrshare `"twitter"`；`"xiaohongshu"`/`"douyin"`/`"wechat-moments"` 不在 Ayrshare 支持列表内，标记为"仅记录、暂不真实发布"）
-2. **社交账号连接页**（新增 `/profile` 下的一个区块或独立页面）：按平台列出连接状态，未连接显示"连接"按钮（`window.open` 打开 Ayrshare 托管页，禁止用 `<a>` 普通跳转——官方要求用 `window.open`）；已连接显示账号名 + "断开"
-3. **导出转公开图**：复用现有 `export-page.ts` 的浏览器端渲染，产出 PNG 后 `POST /api/designs/[id]/publish-asset` 上传到服务器，存 GCS 一个新前缀 `pub/`，返回公开 URL（这类图本来就是要给用户拿去公开发布的内容，公开托管没有隐私问题）
-4. **发布动作改造**：`scheduleDesignAction` 拆成"校验+扣费"（不变）+ 新增"用该用户的 Profile-Key 真调用 Ayrshare"一步；写回 `Design.ayrsharePostId`/`publishStatus`/`publishError`
+**新表 `CalendarSlot`**（商家视角的日历格子）：
+`id, userId, date, campaignTemplateId?, eventId?, weeklyRhythmTag?, status(SUGGESTED/CONFIRMED/DESIGN_CREATED/PUBLISHED), designId?`
 
-## 3. Schema 设计
+**新表 `ApprovalRequest`**（WhatsApp 审核流）：
+`id, calendarSlotId, userId, channel(WHATSAPP), sentAt, status(PENDING/APPROVED/AUTO_APPROVED/REJECTED), respondedAt, autoApproveAt(sentAt+24h), providerMessageId`
 
-```prisma
-enum PublishStatus {
-  PENDING
-  SUCCESS
-  PARTIAL
-  FAILED
-}
+**新表 `OutreachAutomation`**（五条必备自动流程，手册第八章：欢迎/消费后感谢/生日/到期提醒/召回）：
+`id, userId, type(WELCOME/THANK_YOU/BIRTHDAY/RENEWAL_REMINDER/WINBACK_1/WINBACK_2/WINBACK_3), channel(EMAIL/SMS), triggerAt, status(SCHEDULED/SENT/SKIPPED), payload(Json，文案和收件信息)`
 
-model User {
-  // ...现有字段不变，新增：
-  ayrshareProfileKeyEnc String?  // AES-256-GCM 加密存储，复用 social-agency 版 crypto.ts
-  ayrshareRefId         String?  // Ayrshare 返回的 profile 标识
-  socialAccounts        SocialAccount[]
-}
+**新表 `EndCustomer`**（商家的顾客名单，触达自动化需要知道发给谁——这是目前项目完全没有的新概念，`User` 表是开店主自己，不是开店主的顾客）：
+`id, userId(属于哪个商家), name?, email?, phone?, lastVisitAt?, birthday?, source, createdAt`
 
-model SocialAccount {
-  id          String    @id @default(cuid())
-  userId      String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  platform    String    // ayrshare 平台名，如 "facebook" "instagram" "twitter"
-  handle      String?
-  connectedAt DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+**新表 `CalendarLead`**（官网公开获客页留资）：
+`id, shopName, industry, country, contactEmail, contactPhone?, generatedPreviewUrl?, createdAt, status(NEW/CONTACTED/CONVERTED)`
 
-  @@unique([userId, platform])
-}
+### 2.2 生成逻辑
 
-model Design {
-  // ...现有字段不变，新增：
-  caption           String?        @db.Text
-  exportedImageUrl  String?
-  ayrsharePostId    String?
-  publishStatus     PublishStatus?
-  publishError      String?        @db.Text
-}
-```
+**日历生成（规则引擎 + 可选 AI 润色）**：
+1. 按 `industry + country + 月份` 查 `MarketingEvent`，用每周节奏规则（70/20/10）填满 `CampaignTemplate`
+2. 按行业匹配 `Template.categories`，挂候选模板
+3. 写入 `CalendarSlot[]`（批量 `createMany`）
 
-对齐早期 social-agency 方案的踩坑：Profile-Key 是"一个用户一把，8 个平台共用"，所以挂在 `User` 上而不是 `SocialAccount` 上（`SocialAccount` 只存纯连接状态，避免同一个 key 在多行里冗余存多份）。
+**一句话下单**（新增，原计划里的"不做"项）：
+- 商家在 `/calendar` 页面一个输入框打字，比如"周二搞促销"
+- 调用 Claude API（`ANTHROPIC_API_KEY`）：输入「这句话 + 商家 industry/country/BrandProfile + 最近的 CalendarSlot 上下文」，输出「匹配到哪个 CampaignTemplate 或新建一个、文案初稿、建议发布时间」
+- 没有 key 时降级成规则兜底：从 `CampaignTemplate.captionAngle` 里关键词匹配（比如"促销"→匹配 mechanism=淡时段特价的活动），不是空着不能用，只是没有 AI 润色
 
-## 4. 路由 / Actions 清单
+**WhatsApp 审核自动发布**（新增）：
+- 商家确认一个 `CalendarSlot` 生成 `Design` 后，若 `BrandProfile.whatsappNumber` 已填，创建 `ApprovalRequest`，通过 Twilio WhatsApp API 推送预览图+文案
+- Webhook 路由接收商家回复（"OK"→`APPROVED`，其他文字视为需要修改→停住等人工介入）
+- 后台定时任务（类似现有 `ai:daily-templates` 的 launchd/cron 模式）每小时扫一遍 `PENDING` 且 `autoApproveAt` 已过的请求，置成 `AUTO_APPROVED` 并触发真正的 Ayrshare 发布
+- 技术选型（我定，不占用你的确认时间）：用 **Twilio WhatsApp API**，不用 Meta Cloud API 直连——Twilio 有现成 Sandbox，接入快，而且短信和 WhatsApp 共用一套 Twilio 账号/SDK，不用对接两个不同的服务商
 
-| 路径 | 方法 | 说明 |
+**邮件/短信自动化**（新增，复用已有 `src/lib/mail.ts` 的 fake/真实双模式）：
+- 五条自动流程（欢迎/消费后感谢/生日/到期提醒/召回 3 封）按手册第八章的触发时机和文案公式写成模板
+- 邮件走 `src/lib/mail.ts`（已存在，缺 `RESEND_API_KEY` 时自动降级成控制台打印，不会报错）
+- 短信走新增的 `src/lib/sms.ts`，同样"无 key 则 fake 模式打印"的写法
+- 召回三封超时不回应自动停止（手册原话），避免被投诉退订
+- 退订链接/合规提示（GDPR/CASL）必须在每封邮件里出现，这是法规要求不是可选项
+
+**官网公开获客页**（新增，手册第九节）：
+- 新路由 `/calendar-preview`（未登录可访问）：选行业 → 看全年 12 宫格日历预览（用真实 `MarketingEvent` + `CampaignTemplate` 渲染，不用登录） → 底部表单"输入店名，生成你的专属日历预览"
+- 提交后用现有规则引擎跑一次生成（不落 `CalendarSlot`，只是预览），存一条 `CalendarLead`，并给你发一封通知邮件（复用 `src/lib/mail.ts`，收件人写死成你自己的邮箱）
+
+### 2.3 页面/路由清单
+
+| 路由 | 登录 | 说明 |
 | :-- | :-- | :-- |
-| `connectSocialAction(platform)` | Server Action | 若用户还没有 Profile 先建一个，再建 link session，返回 URL 给前端 `window.open` |
-| `/api/social/callback` | GET | Ayrshare 连接页跳回来的落地页，刷新该用户 `GET /user`（带其 Profile-Key）写回 `SocialAccount`，再跳回站内连接页 |
-| `disconnectSocialAction(platform)` | Server Action | 删除本地 `SocialAccount` 记录（Ayrshare 侧断开需要用户自己在其托管页操作，我们只能清本地状态） |
-| `/api/designs/[id]/publish-asset` | POST | 登录用户上传导出的 PNG，存 GCS `pub/` 前缀，返回公开 URL |
-| `/api/public-media/[...key]` | GET | 公开只读，仅匹配 `pub/` 前缀 key（正则拦截，不会读到 `gen/` 私有前缀） |
-| `scheduleDesignAction`（改造）| Server Action | 扣费后用当前用户的 Profile-Key 调用 `ayrshare.publish()`，写回状态 |
+| `/calendar` | 需要 | 月视图主页，取代 `/templates` 成为登录后默认落地页；含"一句话下单"输入框 |
+| `/calendar/week` | 需要 | 周执行视图 |
+| `/calendar-preview` | 不需要 | 官网公开获客页，选行业看全年预览 + 留资表单 |
+| `/api/whatsapp/webhook` | — | 接收 Twilio WhatsApp 回复 |
+| `/api/whatsapp/cron`（或复用现有定时任务脚本模式） | — | 扫描超时未回复、触发自动通过+发布 |
+| `/api/outreach/cron` | — | 扫描到期的 `OutreachAutomation`，发邮件/短信 |
+| `/onboarding` | 需要 | 新增选行业/国家/WhatsApp 号/营销触达同意勾选 |
+| `/profile` | 需要 | 新增"顾客名单"管理入口（维护 `EndCustomer`，生日/到店记录，手动或导入） |
+| `/templates` | 需要 | 保留，降级为"素材库"二级入口 |
 
-## 5. 风险点 / 需要你确认的判断
+### 2.4 国际化
 
-1. **Orshot：建议不接入，维持现状**——官方 Render API 只返回渲染后的图片，不暴露完整图层坐标数据；现有 273 个模板的图层 JSON（含 position/parameterizable 等）大概率不是 Orshot 官方 API 导出格式，无法证实这些模板 ID 在 Orshot 上还有效。Embed 编辑器是 iframe 方案，去水印要 Grow 档 $160/月起，且受 Orshot 自家 SDK 能力边界限制（双语支持、深度产品化都不确定）。现有自建渲染器已经上线在用、免费、双语、完全可控。**这条和你最初"最好整合 Orshot 编辑器"的期望不一样，如果你仍然想做，请明确说，我会按 Embed 方案单独评估成本。**
-2. **Ayrshare 试用时机与上限**：Launch 档 28 天免费试用从注册那天开始计时，不是"用了才算"；且 Launch 档上限 **10 个 Profile**（10 个用户连接账号），够开发/demo/小范围验证用，真上线给更多真实用户用之前要决定续费 Business 档（阶梯计费，$599/月起）还是别的方案。建议代码先按 fake 模式全部写完、demo 环境走通"建 Profile → 连接 → 发布"整条链路，你看完截图确认没问题后，我们再去注册试用、切 `AYRSHARE_MODE=real` 做真实发布验证，避免试用期在开发阶段被空耗。新增环境变量 `AYRSHARE_API_KEY`（主账号）、`ENCRYPTION_KEY`（AES 密钥，`openssl rand -base64 32` 生成，和 `AUTH_SECRET` 分开）。
-3. **平台覆盖缺口**：Ayrshare 不支持小红书、抖音、微信朋友圈（没有这三个平台的公开 API）。现有 `PUBLISH_PLATFORMS` 里的 `xiaohongshu`/`douyin`/`wechat-moments` 会继续保留为"仅记录发布计划，不真实调用"，其余（Facebook/Instagram/TikTok/X/YouTube/Pinterest/LinkedIn/Threads）走真实发布。
-4. **MCP Action Server 不用**：官方说明它和 REST API 走同一套后端逻辑，是给 AI Agent 直接操作用的，我们是普通 Next.js 后端服务间调用，直接用 REST `/post` 更直接，不引入这层。
-5. **图片公开托管**：发布用的导出图会放在公开可读的存储路径下（Ayrshare 服务器要能直接抓取），不再是私有权限。这些图本来就是用户主动要发到公网社交平台的内容，公开托管本身不产生新的隐私暴露。
+`src/i18n/messages/{en,zh}/calendar.json`、`outreach.json`，中英双语。
 
-## 附录 A · 技术验收标准（verify.sh 新增项）
+## 三、需要你提供的外部账号/资料（到对应环节我会提前说，不会一开始就堵住）
 
-- `npx tsc --noEmit`、`npm run build`、`npx prisma migrate status` 照旧
-- 路由探针：`/api/designs/[id]/publish-asset`、`/api/social/callback` 未登录 401；`connectSocialAction`/`disconnectSocialAction` 未登录/无权限拒绝；`/api/public-media/xxx` 不存在的 key → 404，且用私有 `gen/` 前缀的 key 必须 404（拦截生效，探针里专门造一个 `gen/` key 断言不可读）
-- `AYRSHARE_MODE=fake` 时：跑一次完整"建 Profile → 连接 → 发布"流程（unit/集成测试用 mock），断言不产生任何出站 HTTP 请求到 `api.ayrshare.com`
-- 单元测试：平台名映射表（`x` → `twitter`）、小红书/抖音/朋友圈不触发真实调用只走本地记录；`crypto.ts` 加解密往返、篡改密文后必须报错、`ENCRYPTION_KEY` 未配置时明确报错
-- A 用户不能读到 B 用户的 `SocialAccount`/发布状态（多租户隔离探针）
-- 泄露扫描：新增 `AYRSHARE_API_KEY`、`ENCRYPTION_KEY` 加入 `.next/static` 密钥泄露 grep 清单
+| 做到哪一步需要 | 需要什么 | 没有时的降级方案 |
+| :-- | :-- | :-- |
+| WhatsApp 审核 | Twilio 账号的 Account SID + Auth Token；正式上线前还需要 Twilio 完成 WhatsApp Business 发送方审核（有审核周期，建议尽早启动） | 开发阶段用 Twilio Sandbox（几分钟能拿到测试号），fake 模式下只打日志不真发 |
+| 短信触达 | 同一个 Twilio 账号 + 一个短信发送号（IE/CA 可能要分别买号，到时候一起确认） | fake 模式打日志 |
+| 邮件触达 | `RESEND_API_KEY`（项目已经接好 Resend，只是线上一直没配，部署日志里提过这件事） | fake 模式打日志，和现在注册验证邮件的现状一样 |
+| 一句话下单的 AI 润色 | `ANTHROPIC_API_KEY` | 规则兜底（关键词匹配活动库），能用但没有自然语言理解能力 |
+| 节日日期准确性 | 你或当地人帮忙复核农历节日和加拿大具体日期（手册原文自己写的免责声明） | 先照抄手册数据上线，标注"待复核"，不阻塞开发 |
 
-verify.sh 不过不许写完成报告；本阶段不接入真实 Ayrshare 账号，"真实发布成功"这一条在你决定开始付费验证前，DEV-REPORT 里标 **⚠️ 未验证**，不冒充已完成。
+## 四、风险点
+
+1. **IA 大改**：登录后默认页从 `/templates` 换成 `/calendar`，直接切（现有用户少，窗口期好）。
+2. **两套"marketing-calendar"别混**：`src/data/marketing-calendar.json` 是现有 AI 每日生成草稿任务用的中国节点表，服务对象、用途都不同，不删不改，新表完全独立。
+3. **行业分类映射**：`Template.categories` 中英混杂，我维护一张代码内映射表，不展示给商家，纯技术细节。
+4. **新的攻击面变多了**：WhatsApp webhook、cron 触发的自动发布/自动发消息，都是无人值守自动执行外部动作的路径，鉴权和幂等性（不能同一个 ApprovalRequest 被重复触发发布）要重点测，写进附录 A。
+5. **EndCustomer 顾客数据是新的个人信息类别**：涉及姓名/邮箱/电话/生日，GDPR/CASL 合规要求更高（取得同意、提供退订、数据最小化），这块我会按手册里提到的合规要求做，但不是律师，真正上线前建议你找当地人确认一下合规细节。
+6. **成本**：Twilio（WhatsApp+SMS）和 Resend（邮件）、Claude API（一句话下单）都是按量计费的外部服务，量大起来之后有真实成本，这个我会在验收报告里把用量和单价记清楚，定价那边你自己再核算。
+
+## 附录 A：技术验收标准
+
+`scripts/verify.sh` 新增：
+- 路由探针：`/calendar`、`/calendar/week` 登录后 200/未登录 302；`/calendar-preview` 未登录也要 200
+- 迁移探针：`npx prisma migrate status` 干净
+- 鉴权/越权探针：
+  - `/calendar/[slotId]/confirm`：无登录 401，别人的 slotId 403
+  - `/api/whatsapp/webhook`：无 Twilio 签名验证直接拒绝（防伪造回复）
+  - cron 类路由：不能被普通用户直接触发，只能内部密钥调用
+- 幂等性探针：同一个 `ApprovalRequest` 的 cron 自动发布逻辑重复跑两次，断言只真正调用一次 Ayrshare `/post`（不能重复发帖）
+- 查询探针：日历批量生成是 `createMany` 而不是循环 insert
+- fake/真实模式切换：所有新外部依赖（Twilio、Resend、Claude）在没有对应 Key 时必须走 fake 路径且不报错，和现有 `AYRSHARE_MODE=fake` 行为一致

@@ -83,6 +83,82 @@ enum GenerationStatus {
   FAILED
 }
 
+enum Industry {
+  FOOD_TAKEAWAY
+  BEAUTY_HAIR
+  FITNESS
+  PHONE_REPAIR
+  OTHER
+}
+
+enum Country {
+  IE
+  CA
+}
+
+enum EventRegion {
+  IE
+  CA
+  BOTH
+  CHINESE_COMMUNITY
+}
+
+enum PromoMechanism {
+  OFF_PEAK_DISCOUNT
+  LOYALTY_POINTS
+  BOUNCE_BACK_COUPON
+  REFERRAL
+  BUNDLE_PREPAID
+  LIMITED_TIME
+  BIRTHDAY_PERK
+  OWN_CHANNEL_DISCOUNT
+}
+
+enum CalendarSlotStatus {
+  SUGGESTED
+  CONFIRMED
+  DESIGN_CREATED
+  PUBLISHED
+}
+
+enum ApprovalChannel {
+  WHATSAPP
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  AUTO_APPROVED
+  REJECTED
+}
+
+enum OutreachType {
+  WELCOME
+  THANK_YOU
+  BIRTHDAY
+  RENEWAL_REMINDER
+  WINBACK_1
+  WINBACK_2
+  WINBACK_3
+}
+
+enum OutreachChannel {
+  EMAIL
+  SMS
+}
+
+enum OutreachStatus {
+  SCHEDULED
+  SENT
+  SKIPPED
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  CONVERTED
+}
+
 enum PublishStatus {
   PENDING
   SUCCESS
@@ -91,20 +167,20 @@ enum PublishStatus {
 }
 
 model User {
-  id                    String          @id @default(cuid())
-  phone                 String?         @unique @db.VarChar(20)
-  email                 String?         @unique @db.VarChar(254)
+  id                    String               @id @default(cuid())
+  phone                 String?              @unique @db.VarChar(20)
+  email                 String?              @unique @db.VarChar(254)
   emailVerifiedAt       DateTime?
-  stripeCustomerId      String?         @unique
+  stripeCustomerId      String?              @unique
   passwordHash          String
-  sessionVersion        Int             @default(0)
-  loginFailures         Int             @default(0)
+  sessionVersion        Int                  @default(0)
+  loginFailures         Int                  @default(0)
   loginLockedUntil      DateTime?
-  name                  String          @db.VarChar(64)
-  role                  Role            @default(USER)
-  source                AccountSource   @default(SELF_SIGNUP)
-  disabled              Boolean         @default(false)
-  createdAt             DateTime        @default(now())
+  name                  String               @db.VarChar(64)
+  role                  Role                 @default(USER)
+  source                AccountSource        @default(SELF_SIGNUP)
+  disabled              Boolean              @default(false)
+  createdAt             DateTime             @default(now())
   ayrshareProfileKeyEnc String?
   ayrshareRefId         String?
   profile               BrandProfile?
@@ -114,6 +190,10 @@ model User {
   txns                  CreditTxn[]
   generations           Generation[]
   socialAccounts        SocialAccount[]
+  calendarSlots         CalendarSlot[]
+  approvalRequests      ApprovalRequest[]
+  outreachAutomations   OutreachAutomation[]
+  endCustomers          EndCustomer[]
 }
 
 model SocialAccount {
@@ -200,18 +280,18 @@ model CreditGrant {
 }
 
 model CreditTxn {
-  id          String      @id @default(cuid())
+  id          String       @id @default(cuid())
   userId      String
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   kind        TxnKind
   charge      ChargeKind?
   source      GrantSource?
   delta       Int
   allocations Json?
   refId       String?
-  note        String?     @db.VarChar(255)
+  note        String?      @db.VarChar(255)
   actorId     String?
-  createdAt   DateTime    @default(now())
+  createdAt   DateTime     @default(now())
 
   @@unique([userId, kind, refId])
   @@index([userId, createdAt])
@@ -256,6 +336,12 @@ model BrandProfile {
   logoUrl  String?
   slogan   String? @db.VarChar(255)
   activity String? @db.Text
+
+  industry            Industry?
+  country             Country?
+  whatsappNumber      String?   @db.VarChar(20)
+  marketingEmailOptIn Boolean   @default(false)
+  marketingSmsOptIn   Boolean   @default(false)
 }
 
 model Template {
@@ -298,6 +384,120 @@ model Design {
   publishError     String?        @db.Text
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
+  calendarSlot     CalendarSlot?
 
   @@index([userId, updatedAt])
+}
+
+model MarketingEvent {
+  id         String             @id @default(cuid())
+  startDate  DateTime           @db.Date
+  endDate    DateTime           @db.Date
+  nameZh     String             @db.VarChar(64)
+  nameEn     String             @db.VarChar(64)
+  region     EventRegion
+  industries Industry[]
+  prepWeeks  Int                @default(0)
+  source     String?            @db.VarChar(255)
+  createdAt  DateTime           @default(now())
+  campaigns  CampaignTemplate[]
+  slots      CalendarSlot[]
+
+  @@index([startDate, endDate])
+}
+
+model CampaignTemplate {
+  id                 String          @id @default(cuid())
+  industry           Industry
+  nameZh             String          @db.VarChar(64)
+  nameEn             String          @db.VarChar(64)
+  mechanism          PromoMechanism
+  suggestedPostCount Int             @default(1)
+  eventId            String?
+  event              MarketingEvent? @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  captionAngle       String          @db.Text
+  createdAt          DateTime        @default(now())
+  slots              CalendarSlot[]
+
+  @@index([industry])
+}
+
+model CalendarSlot {
+  id                 String             @id @default(cuid())
+  userId             String
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date               DateTime           @db.Date
+  campaignTemplateId String?
+  campaignTemplate   CampaignTemplate?  @relation(fields: [campaignTemplateId], references: [id], onDelete: SetNull)
+  eventId            String?
+  event              MarketingEvent?    @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  weeklyRhythmTag    String?            @db.VarChar(32)
+  status             CalendarSlotStatus @default(SUGGESTED)
+  designId           String?            @unique
+  design             Design?            @relation(fields: [designId], references: [id], onDelete: SetNull)
+  approvalRequests   ApprovalRequest[]
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  @@index([userId, date])
+}
+
+model ApprovalRequest {
+  id                String          @id @default(cuid())
+  calendarSlotId    String
+  calendarSlot      CalendarSlot    @relation(fields: [calendarSlotId], references: [id], onDelete: Cascade)
+  userId            String
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channel           ApprovalChannel @default(WHATSAPP)
+  sentAt            DateTime        @default(now())
+  status            ApprovalStatus  @default(PENDING)
+  respondedAt       DateTime?
+  autoApproveAt     DateTime
+  providerMessageId String?
+
+  @@index([status, autoApproveAt])
+}
+
+model OutreachAutomation {
+  id            String          @id @default(cuid())
+  userId        String
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endCustomerId String?
+  endCustomer   EndCustomer?    @relation(fields: [endCustomerId], references: [id], onDelete: Cascade)
+  type          OutreachType
+  channel       OutreachChannel
+  triggerAt     DateTime
+  status        OutreachStatus  @default(SCHEDULED)
+  payload       Json?
+  createdAt     DateTime        @default(now())
+
+  @@index([status, triggerAt])
+}
+
+model EndCustomer {
+  id          String               @id @default(cuid())
+  userId      String
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String?              @db.VarChar(64)
+  email       String?              @db.VarChar(254)
+  phone       String?              @db.VarChar(20)
+  lastVisitAt DateTime?
+  birthday    DateTime?            @db.Date
+  source      String?              @db.VarChar(32)
+  createdAt   DateTime             @default(now())
+  outreach    OutreachAutomation[]
+
+  @@index([userId])
+}
+
+model CalendarLead {
+  id                  String     @id @default(cuid())
+  shopName            String     @db.VarChar(128)
+  industry            Industry
+  country             Country
+  contactEmail        String     @db.VarChar(254)
+  contactPhone        String?    @db.VarChar(20)
+  generatedPreviewUrl String?
+  status              LeadStatus @default(NEW)
+  createdAt           DateTime   @default(now())
 }
