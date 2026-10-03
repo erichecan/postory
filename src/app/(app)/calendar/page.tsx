@@ -52,6 +52,9 @@ export default async function CalendarPage({ searchParams }: PageProps<"/calenda
           <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
         <div className="flex items-center gap-2 text-sm">
+          <Link href="/calendar/week" className="rounded-md border border-white/10 px-3 py-1.5 hover:bg-accent">
+            {t("weekView")}
+          </Link>
           <Link href={`/calendar?month=${shiftMonth(yearMonth, -1)}`} className="rounded-md border border-white/10 px-3 py-1.5 hover:bg-accent">
             {t("prevMonth")}
           </Link>

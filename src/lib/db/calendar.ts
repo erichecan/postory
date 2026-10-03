@@ -78,6 +78,17 @@ export async function generateMonthSlots(userId: string, yearMonth: string): Pro
   return { ok: true, created: result.count };
 }
 
+export async function listUpcomingSlots(userId: string, days = 7) {
+  const now = new Date();
+  const start = utcDate(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const end = new Date(start.getTime() + (days - 1) * 86400000);
+  return prisma.calendarSlot.findMany({
+    where: { userId, date: { gte: start, lte: end } },
+    include: { campaignTemplate: true, event: true, design: { select: { id: true, status: true, publishStatus: true, platforms: true } } },
+    orderBy: { date: "asc" },
+  });
+}
+
 export async function listMonthSlots(userId: string, yearMonth: string) {
   const { year, month } = parseYearMonth(yearMonth);
   const monthStart = utcDate(year, month, 1);
