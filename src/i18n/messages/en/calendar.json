@@ -1,0 +1,30 @@
+{
+  "title": "Marketing calendar",
+  "subtitle": "Next month's content is already planned — open a day to see the finished post, confirm it or swap the template.",
+  "prevMonth": "Previous month",
+  "nextMonth": "Next month",
+  "weekView": "This week",
+  "materialsLibrary": "Templates",
+  "missingProfileTitle": "Finish your shop profile first",
+  "missingProfileBody": "We need your industry and country to plan the right holidays and campaigns for you.",
+  "missingProfileCta": "Complete profile",
+  "status": {
+    "SUGGESTED": "Suggested",
+    "CONFIRMED": "Confirmed",
+    "DESIGN_CREATED": "Generated",
+    "PUBLISHED": "Published"
+  },
+  "rhythm": {
+    "NEW_PRODUCT": "New product",
+    "BEHIND_THE_SCENES": "Behind the scenes",
+    "CUSTOMER_REVIEW": "Customer love",
+    "PROMOTION": "Promotion",
+    "INTERACTIVE": "Interactive"
+  },
+  "drawer": {
+    "title": "Pick a template",
+    "pickTemplate": "Use this template",
+    "noTemplates": "No matching templates for this industry yet — try another day",
+    "cancel": "Cancel"
+  }
+}

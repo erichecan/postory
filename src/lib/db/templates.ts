@@ -4,6 +4,8 @@ import { prisma } from "./client";
 import type { Prisma } from "@/generated/prisma/client";
 import type { DesignPage } from "@/types/design";
 import type { PlatformId } from "@/lib/platforms";
+import type { Industry } from "@/generated/prisma/client";
+import { INDUSTRY_TEMPLATE_CATEGORIES } from "@/lib/marketing-calendar/industry-categories";
 
 export const TEMPLATES_PER_PAGE = 24;
 
@@ -64,6 +66,17 @@ export async function listSimilarTemplates(id: string, platform: string, take = 
 }
 
 const SHOWCASE_IDS = ["orshot-1041", "orshot-1404", "orshot-1744", "orshot-161", "orshot-1129", "orshot-1714", "orshot-2040", "orshot-1821", "orshot-1518"];
+
+export async function listTemplatesByIndustry(industry: Industry, take = 6) {
+  const categories = INDUSTRY_TEMPLATE_CATEGORIES[industry];
+  if (categories.length === 0) return [];
+  return prisma.template.findMany({
+    where: { status: "published", categories: { hasSome: categories } },
+    select: cardSelect,
+    orderBy: { sortOrder: "asc" },
+    take,
+  });
+}
 
 export const listShowcaseTemplates = unstable_cache(
   async () => {

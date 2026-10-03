@@ -21,3 +21,7 @@ export async function getBrandProfile(userId: string) {
 export async function upsertBrandProfile(userId: string, data: BrandProfileInput) {
   return prisma.brandProfile.upsert({ where: { userId }, create: { userId, ...data }, update: data, select: { userId: true } });
 }
+
+export async function getCalendarProfile(userId: string) {
+  return prisma.brandProfile.findUnique({ where: { userId }, select: { industry: true, country: true } });
+}

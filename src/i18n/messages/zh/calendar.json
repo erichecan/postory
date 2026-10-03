@@ -1,0 +1,30 @@
+{
+  "title": "营销日历",
+  "subtitle": "下个月的内容已经为你排好，点开一天看成品，确认或换一个模板。",
+  "prevMonth": "上个月",
+  "nextMonth": "下个月",
+  "weekView": "本周执行",
+  "materialsLibrary": "素材库",
+  "missingProfileTitle": "先完善店铺资料",
+  "missingProfileBody": "需要知道你的行业和所在地区，才能帮你排出合适的节日和活动。",
+  "missingProfileCta": "去完善资料",
+  "status": {
+    "SUGGESTED": "建议中",
+    "CONFIRMED": "已确认",
+    "DESIGN_CREATED": "已生成",
+    "PUBLISHED": "已发布"
+  },
+  "rhythm": {
+    "NEW_PRODUCT": "新品预告",
+    "BEHIND_THE_SCENES": "幕后故事",
+    "CUSTOMER_REVIEW": "顾客好评",
+    "PROMOTION": "优惠活动",
+    "INTERACTIVE": "互动话题"
+  },
+  "drawer": {
+    "title": "选一个模板",
+    "pickTemplate": "点击使用这个模板",
+    "noTemplates": "这个行业暂时还没有合适的模板，换一天看看",
+    "cancel": "取消"
+  }
+}

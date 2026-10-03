@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
+  { href: "/calendar", key: "calendar" },
   { href: "/templates", key: "templates" },
   { href: "/create", key: "create" },
   { href: "/designs", key: "designs" },
