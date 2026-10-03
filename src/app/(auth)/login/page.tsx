@@ -7,7 +7,7 @@ import { DemoLogin } from "@/components/auth/demo-login";
 import { loginAction } from "@/lib/actions/auth";
 
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
-  if (await getCurrentUser()) redirect("/templates");
+  if (await getCurrentUser()) redirect("/calendar");
   const { next, reset } = await searchParams;
   const t = await getTranslations("auth.reset");
   return (

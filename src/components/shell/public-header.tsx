@@ -12,7 +12,7 @@ export async function PublicHeader({ signedIn }: { signedIn: boolean }) {
         <Logo href="/" />
         <div className="ml-auto flex items-center gap-2">
           <LocaleSwitcher />
-          <Link href={signedIn ? "/templates" : "/login"} className={buttonVariants({ variant: signedIn ? "default" : "outline" })}>
+          <Link href={signedIn ? "/calendar" : "/login"} className={buttonVariants({ variant: signedIn ? "default" : "outline" })}>
             {signedIn ? t("toApp") : t("login")}
           </Link>
         </div>

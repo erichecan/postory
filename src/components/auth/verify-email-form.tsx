@@ -52,7 +52,7 @@ export function VerifyEmailForm({ email, sendFailed = false }: { email: string; 
         <Button type="button" variant="link" className="h-auto p-0" onClick={resend} disabled={left > 0 || resending}>
           {left > 0 ? t("resendIn", { sec: left }) : t("resend")}
         </Button>
-        <Link href="/templates" className="text-muted-foreground hover:text-foreground">{t("skip")}</Link>
+        <Link href="/calendar" className="text-muted-foreground hover:text-foreground">{t("skip")}</Link>
       </div>
     </form>
   );

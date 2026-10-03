@@ -37,7 +37,7 @@ export async function requireUser(): Promise<CurrentUser> {
 
 export async function requireAdmin(): Promise<CurrentUser> {
   const user = await requireUser();
-  if (user.role !== "ADMIN") redirect("/templates");
+  if (user.role !== "ADMIN") redirect("/calendar");
   return user;
 }
 
