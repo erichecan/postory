@@ -1,0 +1,41 @@
+[
+  { "id": "food-tuesday-twofer", "industry": "FOOD_TAKEAWAY", "nameZh": "周二双人套餐", "nameEn": "Tuesday Twofer", "mechanism": "OFF_PEAK_DISCOUNT", "suggestedPostCount": 3, "captionAngle": "周二是常见淡日，推两份主食优惠价吸引双人同行，强调填平淡时段而非全场打折" },
+  { "id": "food-quiet-day-special", "industry": "FOOD_TAKEAWAY", "nameZh": "淡日特价", "nameEn": "Quiet Day Special", "mechanism": "OFF_PEAK_DISCOUNT", "suggestedPostCount": 2, "captionAngle": "周一到周三或下午2-5点空档时段限时价，只在淡时段用，旺时段不打折" },
+  { "id": "food-stamp-card", "industry": "FOOD_TAKEAWAY", "nameZh": "集章卡买九送一", "nameEn": "Buy 9 Get 1 Free", "mechanism": "LOYALTY_POINTS", "suggestedPostCount": 2, "captionAngle": "经典买9送1机制，规则简单一句话说清，鼓励高频回头" },
+  { "id": "food-bounce-back-coupon", "industry": "FOOD_TAKEAWAY", "nameZh": "7天回头券", "nameEn": "7-Day Bounce-Back Coupon", "mechanism": "BOUNCE_BACK_COUPON", "suggestedPostCount": 2, "captionAngle": "本次消费后送一张7天内有效的小礼品券，把一次客变成回头客，有效期要短" },
+  { "id": "food-own-channel-discount", "industry": "FOOD_TAKEAWAY", "nameZh": "官网直订优惠", "nameEn": "Order Direct & Save", "mechanism": "OWN_CHANNEL_DISCOUNT", "suggestedPostCount": 2, "captionAngle": "引导顾客绕开外卖平台高抽成，官网或电话下单享折扣或送小菜" },
+  { "id": "food-family-bundle", "industry": "FOOD_TAKEAWAY", "nameZh": "周日家庭套餐", "nameEn": "Lazy Sunday Family Bundle", "mechanism": "BUNDLE_PREPAID", "suggestedPostCount": 2, "captionAngle": "周日4人份家庭套餐打包定价，比直接打折更保利润" },
+  { "id": "food-gift-card-push", "industry": "FOOD_TAKEAWAY", "nameZh": "礼品卡促销", "nameEn": "Gift Card Push", "mechanism": "LIMITED_TIME", "suggestedPostCount": 2, "eventId": "christmas-season-2026", "captionAngle": "圣诞季/黑五/母亲节是礼品卡销售高峰，等于提前收现金且带来新客" },
+  { "id": "food-lunar-new-year-feast", "industry": "FOOD_TAKEAWAY", "nameZh": "春节团圆套餐", "nameEn": "Lunar New Year Feast Box", "mechanism": "BUNDLE_PREPAID", "suggestedPostCount": 6, "eventId": "lunar-new-year-2027", "captionAngle": "6道年菜4人份预订制，强调年味和团圆，截止日期前预订" },
+
+  { "id": "beauty-rebooking-reminder", "industry": "BEAUTY_HAIR", "nameZh": "到店后自动约下次", "nameEn": "Rebooking Reminder", "mechanism": "LIMITED_TIME", "suggestedPostCount": 1, "captionAngle": "上次到店后6-8周自动提醒该补色/修剪了，语气像熟客关怀不是推销" },
+  { "id": "beauty-referral", "industry": "BEAUTY_HAIR", "nameZh": "带朋友来", "nameEn": "Refer a Friend", "mechanism": "REFERRAL", "suggestedPostCount": 2, "captionAngle": "老客推荐新客，双方各得抵扣或一次护理，奖励给双方效果更好" },
+  { "id": "beauty-treatment-package", "industry": "BEAUTY_HAIR", "nameZh": "疗程卡套餐", "nameEn": "Treatment Package", "mechanism": "BUNDLE_PREPAID", "suggestedPostCount": 2, "captionAngle": "剪发+头皮护理+吹造型打包价，或3次剪发付2次，一次锁定多次到店" },
+  { "id": "beauty-stamp-card", "industry": "BEAUTY_HAIR", "nameZh": "第十次服务免费", "nameEn": "10th Visit Free", "mechanism": "LOYALTY_POINTS", "suggestedPostCount": 1, "captionAngle": "集次卡机制，第10次服务免费" },
+  { "id": "beauty-birthday-perk", "industry": "BEAUTY_HAIR", "nameZh": "生日月护理礼遇", "nameEn": "Birthday Month Perk", "mechanism": "BIRTHDAY_PERK", "suggestedPostCount": 1, "captionAngle": "生日月送护理或小额抵扣，同时也是召回理由" },
+  { "id": "beauty-capacity-fill", "industry": "BEAUTY_HAIR", "nameZh": "今明空位冲刺", "nameEn": "Last-Minute Slot Fill", "mechanism": "LIMITED_TIME", "suggestedPostCount": 1, "captionAngle": "当天或明天有空位，短信/帖子推最后几个位置，附加值吸引临时预约" },
+  { "id": "beauty-holiday-glam-package", "industry": "BEAUTY_HAIR", "nameZh": "节日派对造型套餐", "nameEn": "Holiday Glam Package", "mechanism": "BUNDLE_PREPAID", "suggestedPostCount": 3, "eventId": "christmas-season-2026", "captionAngle": "剪发+护理+派对造型打包，节日前限时可约" },
+  { "id": "beauty-new-year-refresh", "industry": "BEAUTY_HAIR", "nameZh": "一月焕新季", "nameEn": "Fresh Start January", "mechanism": "LIMITED_TIME", "suggestedPostCount": 3, "eventId": "new-year-planning-season-2027", "captionAngle": "新年焕新造型主题，强调新年新气象" },
+
+  { "id": "fitness-new-year-kickstart", "industry": "FITNESS", "nameZh": "新年30天启动计划", "nameEn": "New Year 30-Day Kickstart", "mechanism": "LIMITED_TIME", "suggestedPostCount": 4, "eventId": "new-year-planning-season-2027", "captionAngle": "1月入会免入会费+免费体测，强调限时窗口" },
+  { "id": "fitness-first-week-daily", "industry": "FITNESS", "nameZh": "新年第一周每日一招", "nameEn": "New Year Week One Daily Perk", "mechanism": "LIMITED_TIME", "suggestedPostCount": 7, "eventId": "new-year-planning-season-2027", "captionAngle": "1月1-7日每天放一个不同福利，制造每日期待感" },
+  { "id": "fitness-challenge", "industry": "FITNESS", "nameZh": "六到八周挑战赛", "nameEn": "6-8 Week Challenge", "mechanism": "BUNDLE_PREPAID", "suggestedPostCount": 4, "captionAngle": "减脂或新手入门挑战，完成者续卡打折，是留住1月新客的关键" },
+  { "id": "fitness-referral", "industry": "FITNESS", "nameZh": "带朋友来健身", "nameEn": "Bring a Friend", "mechanism": "REFERRAL", "suggestedPostCount": 2, "captionAngle": "朋友入会双方都有折扣或送课" },
+  { "id": "fitness-summer-sprint", "industry": "FITNESS", "nameZh": "夏日身材六周计划", "nameEn": "Summer Body 6-Week Sprint", "mechanism": "BUNDLE_PREPAID", "suggestedPostCount": 3, "captionAngle": "5-6月夏季冲刺课程包" },
+  { "id": "fitness-community-event", "industry": "FITNESS", "nameZh": "年底社区活动", "nameEn": "Year-End Community Event", "mechanism": "LIMITED_TIME", "suggestedPostCount": 2, "captionAngle": "12月颁奖、趣味比赛，为1月拉新蓄力" },
+  { "id": "fitness-autumn-winback", "industry": "FITNESS", "nameZh": "秋季召回老会员", "nameEn": "Autumn Member Win-Back", "mechanism": "LIMITED_TIME", "suggestedPostCount": 2, "captionAngle": "9月秋季召回，回归价+教练还记得你的训练计划" },
+
+  { "id": "phone-accessory-bundle", "industry": "PHONE_REPAIR", "nameZh": "换屏送配件包", "nameEn": "Screen Repair + Accessory Bundle", "mechanism": "BUNDLE_PREPAID", "suggestedPostCount": 2, "captionAngle": "换屏送钢化膜，或充电器+手机壳+贴膜组合包，是最好卖的套餐之一" },
+  { "id": "phone-back-to-school", "industry": "PHONE_REPAIR", "nameZh": "开学换屏特惠", "nameEn": "Back-to-School Screen Rescue", "mechanism": "OFF_PEAK_DISCOUNT", "suggestedPostCount": 3, "eventId": "back-to-school-2027", "captionAngle": "学生证换屏折扣+免费钢化膜，开学季档期" },
+  { "id": "phone-trade-in", "industry": "PHONE_REPAIR", "nameZh": "旧机回收以旧换新", "nameEn": "Trade-In Offer", "mechanism": "LIMITED_TIME", "suggestedPostCount": 2, "eventId": "new-iphone-launch-2027", "captionAngle": "新机发布后，对报价未修客户和老客推旧机回收+翻新机折扣" },
+  { "id": "phone-business-partner", "industry": "PHONE_REPAIR", "nameZh": "企业团体合作折扣", "nameEn": "Business & Group Partnership", "mechanism": "REFERRAL", "suggestedPostCount": 1, "captionAngle": "给附近公司、学校社团员工10-20%折扣" },
+  { "id": "phone-membership-tier", "industry": "PHONE_REPAIR", "nameZh": "维修会员分级", "nameEn": "Repair Membership Tiers", "mechanism": "LOYALTY_POINTS", "suggestedPostCount": 1, "captionAngle": "小额维修折扣起步，逐级送免费检测、优先维修" },
+  { "id": "phone-review-incentive", "industry": "PHONE_REPAIR", "nameZh": "取机好评送抵扣", "nameEn": "Review for Discount", "mechanism": "BOUNCE_BACK_COUPON", "suggestedPostCount": 1, "captionAngle": "取机时请客户写Google评价，附下次抵扣码" },
+  { "id": "phone-black-friday-accessories", "industry": "PHONE_REPAIR", "nameZh": "黑五配件大促", "nameEn": "Black Friday Accessory Sale", "mechanism": "LIMITED_TIME", "suggestedPostCount": 2, "eventId": "black-friday-2026", "captionAngle": "黑五配件折扣，手机壳充电宝等圣诞礼物提前布局" },
+
+  { "id": "food-spring-menu-refresh", "industry": "FOOD_TAKEAWAY", "nameZh": "春季新菜上市", "nameEn": "Spring Menu Refresh", "mechanism": "LIMITED_TIME", "suggestedPostCount": 2, "captionAngle": "四月没有大节日的月度主题填补：换季新菜/春季限定" },
+  { "id": "beauty-spring-refresh", "industry": "BEAUTY_HAIR", "nameZh": "换季护理季", "nameEn": "Seasonal Refresh", "mechanism": "LIMITED_TIME", "suggestedPostCount": 2, "captionAngle": "四月月度主题填补：换季护理" },
+  { "id": "food-summer-cooldown", "industry": "FOOD_TAKEAWAY", "nameZh": "夏日清凉限定", "nameEn": "Summer Cooldown Specials", "mechanism": "LIMITED_TIME", "suggestedPostCount": 2, "captionAngle": "七月月度主题填补：夏日清凉饮品/甜品限定" },
+  { "id": "fitness-outdoor-summer", "industry": "FITNESS", "nameZh": "户外训练季", "nameEn": "Outdoor Training Season", "mechanism": "LIMITED_TIME", "suggestedPostCount": 2, "captionAngle": "七月月度主题填补：夏日户外训练课程" },
+  { "id": "food-back-to-routine", "industry": "FOOD_TAKEAWAY", "nameZh": "回归日常套餐", "nameEn": "Back to Routine", "mechanism": "LIMITED_TIME", "suggestedPostCount": 2, "captionAngle": "九月月度主题填补：开学后回归日常饮食" }
+]

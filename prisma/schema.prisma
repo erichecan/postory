@@ -390,7 +390,7 @@ model Design {
 }
 
 model MarketingEvent {
-  id         String             @id @default(cuid())
+  id         String             @id
   startDate  DateTime           @db.Date
   endDate    DateTime           @db.Date
   nameZh     String             @db.VarChar(64)
@@ -407,7 +407,7 @@ model MarketingEvent {
 }
 
 model CampaignTemplate {
-  id                 String          @id @default(cuid())
+  id                 String          @id
   industry           Industry
   nameZh             String          @db.VarChar(64)
   nameEn             String          @db.VarChar(64)

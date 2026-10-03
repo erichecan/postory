@@ -6,6 +6,7 @@ import { readFileSync } from "node:fs";
 import { PrismaClient, type Prisma } from "../src/generated/prisma/client";
 import { DEMO_PROFILE } from "../src/lib/demo";
 import { DEFAULT_TIERS } from "./seed-tiers";
+import { seedMarketingCalendar } from "./seed-marketing-calendar";
 
 type CatalogEntry = {
   id: string;
@@ -65,6 +66,7 @@ async function main() {
     await prisma.membershipTier.upsert({ where: { slug }, create: { slug, ...data }, update: {} });
   }
   console.log(`tiers=${await prisma.membershipTier.count()}`);
+  await seedMarketingCalendar(prisma);
   if (templatesOnly) {
     console.log(`seeded templates=${await prisma.template.count()}`);
     return;
