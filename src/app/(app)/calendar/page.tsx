@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { CalendarMonthGrid } from "@/components/calendar/calendar-month-grid";
+import { NlOrderBox } from "@/components/calendar/nl-order-box";
 import { requireUser } from "@/lib/auth/session";
 import { generateMonthSlots, listMonthSlots } from "@/lib/db/calendar";
 import { getCalendarProfile } from "@/lib/db/profiles";
@@ -64,6 +65,8 @@ export default async function CalendarPage({ searchParams }: PageProps<"/calenda
           </Link>
         </div>
       </div>
+
+      <NlOrderBox />
 
       <CalendarMonthGrid
         yearMonth={yearMonth}

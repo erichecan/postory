@@ -6,6 +6,7 @@ import { assertUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/client";
 import { createDesignFromTemplate } from "@/lib/db/designs";
 import { generateMonthSlots } from "@/lib/db/calendar";
+import { naturalLanguageOrder, type NlOrderResult } from "@/lib/db/nl-order";
 
 export async function generateCalendarMonthAction(yearMonth: string) {
   const user = await assertUser();
@@ -16,6 +17,13 @@ export async function generateCalendarMonthAction(yearMonth: string) {
   if (!parsed.success) return { ok: false as const };
   const result = await generateMonthSlots(user.id, parsed.data);
   return result;
+}
+
+export async function naturalLanguageOrderAction(text: string): Promise<NlOrderResult> {
+  const user = await assertUser();
+  const safeText = z.string().trim().min(1).max(200).safeParse(text);
+  if (!safeText.success) return { ok: false, reason: "missing_profile" };
+  return naturalLanguageOrder(user.id, safeText.data);
 }
 
 export async function confirmCalendarSlotAction(slotId: string, templateId: string) {

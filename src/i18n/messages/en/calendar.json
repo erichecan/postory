@@ -21,6 +21,12 @@
     "PROMOTION": "Promotion",
     "INTERACTIVE": "Interactive"
   },
+  "nlOrder": {
+    "placeholder": "Tell it what you want, e.g. \"run a Tuesday promo\"",
+    "submit": "Generate",
+    "success": "Scheduled for {date} — check that day on the calendar",
+    "missingProfile": "Complete your industry profile first to use this"
+  },
   "drawer": {
     "title": "Pick a template",
     "pickTemplate": "Use this template",

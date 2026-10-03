@@ -21,6 +21,12 @@
     "PROMOTION": "优惠活动",
     "INTERACTIVE": "互动话题"
   },
+  "nlOrder": {
+    "placeholder": "一句话下单，比如\"周二搞促销\"",
+    "submit": "生成",
+    "success": "已经帮你排到 {date} 了，去日历格子里看看",
+    "missingProfile": "先完善行业资料才能用这个功能"
+  },
   "drawer": {
     "title": "选一个模板",
     "pickTemplate": "点击使用这个模板",
