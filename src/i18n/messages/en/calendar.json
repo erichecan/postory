@@ -32,5 +32,24 @@
     "pickTemplate": "Use this template",
     "noTemplates": "No matching templates for this industry yet — try another day",
     "cancel": "Cancel"
+  },
+  "preview": {
+    "title": "Your whole year of marketing content, already planned",
+    "subtitle": "Pick your industry and country to see what to post for the next 12 months — a real holiday and campaign library, not filler.",
+    "industryLabel": "Industry",
+    "countryLabel": "Country",
+    "generate": "Generate preview",
+    "emptyEvent": "Everyday content slot",
+    "formTitle": "Want a calendar made for your shop?",
+    "formSubtitle": "Leave your contact info and we'll put one together with your shop name and send it over.",
+    "shopName": "Shop name",
+    "contactEmail": "Email",
+    "contactPhone": "Phone (optional)",
+    "submit": "Generate my calendar",
+    "submitting": "Submitting…",
+    "success": "Got it! We'll send your calendar to your email soon.",
+    "errors": {
+      "invalid": "Please check your shop name, industry, country and email"
+    }
   }
 }

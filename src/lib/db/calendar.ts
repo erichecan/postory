@@ -2,6 +2,11 @@ import "server-only";
 import { prisma } from "./client";
 import type { Industry, Country } from "@/generated/prisma/client";
 import { WEEKLY_RHYTHM_BY_WEEKDAY } from "@/lib/marketing-calendar/weekly-rhythm";
+import { sendMail } from "@/lib/mail";
+
+// PRD 第九节原话"收件人写死成你自己的邮箱"：默认值是手册作者本人的邮箱，
+// LEAD_NOTIFY_EMAIL 留作以后换人接手时不用改代码。
+const LEAD_NOTIFY_EMAIL = process.env.LEAD_NOTIFY_EMAIL ?? "szahua@gmail.com";
 
 // @db.Date 列只存日期，用 UTC 午夜构造，避免本地时区把日期前后挪一天。
 function utcDate(y: number, m: number, d: number) {
@@ -98,4 +103,58 @@ export async function listMonthSlots(userId: string, yearMonth: string) {
     include: { campaignTemplate: true, event: true, design: { select: { id: true, status: true, publishStatus: true } } },
     orderBy: { date: "asc" },
   });
+}
+
+export type YearPreviewMonth = { yearMonth: string; eventName: string | null; campaignName: string | null };
+
+// 官网公开获客页用：全年12个月各挑一条代表性活动展示，不落 CalendarSlot、不认 userId。
+// 固定3次查询（事件区间+常规栏目+事件对应campaign），不随月份数或数据量增长。
+export async function getPublicYearPreview(industry: Industry, country: Country): Promise<YearPreviewMonth[]> {
+  const now = new Date();
+  const rangeStart = utcDate(now.getUTCFullYear(), now.getUTCMonth(), 1);
+  const rangeEnd = utcDate(now.getUTCFullYear(), now.getUTCMonth() + 12, 0);
+
+  const [events, regularCampaigns] = await Promise.all([
+    prisma.marketingEvent.findMany({
+      where: { industries: { has: industry }, region: { in: [country, "BOTH", "CHINESE_COMMUNITY"] }, startDate: { lte: rangeEnd }, endDate: { gte: rangeStart } },
+      orderBy: { startDate: "asc" },
+    }),
+    prisma.campaignTemplate.findMany({ where: { industry, eventId: null } }),
+  ]);
+  const eventCampaigns = events.length
+    ? await prisma.campaignTemplate.findMany({ where: { industry, eventId: { in: events.map((e) => e.id) } } })
+    : [];
+  const campaignByEventId = new Map(eventCampaigns.map((c) => [c.eventId!, c]));
+
+  const months: YearPreviewMonth[] = [];
+  let rotation = 0;
+  for (let i = 0; i < 12; i++) {
+    const monthStart = utcDate(now.getUTCFullYear(), now.getUTCMonth() + i, 1);
+    const monthEnd = utcDate(now.getUTCFullYear(), now.getUTCMonth() + i + 1, 0);
+    const event = events.find((e) => e.startDate <= monthEnd && e.endDate >= monthStart);
+    const campaign = event ? campaignByEventId.get(event.id) : regularCampaigns[regularCampaigns.length ? rotation++ % regularCampaigns.length : 0];
+    months.push({
+      yearMonth: `${monthStart.getUTCFullYear()}-${String(monthStart.getUTCMonth() + 1).padStart(2, "0")}`,
+      eventName: event?.nameZh ?? null,
+      campaignName: campaign?.nameZh ?? null,
+    });
+  }
+  return months;
+}
+
+export async function createCalendarLead(input: {
+  shopName: string;
+  industry: Industry;
+  country: Country;
+  contactEmail: string;
+  contactPhone: string | null;
+  generatedPreviewUrl: string | null;
+}) {
+  const lead = await prisma.calendarLead.create({ data: input });
+  await sendMail({
+    to: LEAD_NOTIFY_EMAIL,
+    subject: `新留资：${input.shopName}`,
+    text: `店名：${input.shopName}\n行业：${input.industry}\n地区：${input.country}\n邮箱：${input.contactEmail}\n电话：${input.contactPhone ?? "未填"}\n预览链接：${input.generatedPreviewUrl ?? "无"}`,
+  }).catch(() => {});
+  return lead;
 }

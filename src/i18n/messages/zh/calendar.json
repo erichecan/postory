@@ -32,5 +32,24 @@
     "pickTemplate": "点击使用这个模板",
     "noTemplates": "这个行业暂时还没有合适的模板，换一天看看",
     "cancel": "取消"
+  },
+  "preview": {
+    "title": "你的全年营销日历，提前帮你排好了",
+    "subtitle": "选一下你的行业和所在地区，看看接下来12个月该发什么内容——这些都是真实的节日和活动库，不是随便凑的。",
+    "industryLabel": "行业",
+    "countryLabel": "所在地区",
+    "generate": "生成预览",
+    "emptyEvent": "日常内容栏目",
+    "formTitle": "想要专属你店铺的日历？",
+    "formSubtitle": "留个联系方式，我们按你的店名和行业生成一份，确认后发给你。",
+    "shopName": "店名",
+    "contactEmail": "邮箱",
+    "contactPhone": "电话（选填）",
+    "submit": "生成我的专属日历",
+    "submitting": "提交中…",
+    "success": "收到了！我们会尽快把专属日历发到你的邮箱。",
+    "errors": {
+      "invalid": "请检查填写内容：店名、行业、地区和邮箱都要填对"
+    }
   }
 }

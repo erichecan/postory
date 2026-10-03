@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySession } from "@/lib/auth/token";
 
-const PUBLIC_PATHS = ["/", "/login", "/register", "/plans", "/forgot-password", "/reset-password"];
+const PUBLIC_PATHS = ["/", "/login", "/register", "/plans", "/forgot-password", "/reset-password", "/calendar-preview"];
 
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
