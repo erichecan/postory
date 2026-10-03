@@ -5,10 +5,13 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { assertUser, requireUser } from "@/lib/auth/session";
-import { getAyrshareGateway, isAyrshareSupported, type PublishResult } from "@/lib/ayrshare";
+import { isAyrshareSupported, type PublishResult } from "@/lib/ayrshare";
 import { createDesignFromTemplate, deleteOwnDesign, updateOwnDesign } from "@/lib/db/designs";
 import { chargeDesign, getEntitlements } from "@/lib/db/entitlements";
-import { getAyrshareProfileKey, listConnectedPlatforms } from "@/lib/db/social";
+import { listConnectedPlatforms } from "@/lib/db/social";
+import { publishDesignToAyrshare } from "@/lib/db/ayrshare-publish";
+import { maybeCreateApprovalRequest } from "@/lib/db/approval";
+import { prisma } from "@/lib/db/client";
 import { designPagesSchema } from "@/lib/design-schema";
 import { PUBLISH_PLATFORMS } from "@/lib/platforms";
 import { firstError } from "@/lib/validation";
@@ -81,28 +84,32 @@ export async function scheduleDesignAction(id: string, input: unknown): Promise<
   // charge.duplicate = 这个作品之前已经处理过一次（不管当时发布成不成功），
   // 这里不重新调用真实发布接口——否则用户只是想改个发布时间/文案重新提交，就会在社交平台上重复发一条。
   if (livePlatforms.length > 0 && !charge.duplicate) {
-    try {
-      const profileKey = await getAyrshareProfileKey(user.id);
-      if (!profileKey) throw new Error("no ayrshare profile on file");
-      const result = await getAyrshareGateway().publish({
-        profileKey,
+    // 这个作品是从营销日历格子确认来的、且商家填了 WhatsApp 号 → 走审核流程，
+    // 不立即真发，等商家回复 OK 或 24 小时超时由 cron 代运营自动发布；
+    // 否则（没有日历来源，或没填 WhatsApp 号）和过去一样立即真实发布。
+    const [calendarSlot, profile] = await Promise.all([
+      prisma.calendarSlot.findUnique({ where: { designId }, select: { id: true } }),
+      prisma.brandProfile.findUnique({ where: { userId: user.id }, select: { whatsappNumber: true } }),
+    ]);
+    if (calendarSlot && profile?.whatsappNumber) {
+      await maybeCreateApprovalRequest({
+        userId: user.id,
+        calendarSlotId: calendarSlot.id,
+        caption: parsed.data.caption,
+        imageUrl: parsed.data.exportedImageUrl!,
+      });
+      await prisma.calendarSlot.update({ where: { id: calendarSlot.id }, data: { status: "CONFIRMED" } });
+    } else {
+      const outcome = await publishDesignToAyrshare({
+        userId: user.id,
         caption: parsed.data.caption,
         mediaUrl: parsed.data.exportedImageUrl!,
         platforms: livePlatforms,
-        scheduleDate: parsed.data.scheduledAt,
+        scheduledAt: parsed.data.scheduledAt,
       });
-      publishStatus = result.overallStatus;
-      ayrsharePostId = result.postId;
-      publishError =
-        result.overallStatus === "SUCCESS"
-          ? null
-          : result.perPlatform
-              .filter((p) => p.status === "error")
-              .map((p) => `${p.platform}: ${p.error ?? "error"}`)
-              .join("; ");
-    } catch (err) {
-      publishStatus = "FAILED";
-      publishError = err instanceof Error ? err.message : "unknown";
+      publishStatus = outcome.publishStatus;
+      publishError = outcome.publishError;
+      ayrsharePostId = outcome.ayrsharePostId;
     }
   }
 
