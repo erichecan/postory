@@ -1,5 +1,30 @@
 # social-shell 部署日志
 
+## 2026-10-04 · 营销日历模块（单元1-12）+ PoStory 品牌改版第一步（浅色主题+新Logo）上线
+
+- **想达成什么**：把本地攒了两天没推的 15 个 commit 一次性推上线——① 营销日历自助排期模块全套（行业日历、WhatsApp审核自动发布、邮件短信触达自动化、一句话下单、顾客名单、官网获客页 `/calendar-preview`）；② PoStory 品牌改版第一步：浅色主题 + Hot Pink/Orange 新配色 + 新 Logo（后续 Dashboard/My Campaign 代运营模式改造还在进行中，这次只上了品牌视觉这一层）。
+- **部署结果**：
+  - commit `683cce1`（含security修复）GitHub Actions run `37178823803` 成功；Verify：login/landing/legal/asset 均 200
+  - commit `0f789ae`（补齐遗漏的"Postory"拼写）GitHub Actions run `37178987791` 成功
+  - 线上地址：https://postory-dfd7b2qpra-ew.a.run.app ，min-instances 仍为 0（零成本策略未破）
+- **本次变更**：
+  - 线上库 `migrate deploy` 3 个迁移：营销日历模块整套表（BrandProfile新字段 + MarketingEvent/CampaignTemplate/CalendarSlot/ApprovalRequest/OutreachAutomation/EndCustomer/CalendarLead）、CalendarSlot按用户+日期唯一约束、BrandProfile.whatsappNumber唯一约束（见下方安全修复）；执行前后 User(1)/Template(428)/BrandProfile(1)/Design(2) 行数一致
+  - `SEED_SCOPE=templates` 补种营销日历参考数据：线上 MarketingEvent 0→28、CampaignTemplate 0→35，MembershipTier/Template 不变
+  - **推送前跑了 `/security-review`（两级：首轮扫描 + 独立复核子agent）**，发现并修复：
+    1. [HIGH] `/api/whatsapp/webhook` 在 `TWILIO_AUTH_TOKEN` 未配置时（当前线上就是这个状态）直接跳过签名校验而不是拒绝请求，任何人拿商家公开WhatsApp号当 From 字段裸调用就能无鉴权批准/发布别人的待审内容。改成未配置时直接503拒绝（fail closed，和Stripe webhook一个模式），签名比较换成 timingSafeEqual。部署后线上实测确认已返回 503。
+    2. [MEDIUM，影响有限] `BrandProfile.whatsappNumber` 没有唯一约束也没有验证，加了 `@unique` + 保存时捕获冲突给友好提示。更完整的"审批绑定到具体某条请求"没做，记在这里。
+  - 顺带补了全仓库扫出来的遗漏品牌拼写（meta标题、验证邮件、Stripe商品名、邮件发件人显示名，共6个文件）
+- **技术观测（我负责）**：
+  - 部署后线上实测：`/calendar-preview`（未登录公开页）200、`/calendar` 和 `/profile/customers`（需登录）未带 session 均 307、favicon/新logo 200、WhatsApp webhook 无token时 503（修复前是会被无鉴权接受的，这个差异本身就是验证通过的证据）
+  - Playwright 截图确认首页浅色主题+新Logo渲染正确，中文默认 locale 下标题正确显示 "PoStory 帖事 · ..."
+  - 观测窗口 7 天：Cloud Run 5xx、WhatsApp webhook 的 403/503 比例（如果突然出现大量403，可能是有人在探测这个端点，需要跟进）
+- **定性观测（用户/客户负责）**：这次是打包部署，没有新增单独需要你看一眼的界面变化——品牌视觉这块之前已经在对话里用两套深色/浅色对比截图让你选过了（选了浅色）。如果你自己上线看一眼 https://postory-dfd7b2qpra-ew.a.run.app 和预期的新 Logo/配色对不上，告诉我。
+- **已知限制**：
+  - WhatsApp/邮件短信触达/一句话下单的AI润色仍是 fake 模式（没配 Twilio/Resend/Anthropic key），功能链路都在但不会真的发出去，这个之前就说过"再等等"
+  - PoStory 品牌改版只做完了"视觉皮"这一层（配色/Logo/全局 token），Dashboard/My Campaign 代运营IA改造（新顶部导航、Campaign管理、Admin内容创作后台等）还在按单元台账推进中，台账见 `docs/20261003-postory-brand-campaign-tasks.md`
+  - `BrandProfile.whatsappNumber` 的审批绑定仍然是"匹配到哪个号就信哪个"，没有做成"绑定到具体某条待审请求"的更严格版本（上面安全修复里提到的已知后续项）
+- **状态**：待观测
+
 ## 2026-09-28 · 首次上线
 
 - **想达成什么**：Postory 帖事首次公开上线，任何人可注册；代码公开到 GitHub，但模板素材（Orshot / Bannerbear）不进公开库。
