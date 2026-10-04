@@ -1,4 +1,4 @@
-import { createHmac } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import type { NextRequest } from "next/server";
 import { approveByReply } from "@/lib/db/approval";
 import { appUrl } from "@/lib/app-url";
@@ -10,20 +10,22 @@ function verifyTwilioSignature(url: string, params: Record<string, string>, sign
     .sort()
     .reduce((acc, k) => acc + k + params[k], url);
   const expected = createHmac("sha1", authToken).update(sorted, "utf8").digest("base64");
-  return expected === signature;
+  const expectedBuf = Buffer.from(expected);
+  const signatureBuf = Buffer.from(signature);
+  return expectedBuf.length === signatureBuf.length && timingSafeEqual(expectedBuf, signatureBuf);
 }
 
 export async function POST(req: NextRequest) {
   const authToken = process.env.TWILIO_AUTH_TOKEN;
+  if (!authToken) return new Response("whatsapp webhook not configured", { status: 503 });
+
   const formData = await req.formData();
   const params: Record<string, string> = {};
   for (const [k, v] of formData.entries()) params[k] = String(v);
 
-  if (authToken) {
-    const signature = req.headers.get("X-Twilio-Signature");
-    if (!signature || !verifyTwilioSignature(`${appUrl()}/api/whatsapp/webhook`, params, signature, authToken)) {
-      return new Response("invalid signature", { status: 403 });
-    }
+  const signature = req.headers.get("X-Twilio-Signature");
+  if (!signature || !verifyTwilioSignature(`${appUrl()}/api/whatsapp/webhook`, params, signature, authToken)) {
+    return new Response("invalid signature", { status: 403 });
   }
 
   const from = (params.From ?? "").replace(/^whatsapp:/, "");

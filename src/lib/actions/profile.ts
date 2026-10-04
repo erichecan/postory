@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
+import { Prisma } from "@/generated/prisma/client";
 import { assertUser } from "@/lib/auth/session";
 import { upsertBrandProfile } from "@/lib/db/profiles";
 import { firstError, type FormState } from "@/lib/validation";
@@ -41,7 +42,14 @@ export async function saveProfileAction(_: FormState, formData: FormData): Promi
   const user = await assertUser();
   const parsed = profileSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: await firstError(parsed.error) };
-  await upsertBrandProfile(user.id, parsed.data);
+  try {
+    await upsertBrandProfile(user.id, parsed.data);
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+      return { error: (await getTranslations("validation"))("whatsappNumberTaken") };
+    }
+    throw e;
+  }
   revalidatePath("/profile");
   return { ok: true, message: (await getTranslations("profile"))("savedMessage") };
 }

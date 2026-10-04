@@ -339,7 +339,7 @@ model BrandProfile {
 
   industry            Industry?
   country             Country?
-  whatsappNumber      String?   @db.VarChar(20)
+  whatsappNumber      String?   @unique @db.VarChar(20)
   marketingEmailOptIn Boolean   @default(false)
   marketingSmsOptIn   Boolean   @default(false)
 }

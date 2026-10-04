@@ -23,5 +23,6 @@
   "uploadTooLarge": "Image must be 15MB or smaller",
   "emailInvalid": "Enter a valid email address",
   "identifierInvalid": "Enter your email or phone number",
-  "codeInvalid": "Enter the 6-digit code"
+  "codeInvalid": "Enter the 6-digit code",
+  "whatsappNumberTaken": "This WhatsApp number is already registered to another account — try a different one"
 }
