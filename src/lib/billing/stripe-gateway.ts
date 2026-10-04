@@ -10,8 +10,8 @@ export const MEMBERSHIP_PRODUCT_ID = "postory_membership";
 export const CREDITS_PRODUCT_ID = "postory_credits";
 
 const PRODUCT_NAMES: Record<string, string> = {
-  [MEMBERSHIP_PRODUCT_ID]: "Postory Membership",
-  [CREDITS_PRODUCT_ID]: "Postory Credits",
+  [MEMBERSHIP_PRODUCT_ID]: "PoStory Membership",
+  [CREDITS_PRODUCT_ID]: "PoStory Credits",
 };
 
 export type SubscriptionCheckoutInput = { customerId: string; userId: string; currency: Currency; lines: SubscriptionLine[]; successUrl: string; cancelUrl: string };

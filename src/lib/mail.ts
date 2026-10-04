@@ -4,7 +4,7 @@ export type Mail = { to: string; subject: string; text: string };
 
 export async function sendMail(mail: Mail): Promise<void> {
   const key = process.env.RESEND_API_KEY;
-  const from = process.env.MAIL_FROM ?? "Postory <no-reply@postory.app>";
+  const from = process.env.MAIL_FROM ?? "PoStory <no-reply@postory.app>";
   if (!key) {
     console.info(`[mail:dev] to=${mail.to} subject=${mail.subject}\n${mail.text}`);
     return;
