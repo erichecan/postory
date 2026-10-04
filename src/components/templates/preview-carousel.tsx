@@ -12,7 +12,7 @@ export function PreviewCarousel({ images, width, height, title }: { images: stri
   const many = images.length > 1;
   const go = (d: number) => setI((v) => (v + d + images.length) % images.length);
   return (
-    <div className="rounded-2xl border bg-white/[0.03] p-3">
+    <div className="rounded-2xl border bg-muted p-3">
       <div className="group relative mx-auto max-h-[640px] overflow-hidden rounded-lg" style={{ aspectRatio: `${width} / ${height}` }}>
         <Image src={images[i]} alt={t("pageAlt", { title, page: i + 1 })} fill sizes="(max-width: 1024px) 100vw, 45vw" className="object-contain" priority />
         {many && (

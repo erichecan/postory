@@ -16,7 +16,7 @@ const UI_FONTS = "https://fonts.googleapis.com/css2?family=Inter:wght@400..900&f
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const locale = await getLocale();
   return (
-    <html lang={locale === "zh" ? "zh-CN" : "en"} className="dark h-full antialiased">
+    <html lang={locale === "zh" ? "zh-CN" : "en"} className="h-full antialiased">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />

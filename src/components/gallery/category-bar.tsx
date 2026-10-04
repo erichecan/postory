@@ -24,8 +24,8 @@ export async function CategoryBar({ platform, q, counts, total }: { platform?: s
             href={hrefFor(c.id, q)}
             scroll={false}
             className={cn(
-              "shrink-0 rounded-lg border border-white/10 bg-white/[0.02] px-3.5 py-1.5 text-sm text-foreground/85 transition-colors hover:bg-white/[0.07]",
-              platform === c.id && "border-white/25 bg-white/[0.12] text-foreground",
+              "shrink-0 rounded-lg border border-border bg-muted px-3.5 py-1.5 text-sm text-foreground/85 transition-colors hover:bg-accent",
+              platform === c.id && "border-primary/40 bg-primary/10 text-foreground",
             )}
           >
             {c.label}
@@ -36,7 +36,7 @@ export async function CategoryBar({ platform, q, counts, total }: { platform?: s
       <form action="/templates" className="relative shrink-0 md:w-56">
         {platform && <input type="hidden" name="platform" value={platform} />}
         <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <input name="q" defaultValue={q} placeholder={t("searchPlaceholder")} className="h-9 w-full rounded-lg border border-white/10 bg-white/[0.02] pl-9 pr-3 text-sm outline-none focus:border-white/25" />
+        <input name="q" defaultValue={q} placeholder={t("searchPlaceholder")} className="h-9 w-full rounded-lg border border-border bg-muted pl-9 pr-3 text-sm outline-none focus:border-primary/40" />
       </form>
     </div>
   );

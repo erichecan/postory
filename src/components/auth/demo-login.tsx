@@ -17,9 +17,9 @@ export function DemoLogin() {
       <p className="text-center text-xs text-muted-foreground">{t("hint", { shopName: DEMO_PROFILE.shopName })}</p>
       {state?.error && <p className="rounded-md bg-destructive/15 px-3 py-2 text-sm text-destructive">{state.error}</p>}
       <div className="mt-4 flex items-center gap-3 text-xs text-muted-foreground">
-        <span className="h-px flex-1 bg-white/10" />
+        <span className="h-px flex-1 bg-border" />
         {t("divider")}
-        <span className="h-px flex-1 bg-white/10" />
+        <span className="h-px flex-1 bg-border" />
       </div>
     </form>
   );

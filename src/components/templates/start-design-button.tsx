@@ -12,7 +12,7 @@ export function StartDesignButton({ templateId }: { templateId: string }) {
     <button
       onClick={() => start(() => startDesignAction(templateId))}
       disabled={pending}
-      className="inline-flex h-11 items-center gap-2 rounded-lg bg-white px-6 text-sm font-medium text-black transition hover:bg-white/90 disabled:opacity-60"
+      className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-6 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60"
     >
       {pending ? <Loader2 className="size-4 animate-spin" /> : null}
       {t("startDesign")}

@@ -52,7 +52,7 @@ export function TemplateGallery({ initial, hasMore: initialHasMore, platform, q 
       <div ref={sentinelRef} className="flex justify-center py-12">
         {pending && <Loader2 className="size-5 animate-spin text-muted-foreground" />}
         {!pending && hasMore && (
-          <button onClick={loadMore} className="rounded-lg border border-white/10 px-4 py-2 text-sm text-muted-foreground hover:text-foreground">
+          <button onClick={loadMore} className="rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground hover:text-foreground">
             {error ? t("loadFailed") : t("loadMore")}
           </button>
         )}

@@ -11,10 +11,10 @@ import { NavLinks } from "./nav-links";
 export async function AppHeader({ user, credits }: { user: CurrentUser; credits: number }) {
   const t = await getTranslations("nav");
   return (
-    <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-background/80 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-[1080px] flex-wrap items-center gap-x-4 px-4">
         <Logo />
-        <div className="order-last -mx-4 flex w-[calc(100%+2rem)] min-w-0 border-t border-white/[0.06] px-2 md:order-none md:mx-0 md:w-auto md:flex-1 md:justify-center md:border-0 md:px-0">
+        <div className="order-last -mx-4 flex w-[calc(100%+2rem)] min-w-0 border-t border-border px-2 md:order-none md:mx-0 md:w-auto md:flex-1 md:justify-center md:border-0 md:px-0">
           <NavLinks isAdmin={user.role === "ADMIN"} />
         </div>
         <div className="ml-auto flex h-14 shrink-0 items-center gap-2 md:ml-0">

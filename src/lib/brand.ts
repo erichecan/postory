@@ -1,5 +1,5 @@
 export const BRAND = {
-  name: "Postory",
+  name: "PoStory",
 } as const;
 
 export const CONTACT_WECHAT = process.env.NEXT_PUBLIC_CONTACT_WECHAT ?? "";

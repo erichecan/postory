@@ -17,7 +17,7 @@ export function DesignCard({ d }: { d: DesignListItem }) {
   const format = useFormatter();
   return (
     <div className="group flex flex-col overflow-hidden rounded-xl border bg-card">
-      <Link href={`/editor/${d.id}`} className="relative block overflow-hidden bg-white/[0.04]" style={{ aspectRatio: `${d.cover.width + DESIGN_CARD_PADDING * 2} / ${d.cover.height + DESIGN_CARD_PADDING * 2}` }}>
+      <Link href={`/editor/${d.id}`} className="relative block overflow-hidden bg-muted" style={{ aspectRatio: `${d.cover.width + DESIGN_CARD_PADDING * 2} / ${d.cover.height + DESIGN_CARD_PADDING * 2}` }}>
         <FitPreview page={d.cover} padding={DESIGN_CARD_PADDING} />
         <span className={`absolute left-2.5 top-2.5 rounded-md px-1.5 py-0.5 text-[11px] ${d.status === "SCHEDULED" ? "bg-primary text-primary-foreground" : "bg-black/70 text-white"}`}>
           {t(d.status === "SCHEDULED" ? "status.scheduled" : "status.draft")}

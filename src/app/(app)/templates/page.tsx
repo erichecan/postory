@@ -33,7 +33,7 @@ export default async function TemplatesPage({ searchParams }: PageProps<"/templa
       <section id="gallery" className="scroll-mt-28 md:scroll-mt-20">
         <CategoryBar platform={platform} q={q} counts={counts} total={total} />
         {first.items.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-white/10 py-20 text-center text-muted-foreground">{t("empty")}</div>
+          <div className="rounded-xl border border-dashed border-border py-20 text-center text-muted-foreground">{t("empty")}</div>
         ) : (
           <TemplateGallery key={`${platform ?? ""}|${q ?? ""}`} initial={first.items} hasMore={first.pageCount > 1} platform={platform} q={q} />
         )}

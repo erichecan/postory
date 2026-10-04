@@ -19,7 +19,7 @@ export async function AppFooter() {
     },
   ];
   return (
-    <footer className="mt-24 border-t border-white/[0.06]">
+    <footer className="mt-24 border-t border-border">
       <div className="mx-auto grid max-w-[1080px] gap-10 px-4 py-14 sm:grid-cols-[1.4fr_1fr_1fr]">
         <div className="flex flex-col gap-3">
           <Logo />
@@ -34,7 +34,7 @@ export async function AppFooter() {
           </div>
         ))}
       </div>
-      <div className="border-t border-white/[0.06]">
+      <div className="border-t border-border">
         <div className="mx-auto flex max-w-[1080px] flex-wrap items-center justify-between gap-3 px-4 py-5 text-xs text-muted-foreground">
           <p>{t("footer.copyright", { brand: BRAND.name })}</p>
           <nav aria-label={tl("label")} className="flex gap-4">

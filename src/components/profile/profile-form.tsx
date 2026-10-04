@@ -85,7 +85,7 @@ export function ProfileForm({ initial, submitLabel, onSaved }: { initial: Profil
         </div>
       </div>
 
-      <div className="rounded-xl border border-white/10 p-4">
+      <div className="rounded-xl border border-border p-4">
         <p className="text-sm font-medium">{t("calendarFields.sectionTitle")}</p>
         <p className="mt-1 text-xs text-muted-foreground">{t("calendarFields.sectionSubtitle")}</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">

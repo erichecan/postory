@@ -28,7 +28,7 @@ export function NlOrderBox() {
   }
 
   return (
-    <div className="mt-4 flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.02] p-2">
+    <div className="mt-4 flex items-center gap-2 rounded-lg border border-border bg-muted p-2">
       <Sparkles className="ml-2 size-4 shrink-0 text-primary" />
       <input
         value={text}

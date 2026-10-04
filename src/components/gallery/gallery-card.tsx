@@ -27,9 +27,9 @@ export function GalleryCard({ t, eager }: { t: TemplateCard; eager: boolean }) {
     <div className="group flex min-w-0 flex-col">
       <Link
         href={`/templates/${t.id}`}
-        className="relative block rounded-xl bg-white/[0.05] p-2 transition-colors duration-200 hover:bg-white/[0.09]"
+        className="relative block rounded-xl bg-muted p-2 transition-colors duration-200 hover:bg-accent"
       >
-        <div className={cn("relative w-full overflow-hidden rounded-[3px]", !loaded && "animate-pulse bg-white/[0.06]")} style={{ aspectRatio: `${t.width} / ${t.height}` }}>
+        <div className={cn("relative w-full overflow-hidden rounded-[3px]", !loaded && "animate-pulse bg-muted")} style={{ aspectRatio: `${t.width} / ${t.height}` }}>
           <Image
             src={t.thumbnails[0]}
             alt={t.title}
@@ -51,7 +51,7 @@ export function GalleryCard({ t, eager }: { t: TemplateCard; eager: boolean }) {
       <div className="flex flex-col gap-2 px-0.5 pt-3">
         <Link href={`/templates/${t.id}`} className="line-clamp-3 text-[15px] leading-5 hover:underline">{t.title}</Link>
         <div className="flex items-center gap-1.5">
-          <span className="rounded-md border border-white/10 px-1.5 py-0.5 text-[11px] leading-none text-muted-foreground">{platformLabel(tp, t.platform)}</span>
+          <span className="rounded-md border border-border px-1.5 py-0.5 text-[11px] leading-none text-muted-foreground">{platformLabel(tp, t.platform)}</span>
           {t.editable && <span className="rounded-md border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[11px] leading-none text-primary">{tg("fullyEditable")}</span>}
         </div>
         <div>
@@ -59,7 +59,7 @@ export function GalleryCard({ t, eager }: { t: TemplateCard; eager: boolean }) {
             type="button"
             disabled={pending}
             onClick={() => start(() => startDesignAction(t.id))}
-            className="inline-flex h-7 items-center gap-1.5 rounded-md border border-white/10 bg-white/[0.03] px-3 text-sm text-foreground/90 transition-colors hover:bg-white/[0.08] disabled:opacity-60"
+            className="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-muted px-3 text-sm text-foreground/90 transition-colors hover:bg-accent disabled:opacity-60"
           >
             {pending && <Loader2 className="size-3.5 animate-spin" />}
             {tg("openInEditor")}

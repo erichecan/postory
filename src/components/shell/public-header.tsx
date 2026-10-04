@@ -7,7 +7,7 @@ import { buttonVariants } from "@/components/ui/button";
 export async function PublicHeader({ signedIn }: { signedIn: boolean }) {
   const t = await getTranslations("plans");
   return (
-    <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-background/80 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-[1080px] items-center gap-3 px-4">
         <Logo href="/" />
         <div className="ml-auto flex items-center gap-2">

@@ -47,7 +47,7 @@ export default async function CalendarWeekPage() {
           const key = d.toISOString().slice(0, 10);
           const slot = byDate.get(key);
           return (
-            <div key={key} className="flex items-center gap-4 rounded-lg border border-white/10 p-3">
+            <div key={key} className="flex items-center gap-4 rounded-lg border border-border p-3">
               <span className="w-24 shrink-0 text-sm text-muted-foreground">{key}</span>
               {slot ? (
                 <>

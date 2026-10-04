@@ -74,7 +74,7 @@ export async function ComparisonTable({ tiers }: { tiers: ComparisonTier[] }) {
                 <th colSpan={tiers.length + 1} className="sticky left-0 bg-muted/40 px-5 py-2.5 text-left text-xs font-semibold tracking-wide">{t(`groups.${group.id}`)}</th>
               </tr>
               {group.features.map((f) => (
-                <tr key={f.id} className="border-t border-white/[0.05]">
+                <tr key={f.id} className="border-t border-border">
                   <th scope="row" className="sticky left-0 z-10 bg-background px-5 py-3.5 text-left font-normal">
                     <span className="text-foreground/90">{t(`features.${f.id}`)}</span>
                     {hints[f.id] && <span className="mt-0.5 block text-xs text-muted-foreground">{hints[f.id]}</span>}

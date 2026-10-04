@@ -19,7 +19,7 @@ export function LocaleSwitcher({ className }: { className?: string }) {
   };
 
   return (
-    <div role="group" aria-label={t("language")} className={cn("flex items-center rounded-md border border-white/10 p-0.5 text-xs", pending && "opacity-60", className)}>
+    <div role="group" aria-label={t("language")} className={cn("flex items-center rounded-md border border-border p-0.5 text-xs", pending && "opacity-60", className)}>
       {LOCALES.map((l) => (
         <button
           key={l}
@@ -27,7 +27,7 @@ export function LocaleSwitcher({ className }: { className?: string }) {
           aria-pressed={l === locale}
           disabled={pending}
           onClick={() => choose(l)}
-          className={cn("h-6 min-w-8 rounded px-1.5 transition-colors", l === locale ? "bg-white/10 text-foreground" : "text-muted-foreground hover:text-foreground")}
+          className={cn("h-6 min-w-8 rounded px-1.5 transition-colors", l === locale ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground")}
         >
           {LABELS[l]}
         </button>

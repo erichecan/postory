@@ -59,7 +59,7 @@ export function CalendarMonthGrid({ yearMonth, slots, templates }: { yearMonth: 
               disabled={!cell.slot}
               onClick={() => cell.slot && setActive(cell.slot)}
               className={cn(
-                "flex min-h-20 flex-col items-start gap-1 rounded-lg border border-white/10 p-2 text-left text-xs transition-colors",
+                "flex min-h-20 flex-col items-start gap-1 rounded-lg border border-border p-2 text-left text-xs transition-colors",
                 cell.slot ? "cursor-pointer hover:bg-accent" : "opacity-40",
               )}
             >
@@ -113,7 +113,7 @@ function TemplatePickCard({ template, slotId }: { template: TemplateCard; slotId
           await confirmCalendarSlotAction(slotId, template.id);
         })
       }
-      className="group relative overflow-hidden rounded-lg border border-white/10 text-left transition-colors hover:border-primary/50 disabled:opacity-60"
+      className="group relative overflow-hidden rounded-lg border border-border text-left transition-colors hover:border-primary/50 disabled:opacity-60"
     >
       <div className="relative w-full" style={{ aspectRatio: `${template.width} / ${template.height}` }}>
         <Image src={template.thumbnails[0]} alt={template.title} fill sizes="200px" className="object-cover" />
