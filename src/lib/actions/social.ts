@@ -22,5 +22,6 @@ export async function disconnectSocialAction(platform: string): Promise<{ ok: bo
   const user = await assertUser();
   await disconnectSocialAccount(user.id, z.string().max(32).parse(platform));
   revalidatePath("/profile");
+  revalidatePath("/my-brand");
   return { ok: true };
 }

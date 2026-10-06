@@ -40,7 +40,7 @@ export default async function LegalPage({ params }: PageProps<"/legal/[doc]">) {
   const sections = Object.entries(content).flatMap(([k, v]) => (/^s\d+$/.test(k) && typeof v === "object" ? [{ key: k, ...v }] : []));
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="ds-document  flex min-h-screen flex-col">
       <PublicHeader signedIn={user !== null} />
       <main className="mx-auto flex w-full max-w-[1080px] flex-1 flex-col gap-8 px-4 py-12 md:flex-row md:gap-12">
         <nav aria-label={tn("nav.label")} className="flex gap-1 text-sm md:w-44 md:shrink-0 md:flex-col">

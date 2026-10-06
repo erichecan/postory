@@ -39,7 +39,7 @@ export default async function CalendarPreviewPage({ searchParams }: { searchPara
   const months = industry && country ? await getPublicYearPreview(industry, country) : null;
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="ds-document  flex min-h-screen flex-col">
       <PublicHeader signedIn={user !== null} />
       <main className="mx-auto flex w-full max-w-[1080px] flex-1 flex-col gap-10 px-4 py-12">
         <header className="flex flex-col gap-2 text-center">

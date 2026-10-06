@@ -6,7 +6,7 @@ import { requireUser } from "@/lib/auth/session";
 export default async function VerifyEmailPage({ searchParams }: PageProps<"/verify-email">) {
   const user = await requireUser();
   const { sendFailed } = await searchParams;
-  if (!user.email || user.emailVerifiedAt) redirect("/calendar");
+  if (!user.email || user.emailVerifiedAt) redirect("/dashboard");
   return (
     <AuthShell>
       <VerifyEmailForm email={user.email} sendFailed={sendFailed === "1"} />

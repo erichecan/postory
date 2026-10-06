@@ -74,7 +74,7 @@ export async function demoLoginAction(): Promise<FormState> {
   if (user.disabled || user.role !== "USER") return { error: await authError("demoUnavailable") };
   await ensureDemoCommerce(user.id);
   await createSession({ userId: user.id, role: user.role, sv: user.sessionVersion });
-  redirect("/calendar");
+  redirect("/dashboard");
 }
 
 export async function logoutAction() {
@@ -91,7 +91,7 @@ export async function resendVerifyCodeAction(): Promise<FormState> {
 
 export async function verifyEmailAction(_: FormState, formData: FormData): Promise<FormState> {
   const user = await assertUser();
-  if (!user.email || user.emailVerifiedAt) redirect("/calendar");
+  if (!user.email || user.emailVerifiedAt) redirect("/dashboard");
   const code = codeSchema.safeParse(formData.get("code"));
   if (!code.success) return { error: await firstError(code.error) };
   const result = await consumeVerifyCode(user.email, code.data);

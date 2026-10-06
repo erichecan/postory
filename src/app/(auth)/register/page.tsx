@@ -5,7 +5,7 @@ import { AuthShell } from "@/components/auth/auth-shell";
 import { registerAction } from "@/lib/actions/auth";
 
 export default async function RegisterPage() {
-  if (await getCurrentUser()) redirect("/calendar");
+  if (await getCurrentUser()) redirect("/dashboard");
   return (
     <AuthShell>
       <AuthForm mode="register" action={registerAction} />

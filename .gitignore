@@ -56,3 +56,6 @@ __pycache__/
 # 本地存储（STORAGE=local）
 /.data
 .playwright-mcp/
+
+# 本地设计参考与浏览器验收截图，可能包含客户数据
+/preview/

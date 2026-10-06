@@ -12,21 +12,36 @@ const SHOWCASE = [
 ];
 
 export async function AuthShell({ children }: { children: React.ReactNode }) {
-  const [t, count] = await Promise.all([getTranslations("auth.showcase"), countAllTemplatesCached()]);
+  const [t, count] = await Promise.all([
+    getTranslations("auth.showcase"),
+    countAllTemplatesCached(),
+  ]);
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
+    <div className="ds-auth grid min-h-screen lg:grid-cols-2">
       <div className="flex flex-col p-6 sm:p-10">
         <div className="flex items-center justify-between">
           <Logo href="/" />
           <LocaleSwitcher />
         </div>
-        <div className="flex flex-1 items-center justify-center py-10">{children}</div>
+        <div className="flex flex-1 items-center justify-center py-10">
+          {children}
+        </div>
       </div>
       <div className="relative hidden overflow-hidden bg-sidebar lg:block">
         <div className="absolute inset-0 grid grid-cols-2 gap-4 p-10 opacity-90">
           {SHOWCASE.map((src, i) => (
-            <div key={src} className={`relative overflow-hidden rounded-2xl ${i % 2 ? "mt-16" : ""}`}>
-              <Image src={src} alt="" fill sizes="25vw" className="object-cover" priority={i < 2} />
+            <div
+              key={src}
+              className={`relative overflow-hidden rounded-2xl ${i % 2 ? "mt-16" : ""}`}
+            >
+              <Image
+                src={src}
+                alt=""
+                fill
+                sizes="25vw"
+                className="object-cover"
+                priority={i < 2}
+              />
             </div>
           ))}
         </div>

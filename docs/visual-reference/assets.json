@@ -1,0 +1,2042 @@
+[
+  {
+    "name": "beauty-1",
+    "source": "美业社媒营销演示页面.png",
+    "crop": [
+      58,
+      740,
+      203,
+      855
+    ],
+    "size": [
+      145,
+      115
+    ],
+    "url": "/visual/beauty-1.webp"
+  },
+  {
+    "name": "beauty-2",
+    "source": "美业社媒营销演示页面.png",
+    "crop": [
+      214,
+      740,
+      359,
+      855
+    ],
+    "size": [
+      145,
+      115
+    ],
+    "url": "/visual/beauty-2.webp"
+  },
+  {
+    "name": "beauty-3",
+    "source": "美业社媒营销演示页面.png",
+    "crop": [
+      370,
+      740,
+      515,
+      855
+    ],
+    "size": [
+      145,
+      115
+    ],
+    "url": "/visual/beauty-3.webp"
+  },
+  {
+    "name": "beauty-4",
+    "source": "美业社媒营销演示页面.png",
+    "crop": [
+      522,
+      740,
+      667,
+      855
+    ],
+    "size": [
+      145,
+      115
+    ],
+    "url": "/visual/beauty-4.webp"
+  },
+  {
+    "name": "beauty-5",
+    "source": "美业社媒营销演示页面.png",
+    "crop": [
+      677,
+      740,
+      822,
+      855
+    ],
+    "size": [
+      145,
+      115
+    ],
+    "url": "/visual/beauty-5.webp"
+  },
+  {
+    "name": "beauty-6",
+    "source": "美业社媒营销演示页面.png",
+    "crop": [
+      830,
+      740,
+      975,
+      855
+    ],
+    "size": [
+      145,
+      115
+    ],
+    "url": "/visual/beauty-6.webp"
+  },
+  {
+    "name": "beauty-7",
+    "source": "美业社媒营销演示页面.png",
+    "crop": [
+      58,
+      914,
+      203,
+      1029
+    ],
+    "size": [
+      145,
+      115
+    ],
+    "url": "/visual/beauty-7.webp"
+  },
+  {
+    "name": "beauty-8",
+    "source": "美业社媒营销演示页面.png",
+    "crop": [
+      214,
+      914,
+      359,
+      1029
+    ],
+    "size": [
+      145,
+      115
+    ],
+    "url": "/visual/beauty-8.webp"
+  },
+  {
+    "name": "beauty-9",
+    "source": "美业社媒营销演示页面.png",
+    "crop": [
+      370,
+      914,
+      515,
+      1029
+    ],
+    "size": [
+      145,
+      115
+    ],
+    "url": "/visual/beauty-9.webp"
+  },
+  {
+    "name": "beauty-10",
+    "source": "美业社媒营销演示页面.png",
+    "crop": [
+      522,
+      914,
+      667,
+      1029
+    ],
+    "size": [
+      145,
+      115
+    ],
+    "url": "/visual/beauty-10.webp"
+  },
+  {
+    "name": "beauty-11",
+    "source": "美业社媒营销演示页面.png",
+    "crop": [
+      677,
+      914,
+      822,
+      1029
+    ],
+    "size": [
+      145,
+      115
+    ],
+    "url": "/visual/beauty-11.webp"
+  },
+  {
+    "name": "beauty-12",
+    "source": "美业社媒营销演示页面.png",
+    "crop": [
+      830,
+      914,
+      975,
+      1029
+    ],
+    "size": [
+      145,
+      115
+    ],
+    "url": "/visual/beauty-12.webp"
+  },
+  {
+    "name": "restaurant-1",
+    "source": "餐厅社交媒体内容策划展示页.png",
+    "crop": [
+      58,
+      738,
+      198,
+      848
+    ],
+    "size": [
+      140,
+      110
+    ],
+    "url": "/visual/restaurant-1.webp"
+  },
+  {
+    "name": "restaurant-2",
+    "source": "餐厅社交媒体内容策划展示页.png",
+    "crop": [
+      214,
+      738,
+      354,
+      848
+    ],
+    "size": [
+      140,
+      110
+    ],
+    "url": "/visual/restaurant-2.webp"
+  },
+  {
+    "name": "restaurant-3",
+    "source": "餐厅社交媒体内容策划展示页.png",
+    "crop": [
+      369,
+      738,
+      509,
+      848
+    ],
+    "size": [
+      140,
+      110
+    ],
+    "url": "/visual/restaurant-3.webp"
+  },
+  {
+    "name": "restaurant-4",
+    "source": "餐厅社交媒体内容策划展示页.png",
+    "crop": [
+      523,
+      738,
+      663,
+      848
+    ],
+    "size": [
+      140,
+      110
+    ],
+    "url": "/visual/restaurant-4.webp"
+  },
+  {
+    "name": "restaurant-5",
+    "source": "餐厅社交媒体内容策划展示页.png",
+    "crop": [
+      677,
+      738,
+      817,
+      848
+    ],
+    "size": [
+      140,
+      110
+    ],
+    "url": "/visual/restaurant-5.webp"
+  },
+  {
+    "name": "restaurant-6",
+    "source": "餐厅社交媒体内容策划展示页.png",
+    "crop": [
+      832,
+      738,
+      972,
+      848
+    ],
+    "size": [
+      140,
+      110
+    ],
+    "url": "/visual/restaurant-6.webp"
+  },
+  {
+    "name": "restaurant-7",
+    "source": "餐厅社交媒体内容策划展示页.png",
+    "crop": [
+      58,
+      901,
+      198,
+      1011
+    ],
+    "size": [
+      140,
+      110
+    ],
+    "url": "/visual/restaurant-7.webp"
+  },
+  {
+    "name": "restaurant-8",
+    "source": "餐厅社交媒体内容策划展示页.png",
+    "crop": [
+      214,
+      901,
+      354,
+      1011
+    ],
+    "size": [
+      140,
+      110
+    ],
+    "url": "/visual/restaurant-8.webp"
+  },
+  {
+    "name": "restaurant-9",
+    "source": "餐厅社交媒体内容策划展示页.png",
+    "crop": [
+      369,
+      901,
+      509,
+      1011
+    ],
+    "size": [
+      140,
+      110
+    ],
+    "url": "/visual/restaurant-9.webp"
+  },
+  {
+    "name": "restaurant-10",
+    "source": "餐厅社交媒体内容策划展示页.png",
+    "crop": [
+      523,
+      901,
+      663,
+      1011
+    ],
+    "size": [
+      140,
+      110
+    ],
+    "url": "/visual/restaurant-10.webp"
+  },
+  {
+    "name": "restaurant-11",
+    "source": "餐厅社交媒体内容策划展示页.png",
+    "crop": [
+      677,
+      901,
+      817,
+      1011
+    ],
+    "size": [
+      140,
+      110
+    ],
+    "url": "/visual/restaurant-11.webp"
+  },
+  {
+    "name": "restaurant-12",
+    "source": "餐厅社交媒体内容策划展示页.png",
+    "crop": [
+      832,
+      901,
+      972,
+      1011
+    ],
+    "size": [
+      140,
+      110
+    ],
+    "url": "/visual/restaurant-12.webp"
+  },
+  {
+    "name": "contractor-1",
+    "source": "承包商社交媒体营销方案展示.png",
+    "crop": [
+      58,
+      744,
+      198,
+      851
+    ],
+    "size": [
+      140,
+      107
+    ],
+    "url": "/visual/contractor-1.webp"
+  },
+  {
+    "name": "contractor-2",
+    "source": "承包商社交媒体营销方案展示.png",
+    "crop": [
+      215,
+      744,
+      355,
+      851
+    ],
+    "size": [
+      140,
+      107
+    ],
+    "url": "/visual/contractor-2.webp"
+  },
+  {
+    "name": "contractor-3",
+    "source": "承包商社交媒体营销方案展示.png",
+    "crop": [
+      370,
+      744,
+      510,
+      851
+    ],
+    "size": [
+      140,
+      107
+    ],
+    "url": "/visual/contractor-3.webp"
+  },
+  {
+    "name": "contractor-4",
+    "source": "承包商社交媒体营销方案展示.png",
+    "crop": [
+      523,
+      744,
+      663,
+      851
+    ],
+    "size": [
+      140,
+      107
+    ],
+    "url": "/visual/contractor-4.webp"
+  },
+  {
+    "name": "contractor-5",
+    "source": "承包商社交媒体营销方案展示.png",
+    "crop": [
+      677,
+      744,
+      817,
+      851
+    ],
+    "size": [
+      140,
+      107
+    ],
+    "url": "/visual/contractor-5.webp"
+  },
+  {
+    "name": "contractor-6",
+    "source": "承包商社交媒体营销方案展示.png",
+    "crop": [
+      832,
+      744,
+      972,
+      851
+    ],
+    "size": [
+      140,
+      107
+    ],
+    "url": "/visual/contractor-6.webp"
+  },
+  {
+    "name": "contractor-7",
+    "source": "承包商社交媒体营销方案展示.png",
+    "crop": [
+      58,
+      905,
+      198,
+      1012
+    ],
+    "size": [
+      140,
+      107
+    ],
+    "url": "/visual/contractor-7.webp"
+  },
+  {
+    "name": "contractor-8",
+    "source": "承包商社交媒体营销方案展示.png",
+    "crop": [
+      215,
+      905,
+      355,
+      1012
+    ],
+    "size": [
+      140,
+      107
+    ],
+    "url": "/visual/contractor-8.webp"
+  },
+  {
+    "name": "contractor-9",
+    "source": "承包商社交媒体营销方案展示.png",
+    "crop": [
+      370,
+      905,
+      510,
+      1012
+    ],
+    "size": [
+      140,
+      107
+    ],
+    "url": "/visual/contractor-9.webp"
+  },
+  {
+    "name": "contractor-10",
+    "source": "承包商社交媒体营销方案展示.png",
+    "crop": [
+      523,
+      905,
+      663,
+      1012
+    ],
+    "size": [
+      140,
+      107
+    ],
+    "url": "/visual/contractor-10.webp"
+  },
+  {
+    "name": "contractor-11",
+    "source": "承包商社交媒体营销方案展示.png",
+    "crop": [
+      677,
+      905,
+      817,
+      1012
+    ],
+    "size": [
+      140,
+      107
+    ],
+    "url": "/visual/contractor-11.webp"
+  },
+  {
+    "name": "contractor-12",
+    "source": "承包商社交媒体营销方案展示.png",
+    "crop": [
+      832,
+      905,
+      972,
+      1012
+    ],
+    "size": [
+      140,
+      107
+    ],
+    "url": "/visual/contractor-12.webp"
+  },
+  {
+    "name": "campaign-cover",
+    "source": "彩妆工作室春季营销活动仪表盘.png",
+    "crop": [
+      249,
+      198,
+      523,
+      376
+    ],
+    "size": [
+      274,
+      178
+    ],
+    "url": "/visual/campaign-cover.webp"
+  },
+  {
+    "name": "studio",
+    "source": "美妆工作室品牌管理仪表盘.png",
+    "crop": [
+      186,
+      198,
+      369,
+      402
+    ],
+    "size": [
+      183,
+      204
+    ],
+    "url": "/visual/studio.webp"
+  },
+  {
+    "name": "treatment",
+    "source": "美妆工作室品牌管理仪表盘.png",
+    "crop": [
+      712,
+      446,
+      1009,
+      619
+    ],
+    "size": [
+      297,
+      173
+    ],
+    "url": "/visual/treatment.webp"
+  },
+  {
+    "name": "business-owner",
+    "source": "PoStory社交媒体运营流程展板.png",
+    "crop": [
+      604,
+      1004,
+      775,
+      1240
+    ],
+    "size": [
+      171,
+      236
+    ],
+    "url": "/visual/business-owner.webp"
+  },
+  {
+    "name": "owner-wide",
+    "source": "PoStory社交媒体营销网站首页.png",
+    "crop": [
+      181,
+      414,
+      402,
+      589
+    ],
+    "size": [
+      221,
+      175
+    ],
+    "url": "/visual/owner-wide.webp"
+  },
+  {
+    "name": "consultation",
+    "source": "PoStory社交媒体运营流程展板.png",
+    "crop": [
+      34,
+      795,
+      203,
+      954
+    ],
+    "size": [
+      169,
+      159
+    ],
+    "url": "/visual/consultation.webp"
+  },
+  {
+    "name": "content-plan",
+    "source": "PoStory社交媒体运营流程展板.png",
+    "crop": [
+      237,
+      795,
+      402,
+      954
+    ],
+    "size": [
+      165,
+      159
+    ],
+    "url": "/visual/content-plan.webp"
+  },
+  {
+    "name": "camera",
+    "source": "PoStory社交媒体运营流程展板.png",
+    "crop": [
+      437,
+      795,
+      601,
+      954
+    ],
+    "size": [
+      164,
+      159
+    ],
+    "url": "/visual/camera.webp"
+  },
+  {
+    "name": "publish-photo",
+    "source": "PoStory社交媒体运营流程展板.png",
+    "crop": [
+      638,
+      795,
+      800,
+      954
+    ],
+    "size": [
+      162,
+      159
+    ],
+    "url": "/visual/publish-photo.webp"
+  },
+  {
+    "name": "chart-photo",
+    "source": "PoStory社交媒体运营流程展板.png",
+    "crop": [
+      836,
+      795,
+      994,
+      954
+    ],
+    "size": [
+      158,
+      159
+    ],
+    "url": "/visual/chart-photo.webp"
+  },
+  {
+    "name": "team-working",
+    "source": "PoStory品牌故事与团队介绍页面.png",
+    "crop": [
+      450,
+      616,
+      703,
+      852
+    ],
+    "size": [
+      253,
+      236
+    ],
+    "url": "/visual/team-working.webp"
+  },
+  {
+    "name": "team",
+    "source": "PoStory品牌故事与团队介绍页面.png",
+    "crop": [
+      542,
+      1144,
+      973,
+      1300
+    ],
+    "size": [
+      431,
+      156
+    ],
+    "url": "/visual/team.webp"
+  },
+  {
+    "name": "assessment-meeting",
+    "source": "PoStory免费社交媒体评估页面.png",
+    "crop": [
+      625,
+      1144,
+      984,
+      1358
+    ],
+    "size": [
+      359,
+      214
+    ],
+    "url": "/visual/assessment-meeting.webp"
+  },
+  {
+    "name": "industry-1",
+    "source": "PoStory本地商家内容营销页面.png",
+    "crop": [
+      34,
+      554,
+      341,
+      674
+    ],
+    "size": [
+      307,
+      120
+    ],
+    "url": "/visual/industry-1.webp"
+  },
+  {
+    "name": "industry-2",
+    "source": "PoStory本地商家内容营销页面.png",
+    "crop": [
+      364,
+      554,
+      671,
+      674
+    ],
+    "size": [
+      307,
+      120
+    ],
+    "url": "/visual/industry-2.webp"
+  },
+  {
+    "name": "industry-3",
+    "source": "PoStory本地商家内容营销页面.png",
+    "crop": [
+      693,
+      554,
+      1000,
+      674
+    ],
+    "size": [
+      307,
+      120
+    ],
+    "url": "/visual/industry-3.webp"
+  },
+  {
+    "name": "industry-4",
+    "source": "PoStory本地商家内容营销页面.png",
+    "crop": [
+      34,
+      820,
+      341,
+      940
+    ],
+    "size": [
+      307,
+      120
+    ],
+    "url": "/visual/industry-4.webp"
+  },
+  {
+    "name": "industry-5",
+    "source": "PoStory本地商家内容营销页面.png",
+    "crop": [
+      363,
+      820,
+      670,
+      940
+    ],
+    "size": [
+      307,
+      120
+    ],
+    "url": "/visual/industry-5.webp"
+  },
+  {
+    "name": "industry-6",
+    "source": "PoStory本地商家内容营销页面.png",
+    "crop": [
+      694,
+      820,
+      1001,
+      940
+    ],
+    "size": [
+      307,
+      120
+    ],
+    "url": "/visual/industry-6.webp"
+  },
+  {
+    "name": "service-1",
+    "source": "美妆工作室品牌管理仪表盘.png",
+    "crop": [
+      186,
+      696,
+      344,
+      789
+    ],
+    "size": [
+      158,
+      93
+    ],
+    "url": "/visual/service-1.webp"
+  },
+  {
+    "name": "service-2",
+    "source": "美妆工作室品牌管理仪表盘.png",
+    "crop": [
+      356,
+      696,
+      514,
+      789
+    ],
+    "size": [
+      158,
+      93
+    ],
+    "url": "/visual/service-2.webp"
+  },
+  {
+    "name": "service-3",
+    "source": "美妆工作室品牌管理仪表盘.png",
+    "crop": [
+      526,
+      696,
+      684,
+      789
+    ],
+    "size": [
+      158,
+      93
+    ],
+    "url": "/visual/service-3.webp"
+  },
+  {
+    "name": "service-4",
+    "source": "美妆工作室品牌管理仪表盘.png",
+    "crop": [
+      697,
+      696,
+      855,
+      789
+    ],
+    "size": [
+      158,
+      93
+    ],
+    "url": "/visual/service-4.webp"
+  },
+  {
+    "name": "promotion-1",
+    "source": "美妆工作室品牌管理仪表盘.png",
+    "crop": [
+      186,
+      946,
+      401,
+      1040
+    ],
+    "size": [
+      215,
+      94
+    ],
+    "url": "/visual/promotion-1.webp"
+  },
+  {
+    "name": "promotion-2",
+    "source": "美妆工作室品牌管理仪表盘.png",
+    "crop": [
+      414,
+      946,
+      613,
+      1040
+    ],
+    "size": [
+      199,
+      94
+    ],
+    "url": "/visual/promotion-2.webp"
+  },
+  {
+    "name": "promotion-3",
+    "source": "美妆工作室品牌管理仪表盘.png",
+    "crop": [
+      627,
+      946,
+      824,
+      1040
+    ],
+    "size": [
+      197,
+      94
+    ],
+    "url": "/visual/promotion-3.webp"
+  },
+  {
+    "name": "media-1",
+    "source": "美妆工作室品牌管理仪表盘.png",
+    "crop": [
+      187,
+      1209,
+      291,
+      1301
+    ],
+    "size": [
+      104,
+      92
+    ],
+    "url": "/visual/media-1.webp"
+  },
+  {
+    "name": "media-2",
+    "source": "美妆工作室品牌管理仪表盘.png",
+    "crop": [
+      300,
+      1209,
+      404,
+      1301
+    ],
+    "size": [
+      104,
+      92
+    ],
+    "url": "/visual/media-2.webp"
+  },
+  {
+    "name": "media-3",
+    "source": "美妆工作室品牌管理仪表盘.png",
+    "crop": [
+      418,
+      1209,
+      522,
+      1301
+    ],
+    "size": [
+      104,
+      92
+    ],
+    "url": "/visual/media-3.webp"
+  },
+  {
+    "name": "media-4",
+    "source": "美妆工作室品牌管理仪表盘.png",
+    "crop": [
+      534,
+      1209,
+      638,
+      1301
+    ],
+    "size": [
+      104,
+      92
+    ],
+    "url": "/visual/media-4.webp"
+  },
+  {
+    "name": "media-5",
+    "source": "美妆工作室品牌管理仪表盘.png",
+    "crop": [
+      652,
+      1209,
+      756,
+      1301
+    ],
+    "size": [
+      104,
+      92
+    ],
+    "url": "/visual/media-5.webp"
+  },
+  {
+    "name": "media-6",
+    "source": "美妆工作室品牌管理仪表盘.png",
+    "crop": [
+      770,
+      1209,
+      874,
+      1301
+    ],
+    "size": [
+      104,
+      92
+    ],
+    "url": "/visual/media-6.webp"
+  },
+  {
+    "name": "upcoming-1",
+    "source": "彩妆工作室春季营销活动仪表盘.png",
+    "crop": [
+      260,
+      520,
+      435,
+      598
+    ],
+    "size": [
+      175,
+      78
+    ],
+    "url": "/visual/upcoming-1.webp"
+  },
+  {
+    "name": "upcoming-2",
+    "source": "彩妆工作室春季营销活动仪表盘.png",
+    "crop": [
+      488,
+      520,
+      663,
+      598
+    ],
+    "size": [
+      175,
+      78
+    ],
+    "url": "/visual/upcoming-2.webp"
+  },
+  {
+    "name": "upcoming-3",
+    "source": "彩妆工作室春季营销活动仪表盘.png",
+    "crop": [
+      712,
+      520,
+      887,
+      598
+    ],
+    "size": [
+      175,
+      78
+    ],
+    "url": "/visual/upcoming-3.webp"
+  },
+  {
+    "name": "upcoming-4",
+    "source": "彩妆工作室春季营销活动仪表盘.png",
+    "crop": [
+      939,
+      520,
+      1114,
+      598
+    ],
+    "size": [
+      175,
+      78
+    ],
+    "url": "/visual/upcoming-4.webp"
+  },
+  {
+    "name": "recent-1",
+    "source": "彩妆工作室春季营销活动仪表盘.png",
+    "crop": [
+      250,
+      779,
+      381,
+      865
+    ],
+    "size": [
+      131,
+      86
+    ],
+    "url": "/visual/recent-1.webp"
+  },
+  {
+    "name": "recent-2",
+    "source": "彩妆工作室春季营销活动仪表盘.png",
+    "crop": [
+      397,
+      779,
+      528,
+      865
+    ],
+    "size": [
+      131,
+      86
+    ],
+    "url": "/visual/recent-2.webp"
+  },
+  {
+    "name": "recent-3",
+    "source": "彩妆工作室春季营销活动仪表盘.png",
+    "crop": [
+      544,
+      779,
+      675,
+      865
+    ],
+    "size": [
+      131,
+      86
+    ],
+    "url": "/visual/recent-3.webp"
+  },
+  {
+    "name": "recent-4",
+    "source": "彩妆工作室春季营销活动仪表盘.png",
+    "crop": [
+      692,
+      779,
+      823,
+      865
+    ],
+    "size": [
+      131,
+      86
+    ],
+    "url": "/visual/recent-4.webp"
+  },
+  {
+    "name": "avatar",
+    "source": "PoStory美容工作室社媒管理仪表盘.png",
+    "crop": [
+      1316,
+      11,
+      1357,
+      51
+    ],
+    "size": [
+      41,
+      40
+    ],
+    "url": "/visual/avatar.webp"
+  },
+  {
+    "name": "testimonial",
+    "source": "PoStory社交媒体营销网站首页.png",
+    "crop": [
+      98,
+      1591,
+      181,
+      1675
+    ],
+    "size": [
+      83,
+      84
+    ],
+    "url": "/visual/testimonial.webp"
+  },
+  {
+    "name": "flowers",
+    "source": "彩妆工作室春季营销活动仪表盘.png",
+    "crop": [
+      868,
+      766,
+      966,
+      855
+    ],
+    "size": [
+      98,
+      89
+    ],
+    "url": "/visual/flowers.webp"
+  },
+  {
+    "name": "summer",
+    "source": "彩妆工作室春季营销活动仪表盘.png",
+    "crop": [
+      868,
+      881,
+      966,
+      974
+    ],
+    "size": [
+      98,
+      93
+    ],
+    "url": "/visual/summer.webp"
+  },
+  {
+    "name": "holiday",
+    "source": "彩妆工作室春季营销活动仪表盘.png",
+    "crop": [
+      1227,
+      877,
+      1297,
+      947
+    ],
+    "size": [
+      70,
+      70
+    ],
+    "url": "/visual/holiday.webp"
+  },
+  {
+    "name": "beauty-hero",
+    "source": "美业社媒营销演示页面.png",
+    "crop": [
+      516,
+      91,
+      709,
+      279
+    ],
+    "size": [
+      193,
+      188
+    ],
+    "url": "/visual/beauty-hero.webp"
+  },
+  {
+    "name": "restaurant-hero",
+    "source": "餐厅社交媒体内容策划展示页.png",
+    "crop": [
+      489,
+      73,
+      667,
+      301
+    ],
+    "size": [
+      178,
+      228
+    ],
+    "url": "/visual/restaurant-hero.webp"
+  },
+  {
+    "name": "contractor-hero",
+    "source": "承包商社交媒体营销方案展示.png",
+    "crop": [
+      538,
+      94,
+      714,
+      301
+    ],
+    "size": [
+      176,
+      207
+    ],
+    "url": "/visual/contractor-hero.webp"
+  },
+  {
+    "name": "hero-owner",
+    "source": "PoStory社交媒体服务落地页.png",
+    "crop": [
+      676,
+      51,
+      846,
+      415
+    ],
+    "size": [
+      170,
+      364
+    ],
+    "url": "/visual/hero-owner.webp"
+  },
+  {
+    "name": "work-restaurant-1",
+    "source": "PoStory社交媒体案例展示.png",
+    "crop": [
+      104,
+      524,
+      213,
+      621
+    ],
+    "size": [
+      109,
+      97
+    ],
+    "url": "/visual/work-restaurant-1.webp"
+  },
+  {
+    "name": "work-restaurant-2",
+    "source": "PoStory社交媒体案例展示.png",
+    "crop": [
+      216,
+      524,
+      313,
+      621
+    ],
+    "size": [
+      97,
+      97
+    ],
+    "url": "/visual/work-restaurant-2.webp"
+  },
+  {
+    "name": "work-restaurant-3",
+    "source": "PoStory社交媒体案例展示.png",
+    "crop": [
+      318,
+      524,
+      418,
+      621
+    ],
+    "size": [
+      100,
+      97
+    ],
+    "url": "/visual/work-restaurant-3.webp"
+  },
+  {
+    "name": "work-restaurant-4",
+    "source": "PoStory社交媒体案例展示.png",
+    "crop": [
+      423,
+      524,
+      521,
+      621
+    ],
+    "size": [
+      98,
+      97
+    ],
+    "url": "/visual/work-restaurant-4.webp"
+  },
+  {
+    "name": "work-restaurant-5",
+    "source": "PoStory社交媒体案例展示.png",
+    "crop": [
+      104,
+      625,
+      213,
+      718
+    ],
+    "size": [
+      109,
+      93
+    ],
+    "url": "/visual/work-restaurant-5.webp"
+  },
+  {
+    "name": "work-restaurant-6",
+    "source": "PoStory社交媒体案例展示.png",
+    "crop": [
+      216,
+      625,
+      418,
+      718
+    ],
+    "size": [
+      202,
+      93
+    ],
+    "url": "/visual/work-restaurant-6.webp"
+  },
+  {
+    "name": "work-restaurant-7",
+    "source": "PoStory社交媒体案例展示.png",
+    "crop": [
+      423,
+      625,
+      521,
+      718
+    ],
+    "size": [
+      98,
+      93
+    ],
+    "url": "/visual/work-restaurant-7.webp"
+  },
+  {
+    "name": "work-beauty-1",
+    "source": "PoStory社交媒体案例展示.png",
+    "crop": [
+      570,
+      524,
+      700,
+      620
+    ],
+    "size": [
+      130,
+      96
+    ],
+    "url": "/visual/work-beauty-1.webp"
+  },
+  {
+    "name": "work-beauty-2",
+    "source": "PoStory社交媒体案例展示.png",
+    "crop": [
+      706,
+      524,
+      833,
+      620
+    ],
+    "size": [
+      127,
+      96
+    ],
+    "url": "/visual/work-beauty-2.webp"
+  },
+  {
+    "name": "work-beauty-3",
+    "source": "PoStory社交媒体案例展示.png",
+    "crop": [
+      839,
+      524,
+      973,
+      620
+    ],
+    "size": [
+      134,
+      96
+    ],
+    "url": "/visual/work-beauty-3.webp"
+  },
+  {
+    "name": "work-beauty-4",
+    "source": "PoStory社交媒体案例展示.png",
+    "crop": [
+      570,
+      625,
+      700,
+      718
+    ],
+    "size": [
+      130,
+      93
+    ],
+    "url": "/visual/work-beauty-4.webp"
+  },
+  {
+    "name": "work-beauty-5",
+    "source": "PoStory社交媒体案例展示.png",
+    "crop": [
+      706,
+      625,
+      833,
+      718
+    ],
+    "size": [
+      127,
+      93
+    ],
+    "url": "/visual/work-beauty-5.webp"
+  },
+  {
+    "name": "work-beauty-6",
+    "source": "PoStory社交媒体案例展示.png",
+    "crop": [
+      839,
+      625,
+      973,
+      718
+    ],
+    "size": [
+      134,
+      93
+    ],
+    "url": "/visual/work-beauty-6.webp"
+  },
+  {
+    "name": "work-contractor-1",
+    "source": "PoStory社交媒体案例展示.png",
+    "crop": [
+      1023,
+      524,
+      1173,
+      620
+    ],
+    "size": [
+      150,
+      96
+    ],
+    "url": "/visual/work-contractor-1.webp"
+  },
+  {
+    "name": "work-contractor-2",
+    "source": "PoStory社交媒体案例展示.png",
+    "crop": [
+      1178,
+      524,
+      1282,
+      620
+    ],
+    "size": [
+      104,
+      96
+    ],
+    "url": "/visual/work-contractor-2.webp"
+  },
+  {
+    "name": "work-contractor-3",
+    "source": "PoStory社交媒体案例展示.png",
+    "crop": [
+      1288,
+      524,
+      1435,
+      620
+    ],
+    "size": [
+      147,
+      96
+    ],
+    "url": "/visual/work-contractor-3.webp"
+  },
+  {
+    "name": "work-contractor-4",
+    "source": "PoStory社交媒体案例展示.png",
+    "crop": [
+      1023,
+      625,
+      1173,
+      718
+    ],
+    "size": [
+      150,
+      93
+    ],
+    "url": "/visual/work-contractor-4.webp"
+  },
+  {
+    "name": "work-contractor-5",
+    "source": "PoStory社交媒体案例展示.png",
+    "crop": [
+      1178,
+      625,
+      1282,
+      718
+    ],
+    "size": [
+      104,
+      93
+    ],
+    "url": "/visual/work-contractor-5.webp"
+  },
+  {
+    "name": "work-contractor-6",
+    "source": "PoStory社交媒体案例展示.png",
+    "crop": [
+      1288,
+      625,
+      1435,
+      718
+    ],
+    "size": [
+      147,
+      93
+    ],
+    "url": "/visual/work-contractor-6.webp"
+  },
+  {
+    "name": "beauty-hero-small-a",
+    "source": "preview/visual-reference/beauty.png",
+    "crop": [
+      735,
+      88,
+      807,
+      214
+    ],
+    "size": [
+      72,
+      126
+    ],
+    "url": "/visual/beauty-hero-small-a.webp"
+  },
+  {
+    "name": "beauty-hero-small-b",
+    "source": "preview/visual-reference/beauty.png",
+    "crop": [
+      750,
+      248,
+      824,
+      337
+    ],
+    "size": [
+      74,
+      89
+    ],
+    "url": "/visual/beauty-hero-small-b.webp"
+  },
+  {
+    "name": "beauty-cta",
+    "source": "preview/visual-reference/beauty.png",
+    "crop": [
+      740,
+      1224,
+      968,
+      1364
+    ],
+    "size": [
+      228,
+      140
+    ],
+    "url": "/visual/beauty-cta.webp"
+  },
+  {
+    "name": "restaurant-hero-small-a",
+    "source": "preview/visual-reference/restaurant.png",
+    "crop": [
+      679,
+      90,
+      797,
+      245
+    ],
+    "size": [
+      118,
+      155
+    ],
+    "url": "/visual/restaurant-hero-small-a.webp"
+  },
+  {
+    "name": "restaurant-hero-small-b",
+    "source": "preview/visual-reference/restaurant.png",
+    "crop": [
+      718,
+      278,
+      808,
+      364
+    ],
+    "size": [
+      90,
+      86
+    ],
+    "url": "/visual/restaurant-hero-small-b.webp"
+  },
+  {
+    "name": "restaurant-cta",
+    "source": "preview/visual-reference/restaurant.png",
+    "crop": [
+      720,
+      1185,
+      976,
+      1343
+    ],
+    "size": [
+      256,
+      158
+    ],
+    "url": "/visual/restaurant-cta.webp"
+  },
+  {
+    "name": "contractor-hero-small-a",
+    "source": "preview/visual-reference/contractor.png",
+    "crop": [
+      731,
+      85,
+      820,
+      243
+    ],
+    "size": [
+      89,
+      158
+    ],
+    "url": "/visual/contractor-hero-small-a.webp"
+  },
+  {
+    "name": "contractor-hero-small-b",
+    "source": "preview/visual-reference/contractor.png",
+    "crop": [
+      747,
+      265,
+      829,
+      351
+    ],
+    "size": [
+      82,
+      86
+    ],
+    "url": "/visual/contractor-hero-small-b.webp"
+  },
+  {
+    "name": "contractor-cta",
+    "source": "preview/visual-reference/contractor.png",
+    "crop": [
+      715,
+      1197,
+      963,
+      1358
+    ],
+    "size": [
+      248,
+      161
+    ],
+    "url": "/visual/contractor-cta.webp"
+  },
+  {
+    "name": "calendar-photo-1",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      504,
+      373,
+      610,
+      416
+    ],
+    "size": [
+      106,
+      43
+    ],
+    "url": "/visual/calendar-photo-1.webp"
+  },
+  {
+    "name": "calendar-photo-2",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      638,
+      373,
+      744,
+      416
+    ],
+    "size": [
+      106,
+      43
+    ],
+    "url": "/visual/calendar-photo-2.webp"
+  },
+  {
+    "name": "calendar-photo-3",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      900,
+      373,
+      1006,
+      416
+    ],
+    "size": [
+      106,
+      43
+    ],
+    "url": "/visual/calendar-photo-3.webp"
+  },
+  {
+    "name": "calendar-photo-4",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      373,
+      506,
+      479,
+      549
+    ],
+    "size": [
+      106,
+      43
+    ],
+    "url": "/visual/calendar-photo-4.webp"
+  },
+  {
+    "name": "calendar-photo-5",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      504,
+      506,
+      610,
+      549
+    ],
+    "size": [
+      106,
+      43
+    ],
+    "url": "/visual/calendar-photo-5.webp"
+  },
+  {
+    "name": "calendar-photo-6",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      768,
+      506,
+      874,
+      549
+    ],
+    "size": [
+      106,
+      43
+    ],
+    "url": "/visual/calendar-photo-6.webp"
+  },
+  {
+    "name": "calendar-photo-7",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      900,
+      506,
+      1006,
+      549
+    ],
+    "size": [
+      106,
+      43
+    ],
+    "url": "/visual/calendar-photo-7.webp"
+  },
+  {
+    "name": "calendar-photo-8",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      1031,
+      506,
+      1137,
+      549
+    ],
+    "size": [
+      106,
+      43
+    ],
+    "url": "/visual/calendar-photo-8.webp"
+  },
+  {
+    "name": "calendar-photo-9",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      373,
+      651,
+      479,
+      694
+    ],
+    "size": [
+      106,
+      43
+    ],
+    "url": "/visual/calendar-photo-9.webp"
+  },
+  {
+    "name": "calendar-photo-10",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      504,
+      651,
+      610,
+      694
+    ],
+    "size": [
+      106,
+      43
+    ],
+    "url": "/visual/calendar-photo-10.webp"
+  },
+  {
+    "name": "calendar-photo-11",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      768,
+      651,
+      874,
+      694
+    ],
+    "size": [
+      106,
+      43
+    ],
+    "url": "/visual/calendar-photo-11.webp"
+  },
+  {
+    "name": "calendar-photo-12",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      900,
+      651,
+      1006,
+      694
+    ],
+    "size": [
+      106,
+      43
+    ],
+    "url": "/visual/calendar-photo-12.webp"
+  },
+  {
+    "name": "calendar-photo-13",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      373,
+      793,
+      479,
+      836
+    ],
+    "size": [
+      106,
+      43
+    ],
+    "url": "/visual/calendar-photo-13.webp"
+  },
+  {
+    "name": "calendar-photo-14",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      638,
+      793,
+      744,
+      836
+    ],
+    "size": [
+      106,
+      43
+    ],
+    "url": "/visual/calendar-photo-14.webp"
+  },
+  {
+    "name": "calendar-photo-15",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      768,
+      793,
+      874,
+      836
+    ],
+    "size": [
+      106,
+      43
+    ],
+    "url": "/visual/calendar-photo-15.webp"
+  },
+  {
+    "name": "calendar-photo-16",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      900,
+      793,
+      1006,
+      836
+    ],
+    "size": [
+      106,
+      43
+    ],
+    "url": "/visual/calendar-photo-16.webp"
+  },
+  {
+    "name": "calendar-photo-17",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      373,
+      910,
+      479,
+      953
+    ],
+    "size": [
+      106,
+      43
+    ],
+    "url": "/visual/calendar-photo-17.webp"
+  },
+  {
+    "name": "calendar-photo-18",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      504,
+      910,
+      610,
+      953
+    ],
+    "size": [
+      106,
+      43
+    ],
+    "url": "/visual/calendar-photo-18.webp"
+  },
+  {
+    "name": "calendar-photo-19",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      638,
+      910,
+      744,
+      953
+    ],
+    "size": [
+      106,
+      43
+    ],
+    "url": "/visual/calendar-photo-19.webp"
+  },
+  {
+    "name": "calendar-upcoming-1",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      1185,
+      183,
+      1255,
+      242
+    ],
+    "size": [
+      70,
+      59
+    ],
+    "url": "/visual/calendar-upcoming-1.webp"
+  },
+  {
+    "name": "calendar-upcoming-2",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      1185,
+      257,
+      1255,
+      316
+    ],
+    "size": [
+      70,
+      59
+    ],
+    "url": "/visual/calendar-upcoming-2.webp"
+  },
+  {
+    "name": "calendar-upcoming-3",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      1185,
+      330,
+      1255,
+      389
+    ],
+    "size": [
+      70,
+      59
+    ],
+    "url": "/visual/calendar-upcoming-3.webp"
+  },
+  {
+    "name": "calendar-upcoming-4",
+    "source": "美容工作室营销日历仪表盘.png",
+    "crop": [
+      1185,
+      401,
+      1255,
+      460
+    ],
+    "size": [
+      70,
+      59
+    ],
+    "url": "/visual/calendar-upcoming-4.webp"
+  }
+]

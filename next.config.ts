@@ -5,6 +5,7 @@ const TEMPLATE_ASSETS_ORIGIN = "https://storage.googleapis.com/postory-templates
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  devIndicators: false,
   experimental: {
     serverActions: { bodySizeLimit: "12mb" },
   },

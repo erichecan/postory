@@ -18,7 +18,7 @@ export default async function PlansPage() {
   const tiers = await listTiers(locale);
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="ds-document ds-marketing-document flex min-h-screen flex-col">
       <PublicHeader signedIn={user !== null} />
       <main className="mx-auto flex w-full max-w-[1080px] flex-1 flex-col gap-14 px-4 py-14">
         <header className="mx-auto max-w-xl text-center">

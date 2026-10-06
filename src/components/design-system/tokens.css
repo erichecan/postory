@@ -1,0 +1,71 @@
+/* Shared source of truth for website and application UI. */
+:root {
+  --ds-font: "Inter", "Noto Sans SC", system-ui, sans-serif;
+  --ds-text-xs: 0.75rem;
+  --ds-text-sm: 0.875rem;
+  --ds-text-base: 1rem;
+  --ds-text-lg: 1.125rem;
+  --ds-text-xl: 1.25rem;
+  --ds-text-2xl: 1.5rem;
+  --ds-text-3xl: 2rem;
+  --ds-text-4xl: 3rem;
+  --ds-display-size: 3rem;
+  --ds-ink: #101a44;
+  --ds-muted: #53617e;
+  --ds-brand: #ff0086;
+  --ds-action: #df0075;
+  --ds-brand-text: #c90069;
+  --ds-brand-hover: #da0073;
+  --ds-orange: #ff7a00;
+  --ds-surface: #ffffff;
+  --ds-canvas: #f6f8fc;
+  --ds-tint: #fff1f7;
+  --ds-border: #e4e8f1;
+  --ds-success: #087f5b;
+  --ds-success-tint: #e7f7ef;
+  --ds-warning: #a94e00;
+  --ds-warning-tint: #fff1df;
+  --ds-info: #175ec7;
+  --ds-info-tint: #eaf2ff;
+  --ds-error: #c12843;
+  --ds-error-tint: #fff0f2;
+  --ds-space-1: 0.25rem;
+  --ds-space-2: 0.5rem;
+  --ds-space-3: 0.75rem;
+  --ds-space-4: 1rem;
+  --ds-space-6: 1.5rem;
+  --ds-space-8: 2rem;
+  --ds-space-10: 2.5rem;
+  --ds-space-12: 3rem;
+  --ds-space-16: 4rem;
+  --ds-radius-sm: 0.5rem;
+  --ds-radius-md: 0.75rem;
+  --ds-radius-lg: 1rem;
+  --ds-shadow: 0 4px 20px #101a4408;
+  --ds-content: 1200px;
+  --ds-workspace: 1280px;
+  --ds-gutter: 32px;
+}
+.ps {
+  --ps-ink: var(--ds-ink);
+  --ps-copy: var(--ds-muted);
+  --ps-pink: var(--ds-brand);
+  --ps-line: var(--ds-border);
+  --ps-pale: var(--ds-tint);
+}
+@media (max-width: 700px) {
+  :root {
+    --ds-gutter: 16px;
+  }
+}
+
+@media (max-width: 900px) {
+  :root {
+    --ds-display-size: 2.5rem;
+  }
+}
+@media (max-width: 700px) {
+  :root {
+    --ds-display-size: 2.25rem;
+  }
+}

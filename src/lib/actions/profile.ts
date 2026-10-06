@@ -51,5 +51,7 @@ export async function saveProfileAction(_: FormState, formData: FormData): Promi
     throw e;
   }
   revalidatePath("/profile");
+  revalidatePath("/my-brand");
+  revalidatePath("/dashboard");
   return { ok: true, message: (await getTranslations("profile"))("savedMessage") };
 }

@@ -22,14 +22,23 @@ export default async function ProfilePage() {
       <p className="mt-1 mb-8 text-sm text-muted-foreground">{t("subtitle")}</p>
       <ProfileForm initial={profile} />
       <div className="my-10 h-px bg-border" />
-      <SocialAccountsPanel accounts={accounts.filter((a) => a.connectedAt).map((a) => ({ platform: a.platform, handle: a.handle }))} />
+      <div id="connections">
+        <SocialAccountsPanel
+          accounts={accounts
+            .filter((a) => a.connectedAt)
+            .map((a) => ({ platform: a.platform, handle: a.handle }))}
+        />
+      </div>
       <div className="my-10 h-px bg-border" />
       <div className="flex items-center justify-between gap-3 rounded-xl border p-4">
         <div>
           <h2 className="font-semibold">{tc("title")}</h2>
           <p className="mt-1 text-xs text-muted-foreground">{tc("subtitle")}</p>
         </div>
-        <Link href="/profile/customers" className="shrink-0 rounded-md border px-3 py-1.5 text-sm hover:bg-accent">
+        <Link
+          href="/profile/customers"
+          className="shrink-0 rounded-md border px-3 py-1.5 text-sm hover:bg-accent"
+        >
           {customers.length}
         </Link>
       </div>

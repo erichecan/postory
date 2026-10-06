@@ -5,6 +5,9 @@ import { TimeZoneSync } from "@/components/i18n/time-zone-sync";
 import { Toaster } from "@/components/ui/sonner";
 import fontSheets from "@/data/font-stylesheets.json";
 import "./globals.css";
+import "@/components/design-system/tokens.css";
+import "@/components/visual/visual.css";
+import "@/components/design-system/components.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("common");
