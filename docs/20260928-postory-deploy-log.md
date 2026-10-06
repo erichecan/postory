@@ -1,5 +1,15 @@
 # social-shell 部署日志
 
+## 2026-10-06 · 参考页面重建与 Design System v1 上线
+
+- **部署内容**：主要营销页面、客户 Dashboard / My Campaign / Calendar / My Brand、公开演示页和组件规范页；统一字体角色、颜色、间距、按钮、表单及导航，保留提供的 PNG Logo。旧工具接入基础规范，尚未逐组件完成全站改造；Logo 清晰度优化尚未实施。
+- **提交与部署**：应用提交 `4d0dd75`；GitHub Actions [37459602245](https://github.com/erichecan/postory/actions/runs/37459602245) 成功；Cloud Run revision `postory-00016-qns` 承接 100% 流量。沿用 min 0 / max 3，未执行数据库迁移或 seed。
+- **地址**：https://postory-dfd7b2qpra-ew.a.run.app 。组件规范：`/demo/design-system`。
+- **本地验证**：类型检查、生产构建通过；lint 0 错误，6 条现有警告。设计系统浏览器验收见 `docs/design-system/validation.md`。
+- **线上验证**：18 个页面在 1440 × 900 和 390 × 900 下共 36 项浏览器检查；页面返回 200，无运行错误、横向溢出或可见图片加载失败。4 个客户页面未登录均 307 跳转登录；Logo 与页面图片素材返回 200。流水线另验证登录、首页、法律与模板素材均 200。手机登录页中隐藏的懒加载图片不作为失败判断。
+- **截图与数据**：部署截图与报告保存在本地 `preview/deployment-20261006`；`preview` 已加入 Git 忽略，客户截图不上传公开仓库。
+- **已知限制**：Logo 仍为 PNG 缩放裁切；旧客户工具、管理员页面与编辑器尚未完成所有组件和状态的统一。原有 fake 发布/计费配置沿用；邮件提交仍需配置邮件服务才能实际发送。
+
 ## 2026-10-04 · 营销日历模块（单元1-12）+ PoStory 品牌改版第一步（浅色主题+新Logo）上线
 
 - **想达成什么**：把本地攒了两天没推的 15 个 commit 一次性推上线——① 营销日历自助排期模块全套（行业日历、WhatsApp审核自动发布、邮件短信触达自动化、一句话下单、顾客名单、官网获客页 `/calendar-preview`）；② PoStory 品牌改版第一步：浅色主题 + Hot Pink/Orange 新配色 + 新 Logo（后续 Dashboard/My Campaign 代运营模式改造还在进行中，这次只上了品牌视觉这一层）。
