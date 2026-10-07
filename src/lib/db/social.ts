@@ -41,6 +41,21 @@ export async function getAyrshareProfileKey(userId: string): Promise<string | nu
   return user?.ayrshareProfileKeyEnc ? decryptSecret(user.ayrshareProfileKeyEnc) : null;
 }
 
+export async function replaceInvalidAyrshareProfile(userId: string, title: string, invalidProfileKey: string): Promise<{ profileKey: string }> {
+  const user = await prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { ayrshareProfileKeyEnc: true } });
+  if (!user.ayrshareProfileKeyEnc) return ensureAyrshareProfile(userId, title);
+  const currentProfileKey = decryptSecret(user.ayrshareProfileKeyEnc);
+  if (currentProfileKey !== invalidProfileKey) return { profileKey: currentProfileKey };
+
+  const created = await getAyrshareGateway().createProfile({ title: `${title.slice(0, 48)} · ${userId.slice(-8)}` });
+  const replaced = await prisma.user.updateMany({
+    where: { id: userId, ayrshareProfileKeyEnc: user.ayrshareProfileKeyEnc },
+    data: { ayrshareProfileKeyEnc: encryptSecret(created.profileKey), ayrshareRefId: created.refId },
+  });
+  if (replaced.count === 1) return { profileKey: created.profileKey };
+  return ensureAyrshareProfile(userId, title);
+}
+
 export async function markSocialAccountConnected(userId: string, platform: string, handle: string | null) {
   await prisma.socialAccount.upsert({
     where: { userId_platform: { userId, platform } },

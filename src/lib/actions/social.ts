@@ -4,9 +4,9 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
 import { assertUser } from "@/lib/auth/session";
-import { getAyrshareGateway, isAyrshareSupported } from "@/lib/ayrshare";
+import { getAyrshareGateway, isAyrshareSupported, isInvalidAyrshareProfileError } from "@/lib/ayrshare";
 import { appUrl } from "@/lib/app-url";
-import { disconnectSocialAccount, ensureAyrshareProfile, getAyrshareProfileKey } from "@/lib/db/social";
+import { disconnectSocialAccount, ensureAyrshareProfile, getAyrshareProfileKey, replaceInvalidAyrshareProfile } from "@/lib/db/social";
 import type { PublishPlatformId } from "@/lib/platforms";
 
 export async function connectSocialAction(platform: string): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
@@ -15,9 +15,17 @@ export async function connectSocialAction(platform: string): Promise<{ ok: true;
   const parsedPlatform = z.string().max(32).parse(platform);
   if (!isAyrshareSupported(parsedPlatform)) return { ok: false, error: t("unsupported") };
   try {
-    const { profileKey } = await ensureAyrshareProfile(user.id, user.name);
+    let { profileKey } = await ensureAyrshareProfile(user.id, user.name);
     const redirectUrl = `${appUrl()}/api/social/callback?platform=${encodeURIComponent(parsedPlatform)}`;
-    const { url } = await getAyrshareGateway().createConnectLink(profileKey, redirectUrl, parsedPlatform);
+    const gateway = getAyrshareGateway();
+    let url: string;
+    try {
+      ({ url } = await gateway.createConnectLink(profileKey, redirectUrl, parsedPlatform));
+    } catch (error) {
+      if (!isInvalidAyrshareProfileError(error) || gateway.mode !== "live") throw error;
+      ({ profileKey } = await replaceInvalidAyrshareProfile(user.id, user.name, profileKey));
+      ({ url } = await gateway.createConnectLink(profileKey, redirectUrl, parsedPlatform));
+    }
     return { ok: true, url };
   } catch (error) {
     console.error("Social account connection failed", error);

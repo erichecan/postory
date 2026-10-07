@@ -4,6 +4,21 @@ import { requiresConnection, type PublishPlatformId } from "@/lib/platforms";
 
 const API_BASE = "https://api.ayrshare.com/api";
 
+export class AyrshareApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly code?: number,
+  ) {
+    super(message);
+    this.name = "AyrshareApiError";
+  }
+}
+
+export function isInvalidAyrshareProfileError(error: unknown): boolean {
+  return error instanceof AyrshareApiError && error.code === 144;
+}
+
 /**
  * 本项目平台名 -> Ayrshare 平台字符串。X 是 "twitter" 不是 "x"（2026-09-29 查证 apis/post/post）。
  * 哪些平台需要真实连接见 src/lib/platforms.ts 的 requiresConnection（唯一真相，避免两处列表走偏）。
@@ -62,7 +77,10 @@ function liveGateway(apiKey: string): AyrshareGateway {
       body: opts.body ? JSON.stringify(opts.body) : undefined,
     });
     const json = await res.json().catch(() => null);
-    if (!res.ok) throw new Error(`ayrshare ${path} failed: HTTP ${res.status} ${JSON.stringify(json)}`);
+    if (!res.ok) {
+      const code = json && typeof json === "object" && "code" in json && typeof json.code === "number" ? json.code : undefined;
+      throw new AyrshareApiError(`ayrshare ${path} failed: HTTP ${res.status} ${JSON.stringify(json)}`, res.status, code);
+    }
     return json as T;
   }
 
