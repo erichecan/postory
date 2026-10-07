@@ -14,14 +14,19 @@ export async function listSocialAccounts(userId: string) {
 
 export async function ensureAyrshareProfile(userId: string, title: string): Promise<{ profileKey: string }> {
   const user = await prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { ayrshareProfileKeyEnc: true, ayrshareRefId: true } });
-  if (user.ayrshareProfileKeyEnc) return { profileKey: decryptSecret(user.ayrshareProfileKeyEnc) };
   const gateway = getAyrshareGateway();
+  if (user.ayrshareProfileKeyEnc) {
+    const existingProfileKey = decryptSecret(user.ayrshareProfileKeyEnc);
+    // 上线前 fake 模式会保存 pk_fake_*。切到真实网关后自动换成真实 Profile，
+    // 否则 Ayrshare 会以 code 144 拒绝所有老账号的连接请求。
+    if (gateway.mode === "fake" || !existingProfileKey.startsWith("pk_fake_")) return { profileKey: existingProfileKey };
+  }
   // Ayrshare 要求 Profile title 全账号唯一。用户可重名，因此加入稳定且不面向客户展示的内部后缀。
   const created = await gateway.createProfile({ title: `${title.slice(0, 48)} · ${userId.slice(-8)}` });
   // 两个并发请求都可能在这里各自建出一个 Ayrshare Profile；用条件更新只让先写入的那份生效，
   // 后到的直接读回已经写入的 key，不会用自己这份覆盖掉赢家（否则先弹出的连接授权页会指向被丢弃的 Profile）。
   const won = await prisma.user.updateMany({
-    where: { id: userId, ayrshareProfileKeyEnc: null },
+    where: { id: userId, ayrshareProfileKeyEnc: user.ayrshareProfileKeyEnc },
     data: { ayrshareProfileKeyEnc: encryptSecret(created.profileKey), ayrshareRefId: created.refId },
   });
   if (won.count === 0) {

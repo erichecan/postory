@@ -57,6 +57,7 @@ async function main() {
 
   const gateway = getAyrshareGateway();
   check("本地/verify 环境默认走 fake 网关", gateway.mode === "fake");
+  check("fake Profile Key 有可识别前缀", (await gateway.createProfile({ title: "probe" })).profileKey.startsWith("pk_fake_"));
   const mapped = await gateway.publish({ profileKey: "pk", caption: "c", mediaUrl: "https://x/y.png", platforms: ["x"] });
   check('平台名映射 "x" → "twitter"', mapped.perPlatform[0]?.platform === "twitter");
   check("fake publish 全平台成功", mapped.overallStatus === "SUCCESS");
