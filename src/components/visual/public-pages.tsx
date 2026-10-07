@@ -150,14 +150,16 @@ export function OwnerHero({
   title,
   body,
   features = false,
+  variant = "services",
 }: {
   tag: string;
   title: ReactNode;
   body: string;
   features?: boolean;
+  variant?: "services" | "industries" | "process" | "about";
 }) {
   return (
-    <section className="ps-owner-hero">
+    <section className={`ps-owner-hero ps-owner-hero-${variant}`}>
       <div className="ps-owner-copy">
         <span className="ps-kicker">{tag}</span>
         <h1>{title}</h1>
@@ -198,34 +200,130 @@ export function OwnerHero({
           </div>
         )}
       </div>
-      <div className="ps-owner-visual">
-        <Photo
-          name="hero-owner"
-          alt="Local business owner checking her phone"
-        />
-        <PostMockup
-          image="beauty-6"
-          className="ps-owner-post-a"
-          caption="Self-Care Looks Good On You"
-        />
-        <PostMockup
-          image="beauty-3"
-          platform="facebook"
-          className="ps-owner-post-b"
-          caption="Relax. Refresh. Glow."
-        />
-        <PostMockup
-          image="beauty-5"
-          platform="tiktok"
-          className="ps-owner-post-c"
-          caption="3 Skincare Tips You Need to Know"
-        />
-        <div className="ps-followers">
-          Followers <strong>+28% ↗</strong>
-          <small>Illustrative demo</small>
+      <OwnerHeroVisual variant={variant} />
+    </section>
+  );
+}
+
+function OwnerHeroVisual({
+  variant,
+}: {
+  variant: "services" | "industries" | "process" | "about";
+}) {
+  if (variant === "industries") {
+    return (
+      <div className="ps-owner-visual ps-industry-hero-visual">
+        {[
+          ["industry-1", "Beauty & Wellness"],
+          ["industry-2", "Restaurants & Cafés"],
+          ["industry-3", "Home Services"],
+          ["industry-5", "Local Retail"],
+        ].map(([image, label], index) => (
+          <div className={`ps-industry-tile ps-industry-tile-${index + 1}`} key={label}>
+            <Photo name={image} alt={label} />
+            <span>{label}</span>
+          </div>
+        ))}
+        <div className="ps-industry-reach">
+          <Users />
+          <span>
+            Built for
+            <strong>local businesses</strong>
+          </span>
         </div>
       </div>
-    </section>
+    );
+  }
+
+  if (variant === "process") {
+    return (
+      <div className="ps-owner-visual ps-process-hero-visual">
+        <Photo
+          name="assessment-meeting"
+          alt="Business owner planning social media content with a specialist"
+        />
+        <div className="ps-process-track" aria-label="Our five-step process">
+          {[
+            [MessageCircle, "Discover"],
+            [Target, "Plan"],
+            [Camera, "Create"],
+            [Check, "Approve"],
+            [Send, "Publish"],
+          ].map(([Icon, label], index) => {
+            const I = Icon as typeof MessageCircle;
+            return (
+              <div key={String(label)}>
+                <span>{index + 1}</span>
+                <I />
+                <strong>{String(label)}</strong>
+              </div>
+            );
+          })}
+        </div>
+        <div className="ps-process-status">
+          <span className="ps-status-dot" />
+          Your content is on track
+        </div>
+      </div>
+    );
+  }
+
+  if (variant === "about") {
+    return (
+      <div className="ps-owner-visual ps-about-hero-visual">
+        <Photo
+          name="team-working"
+          alt="Creative team collaborating on a local business campaign"
+        />
+        <div className="ps-about-belief">
+          <Heart />
+          <span>
+            Local stories deserve
+            <strong>to be seen.</strong>
+          </span>
+        </div>
+        <div className="ps-about-combo-card">
+          <span><Users /> Human creativity</span>
+          <i>+</i>
+          <span><Bot /> AI efficiency</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="ps-owner-visual ps-services-hero-visual">
+      <Photo
+        name="hero-owner"
+        alt="Local business owner reviewing her social media"
+      />
+      <div className="ps-service-workflow">
+        {[
+          [Target, "Strategy", "Ready"],
+          [Camera, "Content", "Creating"],
+          [CalendarDays, "Publishing", "Scheduled"],
+        ].map(([Icon, title, status], index) => {
+          const I = Icon as typeof Target;
+          return (
+            <div key={String(title)}>
+              <span className={`ps-icon ps-tone-${index}`}><I /></span>
+              <span><strong>{String(title)}</strong><small>{String(status)}</small></span>
+              <Check />
+            </div>
+          );
+        })}
+      </div>
+      <PostMockup
+        image="restaurant-hero"
+        platform="instagram"
+        className="ps-service-result-post"
+        caption="Ready to publish"
+      />
+      <div className="ps-service-result">
+        <ChartNoAxesColumnIncreasing />
+        <span>Consistent growth<strong>Managed for you</strong></span>
+      </div>
+    </div>
   );
 }
 const steps = [
@@ -1148,6 +1246,7 @@ export function ProcessPage() {
     <PublicFrame className="ps-process">
       <OwnerHero
         tag="HOW IT WORKS"
+        variant="process"
         title={
           <>
             A simple process.
@@ -1260,6 +1359,7 @@ export function IndustriesPage() {
     <PublicFrame className="ps-industries">
       <OwnerHero
         tag="WHO WE HELP"
+        variant="industries"
         title={
           <>
             Different businesses.
@@ -1331,6 +1431,7 @@ export function AboutPage() {
     <PublicFrame className="ps-about">
       <OwnerHero
         tag="ABOUT POSTORY"
+        variant="about"
         title={
           <>
             We believe every
