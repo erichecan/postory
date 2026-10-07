@@ -39,8 +39,9 @@ export type PublishResult = { postId: string; overallStatus: "SUCCESS" | "PARTIA
 export type AyrshareGateway = {
   mode: "live" | "fake";
   createProfile(input: { title: string }): Promise<{ profileKey: string; refId: string }>;
-  createConnectLink(profileKey: string, redirectUrl: string): Promise<{ url: string }>;
+  createConnectLink(profileKey: string, redirectUrl: string, platform: PublishPlatformId): Promise<{ url: string }>;
   getConnectedAccounts(profileKey: string): Promise<{ platforms: string[] }>;
+  disconnectAccount(profileKey: string, platform: PublishPlatformId): Promise<void>;
   publish(input: PublishInput): Promise<PublishResult>;
 };
 
@@ -67,14 +68,17 @@ function liveGateway(apiKey: string): AyrshareGateway {
 
   return {
     mode: "live",
-    // 接真实模式前需重新核对 https://www.ayrshare.com/docs/apis/profiles/overview 的确切请求/响应字段
     async createProfile({ title }) {
-      const json = await call<{ profileKey: string; refId: string }>("/profiles/create-profile", { body: { title } });
+      const json = await call<{ profileKey: string; refId: string }>("/profiles", { body: { title } });
       return { profileKey: json.profileKey, refId: json.refId };
     },
-    // 接真实模式前需重新核对 https://www.ayrshare.com/docs/multiple-users/api-integration-business 的确切字段名
-    async createConnectLink(profileKey, redirectUrl) {
-      const json = await call<{ url: string }>("/profiles/link-sessions", { profileKey, body: { redirect: redirectUrl } });
+    async createConnectLink(profileKey, redirectUrl, platform) {
+      const ayrsharePlatform = AYRSHARE_PLATFORM[platform];
+      if (!ayrsharePlatform) throw new Error(`unsupported social platform: ${platform}`);
+      const json = await call<{ url: string }>("/profiles/link-sessions", {
+        profileKey,
+        body: { redirect: redirectUrl, allowedSocial: [ayrsharePlatform] },
+      });
       return { url: json.url };
     },
     async getConnectedAccounts(profileKey) {
@@ -82,6 +86,11 @@ function liveGateway(apiKey: string): AyrshareGateway {
       // Ayrshare 用它自己的平台字符串（比如 "twitter"），转换回本项目内部 id（"x"）再返回，
       // 否则调用方按内部 id 比对永远匹配不上，X 连了也会一直显示未连接。
       return { platforms: (json.activeSocialAccounts ?? []).map((slug) => FROM_AYRSHARE_PLATFORM[slug]).filter((p): p is PublishPlatformId => Boolean(p)) };
+    },
+    async disconnectAccount(profileKey, platform) {
+      const ayrsharePlatform = AYRSHARE_PLATFORM[platform];
+      if (!ayrsharePlatform) throw new Error(`unsupported social platform: ${platform}`);
+      await call("/profiles/social", { method: "DELETE", profileKey, body: { platform: ayrsharePlatform } });
     },
     async publish({ profileKey, caption, mediaUrl, platforms, scheduleDate }) {
       // 真实响应把每条帖子包在 posts[0] 里，顶层没有 postIds（2026-10-02 用生产 key 实测核实，
@@ -138,6 +147,7 @@ function fakeGateway(): AyrshareGateway {
     async getConnectedAccounts() {
       return { platforms: [] };
     },
+    async disconnectAccount() {},
     async publish({ caption, mediaUrl, platforms }) {
       const perPlatform: PerPlatformResult[] = platforms.map((p) => ({ platform: AYRSHARE_PLATFORM[p] ?? p, status: "success" }));
       void caption;

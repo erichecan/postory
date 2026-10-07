@@ -54,6 +54,8 @@
     "connect": "Connect",
     "connected": "Connected",
     "connectedDemo": "demo connection",
-    "unsupported": "This platform isn't supported yet"
+    "unsupported": "This platform isn't supported yet",
+    "connectionFailed": "We couldn't connect that social account. Please try again later.",
+    "disconnectionFailed": "We couldn't disconnect that social account. Please try again later."
   }
 }

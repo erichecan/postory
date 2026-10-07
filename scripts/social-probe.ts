@@ -115,6 +115,10 @@ async function main() {
       const pub = await fetch(uploadJson.url);
       check("公开导出图任何人（无 cookie）都能读到", pub.status === 200);
     }
+
+    const disconnect = await call("disconnectSocialAction", ["facebook"], cA);
+    const accountAfterDisconnect = await prisma.socialAccount.findUnique({ where: { userId_platform: { userId: a.id, platform: "facebook" } } });
+    check("断开账号同时清理本地连接", /"ok":true/.test(disconnect.body) && accountAfterDisconnect === null);
   } finally {
     await prisma.design.deleteMany({ where: { userId: { in: [a.id, b.id] } } });
     await prisma.user.deleteMany({ where: { id: { in: [a.id, b.id] } } });

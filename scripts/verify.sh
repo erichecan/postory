@@ -45,7 +45,7 @@ step "双语路由探针（NEXT_LOCALE=zh/en → <html lang> 与状态码）"
 for path in "/" "/legal/terms" "/legal/privacy" "/legal/refund" "/login" "/register" "/forgot-password" "/plans" "/templates" "/templates?platform=instagram-post" "/templates/orshot-2427" "/designs" "/profile" "/membership" "/membership/success" "/membership/cancel" "/create" "/generations"; do
   for loc in zh en; do
     want=$([ "$loc" = zh ] && echo "zh-CN" || echo "en")
-    SESSION=$([[ "$path" == / || "$path" == /legal/* || "$path" == /login || "$path" == /register || "$path" == /forgot-password || "$path" == /plans ]] || echo "; $COOKIE")
+    SESSION=$( [[ "$path" == / || "$path" == /legal/* || "$path" == /login || "$path" == /register || "$path" == /forgot-password || "$path" == /plans ]] || echo "; $COOKIE" )
     RES=$(curl -s -w '\n%{http_code}' -H "Cookie: NEXT_LOCALE=$loc$SESSION" "$BASE$path")
     CODE=$(tail -n1 <<<"$RES")
     OK=0; [[ "$CODE" == 200 ]] && grep -q "<html lang=\"$want\"" <<<"$RES" && OK=1
@@ -66,7 +66,7 @@ step "付费墙：导出 / 发布计划扣费、平台权益"
 run "paywall-probe" npx tsx scripts/paywall-probe.ts "$BASE"
 
 step "Ayrshare 发布：加密存储、多租户隔离、连接 + 真实（fake）发布流程"
-run "social-probe" env NODE_OPTIONS="--conditions=react-server" npx tsx scripts/social-probe.ts "$BASE"
+run "social-probe" env AYRSHARE_MODE=fake NODE_OPTIONS="--conditions=react-server" npx tsx scripts/social-probe.ts "$BASE"
 
 step "AI 生图：扣费 / 失败退款 / 限流 / 送到编辑器"
 run "gen-probe" npx tsx scripts/gen-probe.ts "$BASE"

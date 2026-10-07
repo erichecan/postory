@@ -45,7 +45,8 @@ export function SocialAccountsPanel({ accounts }: { accounts: { platform: string
 
   function disconnect(platform: string) {
     start(async () => {
-      await disconnectSocialAction(platform);
+      const res = await disconnectSocialAction(platform);
+      if (!res.ok) toast.error(res.error);
     });
   }
 

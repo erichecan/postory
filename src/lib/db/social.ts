@@ -16,7 +16,8 @@ export async function ensureAyrshareProfile(userId: string, title: string): Prom
   const user = await prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { ayrshareProfileKeyEnc: true, ayrshareRefId: true } });
   if (user.ayrshareProfileKeyEnc) return { profileKey: decryptSecret(user.ayrshareProfileKeyEnc) };
   const gateway = getAyrshareGateway();
-  const created = await gateway.createProfile({ title });
+  // Ayrshare 要求 Profile title 全账号唯一。用户可重名，因此加入稳定且不面向客户展示的内部后缀。
+  const created = await gateway.createProfile({ title: `${title.slice(0, 48)} · ${userId.slice(-8)}` });
   // 两个并发请求都可能在这里各自建出一个 Ayrshare Profile；用条件更新只让先写入的那份生效，
   // 后到的直接读回已经写入的 key，不会用自己这份覆盖掉赢家（否则先弹出的连接授权页会指向被丢弃的 Profile）。
   const won = await prisma.user.updateMany({
@@ -52,6 +53,7 @@ export async function syncConnectedAccountsFromAyrshare(userId: string) {
   if (!profileKey) return [];
   const gateway = getAyrshareGateway();
   const { platforms } = await gateway.getConnectedAccounts(profileKey);
+  await prisma.socialAccount.deleteMany({ where: { userId, platform: { notIn: platforms } } });
   for (const platform of platforms) await markSocialAccountConnected(userId, platform, null);
   return platforms;
 }

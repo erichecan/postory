@@ -54,6 +54,8 @@
     "connect": "连接",
     "connected": "已连接",
     "connectedDemo": "demo 连接",
-    "unsupported": "这个平台暂不支持"
+    "unsupported": "这个平台暂不支持",
+    "connectionFailed": "暂时无法连接社交账号，请稍后再试",
+    "disconnectionFailed": "暂时无法断开社交账号，请稍后再试"
   }
 }
