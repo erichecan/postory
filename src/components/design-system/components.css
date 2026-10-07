@@ -1672,9 +1672,9 @@
     top: 64px;
   }
   .ps.ps .ps-header [aria-label="PoStory"] {
-    transform: scale(0.8);
-    transform-origin: left center;
-    margin-right: -27px;
+    --ds-logo-width: 108px;
+    transform: none;
+    margin-right: 0;
   }
   .ps.ps .ps-header .ps-button {
     font-size: var(--ds-text-xs);
@@ -2156,3 +2156,8 @@
 @media (min-width: 701px) and (max-width: 900px) {
   .ps.ps .ps-work-collage { width: calc(100% - 40px); margin-inline: auto; }
 }
+
+/* Size logos directly; transform scaling re-samples already rendered pixels. */
+.ps .ps-flow-logo { --ds-logo-width: 77px; height: auto; }
+.ps .ps-flow-logo > a { transform: none; width: 77px; }
+.ps.ps .ps-footer [aria-label="PoStory"] { height: auto; }

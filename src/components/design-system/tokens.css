@@ -1,5 +1,6 @@
 /* Shared source of truth for website and application UI. */
 :root {
+  --ds-logo-width: 180px;
   --ds-font: "Inter", "Noto Sans SC", system-ui, sans-serif;
   --ds-text-xs: 0.75rem;
   --ds-text-sm: 0.875rem;
