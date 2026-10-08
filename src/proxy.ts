@@ -6,10 +6,10 @@ const PUBLIC_PATHS = ["/", "/login", "/register", "/plans", "/forgot-password", 
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const session = await verifySession(request.cookies.get(SESSION_COOKIE)?.value);
-  const isPublic = PUBLIC_PATHS.includes(pathname) || pathname.startsWith("/legal/") || pathname.startsWith("/our-work/") || pathname.startsWith("/demo/");
+  const isPublic = PUBLIC_PATHS.includes(pathname) || pathname === "/nails/login" || pathname === "/nails/demo" || pathname.startsWith("/legal/") || pathname.startsWith("/our-work/") || pathname.startsWith("/demo/");
 
   if (!session && !isPublic) {
-    const url = new URL("/login", request.url);
+    const url = new URL(pathname === "/nails" || pathname.startsWith("/nails/") ? "/nails/login" : "/login", request.url);
     url.searchParams.set("next", pathname + search);
     return NextResponse.redirect(url);
   }

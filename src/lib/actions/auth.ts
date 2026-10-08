@@ -50,7 +50,10 @@ export async function registerAction(_: FormState, formData: FormData): Promise<
     throw e;
   }
   const sendError = await sendVerifyCode(parsed.data.email);
-  redirect(sendError ? "/verify-email?sendFailed=1" : "/verify-email");
+  const query = new URLSearchParams();
+  if (sendError) query.set("sendFailed", "1");
+  if (formData.get("next")) query.set("next", safeNext(formData.get("next")));
+  redirect(`/verify-email${query.size ? `?${query}` : ""}`);
 }
 
 export async function loginAction(_: FormState, formData: FormData): Promise<FormState> {
@@ -91,7 +94,8 @@ export async function resendVerifyCodeAction(): Promise<FormState> {
 
 export async function verifyEmailAction(_: FormState, formData: FormData): Promise<FormState> {
   const user = await assertUser();
-  if (!user.email || user.emailVerifiedAt) redirect("/dashboard");
+  const next = formData.get("next") ? safeNext(formData.get("next")) : undefined;
+  if (!user.email || user.emailVerifiedAt) redirect(next ?? "/dashboard");
   const code = codeSchema.safeParse(formData.get("code"));
   if (!code.success) return { error: await firstError(code.error) };
   const result = await consumeVerifyCode(user.email, code.data);
@@ -101,7 +105,7 @@ export async function verifyEmailAction(_: FormState, formData: FormData): Promi
   }
   await markEmailVerified(user.id);
   await grantCredits({ userId: user.id, source: "SIGNUP_GIFT", scope: "TEMPLATE_ONLY", amount: SIGNUP_GIFT_CREDITS, refId: `signup-gift:${user.email}` });
-  redirect("/onboarding?gift=1");
+  redirect(next ?? "/onboarding?gift=1");
 }
 
 export async function requestResetAction(_: FormState, formData: FormData): Promise<FormState> {

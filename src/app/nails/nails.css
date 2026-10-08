@@ -1,0 +1,8 @@
+.nails-app { --ds-logo-width: 130px; }
+.nails-app header [role="group"] button { min-width: 44px; min-height: 44px; }
+.nails-app button, .nails-app a, .nails-app input, .nails-app select { -webkit-tap-highlight-color: transparent; }
+.nails-main { width: 100%; max-width: 48rem; margin: 0 auto; padding: 1.5rem 1.25rem calc(7rem + env(safe-area-inset-bottom)); }
+.nails-main > * + * { margin-top: 1.5rem; }
+.nails-app :focus-visible, .nails-sheet :focus-visible { outline-offset: 4px; }
+@media (min-width: 640px) { .nails-main { padding-top: 2.5rem; } }
+@media (prefers-reduced-motion: reduce) { .nails-app *, .nails-sheet { animation: none !important; transition: none !important; } }

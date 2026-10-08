@@ -11,7 +11,7 @@ import { resendVerifyCodeAction, verifyEmailAction } from "@/lib/actions/auth";
 
 const COOLDOWN_SEC = 60;
 
-export function VerifyEmailForm({ email, sendFailed = false }: { email: string; sendFailed?: boolean }) {
+export function VerifyEmailForm({ email, sendFailed = false, next }: { email: string; sendFailed?: boolean; next?: string }) {
   const t = useTranslations("auth.verify");
   const tc = useTranslations("common");
   const [state, action, pending] = useActionState(verifyEmailAction, undefined);
@@ -37,6 +37,7 @@ export function VerifyEmailForm({ email, sendFailed = false }: { email: string; 
 
   return (
     <form action={action} className="flex w-full max-w-sm flex-col gap-5">
+      {next && <input type="hidden" name="next" value={next} />}
       <div>
         <h1 className="text-2xl font-semibold">{t("title")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{t("subtitle", { email })}</p>
@@ -52,7 +53,7 @@ export function VerifyEmailForm({ email, sendFailed = false }: { email: string; 
         <Button type="button" variant="link" className="h-auto p-0" onClick={resend} disabled={left > 0 || resending}>
           {left > 0 ? t("resendIn", { sec: left }) : t("resend")}
         </Button>
-        <Link href="/dashboard" className="text-muted-foreground hover:text-foreground">{t("skip")}</Link>
+        <Link href={next ?? "/dashboard"} className="text-muted-foreground hover:text-foreground">{t("skip")}</Link>
       </div>
     </form>
   );

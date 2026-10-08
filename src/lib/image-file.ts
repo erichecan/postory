@@ -31,7 +31,9 @@ function loadImage(file: File): Promise<HTMLImageElement> {
   });
 }
 
-export async function readImageFile(file: File): Promise<string> {
+export type CompressedImage = { dataUrl: string; width: number; height: number };
+
+export async function readImageFileWithSize(file: File): Promise<CompressedImage> {
   if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) throw new ImageFileError("imageFormat");
   if (file.size > MAX_UPLOAD_BYTES) throw new ImageFileError("uploadTooLarge");
   const img = await loadImage(file);
@@ -43,7 +45,15 @@ export async function readImageFile(file: File): Promise<string> {
   if (!ctx) throw new ImageFileError("imageProcessFailed");
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   const webp = canvas.toDataURL("image/webp", 0.85);
-  if (webp.startsWith("data:image/webp")) return webp;
-  const png = canvas.toDataURL("image/png");
-  return png.length <= MAX_ENCODED_CHARS ? png : canvas.toDataURL("image/jpeg", 0.85);
+  const dataUrl = webp.startsWith("data:image/webp") && webp.length <= MAX_ENCODED_CHARS
+    ? webp
+    : (() => {
+        const png = canvas.toDataURL("image/png");
+        return png.length <= MAX_ENCODED_CHARS ? png : canvas.toDataURL("image/jpeg", 0.85);
+      })();
+  return { dataUrl, width: canvas.width, height: canvas.height };
+}
+
+export async function readImageFile(file: File): Promise<string> {
+  return (await readImageFileWithSize(file)).dataUrl;
 }

@@ -74,7 +74,7 @@ export function AuthForm({
       </Button>
       <p className="text-center text-sm text-muted-foreground">
         {t(`${mode}.switchText`)}
-        <Link href={SWITCH_HREF[mode]} className="ml-1 text-primary hover:underline">
+        <Link href={next ? `${SWITCH_HREF[mode]}?next=${encodeURIComponent(next)}` : SWITCH_HREF[mode]} className="ml-1 text-primary hover:underline">
           {t(`${mode}.switchLabel`)}
         </Link>
       </p>

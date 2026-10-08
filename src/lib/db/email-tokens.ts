@@ -2,7 +2,7 @@ import "server-only";
 import { createHmac, randomBytes, randomInt, timingSafeEqual } from "node:crypto";
 import { prisma } from "./client";
 
-type Purpose = "verify" | "reset";
+type Purpose = "verify" | "reset" | "login";
 
 export const CODE_TTL_MS = 15 * 60 * 1000;
 export const RESET_TTL_MS = 30 * 60 * 1000;
@@ -25,24 +25,34 @@ function same(a: string, b: string) {
 export type IssueResult = { ok: true; secret: string } | { ok: false; reason: "cooldown" | "rateLimited"; retryAfterSec: number };
 
 async function issue(email: string, purpose: Purpose, secret: string, ttl: number, now = new Date()): Promise<IssueResult> {
-  const recent = await prisma.emailToken.findMany({
-    where: { email, purpose, createdAt: { gt: new Date(now.getTime() - 3600 * 1000) } },
-    orderBy: { createdAt: "desc" },
-    select: { createdAt: true },
+  return prisma.$transaction(async (tx) => {
+    // Serialize sends for an address/purpose so parallel requests cannot bypass limits.
+    await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`${purpose}:${email}`}, 0))::text`;
+    const recent = await tx.emailToken.findMany({
+      where: { email, purpose, createdAt: { gt: new Date(now.getTime() - 3600 * 1000) } },
+      orderBy: { createdAt: "desc" },
+      select: { createdAt: true },
+    });
+    const last = recent[0]?.createdAt;
+    if (last && now.getTime() - last.getTime() < RESEND_COOLDOWN_MS) {
+      return { ok: false, reason: "cooldown", retryAfterSec: Math.ceil((RESEND_COOLDOWN_MS - (now.getTime() - last.getTime())) / 1000) };
+    }
+    if (recent.length >= MAX_SENDS_PER_HOUR) {
+      const oldest = recent[recent.length - 1].createdAt;
+      return { ok: false, reason: "rateLimited", retryAfterSec: Math.ceil((oldest.getTime() + 3600 * 1000 - now.getTime()) / 1000) };
+    }
+    await tx.emailToken.updateMany({ where: { email, purpose, usedAt: null }, data: { usedAt: now } });
+    await tx.emailToken.create({ data: { email, purpose, codeHash: digest(purpose, email, secret), expiresAt: new Date(now.getTime() + ttl), createdAt: now } });
+    return { ok: true, secret };
   });
-  const last = recent[0]?.createdAt;
-  if (last && now.getTime() - last.getTime() < RESEND_COOLDOWN_MS) {
-    return { ok: false, reason: "cooldown", retryAfterSec: Math.ceil((RESEND_COOLDOWN_MS - (now.getTime() - last.getTime())) / 1000) };
-  }
-  if (recent.length >= MAX_SENDS_PER_HOUR) {
-    const oldest = recent[recent.length - 1].createdAt;
-    return { ok: false, reason: "rateLimited", retryAfterSec: Math.ceil((oldest.getTime() + 3600 * 1000 - now.getTime()) / 1000) };
-  }
-  await prisma.$transaction([
-    prisma.emailToken.updateMany({ where: { email, purpose, usedAt: null }, data: { usedAt: now } }),
-    prisma.emailToken.create({ data: { email, purpose, codeHash: digest(purpose, email, secret), expiresAt: new Date(now.getTime() + ttl), createdAt: now } }),
-  ]);
-  return { ok: true, secret };
+}
+
+export function issueLoginCode(email: string) {
+  return issue(email, "login", String(randomInt(0, 1_000_000)).padStart(6, "0"), CODE_TTL_MS);
+}
+
+export function consumeLoginCode(email: string, code: string) {
+  return consume(email, "login", code);
 }
 
 export function issueVerifyCode(email: string) {

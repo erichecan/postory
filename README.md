@@ -2,6 +2,8 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+PoStory for Nails 的入口是 `/nails`，开发接力、环境变量与验证记录见 [Nails HANDOFF](docs/nails/HANDOFF.md)，整体进度见 [九个开发工作包](docs/nails/WORK-PACKAGES.md)。
+
 First, run the development server:
 
 ```bash
@@ -14,7 +16,7 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3002](http://localhost:3002) with your browser to see the result. Nails 的独立演示入口：[http://localhost:3002/nails/demo](http://localhost:3002/nails/demo)。
 
 ## Social publishing (Ayrshare)
 

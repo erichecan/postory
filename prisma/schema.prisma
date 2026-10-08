@@ -194,6 +194,34 @@ model User {
   approvalRequests      ApprovalRequest[]
   outreachAutomations   OutreachAutomation[]
   endCustomers          EndCustomer[]
+  studio                Studio?
+}
+
+// Phase 1: one personally owned studio per account. User is the shared profile.
+model Studio {
+  id          String       @id @default(cuid())
+  ownerId     String       @unique
+  owner       User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name        String       @db.VarChar(64)
+  timeZone    String       @db.VarChar(64)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  mediaAssets MediaAsset[]
+}
+
+// Owned by a studio, independent of any single Post (not modeled yet). Reusable across future notes.
+model MediaAsset {
+  id        String   @id @default(cuid())
+  studioId  String
+  studio    Studio   @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  key       String   @unique
+  mimeType  String   @db.VarChar(32)
+  byteSize  Int
+  width     Int
+  height    Int
+  createdAt DateTime @default(now())
+
+  @@index([studioId, createdAt])
 }
 
 model SocialAccount {

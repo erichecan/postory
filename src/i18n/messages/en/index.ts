@@ -1,3 +1,4 @@
+import nails from "./nails.json";
 import common from "./common.json";
 import auth from "./auth.json";
 import profile from "./profile.json";
@@ -18,6 +19,6 @@ import legal from "./legal.json";
 import calendar from "./calendar.json";
 import customers from "./customers.json";
 
-const messages = { common, auth, profile, validation, nav, gallery, templates, designs, admin, platforms, editor, billing, create, plans, generations, landing, legal, calendar, customers };
+const messages = { nails, common, auth, profile, validation, nav, gallery, templates, designs, admin, platforms, editor, billing, create, plans, generations, landing, legal, calendar, customers };
 
 export default messages;

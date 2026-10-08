@@ -105,7 +105,7 @@ async function main() {
     const wrong = await formAction("/login", "loginAction", { identifier: email, password: "wrong-password" });
     check("错误密码被拒", wrong.status === 200 && wrong.cookie === "");
     const login = await formAction("/login", "loginAction", { identifier: email.toUpperCase(), password });
-    check("邮箱（大小写不敏感）+ 密码登录成功", login.cookie !== "" && login.location.startsWith("/templates"), `location=${login.location}`);
+    check("邮箱（大小写不敏感）+ 密码登录成功", login.cookie !== "" && login.location === "/dashboard", `location=${login.location}`);
     for (let i = 0; i < 10; i++) await formAction("/login", "loginAction", { identifier: email, password: "wrong-password" });
     const lockedLogin = await formAction("/login", "loginAction", { identifier: email, password });
     check("连错 10 次后锁定 15 分钟，正确密码也登不上", lockedLogin.cookie === "" && (await prisma.user.findUniqueOrThrow({ where: { email } })).loginLockedUntil !== null);

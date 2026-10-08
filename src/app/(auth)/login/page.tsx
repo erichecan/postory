@@ -5,10 +5,11 @@ import { AuthForm } from "@/components/auth/auth-form";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { DemoLogin } from "@/components/auth/demo-login";
 import { loginAction } from "@/lib/actions/auth";
+import { safeNext } from "@/lib/safe-next";
 
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
-  if (await getCurrentUser()) redirect("/dashboard");
   const { next, reset } = await searchParams;
+  if (await getCurrentUser()) redirect(safeNext(next));
   const t = await getTranslations("auth.reset");
   return (
     <AuthShell>
