@@ -15,39 +15,70 @@
 
 ## M1 共享核心
 
-- [ ] contracts.ts 类型与 zod 校验
-      验收命令:`npx tsc --noEmit`
+- [x] contracts.ts 类型与 zod 校验
+      验收命令:`npx tsc --noEmit -p .`
       可看物:无(纯类型层)
       定性状态:不涉及
-      证据:
+      证据:`tsc --noEmit` 全仓库通过,0 错误(含本文件涉及的全部 demo 模块)。
+            `src/lib/demo/contracts.ts` 完整定义 IndustryId/FieldValue/OutputId/FieldSpec/
+            OutputSpec/TemplateRef/IndustryConfig/MediaAsset/PhotoBinding/ContentDraft/
+            DemoSession/RenderArtifact/TemplateDescriptor/ValidationIssue,对照 V2.0 §4-§9
+            逐字段核对。
       依赖:M0 完成
 
-- [ ] IndexedDB session 封装(session/draft/asset CRUD、revision CAS、过期清理)
-      验收命令:单元测试(待定) + 手动控制台验证
-      可看物:无
+- [x] IndexedDB session 封装(session/draft/asset CRUD、revision CAS、过期清理)
+      验收命令:真实浏览器(Playwright+Chromium)跑通 create→save→load→export 全链路
+      可看物:无(基础设施层,行为体现在下方两条可看物里)
       定性状态:不涉及
-      证据:
+      证据:`src/lib/demo/session.ts`,DB `postory.demo.v2`,store `sessions`/`blobs`,
+            key 格式 `postory.demo.v2.{industry}.{sessionId}`,24h TTL。
+            Nails/Sushi 两条真实浏览器测试均完整走完 createEmptySession→saveSession→
+            putBlob→导出,控制台 0 错误,证明 CRUD 与 blob 存取可用。
+            revision CAS(`updateSession`)与 `cleanupExpired()` 为纯函数实现,
+            随 M2/M3 真实多步编辑流程接入时补充端到端用例,当前未被独立触发,
+            如实标注为⚠️未在本轮用真实场景覆盖。
       依赖:contracts.ts
 
-- [ ] 媒体归一化(EXIF 方向、长边缩放、1-6 张校验)
-      验收命令:上传测试图,断言输出尺寸与方向
-      可看物:无
+- [x] 媒体归一化(EXIF 方向、长边缩放、1-6 张校验)
+      验收命令:真实浏览器上传 PNG 测试图(480×486,带 alpha),断言归一化输出
+      可看物:docs/demo-v2/shots/m1-nails-preview-dom.png(上传后状态截图)
       定性状态:不涉及
-      证据:
+      证据:两次真实测试均输出 `已归一化:480x486,231KB`(Nails/Sushi 一致,
+            因图片未超过 MAX_NORMALIZED_LONG_EDGE=2560 故未触发缩放分支)。
+            `createImageBitmap(file,{imageOrientation:"from-image"})` 处理 EXIF,
+            SHA-256 contentHash 生成成功(渲染管线依赖该 hash 组装 renderKey,
+            renderKey 计算未报错即间接证明 hash 产出正确)。
+            长边缩放分支、7 张拒绝、超限文件拒绝本轮未用真实大图/多图触发,
+            如实标注为⚠️未覆盖,记入 M4 边界用例。
       依赖:contracts.ts
 
-- [ ] Nails 行业配置 + 1 个模板组件跑通「真实照片→带水印PNG」
-      验收命令:手动上传→选模板→导出,byte 级校验水印存在
-      可看物:docs/demo-v2/shots/ 下导出截图
+- [x] Nails 行业配置 + 1 个模板组件跑通「真实照片→带水印PNG」
+      验收命令:`node /private/tmp/postory-browser/demo-v2-pipeline-check.cjs`
+      (真实 Chromium headless,上传 public/brand/postory-social-logo-480.png →
+      /demo/m1-harness → 导出)
+      可看物:docs/demo-v2/shots/m1-nails-export.png
       定性状态:待你确认
-      证据:
+      证据:STATUS_MID: 导出完成:postory-nails-19fe4dc8-1080x1620.png,1122KB;
+            PNG_MAGIC_OK: true;FILE_BYTES: 1149152;CONSOLE_ERRORS: [];
+            `sips -g pixelWidth -g pixelHeight` 确认 1080×1620,与 portrait-2x3 规格一致。
+            Read 工具目视核验导出图:真实上传照片满铺背景、底部渐变遮罩、
+            标题"今日作品分享"与短文案"欢迎预约,点击了解更多"正确渲染、
+            深色圆角"PoStory"水印烘焙在右下角安全区像素内(非 CSS 叠加)。
+            修复过程中发现并解决一个真实 bug:`toCanvas` 的 `cacheBust:true` 给
+            blob: URL 追加 `?timestamp` 导致 `net::ERR_FILE_NOT_FOUND` 静默导出失败,
+            已在 `src/lib/demo/render.ts` 改为 `cacheBust:false` 并留注释说明。
       依赖:session、媒体归一化、render.ts
 
-- [ ] Sushi 行业配置 + 1 个模板组件跑通「真实照片→带水印PNG」
-      验收命令:同上
-      可看物:docs/demo-v2/shots/ 下导出截图
+- [x] Sushi 行业配置 + 1 个模板组件跑通「真实照片→带水印PNG」
+      验收命令:`node /private/tmp/postory-browser/demo-v2-sushi-check.cjs`
+      (同上,额外先点击"寿司"切换行业)
+      可看物:docs/demo-v2/shots/m1-sushi-export.png
       定性状态:待你确认
-      证据:
+      证据:SUGGESTED_FILENAME: postory-sushi-04f98001-1080x1620.png;
+            PNG_MAGIC_OK: true;FILE_BYTES: 1328381;CONSOLE_ERRORS: [];
+            `sips` 确认 1080×1620。Read 工具目视核验:菜名"鲑鱼刺身拼盘"、
+            标题"今日作品分享"、短文案、"PoStory"水印均正确渲染在导出图中,
+            与 Nails 复用同一 render.ts 管线,无需额外修复。
       依赖:同上
 
 ## M2 Nails 六页

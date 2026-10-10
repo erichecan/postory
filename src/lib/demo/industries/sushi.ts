@@ -1,0 +1,112 @@
+import { type FieldSpec, type IndustryConfig, OUTPUT_SPECS, validateIndustryConfig } from "../contracts";
+
+/** Field limits sourced from V2.0 §4.2 explicit text: dishName 40 / offerText 100, shared title 40 / shortCopy 160 / contactNote 80. */
+export const SUSHI_FIELD_CATALOG: FieldSpec[] = [
+  {
+    id: "title",
+    semanticKey: "title",
+    kind: "text",
+    labelKey: "demo.fields.title.label",
+    required: true,
+    maxLength: 40,
+    renderTarget: "image",
+  },
+  {
+    id: "dishName",
+    semanticKey: "dishName",
+    kind: "text",
+    labelKey: "demo.fields.dishName.label",
+    required: false,
+    maxLength: 40,
+    renderTarget: "image",
+  },
+  {
+    id: "shortCopy",
+    semanticKey: "shortCopy",
+    kind: "textarea",
+    labelKey: "demo.fields.shortCopy.label",
+    required: true,
+    maxLength: 160,
+    renderTarget: "copy",
+  },
+  {
+    id: "offerText",
+    semanticKey: "offerText",
+    kind: "textarea",
+    labelKey: "demo.fields.offerText.label",
+    required: false,
+    maxLength: 100,
+    renderTarget: "copy",
+  },
+  {
+    id: "contactNote",
+    semanticKey: "contactNote",
+    kind: "text",
+    labelKey: "demo.fields.contactNote.label",
+    required: false,
+    maxLength: 80,
+    renderTarget: "copy",
+  },
+];
+
+export const SUSHI_CONFIG: IndustryConfig = validateIndustryConfig({
+  schemaVersion: 2,
+  configVersion: "2026.10.09-m1",
+  id: "sushi",
+  routeBase: "/demo/sushi",
+  defaultLocale: "zh",
+  supportedLocales: ["zh", "en"],
+  themeTokens: {
+    "--demo-bg": "#1c1210",
+    "--demo-surface": "#2a1c19",
+    "--demo-primary": "#c0392b",
+    "--demo-primary-ink": "#fff6ec",
+    "--demo-ink": "#fff6ec",
+    "--demo-muted": "#c9a79a",
+  },
+  copy: {
+    zh: {
+      "demo.fields.title.label": "标题",
+      "demo.fields.dishName.label": "菜名",
+      "demo.fields.shortCopy.label": "短文案",
+      "demo.fields.offerText.label": "套餐/活动说明",
+      "demo.fields.contactNote.label": "联系说明",
+    },
+    en: {
+      "demo.fields.title.label": "Title",
+      "demo.fields.dishName.label": "Dish name",
+      "demo.fields.shortCopy.label": "Caption",
+      "demo.fields.offerText.label": "Offer details",
+      "demo.fields.contactNote.label": "Contact note",
+    },
+  },
+  categories: [{ id: "dishes", labelKey: "demo.category.dishes" }],
+  templates: [{ sourceId: "sushi-demo-classic", sourceVersion: "1", categoryId: "dishes", adapterId: "demo-static-adapter" }],
+  fieldCatalog: SUSHI_FIELD_CATALOG,
+  mediaPolicy: {
+    minCount: 1,
+    maxCount: 6,
+    maxFileBytes: 15 * 1024 * 1024,
+    maxBatchBytes: 60 * 1024 * 1024,
+    maxInputPixels: 40_000_000,
+    maxNormalizedLongEdge: 2560,
+    acceptedMime: ["image/jpeg", "image/png", "image/webp"],
+  },
+  outputs: [
+    { id: "portrait-2x3", ...OUTPUT_SPECS["portrait-2x3"], mime: "image/png" },
+  ],
+  capabilities: {
+    anonymous: true,
+    imagePreview: true,
+    watermarkedDownload: true,
+    login: false,
+    scheduling: false,
+    publishing: false,
+  },
+  conversion: {
+    headlineKey: "demo.conversion.headline",
+    bodyKey: "demo.conversion.body",
+    ctaLabelKey: "demo.conversion.cta",
+    verifiedClaims: [],
+  },
+});
