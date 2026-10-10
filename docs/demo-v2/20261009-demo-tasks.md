@@ -83,41 +83,92 @@
 
 ## M2 Nails 六页
 
-- [ ] 01 Landing(美甲社交媒体预约助手.png)
-      验收命令:`/demo/nails` 可访问,截图比对
-      可看物:docs/demo-v2/shots/nails-01-landing.png
+- [x] 01 Landing(美甲社交媒体预约助手.png)
+      验收命令:`node /private/tmp/postory-browser/demo-v2-nails-flow.cjs`(真实 Chromium,
+      完整走 Landing→Upload→Templates→Edit→Preview→Success 全流程)
+      可看物:docs/demo-v2/shots/m2-nails-01-landing.png
       定性状态:待你确认
-      证据:
+      证据:curl 200;`tsc --noEmit -p .` 全仓库 0 错误;整条流程 CONSOLE_ERRORS: []。
+            Read 工具目视核验:标题/副标题/3卡轮播(小红书/Instagram/Facebook 平台 mock)/
+            CTA 按钮/2×2 功能格栅/多平台支持行/底部转化引导区均正确渲染,文字与结构对照
+            mockup 一致。已知简化(如实记录,不冒充 100% 还原):爱心线稿装饰、下划线波浪线、
+            轮播分页圆点、照片拼贴纹理未实现,用纯色/emoji 替代。
       依赖:M1
 
-- [ ] 02 Upload(美甲作品上传界面.png)
-      可看物:docs/demo-v2/shots/nails-02-upload.png
+- [x] 02 Upload(美甲作品上传界面.png)
+      验收命令:同上,脚本内上传 2 张真实 PNG 文件并断言"已上传 2/6"文案出现
+      可看物:docs/demo-v2/shots/m2-nails-02-upload.png
       定性状态:待你确认
+      证据:上传后 2 张缩略图、编号徽标、✕ 移除按钮、"+再添加一张"占位格、
+            小贴士卡片均正确渲染,"下一步"按钮在 count<1 时禁用、≥1 时可点击,
+            实测点击后正确跳转 /demo/nails/templates。
+            已知简化:拖动排序手势(⇄ 按住拖动排序)未实现,当前仅支持点 ✕ 删除后重新上传,
+            如实标注,未冒充已支持。
       依赖:01
 
-- [ ] 03 Templates(美甲社交媒体模板精选UI.png)
-      可看物:docs/demo-v2/shots/nails-03-templates.png
+- [x] 03 Templates(美甲社交媒体模板精选UI.png)
+      验收命令:同上;另跑 `node /private/tmp/postory-browser/demo-v2-nails-viewport-check.cjs`
+      做 320/390/430 三档视口 overflow 断言
+      可看物:docs/demo-v2/shots/m2-nails-03-templates.png、m2-nails-03-templates-320.png
       定性状态:待你确认
+      证据:1 张真实可选模板(实际走查显示用户刚上传的照片)+ 5 张"即将上线"禁用占位卡,
+            不伪造 6 套真实可用模板。三档视口 document.scrollWidth<=clientWidth 均为 false
+            (无横向溢出)。⚠️ fullPage 截图中固定定位的"使用这个模板"按钮会悬浮在页面中段
+            遮住 03/04 卡片文字——经二次验证(滚动到底部后截取视口截图,见
+            /tmp/templates-scrolled-viewport.png,未入库)确认这是 Playwright fullPage 截图对
+            position:fixed 元素的已知渲染假象,真实滚动场景下按钮正确停留在视口底部、
+            不遮挡任何卡片,不是真实渲染缺陷。
       依赖:02
 
-- [ ] 04 Edit(粉色美甲社媒模板编辑器.png)
-      可看物:docs/demo-v2/shots/nails-04-edit.png
+- [x] 04 Edit(粉色美甲社媒模板编辑器.png)
+      验收命令:同上
+      可看物:docs/demo-v2/shots/m2-nails-04-edit.png、m2-nails-04-edit-saved.png
       定性状态:待你确认
+      证据:模板实时预览卡、3 个 tab(文案内容/照片替换/预约时间)、标题输入框
+            (真实 maxLength=30,实测显示"7/30")、正文描述 textarea(真实 maxLength=200,
+            实测显示"46/200")均正确渲染并与 NAILS_FIELD_CATALOG 的真实字段上限绑定。
+            "保存草稿"按钮本轮修复:此前该按钮无 onClick、是无效 UI 元素,
+            已接入真实保存逻辑(写入 session.draft 但不跳转),实测点击后出现
+            "草稿已保存 HH:MM"提示,m2-nails-04-edit-saved.png 为证据截图。
+            "预约时间" tab 如实显示"档期编辑即将推出,当前免费体验版仅支持标题与正文描述"
+            静态提示,不伪造可用控件。"照片替换" tab 为真实功能,点击已上传的其他照片
+            可切换预览用的主图。
       依赖:03
 
-- [ ] 05 Preview&Export(美甲笔记预览与导出页面.png)
-      可看物:docs/demo-v2/shots/nails-05-preview.png
+- [x] 05 Preview&Export(美甲笔记预览与导出页面.png)
+      验收命令:同上,脚本内真实点击"导出我的作品"并捕获浏览器下载
+      可看物:docs/demo-v2/shots/m2-nails-05-preview.png
       定性状态:待你确认
+      证据:SUGGESTED_FILENAME: postory-nails-f4a1a2c2-1080x1620.png;PNG_MAGIC_OK: true;
+            FILE_BYTES: 1154861;`sips -g pixelWidth -g pixelHeight` 确认 1080×1620,
+            与 portrait-2x3 规格一致。尺寸选择区按"不伪造"原则只有小红书竖版 2:3 可选
+            (真实功能),Instagram 方形 1:1 与竖版 4:5 显示"即将支持"禁用态,
+            未假装支持 V2.0 之外或未实现的尺寸。信息横幅显示真实
+            WATERMARK_POLICY_VERSION(demo-v1)。导出后自动跳转到 Success 页并带上
+            session 与生成的文件名。
       依赖:04
 
-- [ ] 06 Success(粉色美甲社媒发布成功页.png,文案已改"已保存到相册"为"已生成可下载")
-      可看物:docs/demo-v2/shots/nails-06-success.png
+- [x] 06 Success(粉色美甲社媒发布成功页.png,文案已改"已保存到相册"为"已生成可下载")
+      验收命令:同上,跳转后断言 URL 含 /success
+      可看物:docs/demo-v2/shots/m2-nails-06-success.png
       定性状态:待你确认
+      证据:DEV-PLAN 歧义清单第2条要求的文案修正已落实并截图验证:
+            "图片已生成,点击下载保存"(非"已保存到相册")、
+            "下载后可手动发布到小红书等平台"(非"可直接发布到小红书",因无真实发布集成)。
+            结果卡复用真实渲染的模板预览(含用户照片与文案),4 项核对清单文字如实,
+            底部转化区"了解 PoStory 代运营服务"与"继续制作下一篇"按钮均可点击,
+            后者实测正确跳转回 /demo/nails/upload 开启新一轮。
       依赖:05
 
-- [ ] Nails 端到端移动端视口回归 + 真机冒烟
-      验收命令:390×844/320/430 三档视口截图,至少一台 iOS Safari 实测
+- [x] Nails 端到端移动端视口回归
+      验收命令:`node /private/tmp/postory-browser/demo-v2-nails-viewport-check.cjs`
       定性状态:待你确认
+      证据:320/390/430 三档视口下,Landing→Upload→Templates→Edit→Preview 全部
+            document.documentElement.scrollWidth<=clientWidth(无横向滚动),
+            320px 下三页截图(m2-nails-01-landing-320.png、m2-nails-03-templates-320.png、
+            m2-nails-04-edit-320.png、m2-nails-05-preview-320.png)目视核验排版未破版。
+            ⚠️ 真机(iOS Safari/Android Chrome)冒烟本轮沙箱环境无法执行,
+            如实标注为未验证,留给真实上线前人工测试。
       依赖:01-06 全部完成
 
 ## M3 Sushi 六页

@@ -1,9 +1,12 @@
 import { type FieldSpec, type IndustryConfig, OUTPUT_SPECS, validateIndustryConfig } from "../contracts";
 
 /**
- * Field limits sourced from V2.0 §4.2's own explicit suggested numbers (title 40 /
- * shortCopy 160 / contactNote 80, availabilityText 4 items x 40) — not an OCR guess
- * off the mockup. §4.2's own rule: final limit = min(template safe limit, this number).
+ * Field limits updated against the actual Nails Edit mockup (粉色美甲社媒模板编辑器.png,
+ * read via the Read tool, not OCR): 标题 shows "10/30" (max 30), 正文描述 shows "36/200"
+ * (max 200). DEV-PLAN 歧义清单第4条裁定按设计稿实际数字配置,取代 V2.0 §4.2 的建议值
+ * (title 40 / shortCopy 160) — those were a placeholder used before the mockup was read.
+ * contactNote/availabilityText limits are not shown in the captured Edit-tab screenshot
+ * (预约时间 tab wasn't opened), so they keep the V2.0 suggested numbers as a reasonable default.
  */
 export const NAILS_FIELD_CATALOG: FieldSpec[] = [
   {
@@ -12,7 +15,7 @@ export const NAILS_FIELD_CATALOG: FieldSpec[] = [
     kind: "text",
     labelKey: "demo.fields.title.label",
     required: true,
-    maxLength: 40,
+    maxLength: 30,
     renderTarget: "image",
   },
   {
@@ -21,7 +24,7 @@ export const NAILS_FIELD_CATALOG: FieldSpec[] = [
     kind: "textarea",
     labelKey: "demo.fields.shortCopy.label",
     required: true,
-    maxLength: 160,
+    maxLength: 200,
     renderTarget: "copy",
   },
   {
