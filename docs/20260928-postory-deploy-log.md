@@ -1,5 +1,12 @@
 # social-shell 部署日志
 
+## 2026-10-10 · 19 个设计稿演示页面上线
+
+- **应用提交**：`75f7a80`；[GitHub Actions 38053830172](https://github.com/erichecan/postory/actions/runs/38053830172) 成功，正式镜像构建、Cloud Run 部署与基础页面检查均通过。
+- **入口**：https://postory-dfd7b2qpra-ew.a.run.app/demo/review ，包含美甲 11 页、寿司 8 页的原稿、实际截图及叠加对照。真实美甲工作区的未提交改动未纳入本次提交；未执行数据库迁移。
+- **线上验证**：19 页 HTTP 200，320 / 390 / 430 px 无横向溢出，无页面运行错误和演示素材加载错误；照片上传、模板选择、编辑、草稿保存及刷新恢复通过。真实下载美甲 PNG 1080 × 1440（1,012,410 bytes）、寿司 PNG 1080 × 1080（1,643,679 bytes）；账号连接与排期维持明确的演示行为。设计对照页 19 个入口通过。
+- **验证证据**：本地临时检出 `/private/tmp/postory-deploy-check/docs/demo-v2/fidelity-shots`；实现与已知差异见 `docs/demo-v2/20261009-pixel-audit.md`。这轮为首轮高保真还原，严格 100% 像素一致尚未达到，字形、装饰与动态海报仍有差异。
+
 ## 2026-10-06 · Logo 精确裁切与桌面尺寸修正上线
 
 - **应用提交**：`255e338`。GitHub Actions [37550616817](https://github.com/erichecan/postory/actions/runs/37550616817) 成功；Cloud Run revision `postory-00017-6f2` 承接 100% 流量。
