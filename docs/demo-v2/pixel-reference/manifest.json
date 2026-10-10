@@ -1,0 +1,173 @@
+[
+  {
+    "id": 1,
+    "source": "美甲社交媒体预约助手.png",
+    "reference": "01.png",
+    "width": 853,
+    "height": 1844,
+    "currentRoute": "/demo/nails",
+    "status": "implemented; screenshot captured; visual differences remain"
+  },
+  {
+    "id": 2,
+    "source": "美甲作品上传界面.png",
+    "reference": "02.png",
+    "width": 853,
+    "height": 1844,
+    "currentRoute": "/demo/nails/upload",
+    "status": "implemented; screenshot captured; visual differences remain"
+  },
+  {
+    "id": 3,
+    "source": "美甲笔记预览与导出页面.png",
+    "reference": "03.png",
+    "width": 853,
+    "height": 1844,
+    "currentRoute": "/demo/nails/preview",
+    "status": "implemented; screenshot captured; visual differences remain"
+  },
+  {
+    "id": 4,
+    "source": "美甲社交媒体模板精选 UI.png",
+    "reference": "04.png",
+    "width": 853,
+    "height": 1844,
+    "currentRoute": "/demo/nails/templates",
+    "status": "implemented; screenshot captured; visual differences remain"
+  },
+  {
+    "id": 5,
+    "source": "粉色美甲社媒模板编辑器.png",
+    "reference": "05.png",
+    "width": 853,
+    "height": 1844,
+    "currentRoute": "/demo/nails/edit",
+    "status": "implemented; screenshot captured; visual differences remain"
+  },
+  {
+    "id": 6,
+    "source": "粉色美甲社媒发布成功页.png",
+    "reference": "06.png",
+    "width": 853,
+    "height": 1844,
+    "currentRoute": "/demo/nails/success",
+    "status": "implemented; screenshot captured; visual differences remain"
+  },
+  {
+    "id": 7,
+    "source": "PoStory美甲内容管理仪表盘.png",
+    "reference": "07.png",
+    "width": 853,
+    "height": 1844,
+    "currentRoute": "/demo/nails/dashboard",
+    "status": "implemented; screenshot captured; visual differences remain"
+  },
+  {
+    "id": 8,
+    "source": "PoStory美甲内容画廊.png",
+    "reference": "08.png",
+    "width": 853,
+    "height": 1844,
+    "currentRoute": "/demo/nails/content",
+    "status": "implemented; screenshot captured; visual differences remain"
+  },
+  {
+    "id": 9,
+    "source": "美甲社媒账号管理界面.png",
+    "reference": "09.png",
+    "width": 853,
+    "height": 1844,
+    "currentRoute": "/demo/nails/accounts",
+    "status": "implemented; screenshot captured; visual differences remain"
+  },
+  {
+    "id": 10,
+    "source": "美甲社媒发布日历界面.png",
+    "reference": "10.png",
+    "width": 853,
+    "height": 1844,
+    "currentRoute": "/demo/nails/calendar",
+    "status": "implemented; screenshot captured; visual differences remain"
+  },
+  {
+    "id": 11,
+    "source": "美甲社媒安排发布界面.png",
+    "reference": "11.png",
+    "width": 853,
+    "height": 1844,
+    "currentRoute": "/demo/nails/schedule",
+    "status": "implemented; screenshot captured; visual differences remain"
+  },
+  {
+    "id": 12,
+    "source": "寿司社媒营销落地页.png",
+    "reference": "12.png",
+    "width": 853,
+    "height": 1844,
+    "currentRoute": "/demo/sushi",
+    "status": "implemented; screenshot captured; visual differences remain"
+  },
+  {
+    "id": 13,
+    "source": "寿司照片上传界面(1).png",
+    "reference": "13.png",
+    "width": 853,
+    "height": 1844,
+    "currentRoute": "/demo/sushi/upload",
+    "status": "implemented; screenshot captured; visual differences remain"
+  },
+  {
+    "id": 14,
+    "source": "寿司社交媒体模板选择界面.png",
+    "reference": "14.png",
+    "width": 853,
+    "height": 1844,
+    "currentRoute": "/demo/sushi/templates",
+    "status": "implemented; screenshot captured; visual differences remain"
+  },
+  {
+    "id": 15,
+    "source": "寿司社交媒体内容预览界面.png",
+    "reference": "15.png",
+    "width": 853,
+    "height": 1844,
+    "currentRoute": "/demo/sushi/edit",
+    "status": "implemented; screenshot captured; visual differences remain"
+  },
+  {
+    "id": 16,
+    "source": "寿司社交内容预览界面.png",
+    "reference": "16.png",
+    "width": 853,
+    "height": 1844,
+    "currentRoute": "/demo/sushi/preview",
+    "status": "implemented; screenshot captured; visual differences remain"
+  },
+  {
+    "id": 17,
+    "source": "寿司社交媒体发布安排界面.png",
+    "reference": "17.png",
+    "width": 853,
+    "height": 1844,
+    "currentRoute": "/demo/sushi/schedule",
+    "status": "implemented; screenshot captured; visual differences remain"
+  },
+  {
+    "id": 18,
+    "source": "寿司营销图片下载成功界面.png",
+    "reference": "18.png",
+    "width": 832,
+    "height": 1889,
+    "currentRoute": "/demo/sushi/success",
+    "status": "implemented; screenshot captured; visual differences remain"
+  },
+  {
+    "id": 19,
+    "source": "寿司社交贴文预览界面.png",
+    "reference": "19.png",
+    "width": 853,
+    "height": 1844,
+    "currentRoute": "/demo/sushi/export",
+    "status": "implemented; screenshot captured; visual differences remain"
+  }
+]

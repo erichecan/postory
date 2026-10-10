@@ -1,0 +1,632 @@
+{
+  "platform-0": {
+    "reference": "09.png",
+    "crop": [
+      55,
+      411,
+      139,
+      495
+    ]
+  },
+  "platform-1": {
+    "reference": "09.png",
+    "crop": [
+      55,
+      680,
+      139,
+      767
+    ]
+  },
+  "platform-2": {
+    "reference": "09.png",
+    "crop": [
+      55,
+      949,
+      139,
+      1034
+    ]
+  },
+  "platform-3": {
+    "reference": "09.png",
+    "crop": [
+      55,
+      1179,
+      139,
+      1265
+    ]
+  },
+  "nails-doodle-heart": {
+    "reference": "04.png",
+    "crop": [
+      699,
+      274,
+      761,
+      352
+    ]
+  },
+  "nails-sparkles": {
+    "reference": "03.png",
+    "crop": [
+      654,
+      291,
+      712,
+      349
+    ]
+  },
+  "sushi-12-left": {
+    "reference": "12.png",
+    "crop": [
+      0,
+      162,
+      119,
+      399
+    ]
+  },
+  "sushi-12-right": {
+    "reference": "12.png",
+    "crop": [
+      770,
+      136,
+      853,
+      279
+    ]
+  },
+  "sushi-restaurant": {
+    "reference": "12.png",
+    "crop": [
+      745,
+      281,
+      853,
+      447
+    ]
+  },
+  "sushi-13-left": {
+    "reference": "13.png",
+    "crop": [
+      0,
+      214,
+      145,
+      362
+    ]
+  },
+  "sushi-13-right": {
+    "reference": "13.png",
+    "crop": [
+      725,
+      360,
+      853,
+      469
+    ]
+  },
+  "sushi-14-left": {
+    "reference": "14.png",
+    "crop": [
+      0,
+      193,
+      130,
+      432
+    ]
+  },
+  "sushi-14-right": {
+    "reference": "14.png",
+    "crop": [
+      741,
+      180,
+      853,
+      431
+    ]
+  },
+  "sushi-15-left": {
+    "reference": "15.png",
+    "crop": [
+      0,
+      201,
+      121,
+      443
+    ]
+  },
+  "sushi-15-right": {
+    "reference": "15.png",
+    "crop": [
+      796,
+      165,
+      853,
+      440
+    ]
+  },
+  "sushi-16-left": {
+    "reference": "16.png",
+    "crop": [
+      0,
+      199,
+      130,
+      435
+    ]
+  },
+  "sushi-16-right": {
+    "reference": "16.png",
+    "crop": [
+      735,
+      212,
+      853,
+      440
+    ]
+  },
+  "sushi-17-left": {
+    "reference": "17.png",
+    "crop": [
+      0,
+      225,
+      175,
+      442
+    ]
+  },
+  "sushi-17-right": {
+    "reference": "17.png",
+    "crop": [
+      721,
+      221,
+      853,
+      445
+    ]
+  },
+  "sushi-19-left": {
+    "reference": "19.png",
+    "crop": [
+      0,
+      166,
+      110,
+      433
+    ]
+  },
+  "sushi-19-right": {
+    "reference": "19.png",
+    "crop": [
+      761,
+      251,
+      853,
+      444
+    ]
+  },
+  "sushi-12-bottom": {
+    "reference": "12.png",
+    "crop": [
+      0,
+      1757,
+      853,
+      1844
+    ]
+  },
+  "sushi-13-bottom": {
+    "reference": "13.png",
+    "crop": [
+      0,
+      1750,
+      853,
+      1844
+    ]
+  },
+  "sushi-14-bottom": {
+    "reference": "14.png",
+    "crop": [
+      0,
+      1775,
+      853,
+      1844
+    ]
+  },
+  "sushi-15-bottom": {
+    "reference": "15.png",
+    "crop": [
+      0,
+      1760,
+      853,
+      1844
+    ]
+  },
+  "sushi-16-bottom": {
+    "reference": "16.png",
+    "crop": [
+      0,
+      1757,
+      853,
+      1844
+    ]
+  },
+  "sushi-17-bottom": {
+    "reference": "17.png",
+    "crop": [
+      0,
+      1765,
+      853,
+      1844
+    ]
+  },
+  "sushi-19-bottom": {
+    "reference": "19.png",
+    "crop": [
+      0,
+      1803,
+      853,
+      1844
+    ]
+  },
+  "nails-logo": {
+    "reference": "04.png",
+    "crop": [
+      275,
+      88,
+      566,
+      140
+    ]
+  },
+  "nails-logo-full": {
+    "reference": "01.png",
+    "crop": [
+      38,
+      82,
+      433,
+      161
+    ]
+  },
+  "sushi-logo": {
+    "reference": "14.png",
+    "crop": [
+      123,
+      63,
+      505,
+      150
+    ]
+  },
+  "sushi-logo-full": {
+    "reference": "12.png",
+    "crop": [
+      67,
+      58,
+      491,
+      150
+    ]
+  },
+  "nail-photo-1": {
+    "reference": "02.png",
+    "crop": [
+      43,
+      800,
+      416,
+      1006
+    ]
+  },
+  "nail-photo-2": {
+    "reference": "02.png",
+    "crop": [
+      435,
+      800,
+      810,
+      1006
+    ]
+  },
+  "nail-photo-3": {
+    "reference": "02.png",
+    "crop": [
+      43,
+      1022,
+      416,
+      1228
+    ]
+  },
+  "nail-photo-4": {
+    "reference": "02.png",
+    "crop": [
+      435,
+      1022,
+      810,
+      1228
+    ]
+  },
+  "nail-photo-5": {
+    "reference": "10.png",
+    "crop": [
+      56,
+      1505,
+      186,
+      1623
+    ]
+  },
+  "nail-photo-6": {
+    "reference": "08.png",
+    "crop": [
+      43,
+      1440,
+      414,
+      1567
+    ]
+  },
+  "nails-art-edit": {
+    "reference": "05.png",
+    "crop": [
+      44,
+      286,
+      814,
+      954
+    ]
+  },
+  "nails-art-export": {
+    "reference": "03.png",
+    "crop": [
+      81,
+      477,
+      772,
+      1294
+    ]
+  },
+  "nails-art-schedule": {
+    "reference": "11.png",
+    "crop": [
+      51,
+      310,
+      410,
+      716
+    ]
+  },
+  "nails-template-0": {
+    "reference": "04.png",
+    "crop": [
+      36,
+      520,
+      411,
+      845
+    ]
+  },
+  "nails-template-1": {
+    "reference": "04.png",
+    "crop": [
+      439,
+      514,
+      824,
+      851
+    ]
+  },
+  "nails-template-2": {
+    "reference": "04.png",
+    "crop": [
+      31,
+      913,
+      416,
+      1208
+    ]
+  },
+  "nails-template-3": {
+    "reference": "04.png",
+    "crop": [
+      446,
+      918,
+      825,
+      1210
+    ]
+  },
+  "nails-template-4": {
+    "reference": "04.png",
+    "crop": [
+      31,
+      1275,
+      416,
+      1576
+    ]
+  },
+  "nails-template-5": {
+    "reference": "04.png",
+    "crop": [
+      439,
+      1275,
+      825,
+      1576
+    ]
+  },
+  "nails-landing-0": {
+    "reference": "01.png",
+    "crop": [
+      34,
+      566,
+      264,
+      884
+    ]
+  },
+  "nails-landing-1": {
+    "reference": "01.png",
+    "crop": [
+      285,
+      527,
+      568,
+      951
+    ]
+  },
+  "nails-landing-2": {
+    "reference": "01.png",
+    "crop": [
+      600,
+      572,
+      818,
+      940
+    ]
+  },
+  "nails-promo": {
+    "reference": "01.png",
+    "crop": [
+      49,
+      1675,
+      257,
+      1805
+    ]
+  },
+  "nails-tip-collage": {
+    "reference": "02.png",
+    "crop": [
+      591,
+      1454,
+      797,
+      1633
+    ]
+  },
+  "nails-dashboard-hero": {
+    "reference": "07.png",
+    "crop": [
+      473,
+      170,
+      819,
+      420
+    ]
+  },
+  "sushi-photo": {
+    "reference": "13.png",
+    "crop": [
+      68,
+      1128,
+      784,
+      1432
+    ]
+  },
+  "sushi-art-edit": {
+    "reference": "15.png",
+    "crop": [
+      52,
+      637,
+      573,
+      1196
+    ]
+  },
+  "sushi-art-adjust": {
+    "reference": "16.png",
+    "crop": [
+      49,
+      526,
+      487,
+      997
+    ]
+  },
+  "sushi-art-export": {
+    "reference": "19.png",
+    "crop": [
+      119,
+      448,
+      735,
+      1069
+    ]
+  },
+  "sushi-art-success": {
+    "reference": "18.png",
+    "crop": [
+      192,
+      429,
+      642,
+      1021
+    ]
+  },
+  "sushi-template-0": {
+    "reference": "14.png",
+    "crop": [
+      49,
+      518,
+      411,
+      851
+    ]
+  },
+  "sushi-template-1": {
+    "reference": "14.png",
+    "crop": [
+      448,
+      518,
+      811,
+      851
+    ]
+  },
+  "sushi-template-2": {
+    "reference": "14.png",
+    "crop": [
+      49,
+      973,
+      411,
+      1304
+    ]
+  },
+  "sushi-template-3": {
+    "reference": "14.png",
+    "crop": [
+      448,
+      973,
+      811,
+      1304
+    ]
+  },
+  "sushi-template-4": {
+    "reference": "14.png",
+    "crop": [
+      49,
+      1426,
+      411,
+      1655
+    ]
+  },
+  "sushi-template-5": {
+    "reference": "14.png",
+    "crop": [
+      448,
+      1426,
+      811,
+      1655
+    ]
+  },
+  "sushi-landing-0": {
+    "reference": "12.png",
+    "crop": [
+      49,
+      543,
+      275,
+      821
+    ]
+  },
+  "sushi-landing-1": {
+    "reference": "12.png",
+    "crop": [
+      291,
+      509,
+      565,
+      895
+    ]
+  },
+  "sushi-landing-2": {
+    "reference": "12.png",
+    "crop": [
+      588,
+      551,
+      815,
+      881
+    ]
+  },
+  "sushi-promo": {
+    "reference": "12.png",
+    "crop": [
+      59,
+      1606,
+      211,
+      1736
+    ]
+  },
+  "sushi-phone": {
+    "reference": "18.png",
+    "crop": [
+      519,
+      1408,
+      770,
+      1702
+    ]
+  },
+  "sushi-texture": {
+    "reference": "13.png",
+    "crop": [
+      402,
+      14,
+      492,
+      57
+    ]
+  }
+}

@@ -1,8 +1,8 @@
-import { NailsUpload } from "@/components/demo/nails/upload";
-import { SushiComingSoon } from "@/components/demo/sushi-coming-soon";
+import { notFound } from "next/navigation";
+import { FidelityDemo } from "@/components/demo/fidelity/page";
 
-export default async function DemoUploadPage({ params }: { params: Promise<{ industry: string }> }) {
+export default async function Page({ params }: { params: Promise<{ industry: string }> }) {
   const { industry } = await params;
-  if (industry === "nails") return <NailsUpload />;
-  return <SushiComingSoon step="02 Upload" />;
+  if (industry !== "nails" && industry !== "sushi") notFound();
+  return <FidelityDemo industry={industry} page="upload" />;
 }

@@ -1,0 +1,162 @@
+{
+  "timestamp": "2026-10-10T12:16:13.234Z",
+  "results": [
+    {
+      "id": 1,
+      "route": "/demo/nails",
+      "viewport": "390x844",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "id": 2,
+      "route": "/demo/nails/upload",
+      "viewport": "390x844",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "id": 3,
+      "route": "/demo/nails/preview",
+      "viewport": "390x844",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "id": 4,
+      "route": "/demo/nails/templates",
+      "viewport": "390x844",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "id": 5,
+      "route": "/demo/nails/edit",
+      "viewport": "390x844",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "id": 6,
+      "route": "/demo/nails/success",
+      "viewport": "390x844",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "id": 7,
+      "route": "/demo/nails/dashboard",
+      "viewport": "390x844",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "id": 8,
+      "route": "/demo/nails/content",
+      "viewport": "390x844",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "id": 9,
+      "route": "/demo/nails/accounts",
+      "viewport": "390x844",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "id": 10,
+      "route": "/demo/nails/calendar",
+      "viewport": "390x844",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "id": 11,
+      "route": "/demo/nails/schedule",
+      "viewport": "390x844",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "id": 12,
+      "route": "/demo/sushi",
+      "viewport": "390x844",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "id": 13,
+      "route": "/demo/sushi/upload",
+      "viewport": "390x844",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "id": 14,
+      "route": "/demo/sushi/templates",
+      "viewport": "390x844",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "id": 15,
+      "route": "/demo/sushi/edit",
+      "viewport": "390x844",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "id": 16,
+      "route": "/demo/sushi/preview",
+      "viewport": "390x844",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "id": 17,
+      "route": "/demo/sushi/schedule",
+      "viewport": "390x844",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "id": 18,
+      "route": "/demo/sushi/success",
+      "viewport": "390x844",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "id": 19,
+      "route": "/demo/sushi/export",
+      "viewport": "390x844",
+      "status": 200,
+      "overflow": false
+    }
+  ],
+  "responsive": [
+    320,
+    390,
+    430
+  ],
+  "errors": [],
+  "broken": [],
+  "interactionFlow": "passed",
+  "export": {
+    "width": 1080,
+    "height": 1440,
+    "bytes": 1060854
+  },
+  "finalFocusedChecks": {
+    "sixPhotoGrid": "passed; no overlap",
+    "seventhPhoto": "rejected",
+    "reviewCards": 19,
+    "finalCustomExport": {
+      "width": 1080,
+      "height": 1440,
+      "bytes": 1284665
+    },
+    "productionBuild": "passed"
+  }
+}

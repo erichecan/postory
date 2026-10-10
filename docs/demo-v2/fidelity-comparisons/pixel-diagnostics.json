@@ -1,0 +1,97 @@
+[
+  {
+    "id": 1,
+    "mean_absolute_rgb_error_0_255": 18.97,
+    "note": "Diagnostic only; not a fidelity percentage or acceptance score."
+  },
+  {
+    "id": 2,
+    "mean_absolute_rgb_error_0_255": 9.94,
+    "note": "Diagnostic only; not a fidelity percentage or acceptance score."
+  },
+  {
+    "id": 3,
+    "mean_absolute_rgb_error_0_255": 8.56,
+    "note": "Diagnostic only; not a fidelity percentage or acceptance score."
+  },
+  {
+    "id": 4,
+    "mean_absolute_rgb_error_0_255": 14.6,
+    "note": "Diagnostic only; not a fidelity percentage or acceptance score."
+  },
+  {
+    "id": 5,
+    "mean_absolute_rgb_error_0_255": 8.29,
+    "note": "Diagnostic only; not a fidelity percentage or acceptance score."
+  },
+  {
+    "id": 6,
+    "mean_absolute_rgb_error_0_255": 18.92,
+    "note": "Diagnostic only; not a fidelity percentage or acceptance score."
+  },
+  {
+    "id": 7,
+    "mean_absolute_rgb_error_0_255": 15.64,
+    "note": "Diagnostic only; not a fidelity percentage or acceptance score."
+  },
+  {
+    "id": 8,
+    "mean_absolute_rgb_error_0_255": 26.0,
+    "note": "Diagnostic only; not a fidelity percentage or acceptance score."
+  },
+  {
+    "id": 9,
+    "mean_absolute_rgb_error_0_255": 13.26,
+    "note": "Diagnostic only; not a fidelity percentage or acceptance score."
+  },
+  {
+    "id": 10,
+    "mean_absolute_rgb_error_0_255": 13.55,
+    "note": "Diagnostic only; not a fidelity percentage or acceptance score."
+  },
+  {
+    "id": 11,
+    "mean_absolute_rgb_error_0_255": 11.66,
+    "note": "Diagnostic only; not a fidelity percentage or acceptance score."
+  },
+  {
+    "id": 12,
+    "mean_absolute_rgb_error_0_255": 29.06,
+    "note": "Diagnostic only; not a fidelity percentage or acceptance score."
+  },
+  {
+    "id": 13,
+    "mean_absolute_rgb_error_0_255": 14.02,
+    "note": "Diagnostic only; not a fidelity percentage or acceptance score."
+  },
+  {
+    "id": 14,
+    "mean_absolute_rgb_error_0_255": 28.59,
+    "note": "Diagnostic only; not a fidelity percentage or acceptance score."
+  },
+  {
+    "id": 15,
+    "mean_absolute_rgb_error_0_255": 20.39,
+    "note": "Diagnostic only; not a fidelity percentage or acceptance score."
+  },
+  {
+    "id": 16,
+    "mean_absolute_rgb_error_0_255": 23.2,
+    "note": "Diagnostic only; not a fidelity percentage or acceptance score."
+  },
+  {
+    "id": 17,
+    "mean_absolute_rgb_error_0_255": 19.04,
+    "note": "Diagnostic only; not a fidelity percentage or acceptance score."
+  },
+  {
+    "id": 18,
+    "mean_absolute_rgb_error_0_255": 15.92,
+    "note": "Diagnostic only; not a fidelity percentage or acceptance score."
+  },
+  {
+    "id": 19,
+    "mean_absolute_rgb_error_0_255": 16.74,
+    "note": "Diagnostic only; not a fidelity percentage or acceptance score."
+  }
+]

@@ -1,0 +1,6 @@
+import type { IndustryId } from "@/lib/demo/contracts";
+
+export type FidelityPage = "landing" | "upload" | "templates" | "edit" | "preview" | "export" | "schedule" | "success" | "dashboard" | "content" | "accounts" | "calendar";
+export const REFERENCE_PAGES: { id: number; industry: IndustryId; page: FidelityPage; label: string }[] = [
+  {id:1,industry:"nails",page:"landing",label:"美甲首页"},{id:2,industry:"nails",page:"upload",label:"美甲上传"},{id:3,industry:"nails",page:"preview",label:"美甲预览导出"},{id:4,industry:"nails",page:"templates",label:"美甲模板"},{id:5,industry:"nails",page:"edit",label:"美甲编辑"},{id:6,industry:"nails",page:"success",label:"美甲成功"},{id:7,industry:"nails",page:"dashboard",label:"美甲仪表盘"},{id:8,industry:"nails",page:"content",label:"美甲内容库"},{id:9,industry:"nails",page:"accounts",label:"美甲社媒账号"},{id:10,industry:"nails",page:"calendar",label:"美甲发布日历"},{id:11,industry:"nails",page:"schedule",label:"美甲安排发布"},{id:12,industry:"sushi",page:"landing",label:"寿司首页"},{id:13,industry:"sushi",page:"upload",label:"寿司上传"},{id:14,industry:"sushi",page:"templates",label:"寿司模板"},{id:15,industry:"sushi",page:"edit",label:"寿司社媒预览"},{id:16,industry:"sushi",page:"preview",label:"寿司内容调整"},{id:17,industry:"sushi",page:"schedule",label:"寿司安排发布"},{id:18,industry:"sushi",page:"success",label:"寿司下载成功"},{id:19,industry:"sushi",page:"export",label:"寿司最终导出"},
+];
