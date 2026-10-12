@@ -89,10 +89,11 @@ export async function POST(request: NextRequest) {
   if (!reservation.ok) return response(reservation.reason === "dailyCap" ? 429 : 403, { ok: false, reason: reservation.reason });
 
   try {
-    const style = industry === "nails"
-      ? "Premium autumn cat-eye nail salon social campaign. Preserve the uploaded manicure as the exact hero subject."
-      : "Premium sushi restaurant social campaign. Preserve the uploaded sushi dish as the exact hero subject.";
-    const finalPrompt = `${style} Create only the art-directed photo background and decorative visual treatment. Do not render any text, letters, numbers, logos, watermarks, prices, dates, or UI. Leave clear negative space for code-rendered typography. Visual direction from customer: ${promptText}`;
+    const subjectPreservation = industry === "nails"
+      ? "Keep the uploaded manicure exactly recognizable: preserve each nail's design, length, shape, polish color, decoration, the number of fingers, natural anatomy, and skin tone. Do not redesign the nails, add jewelry, or alter the hand."
+      : "Keep the uploaded sushi exactly recognizable: preserve the dish, ingredients, piece count, shapes, arrangement, garnish, plate, and serving presentation. Do not add, remove, replace, or rearrange food.";
+    const enhancement = "Apply a restrained professional photo retouch while preserving the original subject and composition: gently improve exposure, white balance, color fidelity, contrast, and visible detail; reduce mild blur, image noise, and compression artifacts; sharpen naturally present details without halos or plastic texture. If the source is soft, recover only plausible detail and do not invent textures.";
+    const finalPrompt = `${subjectPreservation} ${enhancement} Create only an art-directed photo background and subtle decorative visual treatment around the preserved subject. Do not render any text, letters, numbers, logos, watermarks, prices, dates, or UI. Leave clear negative space for code-rendered typography. Customer visual direction: ${promptText}`;
     const out = await openAiImageProvider.generate({ prompt: finalPrompt, ratio, quality: "standard", input: upload });
     await completeDemoGeneration(reservation.id, out.costMicros);
     return response(200, { ok: true, generationId: reservation.id, quality: "medium", imageDataUrl: `data:${out.mime};base64,${out.bytes.toString("base64")}` });
