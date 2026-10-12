@@ -5,10 +5,6 @@ export interface SushiClassicProps {
   shortCopy: string;
 }
 
-/**
- * M1 proof-of-pipeline template — see nails-classic.tsx for the same note:
- * fidelity to 寿司社交媒体内容预览界面.png lands in M3, not here.
- */
 export function SushiClassicTemplate({ photoUrl, title, dishName, shortCopy }: SushiClassicProps) {
   return (
     <div
@@ -17,7 +13,7 @@ export function SushiClassicTemplate({ photoUrl, title, dishName, shortCopy }: S
         width: "100%",
         aspectRatio: "2 / 3",
         overflow: "hidden",
-        background: "var(--demo-surface)",
+        background: "#fffaf3",
         fontFamily: "system-ui, -apple-system, sans-serif",
         containerType: "inline-size",
       }}
@@ -26,7 +22,7 @@ export function SushiClassicTemplate({ photoUrl, title, dishName, shortCopy }: S
         // eslint-disable-next-line @next/next/no-img-element
         <img src={photoUrl} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
       ) : (
-        <div style={{ position: "absolute", inset: 0, background: "var(--demo-bg)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "#efd2b2" }} />
       )}
       <div
         style={{
@@ -35,7 +31,7 @@ export function SushiClassicTemplate({ photoUrl, title, dishName, shortCopy }: S
           background: "linear-gradient(to top, rgba(10,6,5,0.78) 0%, rgba(10,6,5,0.2) 40%, rgba(10,6,5,0) 62%)",
         }}
       />
-      <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "6% 7% 16%", color: "var(--demo-primary-ink)" }}>
+      <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "6% 7% 16%", color: "#ffffff" }}>
         {dishName ? (
           <div style={{ fontSize: "clamp(10px, 2.8cqw, 16px)", fontWeight: 600, letterSpacing: "0.04em", opacity: 0.85, marginBottom: "2%" }}>
             {dishName}

@@ -1,0 +1,332 @@
+{
+  "schemaVersion": 1,
+  "id": "sushi-new-menu-01",
+  "version": "1.0.0",
+  "industryId": "sushi",
+  "categoryId": "new-menu",
+  "family": "sushi-editorial",
+  "variant": "new-menu",
+  "coordinateSystem": {
+    "origin": "top-left",
+    "units": "normalized fractions of each ratio artboard"
+  },
+  "assets": {
+    "heroSample": "/demo/photos/sushi-salmon-nigiri.png",
+    "decorations": "authored as CSS/SVG layers in SushiEditorialFamily"
+  },
+  "slots": [
+    {
+      "id": "hero",
+      "type": "image",
+      "required": true
+    },
+    {
+      "id": "headline",
+      "type": "text",
+      "required": true,
+      "fieldId": "title",
+      "maxLength": 32
+    },
+    {
+      "id": "tagline",
+      "type": "text",
+      "required": false,
+      "fieldId": "shortCopy",
+      "maxLength": 72
+    }
+  ],
+  "editRules": {
+    "hero": {
+      "required": true,
+      "replaceable": true,
+      "fit": "cover",
+      "focalPoint": "user-adjustable-per-ratio",
+      "zoomRange": [
+        1,
+        2.5
+      ]
+    },
+    "headline": {
+      "editable": true,
+      "maxLength": 32,
+      "overflow": "fit-and-report"
+    },
+    "tagline": {
+      "editable": true,
+      "optional": true,
+      "maxLength": 72,
+      "overflow": "fit-and-report"
+    },
+    "watermark": {
+      "policy": "shared-demo-watermark",
+      "safeAreaPerRatio": true
+    }
+  },
+  "layersBackToFront": [
+    "hero",
+    "gradient",
+    "panel",
+    "decorations",
+    "eyebrow",
+    "headline",
+    "tagline",
+    "watermark"
+  ],
+  "layouts": {
+    "square": {
+      "width": 1080,
+      "height": 1080,
+      "hero": {
+        "type": "image",
+        "slotId": "hero",
+        "fit": "cover",
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1,
+        "focalPoint": {
+          "x": 0.66,
+          "y": 0.57
+        },
+        "zIndex": 0
+      },
+      "gradient": {
+        "type": "css-gradient",
+        "value": "linear-gradient(90deg,rgba(249,235,211,.99) 0%,rgba(249,235,211,.96) 43%,rgba(249,235,211,.48) 61%,transparent 78%)",
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1,
+        "zIndex": 1
+      },
+      "panel": {
+        "type": "css-shape",
+        "variant": "warm-paper",
+        "x": 0,
+        "y": 0,
+        "width": 0.59,
+        "height": 1,
+        "zIndex": 2
+      },
+      "eyebrow": {
+        "type": "editable-template-label",
+        "text": "JUST ARRIVED",
+        "rect": {
+          "x": 0.07,
+          "y": 0.08,
+          "width": 0.42,
+          "height": 0.07
+        },
+        "zIndex": 3
+      },
+      "headline": {
+        "type": "editable-text",
+        "fieldId": "title",
+        "rect": {
+          "x": 0.07,
+          "y": 0.17,
+          "width": 0.49,
+          "height": 0.31
+        },
+        "fontSizeCqw": 10,
+        "maxLines": 2,
+        "zIndex": 3
+      },
+      "tagline": {
+        "type": "editable-text",
+        "fieldId": "shortCopy",
+        "optional": true,
+        "rect": {
+          "x": 0.09,
+          "y": 0.57,
+          "width": 0.39,
+          "height": 0.18
+        },
+        "fontSizeCqw": 3.8,
+        "maxLines": 3,
+        "zIndex": 3
+      },
+      "watermark": {
+        "type": "shared-export-overlay",
+        "safeArea": {
+          "x": 0.68,
+          "y": 0.87,
+          "width": 0.27,
+          "height": 0.08
+        },
+        "zIndex": 100,
+        "appliedAfterRasterization": true
+      }
+    },
+    "portrait-4x5": {
+      "width": 1080,
+      "height": 1350,
+      "hero": {
+        "type": "image",
+        "slotId": "hero",
+        "fit": "cover",
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1,
+        "focalPoint": {
+          "x": 0.67,
+          "y": 0.58
+        },
+        "zIndex": 0
+      },
+      "gradient": {
+        "type": "css-gradient",
+        "value": "linear-gradient(90deg,rgba(249,235,211,.99) 0%,rgba(249,235,211,.96) 42%,rgba(249,235,211,.4) 62%,transparent 82%)",
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1,
+        "zIndex": 1
+      },
+      "panel": {
+        "type": "css-shape",
+        "variant": "warm-paper",
+        "x": 0,
+        "y": 0,
+        "width": 0.59,
+        "height": 1,
+        "zIndex": 2
+      },
+      "eyebrow": {
+        "type": "editable-template-label",
+        "text": "JUST ARRIVED",
+        "rect": {
+          "x": 0.07,
+          "y": 0.1,
+          "width": 0.43,
+          "height": 0.06
+        },
+        "zIndex": 3
+      },
+      "headline": {
+        "type": "editable-text",
+        "fieldId": "title",
+        "rect": {
+          "x": 0.07,
+          "y": 0.18,
+          "width": 0.49,
+          "height": 0.28
+        },
+        "fontSizeCqw": 10.6,
+        "maxLines": 2,
+        "zIndex": 3
+      },
+      "tagline": {
+        "type": "editable-text",
+        "fieldId": "shortCopy",
+        "optional": true,
+        "rect": {
+          "x": 0.09,
+          "y": 0.52,
+          "width": 0.4,
+          "height": 0.15
+        },
+        "fontSizeCqw": 3.9,
+        "maxLines": 3,
+        "zIndex": 3
+      },
+      "watermark": {
+        "type": "shared-export-overlay",
+        "safeArea": {
+          "x": 0.68,
+          "y": 0.87,
+          "width": 0.27,
+          "height": 0.08
+        },
+        "zIndex": 100,
+        "appliedAfterRasterization": true
+      }
+    },
+    "story-9x16": {
+      "width": 1080,
+      "height": 1920,
+      "hero": {
+        "type": "image",
+        "slotId": "hero",
+        "fit": "cover",
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1,
+        "focalPoint": {
+          "x": 0.64,
+          "y": 0.56
+        },
+        "zIndex": 0
+      },
+      "gradient": {
+        "type": "css-gradient",
+        "value": "linear-gradient(180deg,rgba(249,235,211,.97) 0%,rgba(249,235,211,.83) 33%,rgba(249,235,211,.12) 55%,transparent 68%)",
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1,
+        "zIndex": 1
+      },
+      "panel": {
+        "type": "css-shape",
+        "variant": "warm-paper",
+        "x": 0,
+        "y": 0,
+        "width": 0.52,
+        "height": 1,
+        "zIndex": 2
+      },
+      "eyebrow": {
+        "type": "editable-template-label",
+        "text": "JUST ARRIVED",
+        "rect": {
+          "x": 0.07,
+          "y": 0.1,
+          "width": 0.64,
+          "height": 0.05
+        },
+        "zIndex": 3
+      },
+      "headline": {
+        "type": "editable-text",
+        "fieldId": "title",
+        "rect": {
+          "x": 0.07,
+          "y": 0.16,
+          "width": 0.78,
+          "height": 0.16
+        },
+        "fontSizeCqw": 11,
+        "maxLines": 2,
+        "zIndex": 3
+      },
+      "tagline": {
+        "type": "editable-text",
+        "fieldId": "shortCopy",
+        "optional": true,
+        "rect": {
+          "x": 0.09,
+          "y": 0.34,
+          "width": 0.75,
+          "height": 0.12
+        },
+        "fontSizeCqw": 4,
+        "maxLines": 3,
+        "zIndex": 3
+      },
+      "watermark": {
+        "type": "shared-export-overlay",
+        "safeArea": {
+          "x": 0.68,
+          "y": 0.76,
+          "width": 0.27,
+          "height": 0.08
+        },
+        "zIndex": 100,
+        "appliedAfterRasterization": true
+      }
+    }
+  }
+}

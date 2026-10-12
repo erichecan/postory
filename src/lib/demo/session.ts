@@ -39,8 +39,20 @@ async function tx<T>(storeName: string, mode: IDBTransactionMode, run: (store: I
     const transaction = db.transaction(storeName, mode);
     const store = transaction.objectStore(storeName);
     const req = run(store);
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
+    let result: T;
+    let requestError: DOMException | null = null;
+    req.onsuccess = () => { result = req.result; };
+    req.onerror = () => { requestError = req.error; };
+    transaction.oncomplete = () => {
+      db.close();
+      if (requestError) reject(requestError);
+      else resolve(result!);
+    };
+    transaction.onerror = () => { requestError = transaction.error; };
+    transaction.onabort = () => {
+      db.close();
+      reject(requestError ?? transaction.error ?? new Error("演示草稿存储失败"));
+    };
   });
 }
 
@@ -162,6 +174,7 @@ export async function cleanupExpired(): Promise<void> {
       continue;
     }
     for (const asset of parsed.assets) liveAssetIds.add(asset.id);
+    if (parsed.generatedPhotoId) liveAssetIds.add(parsed.generatedPhotoId);
   }
 
   const blobKeys = await new Promise<string[]>((resolve, reject) => {

@@ -1,6 +1,8 @@
+import { ACCEPTED_IMAGE_TYPES, detectImageMime } from "@/lib/image-mime";
+export { ACCEPTED_IMAGE_TYPES } from "@/lib/image-mime";
+
 export const MAX_UPLOAD_BYTES = 15 * 1024 * 1024;
 const MAX_ENCODED_CHARS = 2 * 1024 * 1024;
-export const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
 const MAX_EDGE = 1600;
 
 export type ImageErrorKey = "imageFormat" | "uploadTooLarge" | "imageReadFailed" | "imageProcessFailed";
@@ -15,7 +17,7 @@ export function imageErrorKey(err: unknown): ImageErrorKey {
   return err instanceof ImageFileError ? err.key : "imageReadFailed";
 }
 
-function loadImage(file: File): Promise<HTMLImageElement> {
+function loadImage(file: Blob): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
@@ -34,9 +36,10 @@ function loadImage(file: File): Promise<HTMLImageElement> {
 export type CompressedImage = { dataUrl: string; width: number; height: number };
 
 export async function readImageFileWithSize(file: File): Promise<CompressedImage> {
-  if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) throw new ImageFileError("imageFormat");
   if (file.size > MAX_UPLOAD_BYTES) throw new ImageFileError("uploadTooLarge");
-  const img = await loadImage(file);
+  const mime = await detectImageMime(file);
+  if (!mime || !ACCEPTED_IMAGE_TYPES.includes(mime)) throw new ImageFileError("imageFormat");
+  const img = await loadImage(new Blob([file], { type: mime }));
   const scale = Math.min(1, MAX_EDGE / Math.max(img.naturalWidth, img.naturalHeight));
   const canvas = document.createElement("canvas");
   canvas.width = Math.round(img.naturalWidth * scale);

@@ -76,17 +76,17 @@ export async function renderWatermarkedPng(
     const ctx = resized.getContext("2d");
     if (!ctx) throw new Error("canvas-2d-unavailable");
     ctx.drawImage(canvas, 0, 0, options.outputWidth, options.outputHeight);
-    paintWatermark(ctx, options.outputWidth, options.outputHeight, options.safeArea);
+    await paintWatermark(ctx, options.outputWidth, options.outputHeight, options.safeArea);
     return canvasToPngBlob(resized);
   }
 
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("canvas-2d-unavailable");
-  paintWatermark(ctx, options.outputWidth, options.outputHeight, options.safeArea);
+  await paintWatermark(ctx, options.outputWidth, options.outputHeight, options.safeArea);
   return canvasToPngBlob(canvas);
 }
 
-function paintWatermark(ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number, safeArea: SafeArea) {
+async function paintWatermark(ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number, safeArea: SafeArea) {
   const areaX = safeArea.x * canvasWidth;
   const areaY = safeArea.y * canvasHeight;
   const areaW = safeArea.width * canvasWidth;
@@ -107,15 +107,20 @@ function paintWatermark(ctx: CanvasRenderingContext2D, canvasWidth: number, canv
   ctx.arcTo(x, y + markHeight, x, y, radius);
   ctx.arcTo(x, y, x + markWidth, y, radius);
   ctx.closePath();
-  ctx.fillStyle = "rgba(17, 17, 20, 0.55)";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.82)";
   ctx.fill();
-
-  ctx.fillStyle = "rgba(255, 255, 255, 0.92)";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.font = `600 ${Math.round(markHeight * 0.42)}px system-ui, -apple-system, sans-serif`;
-  ctx.fillText("PoStory", x + markWidth / 2, y + markHeight / 2 + 1);
   ctx.restore();
+
+  const logo = new Image();
+  const loaded = new Promise<void>((resolve, reject) => {
+    logo.onload = () => resolve();
+    logo.onerror = () => reject(new Error("watermark-logo-load-failed"));
+  });
+  logo.src = "/brand/postory-wordmark-v2.png";
+  await loaded;
+  const logoWidth = Math.min(markWidth * 0.78, markHeight * (959 / 258));
+  const logoHeight = logoWidth * (258 / 959);
+  ctx.drawImage(logo, x + (markWidth - logoWidth) / 2, y + (markHeight - logoHeight) / 2, logoWidth, logoHeight);
 }
 
 function canvasToPngBlob(canvas: HTMLCanvasElement): Promise<Blob> {

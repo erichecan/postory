@@ -2,12 +2,14 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ImagePlus, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ACCEPTED_IMAGE_TYPES, ImageFileError, readImageFileWithSize } from "@/lib/image-file";
 import { deleteMediaAssetAction, uploadMediaAssetsAction, type UploadedMediaAsset } from "@/lib/actions/media-assets";
+import { createNailsPostAction } from "@/lib/actions/nails-posts";
 
 const MAX_BATCH = 5;
 const MAX_SELECTED = 5;
@@ -22,10 +24,12 @@ function uploadErrorKey(err: unknown) {
 
 export function MediaLibrary({ initialAssets }: { initialAssets: UploadedMediaAsset[] }) {
   const t = useTranslations("nails");
+  const router = useRouter();
   const [assets, setAssets] = useState(initialAssets);
   const [selected, setSelected] = useState<string[]>([]);
   const [processingCount, setProcessingCount] = useState(0);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [creatingPost, setCreatingPost] = useState(false);
   const [, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -128,6 +132,12 @@ export function MediaLibrary({ initialAssets }: { initialAssets: UploadedMediaAs
       {selectedAssets.length > 0 && (
         <div className="space-y-2">
           <p className="text-xs font-medium text-muted-foreground">{t("mediaSelected", { count: selectedAssets.length, max: MAX_SELECTED })}</p>
+          <Button disabled={creatingPost} onClick={async () => {
+            setCreatingPost(true);
+            const result = await createNailsPostAction(selected);
+            if (result.ok) router.push(`/nails/posts/${result.id}`);
+            else { toast.error(result.error); setCreatingPost(false); }
+          }} className="min-h-11 w-full">{creatingPost ? t("working") : t("postCreateDraft")}</Button>
           <div className="flex gap-2 overflow-x-auto pb-1">
             {selectedAssets.map((asset, index) => (
               <div key={asset.id} className="relative flex-shrink-0">

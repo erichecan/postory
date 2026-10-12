@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -10,15 +11,10 @@ export const NAILS_INK = "#2a1b22";
 export const NAILS_MUTED = "#9c7b85";
 
 export function NailsLogo({ size = "md" }: { size?: "sm" | "md" }) {
-  const title = size === "sm" ? "text-[22px]" : "text-[26px]";
+  const width = size === "sm" ? 108 : 150;
   return (
     <span className="flex items-baseline gap-2">
-      <span
-        className={`${title} font-extrabold tracking-tight`}
-        style={{ backgroundImage: "linear-gradient(95deg,#f4883a 0%,#ef5fa0 70%)", WebkitBackgroundClip: "text", color: "transparent" }}
-      >
-        PoStory
-      </span>
+      <Image src="/brand/postory-wordmark-v2.png" alt="PoStory" width={959} height={258} unoptimized className="block h-auto shrink-0" style={{ width }} />
       <span className="text-[15px] italic" style={{ color: NAILS_PRIMARY, fontFamily: "Georgia, 'Noto Serif SC', serif" }}>
         for Nails
       </span>

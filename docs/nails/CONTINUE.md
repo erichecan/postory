@@ -14,9 +14,9 @@
 
 ## 当前交接点
 
-- 工作包 1：本地代码和自动化/浏览器验收已完成。真实邮件投递和部署后真机检查尚未完成。
-- 工作包 2：**本地实现与验收已完成**。登录后的 `/nails/create` 支持真实的 1–5 张照片上传、压缩、持久化、删除、选中排序、再次选择复用，跨账号/未登录隔离已用自动化 RLS 探针和真实浏览器第二账号验证。下一次若用户要求继续开发，从工作包 3「预约本与空档引擎」开始。
-- `/nails/create` 的“即将开放”占位标签现在只覆盖 Post 编辑、AI 文案、图片导出；素材库区块本身已经可用，不要再称其为占位。
+- 工作包 1–8：本地实现完成；3–4、6–8 已通过相应本地集成验收。工作包 5 的 Anthropic 服务端接口、事实约束、编辑/失败回退已实现，真实模型调用需配置 `ANTHROPIC_API_KEY`。
+- 工作包 9：类型检查、Lint、数据库迁移状态、生产构建和预约/笔记隔离探针通过。生产邮件、云存储、HTTPS、真机与备份恢复仍需真实上线环境验收。
+- `/nails/create` 当前包含可用素材库和笔记创建入口；笔记编辑位于 `/nails/posts/[id]`，历史位于 `/nails/posts`，预约位于 `/nails/appointments`。
 - `/create` 是原有主平台创作页，保留原功能。不要用 Nails 占位页替换它。
 - `/nails/demo` 是无账号、无数据库写入的演示页。用户应在登录后的真实工作区上传。
 
@@ -32,23 +32,21 @@
 - 不把占位页、假数据或仅预览成功标为完整交付。测试没运行或没通过要如实记录。
 - 保留其他工作留下的未提交修改，不因切换工具重置、覆盖或清理它们。
 
-## 工作包 2 的实现落点（已完成，供工作包 4 参考）
+## 工作包 2 的实现落点（已完成）
 
 - `src/app/nails/(workspace)/create/page.tsx` 已接入真实素材库（`MediaLibrary` 组件），不再是占位。
 - `src/lib/db/media-assets.ts`、`src/lib/actions/media-assets.ts`：MediaAsset 的 DAL 与 Server Actions，事务内走 RLS 身份、服务端二次校验上传。
 - `src/app/api/nails-media/[...key]/route.ts`：鉴权 + 归属 + 存在性校验后的图片读取路由，key 前缀 `nails/<studioId>/<assetId>.png`。
-- 工作包 4「Create Post 内容编辑」要复用这套素材库做照片选择；注意 Post 自己的图片顺序要存成 Post 级别的字段，不能复用或覆盖素材库的全局排序（素材库排序只是选择时的临时 UI 状态，不持久化）。
+- 笔记照片顺序在 `NailsPostMedia` 中单独保存；同一素材可复用于多篇笔记。删除素材会级联移除笔记图片引用，但保留笔记正文。
 
-## 工作包 3 的起点（预约本与空档引擎，尚未开发）
+## 工作包 3–8 实现落点
 
-先检查：
+- 预约与空档：schema、时区/DST 工具、预约 DAL/Actions 与 Today/Week 页面，迁移 20261008023000_nails_appointments；包含排他约束、事务锁和 RLS。
+- 笔记与发布：NailsPost、NailsPostMedia、NailsPostAvailability、NailsPostExport；owner-scoped DAL/Actions、编辑器、私有图片导出与鉴权下载。迁移 20261008033000_nails_posts、20261008035000_nails_post_media_cascade。
+- AI 文案使用 Anthropic SDK；ANTHROPIC_TEXT_MODEL 可覆盖模型。缺少 ANTHROPIC_API_KEY 时仍可手工编辑/导出；每篇最多 5 次生成请求，提示约束价格、优惠和空档等事实。
+- 探针：scripts/nails-appointments-probe.ts、scripts/nails-posts-probe.ts、scripts/nails-probe.ts。修改 schema 后运行 prisma migrate deploy 与 prisma generate。
 
-- `src/app/nails/(workspace)/appointments/page.tsx`（当前是纯占位页，只读 `studio.timeZone` 展示“即将开放”，没有任何预约数据模型或交互）
-- `src/lib/db/studios.ts`（复用其 owner 过滤 + RLS 事务模式）
-- `prisma/schema.prisma`（目前没有预约相关模型，需要新增并配套 RLS 策略，参照 `Studio`/`MediaAsset` 的 `app.studio_owner_id` 写法）
-- 不要把 `src/lib/marketing-calendar/`、`src/lib/db/calendar.ts` 这类既有营销日历代码当成预约引擎可以直接复用的基础——那是不同的业务（内容发布计划），字段和语义都不一样。
-
-验收标准见 `docs/nails/WORK-PACKAGES.md` 第 3 包：新建预约后相关时间立即从可用空档消失；编辑/取消后空档正确恢复；冲突预约不能并发写入；不同工作室相互隔离；所有时间绑定工作室时区，覆盖跨天与夏令时边界。
+预约冲突、DST、营业时间与 RLS 的详细验收结果见 HANDOFF.md 和探针脚本。
 
 ## 每次收尾
 
@@ -59,4 +57,4 @@
 
 ## 可以直接给 Claude Code 的任务
 
-> 请在当前 PoStory 仓库继续 PoStory for Nails。先读取 CLAUDE.md、AGENTS.md，以及 docs/nails/ 下的 CONTINUE.md、WORK-PACKAGES.md 和 HANDOFF.md。工作包 1、2 已完成本地实现，请完成工作包 3「预约本与空档引擎」：营业时间设置、Today/Week 预约增改取消、自动空档计算、冲突与手动关闭时间段，所有时间绑定工作室时区并覆盖夏令时边界。复用现有账号、工作室、RLS 模式与 UI，不重做第 1、2 包，不改变原有 /create。执行工作包 3 的验收检查并更新接力文档。
+> 请在当前 PoStory 仓库继续 PoStory for Nails。先读取 CLAUDE.md、AGENTS.md 和 Nails 接力文档，再核对 git 状态与代码。工作包 1–8 已完成本地实现；不要重做。先运行类型检查、相关探针和生产构建。后续沿用当前 Prisma/PostgreSQL、工作室 RLS、Next.js 16 文档要求和中英双语，保留用户现有未提交改动。生产部署、发邮件或修改外部资源前，先确认目标环境和凭据。

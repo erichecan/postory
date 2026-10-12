@@ -88,6 +88,16 @@ async function main() {
       root + `/public/brand/postory-${key}-v2.svg`,
       `<svg xmlns="http://www.w3.org/2000/svg" width="${info.width}" height="${info.height}" viewBox="0 0 ${info.width} ${info.height}"><title>PoStory ${key}</title>${content}</svg>\n`,
     );
+    const outputName = key === "wordmark" ? "website-logo-480" : "social-logo-480";
+    const outputHeight = Math.round((480 * info.height) / info.width);
+    await sharp(data, { raw: info })
+      .resize({ width: 480 })
+      .png()
+      .toFile(root + `/public/brand/postory-${outputName}.png`);
+    fs.writeFileSync(
+      root + `/public/brand/postory-${outputName}.svg`,
+      `<svg xmlns="http://www.w3.org/2000/svg" width="480" height="${outputHeight}" viewBox="0 0 ${info.width} ${info.height}"><title>PoStory ${key}</title>${content}</svg>\n`,
+    );
     console.log(key, info.width, info.height);
   }
 }

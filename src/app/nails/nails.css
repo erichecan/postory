@@ -1,4 +1,5 @@
 .nails-app { --ds-logo-width: 130px; }
+.nails-app:has(.nails-fidelity-demo) > header { display: none; }
 .nails-app header [role="group"] button { min-width: 44px; min-height: 44px; }
 .nails-app button, .nails-app a, .nails-app input, .nails-app select { -webkit-tap-highlight-color: transparent; }
 .nails-main { width: 100%; max-width: 48rem; margin: 0 auto; padding: 1.5rem 1.25rem calc(7rem + env(safe-area-inset-bottom)); }

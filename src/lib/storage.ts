@@ -15,11 +15,16 @@ const GEN_KEY_PATTERN = /^gen\/([a-z0-9]{10,40})\/([a-z0-9]{10,40})-(in|out)\.(?
 const PUB_KEY_PATTERN = /^pub\/([a-z0-9]{10,40})\/([a-z0-9]{10,40})-([a-f0-9]{16,32})\.(?:png|jpg|webp)$/;
 // nails/ 前缀存放美甲工作室私有素材库照片，按 studioId 归属，和 gen/（AI 生成）、pub/（公开导出）互相隔离。
 const NAILS_MEDIA_KEY_PATTERN = /^nails\/([a-z0-9]{10,40})\/([a-z0-9]{10,40})\.(?:png|jpg|webp)$/;
+const NAILS_EXPORT_KEY_PATTERN = /^nails-export\/([a-z0-9]{10,40})\/([a-z0-9]{10,40})-([a-f0-9]{16,32})\.png$/;
 
 const LOCAL_ROOT = path.join(process.cwd(), ".data", "uploads");
 
 export function isMediaKey(key: string) {
-  return GEN_KEY_PATTERN.test(key) || PUB_KEY_PATTERN.test(key) || NAILS_MEDIA_KEY_PATTERN.test(key);
+  return GEN_KEY_PATTERN.test(key) || PUB_KEY_PATTERN.test(key) || NAILS_MEDIA_KEY_PATTERN.test(key) || NAILS_EXPORT_KEY_PATTERN.test(key);
+}
+
+export function nailsExportKey(studioId: string, postId: string) {
+  return `nails-export/${studioId}/${postId}-${randomBytes(12).toString("hex")}.png`;
 }
 
 export function parseMediaKey(key: string) {

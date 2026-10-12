@@ -30,10 +30,32 @@ jobs:
 
       - run: gcloud auth configure-docker ${{ env.REGISTRY_REGION }}-docker.pkg.dev --quiet
 
-      - name: Build
-        run: docker build -t ${{ env.IMAGE }} .
+      - name: Validate public Turnstile site key
+        env:
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+        run: test -n "$NEXT_PUBLIC_TURNSTILE_SITE_KEY"
 
-      - run: docker push ${{ env.IMAGE }}
+      - name: Build images
+        run: |
+          docker build --target migrations -t ${{ env.IMAGE }}-migrations .
+          docker build --build-arg NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }} -t ${{ env.IMAGE }} .
+          docker push ${{ env.IMAGE }}-migrations
+          docker push ${{ env.IMAGE }}
+
+      - name: Apply database migrations
+        run: |
+          gcloud run jobs deploy postory-migrations \
+            --image ${{ env.IMAGE }}-migrations \
+            --region ${{ env.REGION }} \
+            --project ${{ env.PROJECT_ID }} \
+            --service-account=549968261036-compute@developer.gserviceaccount.com \
+            --set-secrets="DATABASE_URL=postory-database-url:latest" \
+            --max-retries=0 --task-timeout=300 \
+            --quiet
+          gcloud run jobs execute postory-migrations \
+            --region ${{ env.REGION }} \
+            --project ${{ env.PROJECT_ID }} \
+            --wait
 
       - name: Deploy
         run: |
@@ -45,8 +67,8 @@ jobs:
             --min-instances=0 --max-instances=3 \
             --memory=1Gi --cpu=1 \
             --timeout=300 \
-            --set-env-vars="APP_URL=https://postory-dfd7b2qpra-ew.a.run.app,STORAGE=gcs,GCS_BUCKET=postory-user-media,AI_PROVIDER=fake,STRIPE_MODE=fake,AYRSHARE_MODE=real" \
-            --set-secrets="DATABASE_URL=postory-database-url:latest,AUTH_SECRET=postory-auth-secret:latest,ENCRYPTION_KEY=postory-encryption-key:latest,AYRSHARE_API_KEY=postory-ayrshare-api-key:latest" \
+            --set-env-vars="APP_URL=https://postory-dfd7b2qpra-ew.a.run.app,STORAGE=gcs,GCS_BUCKET=postory-user-media,AI_PROVIDER=fake,STRIPE_MODE=fake,AYRSHARE_MODE=real,DEMO_DAILY_GENERATION_LIMIT=10,DEMO_TRUSTED_IP_HEADER=x-forwarded-for" \
+            --set-secrets="DATABASE_URL=postory-database-url:latest,AUTH_SECRET=postory-auth-secret:latest,ENCRYPTION_KEY=postory-encryption-key:latest,AYRSHARE_API_KEY=postory-ayrshare-api-key:latest,OPENAI_API_KEY=postory-openai-api-key:latest,TURNSTILE_SECRET_KEY=postory-turnstile-secret:latest,DEMO_TRIAL_HASH_SECRET=postory-demo-trial-hash-secret:latest" \
             --quiet
 
       - name: Verify

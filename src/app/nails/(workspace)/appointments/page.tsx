@@ -1,14 +1,24 @@
-import { getTranslations } from "next-intl/server";
-import { CalendarDays, Globe2 } from "lucide-react";
 import { getNailsWorkspace } from "@/lib/nails/workspace";
-import { EmptyState, PageHeading } from "@/components/nails/primitives";
+import { getAppointmentsForOwner } from "@/lib/db/appointments";
+import { todayInZone } from "@/lib/nails/time";
+import { AppointmentsView } from "@/components/nails/appointments-view";
 
-export default async function AppointmentsPage() {
-  const { studio } = await getNailsWorkspace();
-  const t = await getTranslations("nails");
-  return <>
-    <PageHeading eyebrow={studio.name} title={t("appointmentsTitle")} description={t("appointmentsDescription")} />
-    <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground"><Globe2 className="size-4" aria-hidden="true" />{t("timeZoneLabel")} · {studio.timeZone}</p>
-    <EmptyState icon={<CalendarDays className="size-7" />} title={t("appointmentsEmptyTitle")} description={t("appointmentsEmptyDescription")}><span className="rounded-full bg-accent px-3 py-1 text-xs font-medium text-primary">{t("comingSoon")}</span></EmptyState>
-  </>;
+export default async function AppointmentsPage({ searchParams }: PageProps<"/nails/appointments">) {
+  const { user, studio } = await getNailsWorkspace();
+  const params = await searchParams;
+  const view = params.view === "week" ? "week" : "day";
+  const requestedDate = typeof params.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(params.date) ? params.date : todayInZone(studio.timeZone);
+  const data = await getAppointmentsForOwner(user.id, requestedDate, view);
+  return <AppointmentsView
+    studioName={studio.name}
+    timeZone={studio.timeZone}
+    localDate={data.localDate}
+    dates={data.dates}
+    view={data.view}
+    hours={data.businessHours}
+    duration={studio.defaultDurationMinutes}
+    appointments={data.appointments}
+    closedPeriods={data.closedPeriods}
+    availability={data.availabilityByDate}
+  />;
 }

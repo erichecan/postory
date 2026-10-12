@@ -78,7 +78,15 @@ export const NAILS_CONFIG: IndustryConfig = validateIndustryConfig({
     },
   },
   categories: [{ id: "works", labelKey: "demo.category.works" }],
-  templates: [{ sourceId: "nails-demo-classic", sourceVersion: "1", categoryId: "works", adapterId: "demo-static-adapter" }],
+  templates: [
+    { sourceId: "nails-demo-classic", sourceVersion: "1", categoryId: "works", adapterId: "demo-static-adapter" },
+    { sourceId: "nails-glazed-pearl-01", sourceVersion: "1.0.0", categoryId: "works", adapterId: "react-layered-template" },
+    { sourceId: "nails-french-terracotta-01", sourceVersion: "1.0.0", categoryId: "works", adapterId: "react-layered-template" },
+    { sourceId: "nails-autumn-cat-eye-01", sourceVersion: "1.0.0", categoryId: "works", adapterId: "react-layered-template" },
+    { sourceId: "nails-berry-velvet-01", sourceVersion: "1.0.0", categoryId: "works", adapterId: "react-layered-template" },
+    { sourceId: "nails-winter-berry-01", sourceVersion: "1.0.0", categoryId: "works", adapterId: "react-layered-template" },
+    { sourceId: "nails-copper-autumn-offer-01", sourceVersion: "1.0.0", categoryId: "works", adapterId: "react-layered-template" },
+  ],
   fieldCatalog: NAILS_FIELD_CATALOG,
   mediaPolicy: {
     minCount: 1,
@@ -91,6 +99,9 @@ export const NAILS_CONFIG: IndustryConfig = validateIndustryConfig({
   },
   outputs: [
     { id: "portrait-2x3", ...OUTPUT_SPECS["portrait-2x3"], mime: "image/png" },
+    { id: "square", ...OUTPUT_SPECS.square, mime: "image/png" },
+    { id: "portrait-4x5", ...OUTPUT_SPECS["portrait-4x5"], mime: "image/png" },
+    { id: "story-9x16", ...OUTPUT_SPECS["story-9x16"], mime: "image/png" },
   ],
   capabilities: {
     anonymous: true,

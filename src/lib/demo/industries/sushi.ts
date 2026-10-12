@@ -1,6 +1,7 @@
 import { type FieldSpec, type IndustryConfig, OUTPUT_SPECS, validateIndustryConfig } from "../contracts";
+import { SUSHI_EDITORIAL_VARIANTS } from "../templates/sushi-editorial-variants";
 
-/** Field limits sourced from V2.0 §4.2 explicit text: dishName 40 / offerText 100, shared title 40 / shortCopy 160 / contactNote 80. */
+/** Field limits follow the Sushi signature editorial pilot: headline 32, optional tagline 72. */
 export const SUSHI_FIELD_CATALOG: FieldSpec[] = [
   {
     id: "title",
@@ -8,7 +9,7 @@ export const SUSHI_FIELD_CATALOG: FieldSpec[] = [
     kind: "text",
     labelKey: "demo.fields.title.label",
     required: true,
-    maxLength: 40,
+    maxLength: 32,
     renderTarget: "image",
   },
   {
@@ -17,7 +18,7 @@ export const SUSHI_FIELD_CATALOG: FieldSpec[] = [
     kind: "text",
     labelKey: "demo.fields.dishName.label",
     required: false,
-    maxLength: 40,
+    maxLength: 50,
     renderTarget: "image",
   },
   {
@@ -25,8 +26,8 @@ export const SUSHI_FIELD_CATALOG: FieldSpec[] = [
     semanticKey: "shortCopy",
     kind: "textarea",
     labelKey: "demo.fields.shortCopy.label",
-    required: true,
-    maxLength: 160,
+    required: false,
+    maxLength: 72,
     renderTarget: "copy",
   },
   {
@@ -47,6 +48,15 @@ export const SUSHI_FIELD_CATALOG: FieldSpec[] = [
     maxLength: 80,
     renderTarget: "copy",
   },
+  {
+    id: "availabilityText",
+    semanticKey: "availability",
+    kind: "textarea",
+    labelKey: "demo.fields.availabilityText.label",
+    required: false,
+    maxLength: 80,
+    renderTarget: "image",
+  },
 ];
 
 export const SUSHI_CONFIG: IndustryConfig = validateIndustryConfig({
@@ -57,31 +67,52 @@ export const SUSHI_CONFIG: IndustryConfig = validateIndustryConfig({
   defaultLocale: "zh",
   supportedLocales: ["zh", "en"],
   themeTokens: {
-    "--demo-bg": "#1c1210",
-    "--demo-surface": "#2a1c19",
-    "--demo-primary": "#c0392b",
-    "--demo-primary-ink": "#fff6ec",
-    "--demo-ink": "#fff6ec",
-    "--demo-muted": "#c9a79a",
+    "--demo-bg": "#f8ead9",
+    "--demo-surface": "#fffaf3",
+    "--demo-primary": "#d9531e",
+    "--demo-primary-ink": "#fffaf3",
+    "--demo-ink": "#2a1f16",
+    "--demo-muted": "#8a7360",
   },
   copy: {
     zh: {
+      "demo.category.signature": "招牌展示",
+      "demo.category.lunch": "午餐推荐",
+      "demo.category.newMenu": "新品菜单",
+      "demo.category.party": "聚会拼盘",
+      "demo.category.restaurant": "餐厅环境",
       "demo.fields.title.label": "标题",
       "demo.fields.dishName.label": "菜名",
       "demo.fields.shortCopy.label": "短文案",
       "demo.fields.offerText.label": "套餐/活动说明",
       "demo.fields.contactNote.label": "联系说明",
+      "demo.fields.availabilityText.label": "预约/活动时间",
     },
     en: {
+      "demo.category.signature": "Signature",
+      "demo.category.lunch": "Lunch",
+      "demo.category.newMenu": "New menu",
+      "demo.category.party": "Party platters",
+      "demo.category.restaurant": "Restaurant",
       "demo.fields.title.label": "Title",
       "demo.fields.dishName.label": "Dish name",
       "demo.fields.shortCopy.label": "Caption",
       "demo.fields.offerText.label": "Offer details",
       "demo.fields.contactNote.label": "Contact note",
+      "demo.fields.availabilityText.label": "Reservation / event times",
     },
   },
-  categories: [{ id: "dishes", labelKey: "demo.category.dishes" }],
-  templates: [{ sourceId: "sushi-demo-classic", sourceVersion: "1", categoryId: "dishes", adapterId: "demo-static-adapter" }],
+  categories: [
+    { id: "signature", labelKey: "demo.category.signature" },
+    { id: "lunch", labelKey: "demo.category.lunch" },
+    { id: "new-menu", labelKey: "demo.category.newMenu" },
+    { id: "party", labelKey: "demo.category.party" },
+    { id: "restaurant", labelKey: "demo.category.restaurant" },
+  ],
+  templates: [
+    { sourceId: "sushi-signature-editorial-01", sourceVersion: "1.0.0", categoryId: "signature", adapterId: "react-layered-template" },
+    ...Object.values(SUSHI_EDITORIAL_VARIANTS).map((template) => ({ sourceId: template.id, sourceVersion: template.version, categoryId: template.categoryId, adapterId: "react-layered-template" })),
+  ],
   fieldCatalog: SUSHI_FIELD_CATALOG,
   mediaPolicy: {
     minCount: 1,
@@ -94,6 +125,9 @@ export const SUSHI_CONFIG: IndustryConfig = validateIndustryConfig({
   },
   outputs: [
     { id: "portrait-2x3", ...OUTPUT_SPECS["portrait-2x3"], mime: "image/png" },
+    { id: "square", ...OUTPUT_SPECS.square, mime: "image/png" },
+    { id: "portrait-4x5", ...OUTPUT_SPECS["portrait-4x5"], mime: "image/png" },
+    { id: "story-9x16", ...OUTPUT_SPECS["story-9x16"], mime: "image/png" },
   ],
   capabilities: {
     anonymous: true,

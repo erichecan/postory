@@ -1,0 +1,7 @@
+interface:
+  display_name: "PoStory Template Builder"
+  short_description: "Build code-rendered templates for any PoStory industry"
+  default_prompt: "Use $postory-template-builder to create a complete, production-ready social template for this project."
+
+policy:
+  allow_implicit_invocation: true

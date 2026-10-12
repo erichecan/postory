@@ -3,16 +3,25 @@ import { z } from "zod";
 export const INDUSTRY_IDS = ["nails", "sushi"] as const;
 export type IndustryId = (typeof INDUSTRY_IDS)[number];
 
-export const OUTPUT_IDS = ["portrait-2x3", "square", "portrait-4x5"] as const;
+export const OUTPUT_IDS = ["portrait-2x3", "square", "portrait-4x5", "story-9x16"] as const;
 export type OutputId = (typeof OUTPUT_IDS)[number];
+export const TEMPLATE_RATIO_IDS = ["square", "portrait-4x5", "story-9x16"] as const;
+export type TemplateRatioId = (typeof TEMPLATE_RATIO_IDS)[number];
+
+export const photoCropSettingSchema = z.object({
+  focalPoint: z.object({ x: z.number().min(0).max(1), y: z.number().min(0).max(1) }),
+  zoom: z.number().min(1).max(3),
+});
+export type PhotoCropSetting = z.infer<typeof photoCropSettingSchema>;
 
 export const OUTPUT_SPECS: Record<OutputId, { width: number; height: number }> = {
   "portrait-2x3": { width: 1080, height: 1620 },
   square: { width: 1080, height: 1080 },
   "portrait-4x5": { width: 1080, height: 1350 },
+  "story-9x16": { width: 1080, height: 1920 },
 };
 
-export const STEPS = ["landing", "upload", "templates", "edit", "preview", "success"] as const;
+export const STEPS = ["landing", "upload", "edit", "export", "success"] as const;
 export type Step = (typeof STEPS)[number];
 
 export type FieldValue = string | boolean | number | string[];
@@ -118,6 +127,7 @@ export const photoBindingSchema = z.object({
     width: z.number().min(0).max(1),
     height: z.number().min(0).max(1),
   }),
+  cropByOutput: z.partialRecord(z.enum(TEMPLATE_RATIO_IDS), photoCropSettingSchema).optional(),
 });
 export type PhotoBinding = z.infer<typeof photoBindingSchema>;
 
@@ -139,6 +149,7 @@ export const demoSessionSchema = z.object({
   locale: z.string().min(1),
   assets: z.array(mediaAssetSchema),
   assetOrder: z.array(z.string().min(1)),
+  generatedPhotoId: z.string().min(1).optional(),
   draft: contentDraftSchema.optional(),
   lastStep: z.enum(STEPS),
   createdAt: z.string().min(1),
@@ -177,6 +188,97 @@ export interface TemplateDescriptor {
   /** Keyed only by the OutputIds this template actually declares in `outputs` above — V2.0 §9.3. */
   watermarkSafeAreas: Partial<Record<OutputId, { x: number; y: number; width: number; height: number }>>;
 }
+
+export const NORMALIZED_RECT_SCHEMA = z.object({
+  x: z.number().min(0).max(1),
+  y: z.number().min(0).max(1),
+  width: z.number().positive().max(1),
+  height: z.number().positive().max(1),
+});
+
+const focalPointSchema = z.object({ x: z.number().min(0).max(1), y: z.number().min(0).max(1) });
+
+const photoSlotDefinitionSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal("image"),
+  required: z.boolean(),
+  fit: z.enum(["cover", "contain"]),
+  defaultFocalPoint: focalPointSchema,
+});
+
+const textSlotDefinitionSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal("text"),
+  fieldId: z.string().min(1),
+  required: z.boolean(),
+  maxLength: z.number().int().positive(),
+  maxLines: z.number().int().positive(),
+  defaultValue: z.string(),
+  transform: z.enum(["none", "uppercase"]).default("none"),
+});
+
+const editorialTextLayoutSchema = NORMALIZED_RECT_SCHEMA.extend({
+  fontSizeCqw: z.number().positive(),
+  lineHeight: z.number().positive(),
+  maxLines: z.number().int().positive(),
+  fontFamily: z.string().min(1),
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+});
+
+const editorialEyebrowSchema = NORMALIZED_RECT_SCHEMA.extend({
+  text: z.string().min(1),
+  fontSizeCqw: z.number().positive(),
+  fontFamily: z.string().min(1),
+  letterSpacing: z.string().min(1),
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+});
+
+const editorialRuleSchema = NORMALIZED_RECT_SCHEMA.extend({
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+});
+
+const templateLayoutSchema = z.object({
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+  photo: NORMALIZED_RECT_SCHEMA,
+  focalPoint: focalPointSchema,
+  overlay: z.object({
+    x: z.number().min(0).max(1),
+    y: z.number().min(0).max(1),
+    width: z.number().positive().max(1),
+    height: z.number().positive().max(1),
+    gradient: z.string().min(1),
+  }),
+  headline: editorialTextLayoutSchema,
+  tagline: editorialTextLayoutSchema,
+  appointment: editorialTextLayoutSchema.optional(),
+  atmosphereOverlay: z.object({ gradient: z.string().min(1), blendMode: z.enum(["normal", "screen", "multiply"]) }).optional(),
+  editorialEyebrow: editorialEyebrowSchema.optional(),
+  editorialRule: editorialRuleSchema.optional(),
+  ornamentTop: NORMALIZED_RECT_SCHEMA,
+  ornamentBottom: NORMALIZED_RECT_SCHEMA,
+  accentBrush: NORMALIZED_RECT_SCHEMA,
+  watermarkSafeArea: NORMALIZED_RECT_SCHEMA,
+});
+
+/** Versioned, data-driven template shape used by TemplateRenderer. */
+export const layeredTemplateSchema = z.object({
+  schemaVersion: z.literal(1),
+  id: z.string().min(1),
+  version: z.string().min(1),
+  industryId: z.enum(INDUSTRY_IDS),
+  categoryId: z.string().min(1),
+  family: z.literal("full-bleed-editorial"),
+  slots: z.array(z.discriminatedUnion("type", [photoSlotDefinitionSchema, textSlotDefinitionSchema])).min(1),
+  decorationAssets: z.object({
+    ornamentTop: z.string().startsWith("/"),
+    ornamentBottom: z.string().startsWith("/"),
+    accentBrush: z.string().startsWith("/"),
+  }),
+  layouts: z.record(z.enum(TEMPLATE_RATIO_IDS), templateLayoutSchema),
+  selectionBadge: z.literal("outside-renderer"),
+});
+export type LayeredTemplateDefinition = z.infer<typeof layeredTemplateSchema>;
 
 export interface ValidationIssue {
   path: string;

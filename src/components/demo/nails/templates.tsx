@@ -10,11 +10,11 @@ import { NAILS_BG, NAILS_INK, NAILS_MUTED, NAILS_PRIMARY, NailsPrimaryButton, Na
 const CATEGORIES = ["全部", "作品展示", "作品 + 档期", "促销活动", "节日主题", "新款推荐"] as const;
 
 const COMING_SOON = [
-  { label: "作品 + 档期", bg: "linear-gradient(135deg,#f3dccb,#e8c3ab)" },
-  { label: "秋日主题 · 新款推荐", bg: "linear-gradient(135deg,#d9b48f,#a9754a)" },
-  { label: "新款推荐", bg: "linear-gradient(135deg,#f0d6c8,#e3b9c4)" },
-  { label: "节日主题", bg: "linear-gradient(135deg,#2a2a2a,#555)" },
-  { label: "促销活动", bg: "linear-gradient(135deg,#fbdfe6,#f6c3d2)" },
+  { label: "作品 + 档期", photo: "/demo/photos/nail-2.jpg" },
+  { label: "秋日主题 · 新款推荐", photo: "/demo/photos/nail-3.jpg" },
+  { label: "新款推荐", photo: "/demo/photos/nail-4.jpg" },
+  { label: "节日主题", photo: "/demo/photos/nail-1.jpg" },
+  { label: "促销活动", photo: "/demo/photos/nail-2.jpg" },
 ] as const;
 
 export function NailsTemplates() {
@@ -106,8 +106,9 @@ export function NailsTemplates() {
           </div>
 
           {COMING_SOON.map((c, i) => (
-            <div key={c.label} className="relative overflow-hidden rounded-2xl bg-white opacity-60">
-              <div className="aspect-[3/4] w-full" style={{ background: c.bg }} />
+            <div key={`${c.label}-${i}`} className="relative overflow-hidden rounded-2xl bg-white opacity-60">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={c.photo} alt="" className="aspect-[3/4] w-full object-cover" />
               <div className="p-2 text-[11px]" style={{ color: NAILS_MUTED }}>
                 {String(i + 2).padStart(2, "0")} {c.label} · 即将上线
               </div>

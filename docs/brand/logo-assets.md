@@ -19,6 +19,15 @@
 
 `postory-wordmark-v2.svg`、`postory-symbol-v2.svg` 使用 Potrace 从原图轮廓生成 Bézier 路径，保留文字气泡形状；弱化像素噪点、重建近似粉橙渐变。均为真实 SVG 路径，不是把 PNG 包在 SVG 中。它们不是原始设计师矢量文件，存在细微轮廓和渐变差异，暂不默认替换网页 Logo。
 
+## 480 px 独立交付文件
+
+网站与社媒 Logo 已拆开，不再放在同一画布中：
+
+- 网站 Logo（PoStory 字标）：`postory-website-logo-480.png`、`postory-website-logo-480.svg`，宽 480 px。
+- 社媒 Logo（圆形 P 图标）：`postory-social-logo-480.png`、`postory-social-logo-480.svg`，宽 480 px。
+
+PNG 保留透明背景并按原始比例缩放；SVG 使用独立路径和渐变，可继续无损放大。
+
 文字 SVG 与 PNG 在原尺寸按 alpha ≥128 比较的轮廓交并比约为 99.0%；该数字仅衡量黑白轮廓，不能表示颜色或视觉完全相同。
 
 ## 选择建议

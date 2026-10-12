@@ -1,6 +1,7 @@
 import "server-only";
 import type { Quality } from "@/components/create/studio-options";
 import { fakeProvider } from "./fake-provider";
+import { openAiImageProvider } from "./openai-image-provider";
 import type { ImageProvider } from "./types";
 
 export { ProviderError } from "./types";
@@ -20,5 +21,6 @@ export function getImageProvider(): ImageProvider {
   const name = process.env.AI_PROVIDER ?? (process.env.NODE_ENV === "production" ? "" : "fake");
   if (!name) throw new Error("AI_PROVIDER is required in production");
   if (name === "fake") return fakeProvider;
+  if (name === "openai") return openAiImageProvider;
   throw new Error(`AI_PROVIDER=${name} is not wired up yet`);
 }

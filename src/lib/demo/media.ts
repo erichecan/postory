@@ -1,6 +1,8 @@
 "use client";
 
-export const ACCEPTED_MIME = ["image/jpeg", "image/png", "image/webp"] as const;
+import { ACCEPTED_IMAGE_TYPES, detectImageMime } from "@/lib/image-mime";
+
+export const ACCEPTED_MIME = ACCEPTED_IMAGE_TYPES;
 export const MAX_FILE_BYTES = 15 * 1024 * 1024;
 export const MAX_BATCH_BYTES = 60 * 1024 * 1024;
 export const MAX_INPUT_PIXELS = 40_000_000;
@@ -51,7 +53,8 @@ async function hashBlob(blob: Blob): Promise<string> {
  * and avoids shipping a hand-rolled EXIF parser for a one-time normalization step.
  */
 export async function normalizeImage(file: File): Promise<NormalizedImage> {
-  if (!(ACCEPTED_MIME as readonly string[]).includes(file.type)) {
+  const inputMime = await detectImageMime(file);
+  if (!inputMime) {
     throw new MediaProcessingError({ code: "unsupported-mime", mime: file.type });
   }
   if (file.size > MAX_FILE_BYTES) {
@@ -60,7 +63,7 @@ export async function normalizeImage(file: File): Promise<NormalizedImage> {
 
   let bitmap: ImageBitmap;
   try {
-    bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+    bitmap = await createImageBitmap(new Blob([file], { type: inputMime }), { imageOrientation: "from-image" });
   } catch {
     throw new MediaProcessingError({ code: "decode-failed" });
   }
@@ -90,7 +93,7 @@ export async function normalizeImage(file: File): Promise<NormalizedImage> {
   ctx.drawImage(bitmap, 0, 0, width, height);
   bitmap.close();
 
-  const outMime = file.type === "image/png" ? "image/png" : "image/jpeg";
+  const outMime = inputMime === "image/png" ? "image/png" : "image/jpeg";
   const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, outMime, 0.9));
   if (!blob) throw new MediaProcessingError({ code: "decode-failed" });
 

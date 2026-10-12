@@ -83,6 +83,12 @@ enum GenerationStatus {
   FAILED
 }
 
+enum DemoTrialGenerationStatus {
+  RESERVED
+  SUCCEEDED
+  FAILED
+}
+
 enum Industry {
   FOOD_TAKEAWAY
   BEAUTY_HAIR
@@ -199,29 +205,158 @@ model User {
 
 // Phase 1: one personally owned studio per account. User is the shared profile.
 model Studio {
-  id          String       @id @default(cuid())
-  ownerId     String       @unique
-  owner       User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  name        String       @db.VarChar(64)
-  timeZone    String       @db.VarChar(64)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  mediaAssets MediaAsset[]
+  id                     String          @id @default(cuid())
+  ownerId                String          @unique
+  owner                  User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name                   String          @db.VarChar(64)
+  timeZone               String          @db.VarChar(64)
+  defaultDurationMinutes Int             @default(60)
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+  mediaAssets            MediaAsset[]
+  businessHours          BusinessHours[]
+  closedPeriods          ClosedPeriod[]
+  appointments           Appointment[]
+  posts                  NailsPost[]
 }
 
 // Owned by a studio, independent of any single Post (not modeled yet). Reusable across future notes.
 model MediaAsset {
-  id        String   @id @default(cuid())
+  id        String           @id @default(cuid())
   studioId  String
-  studio    Studio   @relation(fields: [studioId], references: [id], onDelete: Cascade)
-  key       String   @unique
-  mimeType  String   @db.VarChar(32)
+  studio    Studio           @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  key       String           @unique
+  mimeType  String           @db.VarChar(32)
   byteSize  Int
   width     Int
   height    Int
-  createdAt DateTime @default(now())
+  createdAt DateTime         @default(now())
+  postMedia NailsPostMedia[]
 
   @@index([studioId, createdAt])
+}
+
+model NailsPost {
+  id                String                  @id @default(cuid())
+  studioId          String
+  studio            Studio                  @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  theme             NailsPostTheme          @default(SHOWCASE)
+  template          NailsPostTemplate       @default(WORK)
+  title             String                  @default("") @db.VarChar(100)
+  body              String                  @default("") @db.VarChar(3000)
+  tags              String[]                @default([])
+  platform          String                  @default("XIAOHONGSHU") @db.VarChar(32)
+  status            NailsPostStatus         @default(DRAFT)
+  aiGenerationCount Int                     @default(0)
+  exportedAt        DateTime?
+  publishedAt       DateTime?
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  media             NailsPostMedia[]
+  availability      NailsPostAvailability[]
+  exports           NailsPostExport[]
+
+  @@index([studioId, updatedAt])
+  @@index([studioId, status, createdAt])
+}
+
+model NailsPostMedia {
+  postId       String
+  post         NailsPost  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  mediaAssetId String
+  mediaAsset   MediaAsset @relation(fields: [mediaAssetId], references: [id], onDelete: Cascade)
+  position     Int
+
+  @@id([postId, mediaAssetId])
+  @@unique([postId, position])
+  @@index([mediaAssetId])
+}
+
+model NailsPostAvailability {
+  id        String    @id @default(cuid())
+  postId    String
+  post      NailsPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  startAt   DateTime  @db.Timestamptz(3)
+  endAt     DateTime  @db.Timestamptz(3)
+  timeZone  String    @db.VarChar(64)
+  createdAt DateTime  @default(now())
+
+  @@index([postId, startAt])
+}
+
+model NailsPostExport {
+  id         String    @id @default(cuid())
+  postId     String
+  post       NailsPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  storageKey String    @unique
+  mimeType   String    @db.VarChar(32)
+  createdAt  DateTime  @default(now())
+
+  @@index([postId, createdAt])
+}
+
+model BusinessHours {
+  id          String   @id @default(cuid())
+  studioId    String
+  studio      Studio   @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  weekday     Int
+  isClosed    Boolean  @default(false)
+  startMinute Int      @default(540)
+  endMinute   Int      @default(1080)
+  updatedAt   DateTime @updatedAt
+
+  @@unique([studioId, weekday])
+}
+
+model ClosedPeriod {
+  id        String   @id @default(cuid())
+  studioId  String
+  studio    Studio   @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  startAt   DateTime @db.Timestamptz(3)
+  endAt     DateTime @db.Timestamptz(3)
+  reason    String?  @db.VarChar(120)
+  createdAt DateTime @default(now())
+
+  @@index([studioId, startAt])
+}
+
+enum NailsAppointmentStatus {
+  CONFIRMED
+  CANCELLED
+}
+
+enum NailsPostStatus {
+  DRAFT
+  EXPORTED
+  PUBLISHED
+}
+
+enum NailsPostTheme {
+  SHOWCASE
+  OPEN_SLOTS
+  PROMOTION
+  DAILY
+}
+
+enum NailsPostTemplate {
+  WORK
+  SLOTS
+  PROMOTION
+}
+
+model Appointment {
+  id         String                 @id @default(cuid())
+  studioId   String
+  studio     Studio                 @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  startAt    DateTime               @db.Timestamptz(3)
+  endAt      DateTime               @db.Timestamptz(3)
+  clientName String                 @db.VarChar(80)
+  note       String?                @db.VarChar(280)
+  status     NailsAppointmentStatus @default(CONFIRMED)
+  createdAt  DateTime               @default(now())
+  updatedAt  DateTime               @updatedAt
+
+  @@index([studioId, startAt])
 }
 
 model SocialAccount {
@@ -346,6 +481,39 @@ model Generation {
 
   @@index([userId, createdAt])
   @@index([status, createdAt])
+}
+
+// Server-side anonymous demo quota ledger. Browser state is never used as the source of truth.
+model DemoTrialGeneration {
+  id             String                     @id @default(cuid())
+  industry       String                     @db.VarChar(32)
+  visitorHash    String                     @db.Char(64)
+  ipHash         String                     @db.Char(64)
+  phoneHash      String?                    @db.Char(64)
+  idempotencyKey String                     @unique @db.Char(64)
+  status         DemoTrialGenerationStatus  @default(RESERVED)
+  quality        String                     @default("medium") @db.VarChar(8)
+  costMicros     Int?
+  createdAt      DateTime                   @default(now())
+  completedAt    DateTime?
+
+  @@index([visitorHash, createdAt])
+  @@index([ipHash, createdAt])
+  @@index([phoneHash, createdAt])
+  @@index([status, createdAt])
+}
+
+// Short-lived, single-use operator exception issued after a blocked visitor contacts support.
+model DemoTrialOverride {
+  id          String    @id @default(cuid())
+  tokenHash   String    @unique @db.Char(64)
+  reason      String?   @db.VarChar(255)
+  createdById String    @db.VarChar(64)
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime
+  consumedAt  DateTime?
+
+  @@index([expiresAt, consumedAt])
 }
 
 model StripeEvent {

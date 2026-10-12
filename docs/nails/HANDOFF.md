@@ -1,6 +1,6 @@
 # PoStory for Nails — 开发接力
 
-更新时间：2026-10-07。当前任务：九个开发工作包中的 **2. 作品素材库（P0）**。
+更新时间：2026-10-08。工作包 1–8 的本地实现已完成；第 9 包本地验收完成，生产环境闭环待上线配置。
 
 当前交接：第 1、2 包本地实现均已完成；第 3 包待开发。跨工具入口为 [CONTINUE.md](./CONTINUE.md)，已由根目录 CLAUDE.md 导入、AGENTS.md 引用。九包的完整任务和验收标准见 [WORK-PACKAGES.md](./WORK-PACKAGES.md)。
 
@@ -8,7 +8,7 @@
 
 在现有 PoStory 仓库内增加独立 `/nails` 入口，共享 User、认证会话、邮箱令牌和品牌组件。主平台 `/create`、`/onboarding` 等已有路径保持原有用途，因此美甲版使用带前缀的路由。
 
-本阶段提供邮箱验证码注册/登录、原账号密码登录、个人工作室创建与编辑、手机导航、只读演示，以及登录后 `/nails/create` 的真实作品素材库（1–5 张照片上传、压缩、持久化、删除、选中排序、再次选择复用）。Post 编辑、AI 文案、图片模板导出、预约引擎、发布仍是明确标注“即将开放”的占位页；素材库区块不在此列，已经可以正常使用。
+当前实现包括账号/工作室、作品素材库、预约本、Create Post 编辑、AI 文案接口、图片模板与 PNG 导出、档期快照、发布记录和笔记复用。AI 实际调用需配置 Anthropic Key；生产邮件/HTTPS/备份及真机操作需在部署环境完成。
 
 ## 本地使用
 
@@ -37,9 +37,13 @@ npm run dev
 DATABASE_URL=postgresql://USER:PASSWORD@localhost:5432/social_shell?schema=public
 AUTH_SECRET=至少32个字符的随机秘密
 APP_URL=http://localhost:3002
+STORAGE=local
 # 真实邮件发送需要以下两项；发件域名需在现有邮件服务中配置。
 RESEND_API_KEY=邮件服务密钥
 MAIL_FROM=PoStory <no-reply@YOUR_VERIFIED_DOMAIN>
+# 真实 AI 文案需要；未配置时仍可手动创作和导出。
+ANTHROPIC_API_KEY=Anthropic 密钥
+# ANTHROPIC_TEXT_MODEL=claude-haiku-4-5-20251001
 ```
 
 开发时可省略邮件配置。正式上线应使用 HTTPS，生产会话 Cookie 带 Secure。`AUTH_SECRET` 需要稳定保存，它同时用于会话签名和验证码 HMAC。新增流程沿用 7 天 HttpOnly / SameSite=Lax 会话，验证码有效期 15 分钟、每码最多尝试 5 次、60 秒发送冷却、每小时每邮箱每用途最多 5 次。数据库事务锁阻止并发发送绕过限制。
@@ -101,10 +105,12 @@ NAILS_DEV=1 npx tsx scripts/nails-probe.ts http://localhost:3002
 
 # 生产模式验证
 npm run build
-npx next start -p 3011
+PORT=3011 STORAGE=local npm start
 # 另一终端：
 npx tsx scripts/nails-probe.ts http://localhost:3011
 npx tsx scripts/auth-probe.ts http://localhost:3011
+NODE_OPTIONS='--conditions=react-server' npx tsx scripts/nails-appointments-probe.ts http://localhost:3011
+NODE_OPTIONS='--conditions=react-server' npx tsx scripts/nails-posts-probe.ts http://localhost:3011
 ```
 
 已通过（工作包 1，历史记录）：
@@ -133,10 +139,37 @@ npx tsx scripts/auth-probe.ts http://localhost:3011
 
 浏览器验收截图位于 `docs/nails/shots/`（已跟踪进 git，与 `preview/` 不同，这批图直接作为交付证据）。真实手机硬件及实际邮件投递还需要在部署后验收。
 
+## 2026-10-08 创作与预约闭环
+
+本轮按用户明确要求继续完成九包的本地开发，并保留了工作区已有 Logo 和开发计划改动。完成预约本/空档引擎（工作包 3）、笔记编辑（4）、Anthropic 文案接口（5）、竖版图片导出（6）、档期快照/过期提示（7）及发布记录/复用（8）。
+
+- 预约 schema / RLS 迁移：`20261008023000_nails_appointments`。预约探针包含 DST gap/fold、23/25 小时日、跨时区、冲突并发、关闭时段、编辑取消和三表受限角色 RLS 检查。
+- 笔记 schema / RLS 迁移：`20261008033000_nails_posts`；`20261008035000_nails_post_media_cascade` 使素材删除时自动移除笔记照片关联、保留笔记内容。
+- `/nails/create` 选择照片并创建笔记；`/nails/posts/[id]` 可保存/重开草稿、编辑标题正文标签、选择模板、重新选取当前可用档期、生成 AI 文案、导出 PNG、复制文案并确认手动发布；`/nails/posts` 展示记录并复制笔记。导出图片私有保存，并通过 owner 鉴权接口下载。
+- Anthropic SDK 集成完成；`ANTHROPIC_API_KEY` 未配置时 AI 按预期提示服务不可用，手动创作/导出流程仍可走通。每篇笔记最多 5 次生成尝试；生成提示限制虚构价格、优惠、档期、地点、评价和效果保证。
+- `npm run typecheck`、`npx prisma validate`、`npx prisma migrate status`（16 个迁移已应用）、`npx eslint src scripts --quiet`、`npm run build`：通过。
+- `scripts/nails-appointments-probe.ts`：33 项 PASS；`scripts/nails-posts-probe.ts`：22 项 PASS，含新表的受限 PostgreSQL 角色 RLS、匿名/跨工作室导出图片读取拒绝；`scripts/nails-probe.ts`：60 项 PASS；`scripts/auth-probe.ts`：全部 PASS。
+- `node scripts/check-i18n.mjs`：中英 key 数量一致（1079/1079）；全仓仍报告既有空字段及非 Nails 文件内联中文。本轮 AI 指令改用英文，避免新增 Nails 源码内联中文。
+
+第 9 包本地验收完成，但“真实交付”仍取决于环境：配置生产 `ANTHROPIC_API_KEY`、RESEND 邮件、`STORAGE=gcs`/bucket、HTTPS 部署和非超级用户数据库运行角色；随后要用真实手机验收登录/相册权限/系统分享，并完成日志、备份和恢复演练。本轮没有部署、发送外部邮件或触碰线上数据。
+
 ## 下次从这里继续
 
-下一工作包是 **预约本与空档引擎（P0）**：营业时间、预约增改取消、空档、冲突与关闭时间。先读 `docs/nails/WORK-PACKAGES.md` 第 3 包的任务与验收标准。
+工作包 3–8 的实现落点、迁移和当前验收结果见本文件新增的“2026-10-08 创作与预约闭环”记录。营销日历与预约引擎仍是不同业务；未接入自动发帖或读取私信。
 
-不要把现有营销日历当作预约引擎；不要提前接入自动发帖、自动读取私信、会员/礼卡/POS。Post 编辑器（工作包 4）依赖素材库但尚未开始，不要提前在素材库之外实现笔记编辑。
+本次开始前仓库已有 Logo 相关未提交改动，已保留；`docs/nails/20261007-nails-appointments-dev-plan.md` 也已保留并更新状态。工作包 1–8 和本次改动均未推送或部署。
 
-本次开始前仓库已有 Logo 相关未提交改动：`docs/brand/logo-assets.md`、`scripts/build-logo-assets.mjs` 和四个 `public/brand/*-480.*` 新文件，已保留。工作包 1、2 均未提交 Git commit，也未推送或部署（除非本次完成报告注明已提交）。
+## 2026-10-10 Nails Demo 路由修正
+
+`/nails/demo` 原先仍显示早期工作区空状态占位页，导致与当前移动端演示断开。本次将其改为渲染同一套移动端 Nails fidelity demo，并隐藏 Nails 工作区外层品牌栏，避免重复 Logo。寿司演示继续使用 `/demo/sushi`。浏览器在 390×844 视口确认 `/nails/demo` 渲染 `.fd-stage` 且没有横向溢出；寿司流程从上传页依次到模板、编辑、预览、导出和成功页，PNG 下载成功，无 pageerror。
+
+## 2026-10-11 Nails demo export fixes
+
+- Demo appointment rows now have independent date/time values, persist with the session, and flow into the Nails template's `availability` text slot. The code templates define a ratio-specific placement so the same slot appears in thumbnail/preview/export.
+- Crop controls now use a compact grid row with a constrained range input. The photo grid has a fixed two-row layout and no longer occupies the crop-control area.
+- Image-size choices show the platform marks again while retaining the selected output ratio and pixel dimensions.
+- Autumn Cat Eye template version advanced to 1.0.2 for the new availability slot; saved Nails draft versions now use the active template version.
+- `npm run typecheck` passed. The local dev server is running on port 3002. Browser verification could not be completed because the desktop browser policy rejected navigation to the localhost preview.
+- 2026-10-11 follow-up: The fidelity demo flow now has three steps: upload, appointment and copy, then export. The legacy `/templates` route redirects to edit while preserving the session. Appointment date/time stays structured and is overlaid as exact text. The “generate image” action still uses the shared React template renderer; a real AI image provider is not configured for this demo yet.
+
+- The editing screen now leads directly to export. The separate preview screen was removed from the workflow, and existing `/preview` links redirect to `/export` while preserving the session query.

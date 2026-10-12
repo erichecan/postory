@@ -2,14 +2,22 @@ FROM node:22-slim AS deps
 WORKDIR /app
 COPY package.json package-lock.json prisma.config.ts ./
 COPY prisma ./prisma
+RUN apt-get update && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
 RUN npm install --no-audit --no-fund
 
-FROM node:22-slim AS build
+FROM deps AS build
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
-COPY --from=deps /app/node_modules ./node_modules
+ARG NEXT_PUBLIC_TURNSTILE_SITE_KEY
+ENV NEXT_PUBLIC_TURNSTILE_SITE_KEY=${NEXT_PUBLIC_TURNSTILE_SITE_KEY}
 COPY . .
 RUN mkdir -p public && npx prisma generate && npm run build
+
+FROM deps AS migrations
+WORKDIR /app
+COPY . .
+RUN npx prisma generate
+CMD ["./node_modules/.bin/prisma", "migrate", "deploy"]
 
 FROM node:22-slim
 WORKDIR /app

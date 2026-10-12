@@ -54,17 +54,20 @@ export function NailsLanding() {
 
         <div className="mt-7 flex gap-3 overflow-x-auto pb-2">
           <MockCard platform="小红书" accent="#ff2442">
-            <div className="h-28 rounded-t-2xl bg-[linear-gradient(135deg,#f3c9c0,#eadfd3)]" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/demo/photos/nail-1.jpg" alt="" className="h-28 w-full rounded-t-2xl object-cover" />
             <div className="px-3 pt-2 text-[13px] font-semibold text-neutral-800">Autumn Nail Inspo</div>
             <div className="px-3 pb-2 text-[11px] text-neutral-500">秋日温柔猫眼款</div>
           </MockCard>
           <MockCard platform="Instagram" accent="#ec4c82">
-            <div className="h-28 rounded-t-2xl bg-[linear-gradient(135deg,#f6dede,#f0c7d2)]" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/demo/photos/nail-2.jpg" alt="" className="h-28 w-full rounded-t-2xl object-cover" />
             <div className="px-3 pt-2 text-[13px] font-semibold italic text-neutral-800">Nail Appointment</div>
             <div className="px-3 pb-2 text-[11px] text-neutral-500">DM me to book ♡</div>
           </MockCard>
           <MockCard platform="Facebook" accent="#1877f2">
-            <div className="h-28 rounded-t-2xl bg-[linear-gradient(135deg,#ead9c8,#d8c3ae)]" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/demo/photos/nail-3.jpg" alt="" className="h-28 w-full rounded-t-2xl object-cover" />
             <div className="px-3 pt-2 text-[13px] font-semibold text-neutral-800">New Designs</div>
             <div className="px-3 pb-2 text-[11px] text-neutral-500">新款上架 · 预约从速</div>
           </MockCard>

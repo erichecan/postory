@@ -1,0 +1,376 @@
+{
+  "schemaVersion": 1,
+  "id": "nails-copper-autumn-offer-01",
+  "version": "1.0.0",
+  "industryId": "nails",
+  "categoryId": "works",
+  "family": "full-bleed-editorial",
+  "coordinateSystem": {
+    "origin": "top-left",
+    "units": "normalized fractions of each ratio artboard"
+  },
+  "assets": {
+    "heroSample": "/demo/templates/nails/assets/hero-copper-autumn-offer-sample.webp",
+    "ornamentTop": "/demo/templates/nails/assets/copper-autumn-offer-upper.svg",
+    "ornamentBottom": "/demo/templates/nails/assets/copper-autumn-offer-lower.svg",
+    "accentBrush": "/demo/templates/nails/assets/copper-autumn-offer-accent.svg"
+  },
+  "slots": [
+    {
+      "id": "hero",
+      "type": "image",
+      "required": true,
+      "fit": "cover",
+      "defaultFocalPoint": {
+        "x": 0.69,
+        "y": 0.62
+      }
+    },
+    {
+      "id": "headline",
+      "type": "text",
+      "fieldId": "title",
+      "required": true,
+      "maxLength": 30,
+      "maxLines": 2,
+      "defaultValue": "秋日焕新\n美甲礼遇",
+      "transform": "none"
+    },
+    {
+      "id": "tagline",
+      "type": "text",
+      "fieldId": "shortCopy",
+      "required": false,
+      "maxLength": 200,
+      "maxLines": 3,
+      "defaultValue": "限时预约 · 为指尖加点光",
+      "transform": "none"
+    }
+  ],
+  "editRules": {
+    "hero": {
+      "required": true,
+      "replaceable": true,
+      "fit": "cover",
+      "focalPoint": "user-adjustable-per-ratio",
+      "zoomRange": [
+        1,
+        2.5
+      ]
+    },
+    "headline": {
+      "editable": true,
+      "maxLength": 30,
+      "maxLines": 2,
+      "overflow": "fit-and-report"
+    },
+    "tagline": {
+      "editable": true,
+      "optional": true,
+      "maxLength": 200,
+      "maxLines": 3,
+      "overflow": "fit-and-report"
+    },
+    "decorations": {
+      "editable": false
+    },
+    "watermark": {
+      "policy": "shared-demo-watermark",
+      "safeAreaPerRatio": true
+    }
+  },
+  "layersBackToFront": [
+    "hero",
+    "gradient",
+    "headline",
+    "tagline",
+    "ornamentTop",
+    "ornamentBottom",
+    "accentBrush",
+    "watermark"
+  ],
+  "layouts": {
+    "square": {
+      "width": 1080,
+      "height": 1080,
+      "photo": {
+        "type": "image",
+        "slotId": "hero",
+        "fit": "cover",
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1,
+        "focalPoint": {
+          "x": 0.69,
+          "y": 0.62
+        },
+        "zIndex": 0
+      },
+      "gradient": {
+        "type": "css-gradient",
+        "value": "linear-gradient(108deg,rgba(29,16,10,.9) 0%,rgba(35,17,10,.75) 46%,rgba(35,17,10,.06) 82%)",
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1,
+        "zIndex": 10
+      },
+      "headline": {
+        "type": "editable-text",
+        "fieldId": "title",
+        "x": 0.07,
+        "y": 0.13,
+        "width": 0.72,
+        "height": 0.25,
+        "fontSizeCqw": 9.5,
+        "lineHeight": 0.97,
+        "maxLines": 2,
+        "fontFamily": "Georgia, \"Noto Serif SC\", \"Songti SC\", serif",
+        "color": "#FFF0D8",
+        "zIndex": 30
+      },
+      "tagline": {
+        "type": "editable-text",
+        "fieldId": "shortCopy",
+        "optional": true,
+        "x": 0.08,
+        "y": 0.42,
+        "width": 0.73,
+        "height": 0.12,
+        "fontSizeCqw": 4,
+        "lineHeight": 1.35,
+        "maxLines": 3,
+        "fontFamily": "Arial, \"Noto Sans SC\", \"PingFang SC\", sans-serif",
+        "color": "#F2C587",
+        "zIndex": 31
+      },
+      "ornamentTop": {
+        "type": "svg",
+        "assetId": "ornamentTop",
+        "x": 0.77,
+        "y": 0.06,
+        "width": 0.18,
+        "height": 0.18,
+        "zIndex": 20
+      },
+      "ornamentBottom": {
+        "type": "svg",
+        "assetId": "ornamentBottom",
+        "x": 0.03,
+        "y": 0.76,
+        "width": 0.2,
+        "height": 0.17,
+        "zIndex": 21
+      },
+      "accentBrush": {
+        "type": "svg",
+        "assetId": "accentBrush",
+        "x": 0.08,
+        "y": 0.59,
+        "width": 0.28,
+        "height": 0.045,
+        "zIndex": 22
+      },
+      "watermark": {
+        "type": "shared-export-overlay",
+        "safeArea": {
+          "x": 0.68,
+          "y": 0.87,
+          "width": 0.27,
+          "height": 0.08
+        },
+        "zIndex": 100,
+        "appliedAfterRasterization": true
+      }
+    },
+    "portrait-4x5": {
+      "width": 1080,
+      "height": 1350,
+      "photo": {
+        "type": "image",
+        "slotId": "hero",
+        "fit": "cover",
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1,
+        "focalPoint": {
+          "x": 0.69,
+          "y": 0.62
+        },
+        "zIndex": 0
+      },
+      "gradient": {
+        "type": "css-gradient",
+        "value": "linear-gradient(108deg,rgba(29,16,10,.9) 0%,rgba(35,17,10,.75) 46%,rgba(35,17,10,.06) 82%)",
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1,
+        "zIndex": 10
+      },
+      "headline": {
+        "type": "editable-text",
+        "fieldId": "title",
+        "x": 0.07,
+        "y": 0.11,
+        "width": 0.7,
+        "height": 0.24,
+        "fontSizeCqw": 10.8,
+        "lineHeight": 0.97,
+        "maxLines": 2,
+        "fontFamily": "Georgia, \"Noto Serif SC\", \"Songti SC\", serif",
+        "color": "#FFF0D8",
+        "zIndex": 30
+      },
+      "tagline": {
+        "type": "editable-text",
+        "fieldId": "shortCopy",
+        "optional": true,
+        "x": 0.08,
+        "y": 0.39,
+        "width": 0.72,
+        "height": 0.12,
+        "fontSizeCqw": 4,
+        "lineHeight": 1.35,
+        "maxLines": 3,
+        "fontFamily": "Arial, \"Noto Sans SC\", \"PingFang SC\", sans-serif",
+        "color": "#F2C587",
+        "zIndex": 31
+      },
+      "ornamentTop": {
+        "type": "svg",
+        "assetId": "ornamentTop",
+        "x": 0.77,
+        "y": 0.055,
+        "width": 0.19,
+        "height": 0.19,
+        "zIndex": 20
+      },
+      "ornamentBottom": {
+        "type": "svg",
+        "assetId": "ornamentBottom",
+        "x": 0.025,
+        "y": 0.73,
+        "width": 0.21,
+        "height": 0.18,
+        "zIndex": 21
+      },
+      "accentBrush": {
+        "type": "svg",
+        "assetId": "accentBrush",
+        "x": 0.08,
+        "y": 0.55,
+        "width": 0.3,
+        "height": 0.045,
+        "zIndex": 22
+      },
+      "watermark": {
+        "type": "shared-export-overlay",
+        "safeArea": {
+          "x": 0.68,
+          "y": 0.87,
+          "width": 0.27,
+          "height": 0.08
+        },
+        "zIndex": 100,
+        "appliedAfterRasterization": true
+      }
+    },
+    "story-9x16": {
+      "width": 1080,
+      "height": 1920,
+      "photo": {
+        "type": "image",
+        "slotId": "hero",
+        "fit": "cover",
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1,
+        "focalPoint": {
+          "x": 0.69,
+          "y": 0.62
+        },
+        "zIndex": 0
+      },
+      "gradient": {
+        "type": "css-gradient",
+        "value": "linear-gradient(108deg,rgba(29,16,10,.9) 0%,rgba(35,17,10,.75) 46%,rgba(35,17,10,.06) 82%)",
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1,
+        "zIndex": 10
+      },
+      "headline": {
+        "type": "editable-text",
+        "fieldId": "title",
+        "x": 0.07,
+        "y": 0.14,
+        "width": 0.83,
+        "height": 0.16,
+        "fontSizeCqw": 10.6,
+        "lineHeight": 0.97,
+        "maxLines": 2,
+        "fontFamily": "Georgia, \"Noto Serif SC\", \"Songti SC\", serif",
+        "color": "#FFF0D8",
+        "zIndex": 30
+      },
+      "tagline": {
+        "type": "editable-text",
+        "fieldId": "shortCopy",
+        "optional": true,
+        "x": 0.075,
+        "y": 0.33,
+        "width": 0.81,
+        "height": 0.095,
+        "fontSizeCqw": 4,
+        "lineHeight": 1.35,
+        "maxLines": 3,
+        "fontFamily": "Arial, \"Noto Sans SC\", \"PingFang SC\", sans-serif",
+        "color": "#F2C587",
+        "zIndex": 31
+      },
+      "ornamentTop": {
+        "type": "svg",
+        "assetId": "ornamentTop",
+        "x": 0.77,
+        "y": 0.07,
+        "width": 0.18,
+        "height": 0.13,
+        "zIndex": 20
+      },
+      "ornamentBottom": {
+        "type": "svg",
+        "assetId": "ornamentBottom",
+        "x": 0.025,
+        "y": 0.79,
+        "width": 0.22,
+        "height": 0.13,
+        "zIndex": 21
+      },
+      "accentBrush": {
+        "type": "svg",
+        "assetId": "accentBrush",
+        "x": 0.08,
+        "y": 0.465,
+        "width": 0.3,
+        "height": 0.035,
+        "zIndex": 22
+      },
+      "watermark": {
+        "type": "shared-export-overlay",
+        "safeArea": {
+          "x": 0.68,
+          "y": 0.84,
+          "width": 0.27,
+          "height": 0.08
+        },
+        "zIndex": 100,
+        "appliedAfterRasterization": true
+      }
+    }
+  }
+}

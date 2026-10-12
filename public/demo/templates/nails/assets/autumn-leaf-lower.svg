@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 330" fill="none">
+  <defs>
+    <linearGradient id="foil" x1="28" y1="302" x2="310" y2="28" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9D612E"/>
+      <stop offset=".52" stop-color="#E3B86C"/>
+      <stop offset="1" stop-color="#F5D99C"/>
+    </linearGradient>
+    <linearGradient id="leaf" x1="82" y1="233" x2="192" y2="132" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B77B3D" stop-opacity=".08"/>
+      <stop offset="1" stop-color="#F5D99C" stop-opacity=".34"/>
+    </linearGradient>
+  </defs>
+  <g stroke="url(#foil)" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 313C69 269 117 222 162 171C208 119 253 74 321 28" stroke-width="3"/>
+    <path d="M54 278C24 280 7 265 1 238C31 236 53 247 68 267C89 245 113 241 138 252C119 275 93 284 60 279" fill="url(#leaf)" stroke-width="2.1"/>
+    <path d="M103 232C79 207 81 180 101 154C117 181 119 207 107 229C136 221 160 232 177 257C147 261 122 251 105 234" fill="url(#leaf)" stroke-width="2"/>
+    <path d="M153 181C138 153 149 126 175 105C181 133 175 157 159 178C188 175 209 190 221 216C192 215 170 203 155 183" fill="url(#leaf)" stroke-width="1.9"/>
+    <path d="M206 128C202 100 219 77 249 63C251 91 241 114 215 130C244 133 262 151 268 179C240 171 221 154 208 131" fill="url(#leaf)" stroke-width="1.8"/>
+    <path d="M259 77C264 52 284 34 315 28C307 54 291 72 266 80C289 91 301 111 299 137C276 125 262 106 261 80" fill="url(#leaf)" stroke-width="1.7"/>
+    <path d="M35 298C44 288 51 278 58 268M108 230C100 207 98 183 102 157M158 180C163 156 168 132 175 108M214 129C226 108 237 86 248 66M267 80C282 62 297 45 312 31" stroke-width="1" opacity=".78"/>
+    <path d="M110 230C132 222 154 230 174 253M161 179C182 175 203 188 219 212M216 130C238 133 256 149 265 174M267 81C287 89 298 107 299 130" stroke-width="1" opacity=".55"/>
+  </g>
+  <g fill="#E8C078" stroke="#9A632F" stroke-width="1.4">
+    <circle cx="302" cy="47" r="4.6"/><circle cx="322" cy="62" r="3.7"/><circle cx="287" cy="72" r="3.2"/>
+    <circle cx="244" cy="98" r="3.7"/><circle cx="260" cy="109" r="3"/><circle cx="231" cy="117" r="2.8"/>
+    <circle cx="189" cy="150" r="3.4"/><circle cx="201" cy="160" r="2.8"/><circle cx="177" cy="166" r="2.5"/>
+  </g>
+</svg>

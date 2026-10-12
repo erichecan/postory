@@ -63,7 +63,6 @@ export function StudioControls({
 
   async function pickFile(file: File | undefined) {
     if (!file) return;
-    if (!(UPLOAD_TYPES as readonly string[]).includes(file.type)) return onUploadError(t("upload.badType"));
     if (file.size > UPLOAD_MAX_BYTES) return onUploadError(t("upload.tooLarge"));
     try {
       onChange({ photo: await readImageFile(file) });

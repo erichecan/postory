@@ -85,7 +85,7 @@ export function NailsPreview() {
       a.click();
       a.remove();
 
-      await saveSession({ ...session, lastStep: "preview", revision: session.revision + 1, updatedAt: new Date().toISOString() });
+      await saveSession({ ...session, lastStep: "export", revision: session.revision + 1, updatedAt: new Date().toISOString() });
       router.push(`/demo/nails/success?session=${session.id}&file=${encodeURIComponent(filename)}`);
     } finally {
       setExporting(false);

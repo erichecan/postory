@@ -1,0 +1,305 @@
+{
+  "schemaVersion": 1,
+  "id": "sushi-authentic-japanese-01",
+  "version": "1.0.0",
+  "industryId": "sushi",
+  "categoryId": "signature",
+  "family": "sushi-editorial",
+  "variant": "authentic",
+  "coordinateSystem": {
+    "origin": "top-left",
+    "units": "normalized fractions of each ratio artboard"
+  },
+  "assets": {
+    "heroSample": "/demo/photos/sushi-salmon-nigiri.png",
+    "decorations": "authored as CSS/SVG layers in SushiEditorialFamily"
+  },
+  "slots": [
+    {
+      "id": "hero",
+      "type": "image",
+      "required": true
+    },
+    {
+      "id": "headline",
+      "type": "text",
+      "required": true,
+      "fieldId": "title",
+      "maxLength": 32
+    },
+    {
+      "id": "tagline",
+      "type": "text",
+      "required": false,
+      "fieldId": "shortCopy",
+      "maxLength": 72
+    }
+  ],
+  "editRules": {
+    "hero": {
+      "required": true,
+      "replaceable": true,
+      "fit": "cover",
+      "focalPoint": "user-adjustable-per-ratio",
+      "zoomRange": [
+        1,
+        2.5
+      ]
+    },
+    "headline": {
+      "editable": true,
+      "maxLength": 32,
+      "overflow": "fit-and-report"
+    },
+    "tagline": {
+      "editable": true,
+      "optional": true,
+      "maxLength": 72,
+      "overflow": "fit-and-report"
+    },
+    "watermark": {
+      "policy": "shared-demo-watermark",
+      "safeAreaPerRatio": true
+    }
+  },
+  "layersBackToFront": [
+    "hero",
+    "gradient",
+    "panel",
+    "decorations",
+    "eyebrow",
+    "headline",
+    "tagline",
+    "watermark"
+  ],
+  "layouts": {
+    "square": {
+      "width": 1080,
+      "height": 1080,
+      "hero": {
+        "type": "image",
+        "slotId": "hero",
+        "fit": "cover",
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1,
+        "focalPoint": {
+          "x": 0.62,
+          "y": 0.56
+        },
+        "zIndex": 0
+      },
+      "gradient": {
+        "type": "css-gradient",
+        "value": "linear-gradient(0deg,rgba(14,10,7,.82) 0%,rgba(14,10,7,.4) 42%,transparent 77%)",
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1,
+        "zIndex": 1
+      },
+      "eyebrow": {
+        "type": "editable-template-label",
+        "text": "JAPANESE CUISINE",
+        "rect": {
+          "x": 0.07,
+          "y": 0.62,
+          "width": 0.74,
+          "height": 0.06
+        },
+        "zIndex": 3
+      },
+      "headline": {
+        "type": "editable-text",
+        "fieldId": "title",
+        "rect": {
+          "x": 0.07,
+          "y": 0.68,
+          "width": 0.84,
+          "height": 0.24
+        },
+        "fontSizeCqw": 9.7,
+        "maxLines": 3,
+        "zIndex": 3
+      },
+      "tagline": {
+        "type": "editable-text",
+        "fieldId": "shortCopy",
+        "optional": true,
+        "rect": {
+          "x": 0.075,
+          "y": 0.9,
+          "width": 0.78,
+          "height": 0.08
+        },
+        "fontSizeCqw": 3.2,
+        "maxLines": 3,
+        "zIndex": 3
+      },
+      "watermark": {
+        "type": "shared-export-overlay",
+        "safeArea": {
+          "x": 0.68,
+          "y": 0.87,
+          "width": 0.27,
+          "height": 0.08
+        },
+        "zIndex": 100,
+        "appliedAfterRasterization": true
+      }
+    },
+    "portrait-4x5": {
+      "width": 1080,
+      "height": 1350,
+      "hero": {
+        "type": "image",
+        "slotId": "hero",
+        "fit": "cover",
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1,
+        "focalPoint": {
+          "x": 0.62,
+          "y": 0.56
+        },
+        "zIndex": 0
+      },
+      "gradient": {
+        "type": "css-gradient",
+        "value": "linear-gradient(0deg,rgba(14,10,7,.84) 0%,rgba(14,10,7,.42) 42%,transparent 77%)",
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1,
+        "zIndex": 1
+      },
+      "eyebrow": {
+        "type": "editable-template-label",
+        "text": "JAPANESE CUISINE",
+        "rect": {
+          "x": 0.07,
+          "y": 0.65,
+          "width": 0.74,
+          "height": 0.05
+        },
+        "zIndex": 3
+      },
+      "headline": {
+        "type": "editable-text",
+        "fieldId": "title",
+        "rect": {
+          "x": 0.07,
+          "y": 0.7,
+          "width": 0.84,
+          "height": 0.2
+        },
+        "fontSizeCqw": 10.3,
+        "maxLines": 3,
+        "zIndex": 3
+      },
+      "tagline": {
+        "type": "editable-text",
+        "fieldId": "shortCopy",
+        "optional": true,
+        "rect": {
+          "x": 0.075,
+          "y": 0.9,
+          "width": 0.78,
+          "height": 0.07
+        },
+        "fontSizeCqw": 3.3,
+        "maxLines": 3,
+        "zIndex": 3
+      },
+      "watermark": {
+        "type": "shared-export-overlay",
+        "safeArea": {
+          "x": 0.68,
+          "y": 0.87,
+          "width": 0.27,
+          "height": 0.08
+        },
+        "zIndex": 100,
+        "appliedAfterRasterization": true
+      }
+    },
+    "story-9x16": {
+      "width": 1080,
+      "height": 1920,
+      "hero": {
+        "type": "image",
+        "slotId": "hero",
+        "fit": "cover",
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1,
+        "focalPoint": {
+          "x": 0.62,
+          "y": 0.56
+        },
+        "zIndex": 0
+      },
+      "gradient": {
+        "type": "css-gradient",
+        "value": "linear-gradient(0deg,rgba(14,10,7,.87) 0%,rgba(14,10,7,.38) 38%,transparent 72%)",
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1,
+        "zIndex": 1
+      },
+      "eyebrow": {
+        "type": "editable-template-label",
+        "text": "JAPANESE CUISINE",
+        "rect": {
+          "x": 0.07,
+          "y": 0.68,
+          "width": 0.8,
+          "height": 0.04
+        },
+        "zIndex": 3
+      },
+      "headline": {
+        "type": "editable-text",
+        "fieldId": "title",
+        "rect": {
+          "x": 0.07,
+          "y": 0.73,
+          "width": 0.86,
+          "height": 0.15
+        },
+        "fontSizeCqw": 10.8,
+        "maxLines": 3,
+        "zIndex": 3
+      },
+      "tagline": {
+        "type": "editable-text",
+        "fieldId": "shortCopy",
+        "optional": true,
+        "rect": {
+          "x": 0.075,
+          "y": 0.9,
+          "width": 0.8,
+          "height": 0.06
+        },
+        "fontSizeCqw": 3.5,
+        "maxLines": 3,
+        "zIndex": 3
+      },
+      "watermark": {
+        "type": "shared-export-overlay",
+        "safeArea": {
+          "x": 0.68,
+          "y": 0.76,
+          "width": 0.27,
+          "height": 0.08
+        },
+        "zIndex": 100,
+        "appliedAfterRasterization": true
+      }
+    }
+  }
+}
