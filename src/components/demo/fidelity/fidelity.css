@@ -56,3 +56,4 @@
 .fd-theme-2.fd-art-sushi .fd-sushi-photo-template{left:45%;top:0;width:55%;height:100%;clip-path:polygon(31% 0,100% 0,100% 100%,0 100%);object-fit:cover}
 .fd-theme-2.fd-art-sushi .fd-sushi-mark{right:4%;top:2%;width:12%;border-color:#514c46;background:#fff9}
 .fd-art-sushi .fd-sushi-mark{position:absolute;z-index:5;right:7%;top:6%;width:9%;aspect-ratio:1;border:1px solid #fff;border-radius:50%;background:#fff9}
+.fd-tags{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain}.fd-tags::-webkit-scrollbar{display:none}.fd-tags button{flex:0 0 auto;white-space:nowrap}
