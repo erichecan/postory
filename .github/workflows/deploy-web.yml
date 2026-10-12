@@ -33,7 +33,11 @@ jobs:
       - name: Validate public Turnstile site key
         env:
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
-        run: test -n "$NEXT_PUBLIC_TURNSTILE_SITE_KEY"
+        run: |
+          case "$NEXT_PUBLIC_TURNSTILE_SITE_KEY" in
+            0x4*) ;;
+            *) echo "NEXT_PUBLIC_TURNSTILE_SITE_KEY must be a real Cloudflare Turnstile site key" >&2; exit 1 ;;
+          esac
 
       - name: Build images
         run: |
