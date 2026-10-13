@@ -51,12 +51,22 @@ async function readFormData(request: NextRequest): Promise<{ form: FormData } | 
 }
 
 export async function POST(request: NextRequest) {
+  const requestId = crypto.randomUUID();
   if (request.headers.get("origin") !== new URL(request.url).origin) return response(403, { ok: false, reason: "origin" });
   const contentLength = Number(request.headers.get("content-length") ?? 0);
   if (contentLength > MAX_REQUEST_BYTES) return response(413, { ok: false, reason: "tooLarge" });
 
-  const turnstile = await verifyDemoTurnstile(request.headers.get("x-turnstile-token") ?? "", new URL(request.url).hostname);
-  if (!turnstile.ok) return response(turnstile.reason === "notConfigured" ? 503 : 403, { ok: false, reason: turnstile.reason });
+  const expectedHostname = new URL(request.url).hostname;
+  const turnstile = await verifyDemoTurnstile(request.headers.get("x-turnstile-token") ?? "", expectedHostname);
+  console.info(JSON.stringify({
+    event: "demo_turnstile_diagnostic",
+    requestId,
+    result: turnstile.ok ? "accepted" : "rejected",
+    reason: turnstile.ok ? undefined : turnstile.reason,
+    expectedHostname,
+    diagnostic: turnstile.diagnostic,
+  }));
+  if (!turnstile.ok) return response(turnstile.reason === "notConfigured" ? 503 : 403, { ok: false, reason: turnstile.reason, requestId });
   if (!process.env.OPENAI_API_KEY) return response(503, { ok: false, reason: "providerUnavailable" });
 
   const identity = await getDemoTrialIdentity(request);
