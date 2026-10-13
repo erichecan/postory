@@ -52,7 +52,21 @@ async function readFormData(request: NextRequest): Promise<{ form: FormData } | 
 
 export async function POST(request: NextRequest) {
   const requestId = crypto.randomUUID();
-  if (request.headers.get("origin") !== new URL(request.url).origin) return response(403, { ok: false, reason: "origin" });
+  const expectedOrigin = new URL(request.url).origin;
+  const requestOrigin = request.headers.get("origin");
+  if (requestOrigin !== expectedOrigin) {
+    console.warn(JSON.stringify({
+      event: "demo_request_origin_rejected",
+      requestId,
+      expectedOrigin,
+      originPresent: requestOrigin !== null,
+      originMatches: false,
+      receivedOrigin: requestOrigin?.slice(0, 256) ?? null,
+      refererMatches: request.headers.get("referer")?.startsWith(`${expectedOrigin}/`) ?? false,
+      fetchSite: request.headers.get("sec-fetch-site")?.slice(0, 32) ?? null,
+    }));
+    return response(403, { ok: false, reason: "origin", requestId });
+  }
   const contentLength = Number(request.headers.get("content-length") ?? 0);
   if (contentLength > MAX_REQUEST_BYTES) return response(413, { ok: false, reason: "tooLarge" });
 
