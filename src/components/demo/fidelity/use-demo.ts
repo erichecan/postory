@@ -27,6 +27,7 @@ export function useDemo(industry: IndustryId) {
     { date: "2026-10-26", time: "16:00" },
   ]);
   const [description, setDescription] = useState("");
+  const [campaignDirection, setCampaignDirection] = useState("");
   const [styleIndex, setStyleIndex] = useState(industry === "nails" ? 2 : 0);
   const [templateId, setTemplateId] = useState(industry === "sushi" ? "sushi-signature-editorial-01" : NAILS_AUTUMN_CAT_EYE_ID);
   const [outputId, setOutputId] = useState<OutputId>(industry === "nails" || industry === "sushi" ? "portrait-4x5" : "portrait-2x3");
@@ -93,6 +94,7 @@ export function useDemo(industry: IndustryId) {
           setAppointmentSlots([{ date: f.appointmentDate, time: f.appointmentTime }]);
         }
         if (typeof f?.dishName === "string") setDescription(f.dishName);
+        if (typeof f?.campaignDirection === "string") setCampaignDirection(f.campaignDirection);
         if (typeof f?.styleIndex === "number") setStyleIndex(f.styleIndex);
         if (industry === "sushi" && typeof f?.templateId === "string" && SUSHI_TEMPLATE_IDS.includes(f.templateId as (typeof SUSHI_TEMPLATE_IDS)[number])) setTemplateId(f.templateId);
         else if (industry === "sushi") setTemplateId(SUSHI_TEMPLATE_IDS[typeof f?.styleIndex === "number" ? f.styleIndex : 0] ?? SUSHI_TEMPLATE_IDS[0]);
@@ -119,7 +121,7 @@ export function useDemo(industry: IndustryId) {
     const templateVersion = NAILS_TEMPLATE_IDS.includes(templateId as (typeof NAILS_TEMPLATE_IDS)[number])
       ? templateId === NAILS_AUTUMN_CAT_EYE_ID ? NAILS_AUTUMN_CAT_EYE_VERSION : "1.0.0"
       : templateId in SUSHI_TEMPLATE_VERSIONS ? SUSHI_TEMPLATE_VERSIONS[templateId as keyof typeof SUSHI_TEMPLATE_VERSIONS] : "1";
-    const next: DemoSession = { ...s, revision: s.revision + 1, updatedAt: new Date().toISOString(), draft: { templateId, templateVersion, fields: { title, shortCopy: caption, availabilityText: "", appointmentSlots: appointmentSlots.map(({ date, time }) => `${date}|${time}`), dishName: description, styleIndex, templateId, custom, tags }, bindings: s.assetOrder[0] ? [{ slotId: "hero", assetId: s.assetOrder[0], crop: { x: 0, y: 0, width: 1, height: 1 }, cropByOutput }] : [], outputId } };
+    const next: DemoSession = { ...s, revision: s.revision + 1, updatedAt: new Date().toISOString(), draft: { templateId, templateVersion, fields: { title, shortCopy: caption, availabilityText: "", appointmentSlots: appointmentSlots.map(({ date, time }) => `${date}|${time}`), dishName: description, campaignDirection, styleIndex, templateId, custom, tags }, bindings: s.assetOrder[0] ? [{ slotId: "hero", assetId: s.assetOrder[0], crop: { x: 0, y: 0, width: 1, height: 1 }, cropByOutput }] : [], outputId } };
     await saveSession(next); sessionRef.current = next; setSession(next); return next;
   }
   async function persistGeneratedPhoto(dataUrl: string) {
@@ -177,5 +179,5 @@ export function useDemo(industry: IndustryId) {
   function setZoom(id: "square" | "portrait-4x5" | "story-9x16", zoom: number) {
     setCropByOutput((current) => ({ ...current, [id]: { ...(current[id] ?? { focalPoint: { x: 0.5, y: 0.5 } }), zoom } }));
   }
-  return { session, photos, generatedPhotoUrl, persistGeneratedPhoto, title, setTitle, caption, setCaption, appointmentSlots, setAppointmentSlots, description, setDescription, styleIndex, setStyleIndex, templateId, setTemplateId, outputId, setOutputId, cropByOutput, setFocalPoint, setZoom, custom, setCustom, tags, setTags, busy, error, setError, ready, persist, go, upload, remove, reorder };
+  return { session, photos, generatedPhotoUrl, persistGeneratedPhoto, title, setTitle, caption, setCaption, appointmentSlots, setAppointmentSlots, description, setDescription, campaignDirection, setCampaignDirection, styleIndex, setStyleIndex, templateId, setTemplateId, outputId, setOutputId, cropByOutput, setFocalPoint, setZoom, custom, setCustom, tags, setTags, busy, error, setError, ready, persist, go, upload, remove, reorder };
 }

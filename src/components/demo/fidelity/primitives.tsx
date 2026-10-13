@@ -48,7 +48,7 @@ export function Header({ industry, landing = false, workspace = false, back, men
 }
 export function Steps({ current, onNavigate }: { current: number; onNavigate: (page: string) => void }) {
   const pages = ["upload", "edit", "export"];
-  const labels = ["上传作品", "预约与文案", "导出成品"];
+  const labels = ["上传作品", "广告文案", "导出成品"];
   return <>{labels.map((label, i) => {
     const circleX = 151 + 270 * i;
     const labelX = circleX - 31;
