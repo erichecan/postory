@@ -133,6 +133,6 @@ export function buildDemoCampaignPrompt(industry: DemoIndustry, direction: strin
     `COLOR AND LIGHT: ${recipe.colorAndLight}`,
     `PHOTO ENHANCEMENT: ${recipe.photoTreatment}`,
     RATIO_RULES[ratio],
-    "LAYOUT AND TEXT: Create a clean background/visual base with obvious negative space for later code-rendered typography. Do not render any text, letters, numbers, punctuation, logos, watermarks, prices, dates, badges with writing, or interface elements. Never guess missing business facts or add claims. Keep one clear focal hierarchy, crisp edges, natural detail, and a commercially usable finish.",
+    "OUTPUT IS A PHOTO LAYER ONLY. The application adds all campaign copy, typography, badges, dates, prices, and branding afterward in code. Render absolutely no text, letters, digits, punctuation, symbols, logos, watermarks, labels, signage, packaging copy, or interface elements. Remove stray writing from the scene rather than reproducing it. Keep the designated copy area as a visibly clean, uninterrupted field of background color or texture with no objects crossing it. Any generated writing or numbers are defects. Never guess business facts or add claims. Keep one clear focal hierarchy, crisp edges, natural detail, and a commercially usable finish.",
   ].join("\n\n");
 }

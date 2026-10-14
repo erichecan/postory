@@ -9,7 +9,7 @@ import { TemplateRenderer } from "@/components/demo/templates/template-renderer"
 import { SUSHI_SIGNATURE_EDITORIAL_01 } from "@/lib/demo/templates/sushi-signature-editorial-01";
 import { NAILS_AUTUMN_CAT_EYE_01, NAILS_AUTUMN_CAT_EYE_ID } from "@/lib/demo/templates/nails-autumn-cat-eye-01";
 import { NAILS_EDITORIAL_VARIANTS, NAILS_TEMPLATE_DEFAULTS, NAILS_TEMPLATE_IDS, type NailsEditorialVariantId } from "@/lib/demo/templates/nails-editorial-variants";
-import { SUSHI_EDITORIAL_VARIANTS, SUSHI_TEMPLATE_IDS, type SushiEditorialVariantId } from "@/lib/demo/templates/sushi-editorial-variants";
+import { SUSHI_EDITORIAL_VARIANTS, SUSHI_TEMPLATE_IDS, sushiTemplateForCampaign, type SushiEditorialVariantId } from "@/lib/demo/templates/sushi-editorial-variants";
 import { fitFontSizeCqw, resolveTemplateLayout } from "@/lib/demo/templates/layout-resolver";
 import { DemoTurnstile } from "./demo-turnstile";
 import { useDemo } from "./use-demo";
@@ -157,6 +157,19 @@ export function FidelityDemo({industry,page}: {industry: IndustryId;page:Fidelit
     if(builtInCaptions.has(demo.caption))demo.setCaption(next.caption);
     demo.setTemplateId(nextId);
   }
+  function selectCampaign(id:string){
+    demo.setCampaignDirection(id);
+    if(!sushi)return;
+    const target=sushiTemplateForCampaign(id);
+    const index=target?SUSHI_TEMPLATE_IDS.indexOf(target):0;
+    if(target){demo.setStyleIndex(Math.max(0,index));demo.setTemplateId(target);}
+    const option=CAMPAIGN_OPTIONS.sushi.find((item)=>item.id===id);
+    if(!option)return;
+    const builtInTitles=new Set(["Fresh\nSushi","Fresh Sushi","Sushi",...Object.values(SUSHI_EDITORIAL_VARIANTS).map((template)=>template.headlineDefault),...CAMPAIGN_OPTIONS.sushi.map((item)=>item.sampleTitle)]);
+    const builtInCaptions=new Set(["SIMPLE INGREDIENTS\nEXTRAORDINARY TASTE",...Object.values(SUSHI_EDITORIAL_VARIANTS).map((template)=>template.taglineDefault),...CAMPAIGN_OPTIONS.sushi.map((item)=>item.sampleCopy)]);
+    if(builtInTitles.has(demo.title))demo.setTitle(option.sampleTitle);
+    if(builtInCaptions.has(demo.caption))demo.setCaption(option.sampleCopy);
+  }
   function togglePlatform(i:number){setSelectedPlatforms(v=>v.includes(i)?v.filter(n=>n!==i):[...v,i]);}
   async function save(){try{await demo.persist();notify("草稿已保存");}catch{notify("保存失败，请重试。");}}
   async function download(navigate=true){
@@ -165,7 +178,7 @@ export function FidelityDemo({industry,page}: {industry: IndustryId;page:Fidelit
     setExporting(true);
     try{
       await demo.persist();await document.fonts.ready;
-      const [width,height]=selectedOutput;const activeTemplateId=sushi?(SUSHI_TEMPLATE_IDS[demo.styleIndex]??SUSHI_TEMPLATE_IDS[0]):demo.templateId;const selectedNailsLayout=demo.templateId===NAILS_AUTUMN_CAT_EYE_ID?NAILS_AUTUMN_CAT_EYE_01.layouts[selectedChoice.id as TemplateRatioId]:NAILS_EDITORIAL_VARIANTS[demo.templateId as NailsEditorialVariantId]?.layouts[selectedChoice.id as TemplateRatioId];const templateSafeArea=nailsCodeTemplate?selectedNailsLayout?.watermarkSafeArea:sushi&&activeTemplateId==="sushi-signature-editorial-01"?resolveTemplateLayout(SUSHI_SIGNATURE_EDITORIAL_01,selectedChoice.id as TemplateRatioId).watermarkSafeArea:sushi&&activeTemplateId in SUSHI_EDITORIAL_VARIANTS?SUSHI_EDITORIAL_VARIANTS[activeTemplateId as SushiEditorialVariantId].layouts[cropOutputId].safeArea:null;const blob=await renderWatermarkedPng(exportRef.current,{outputWidth:width,outputHeight:height,safeArea:templateSafeArea??{x:.5,y:.87,width:.47,height:.11}});
+      const [width,height]=selectedOutput;const activeTemplateId=sushi?(sushiTemplateForCampaign(demo.campaignDirection||"new-arrival")??SUSHI_TEMPLATE_IDS[demo.styleIndex]??SUSHI_TEMPLATE_IDS[0]):demo.templateId;const selectedNailsLayout=demo.templateId===NAILS_AUTUMN_CAT_EYE_ID?NAILS_AUTUMN_CAT_EYE_01.layouts[selectedChoice.id as TemplateRatioId]:NAILS_EDITORIAL_VARIANTS[demo.templateId as NailsEditorialVariantId]?.layouts[selectedChoice.id as TemplateRatioId];const templateSafeArea=nailsCodeTemplate?selectedNailsLayout?.watermarkSafeArea:sushi&&activeTemplateId==="sushi-signature-editorial-01"?resolveTemplateLayout(SUSHI_SIGNATURE_EDITORIAL_01,selectedChoice.id as TemplateRatioId).watermarkSafeArea:sushi&&activeTemplateId in SUSHI_EDITORIAL_VARIANTS?SUSHI_EDITORIAL_VARIANTS[activeTemplateId as SushiEditorialVariantId].layouts[cropOutputId].safeArea:null;const blob=await renderWatermarkedPng(exportRef.current,{outputWidth:width,outputHeight:height,safeArea:templateSafeArea??{x:.5,y:.87,width:.47,height:.11}});
       const url=URL.createObjectURL(blob);if(exportUrl)URL.revokeObjectURL(exportUrl);setExportUrl(url);
       const link=document.createElement("a");link.href=url;link.download=`postory-${industry}-${width}x${height}.png`;link.click();
       if(navigate)go("success");else notify("图片已生成，下载已开始");
@@ -177,6 +190,9 @@ export function FidelityDemo({industry,page}: {industry: IndustryId;page:Fidelit
     const siteKey=process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY??"";
     if(siteKey&&!turnstileToken){notify("请在页面最下方完成人机验证，再点击上方的生成图片");securityRef.current?.scrollIntoView({behavior:"smooth",block:"center"});return;}
     setGenerating(true);
+    // This state reuses the page for its generation explainer; show its hero at once.
+    window.scrollTo(0,0);
+    requestAnimationFrame(()=>window.scrollTo(0,0));
     try{
       await demo.persist();
       const source=await fetch(demo.photos[0]);
@@ -205,7 +221,7 @@ export function FidelityDemo({industry,page}: {industry: IndustryId;page:Fidelit
     finally{setGenerating(false);}
   }
   const art=(variant:string="export",i=demo.styleIndex)=> sushi
-    ? <TemplateRenderer templateId={SUSHI_TEMPLATE_IDS[i]??SUSHI_TEMPLATE_IDS[0]} photoUrl={demo.generatedPhotoUrl??demo.photos[0]??null} fields={{title:demo.title,shortCopy:demo.caption,availabilityText}} outputId={demo.outputId==="portrait-2x3"?"square":demo.outputId} focalPoint={demo.cropByOutput[cropOutputId]?.focalPoint} zoom={demo.cropByOutput[cropOutputId]?.zoom} mode={variant==="thumbnail"?"thumbnail":variant==="export"?"export":"preview"}/>
+    ? <TemplateRenderer templateId={sushiTemplateForCampaign(demo.campaignDirection||"new-arrival")??SUSHI_TEMPLATE_IDS[i]??SUSHI_TEMPLATE_IDS[0]} photoUrl={demo.generatedPhotoUrl??demo.photos[0]??null} fields={{title:demo.title,shortCopy:demo.caption,availabilityText}} outputId={demo.outputId==="portrait-2x3"?"square":demo.outputId} focalPoint={demo.cropByOutput[cropOutputId]?.focalPoint} zoom={demo.cropByOutput[cropOutputId]?.zoom} mode={variant==="thumbnail"?"thumbnail":variant==="export"?"export":"preview"}/>
     : nailsCodeTemplate ? <TemplateRenderer templateId={demo.templateId} photoUrl={demo.generatedPhotoUrl??demo.photos[0]??NAILS_TEMPLATE_DEFAULTS[demo.templateId as (typeof NAILS_TEMPLATE_IDS)[number]].sample} fields={{title:demo.title,shortCopy:demo.caption,availabilityText}} outputId={cropOutputId} focalPoint={demo.cropByOutput[cropOutputId]?.focalPoint} zoom={demo.cropByOutput[cropOutputId]?.zoom} mode={variant==="thumbnail"?"thumbnail":variant==="export"?"export":"preview"}/>
     : <Artwork industry={industry} variant={variant} custom={demo.custom} photo={demo.generatedPhotoUrl??demo.photos[0]} title={demo.title} caption={demo.caption} styleIndex={i}/>;
   const field=(x:number,y:number,w:number,h:number,value:string,onChange:(v:string)=>void,max=200,placeholder="",multiline=false,label="文字内容")=><Box x={x} y={y} w={w} h={h}>{multiline?<textarea aria-label={label} className="fd-field" value={value} maxLength={max} placeholder={placeholder} onChange={e=>{onChange(e.target.value);demo.setCustom(true);}} />:<input aria-label={label} className="fd-field" value={value} maxLength={max} placeholder={placeholder} onChange={e=>{onChange(e.target.value);demo.setCustom(true);}}/>}</Box>;
@@ -250,8 +266,8 @@ export function FidelityDemo({industry,page}: {industry: IndustryId;page:Fidelit
       {demo.photos.length<6&&[0,1].slice(0,6-demo.photos.length).map(i=><Button key={i} x={42+(demo.photos.length+i)%2*393} y={800+Math.floor((demo.photos.length+i)/2)*222+5} w={376} h={151} secondary small onClick={()=>input.current?.click()} style={{border:"1px dashed #ddd",borderRadius:unit(21),background:"transparent",color:"#888",flexDirection:"column",fontSize:unit(23)}}><Plus style={{border:"2px solid #999",borderRadius:"50%",width:unit(44),height:unit(44)}}/>再添加一张</Button>)}
       <Text x={42} y={campaignTop-66} w={490} size={28} weight={700}>选择宣传方向</Text>
       <Text x={42} y={campaignTop-31} w={740} size={18} color="var(--fd-muted)">{sushi?"从参考广告中选一种构图，生成时结合你的寿司照片与文案。":"下面是成品氛围示意，不是固定模板；生成时会结合你的照片和文案。"}</Text>
-      <Button x={624} y={campaignTop-76} w={190} h={47} secondary small onClick={()=>demo.setCampaignDirection("")} style={{border:demo.campaignDirection?"1px solid #eadfe3":"1px solid var(--fd-primary)",background:demo.campaignDirection?"#ffffff80":"#fff",fontSize:unit(19)}}>不确定，帮我推荐</Button>
-    {CAMPAIGN_OPTIONS[industry].map((option,index)=>{const x=42+(index%2)*393;const y=campaignTop+Math.floor(index/2)*350;const selected=demo.campaignDirection===option.id;return <Button key={option.id} x={x} y={y} w={376} h={332} secondary small ariaLabel={`选择宣传方向：${option.title}`} onClick={()=>demo.setCampaignDirection(option.id)} style={{justifyContent:"flex-start",border:selected?`2px solid ${option.color}`:"1px solid #f0e4e5",borderRadius:unit(23),background:selected?`${option.color}12`:"#ffffffed",color:"#222",boxShadow:selected?`0 2cqw 5cqw ${option.color}20`:"0 1cqw 3cqw #5730180a",overflow:"hidden"}}>
+      <Button x={624} y={campaignTop-76} w={190} h={47} secondary small onClick={()=>sushi?selectCampaign("new-arrival"):demo.setCampaignDirection("")} style={{border:demo.campaignDirection?"1px solid #eadfe3":"1px solid var(--fd-primary)",background:demo.campaignDirection?"#ffffff80":"#fff",fontSize:unit(19)}}>不确定，帮我推荐</Button>
+    {CAMPAIGN_OPTIONS[industry].map((option,index)=>{const x=42+(index%2)*393;const y=campaignTop+Math.floor(index/2)*350;const selected=demo.campaignDirection===option.id;return <Button key={option.id} x={x} y={y} w={376} h={332} secondary small ariaLabel={`选择宣传方向：${option.title}`} onClick={()=>selectCampaign(option.id)} style={{justifyContent:"flex-start",border:selected?`2px solid ${option.color}`:"1px solid #f0e4e5",borderRadius:unit(23),background:selected?`${option.color}12`:"#ffffffed",color:"#222",boxShadow:selected?`0 2cqw 5cqw ${option.color}20`:"0 1cqw 3cqw #5730180a",overflow:"hidden"}}>
       <CampaignArtwork industry={industry} direction={option.id} photoUrl={demo.photos[0]??(sushi?"/demo/photos/sushi-salmon-nigiri.png":NAILS_TEMPLATE_DEFAULTS[NAILS_AUTUMN_CAT_EYE_ID].sample)} color={option.color}/>
       <Text x={16} y={213} w={300} size={24} weight={700}>{option.title}</Text><Text x={16} y={252} w={338} size={18} color="var(--fd-muted)" style={{lineHeight:1.35,whiteSpace:"normal"}}>{option.hint}</Text>{selected?<span style={{position:"absolute",right:unit(13),top:unit(13),width:unit(31),height:unit(31),borderRadius:"50%",background:option.color,color:"white",display:"grid",placeItems:"center"}}><Check style={{width:unit(19),height:unit(19)}}/></span>:null}
     </Button>;})}

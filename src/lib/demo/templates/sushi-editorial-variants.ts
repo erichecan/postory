@@ -83,3 +83,19 @@ export const SUSHI_EDITORIAL_VARIANTS = Object.fromEntries(rows.map((row) => [ro
 export type SushiEditorialVariantId = keyof typeof SUSHI_EDITORIAL_VARIANTS;
 export const SUSHI_TEMPLATE_IDS = ["sushi-signature-editorial-01", ...Object.keys(SUSHI_EDITORIAL_VARIANTS)] as const;
 export const SUSHI_TEMPLATE_VERSIONS = Object.fromEntries(SUSHI_TEMPLATE_IDS.map((id) => [id, "1.0.0"])) as Record<(typeof SUSHI_TEMPLATE_IDS)[number], string>;
+
+/** Campaign art direction selects the matching code composition for the generated poster. */
+export const SUSHI_CAMPAIGN_TEMPLATE_IDS: Record<string, (typeof SUSHI_TEMPLATE_IDS)[number]> = {
+  "new-arrival": "sushi-new-menu-01",
+  "lunch-set": "sushi-lunch-special-01",
+  "healthy-light": "sushi-new-menu-01",
+  "limited-offer": "sushi-lunch-special-01",
+  "seafood-feature": "sushi-authentic-japanese-01",
+  "premium-signature": "sushi-signature-editorial-01",
+  "signature-platter": "sushi-party-platter-01",
+  "date-night": "sushi-dine-with-us-01",
+};
+
+export function sushiTemplateForCampaign(direction: string): (typeof SUSHI_TEMPLATE_IDS)[number] | null {
+  return SUSHI_CAMPAIGN_TEMPLATE_IDS[direction] ?? null;
+}
