@@ -20,7 +20,7 @@ import { REFERENCE_PAGES, type FidelityPage } from "./pages";
 const PLATFORM_NAMES=["Instagram","Facebook","TikTok","小红书"];
 const NAIL_TITLES=["秋日温柔猫眼款","闪粉法式 · 新款上线","秋日氛围美甲","万圣节限定款推荐","冬日显白美甲","新款圣诞主题美甲","棕色系灵感","显白气质款美甲"];
 const NAIL_CAPTION="这个秋天，换一款温柔的猫眼美甲吧 💗 低调又精致，显白又百搭～新款已上线，欢迎预约体验 ✨";
-const CAMPAIGN_OPTIONS: Record<IndustryId, { id: string; title: string; hint: string; color: string; icon: typeof Sparkles; sampleTitle: string; sampleCopy: string; visualImage?: string; visualPrompt?: string }[]> = {
+const CAMPAIGN_OPTIONS: Record<IndustryId, { id: string; title: string; hint: string; color: string; icon: typeof Sparkles; sampleTitle: string; sampleCopy: string; visualImage?: string }[]> = {
   nails: [
     { id: "new-arrival", title: "新品推荐", hint: "让新款作品一眼吸引人", color: "#e64582", icon: Sparkles, sampleTitle: "秋日猫眼新品上线", sampleCopy: "一抹温柔流光，点亮秋日。喜欢这款？欢迎私信预约。" },
     { id: "seasonal-style", title: "季节灵感", hint: "营造当季氛围与质感", color: "#bd7650", icon: Heart, sampleTitle: "把秋天戴在指尖", sampleCopy: "暖棕与细闪的秋日灵感，温柔显白，日常也耐看。" },
@@ -28,14 +28,14 @@ const CAMPAIGN_OPTIONS: Record<IndustryId, { id: string; title: string; hint: st
     { id: "holiday-promo", title: "节日活动", hint: "为节庆主题宣传造势", color: "#d76a50", icon: Gift, sampleTitle: "节日限定美甲灵感", sampleCopy: "为特别的日子准备一抹闪耀，和好友一起挑选专属款式。" },
   ],
   sushi: [
-    { id: "new-arrival", title: "新品主推", hint: "大标题配主打寿司，突出新鲜上桌", color: "#e5562d", icon: Sparkles, sampleTitle: "新鲜上桌，值得一试", sampleCopy: "认识一下我们的新成员。新鲜制作，欢迎来店品尝。", visualImage: "/demo/campaign-inspiration/sushi-01.webp", visualPrompt: "新品主推海报构图：醒目的新品标题配一盘主打寿司，产品照片占主导，传达新鲜、诱人的第一印象。" },
-    { id: "lunch-set", title: "套餐组合", hint: "多款寿司组合展示，突出套餐内容", color: "#d38b31", icon: Utensils, sampleTitle: "午市限定 · 寿司套餐", sampleCopy: "午餐时间来点新鲜的。套餐内容和供应时段以门店安排为准。", visualImage: "/demo/campaign-inspiration/sushi-02.webp", visualPrompt: "套餐组合海报构图：组合拼盘作为中心主图，用清晰标题和价格层级强调套餐丰富度。" },
-    { id: "healthy-light", title: "健康轻食", hint: "清爽留白与鲜艳食材，传达轻盈新鲜", color: "#73934d", icon: Heart, sampleTitle: "新鲜轻食，刚刚好", sampleCopy: "精选食材，清爽又满足。今天也来一份新鲜寿司吧。", visualImage: "/demo/campaign-inspiration/sushi-03.webp", visualPrompt: "健康轻食海报构图：明亮浅色留白、鲜艳寿司拼盘和清爽简短文案，整体干净轻盈。" },
-    { id: "limited-offer", title: "限时优惠", hint: "高对比促销标题，折扣信息一眼可见", color: "#d7463b", icon: Tag, sampleTitle: "【活动名称】限时开启", sampleCopy: "【优惠内容】｜【活动时间】｜填写实际活动信息，让顾客一眼看懂。", visualImage: "/demo/campaign-inspiration/sushi-04.webp", visualPrompt: "限时优惠海报构图：强对比底色、醒目的促销标题、突出的折扣数字与丰盛寿司主图，信息一眼可读。" },
-    { id: "seafood-feature", title: "海鲜新品", hint: "用一盘海鲜寿司呈现丰富和新鲜感", color: "#b04f39", icon: Sparkles, sampleTitle: "海味上新，鲜美登场", sampleCopy: "从海洋到餐桌，每一口都鲜美。欢迎品尝本周新品。", visualImage: "/demo/campaign-inspiration/sushi-05.webp", visualPrompt: "海鲜新品海报构图：奶油白背景、手写感标题与丰富海鲜寿司拼盘，表现新鲜和食材质感。" },
-    { id: "premium-signature", title: "高端招牌", hint: "深色质感背景，突出招牌与精致体验", color: "#39302b", icon: Crown, sampleTitle: "每一席，都是鲜味", sampleCopy: "精选当季食材，细致呈现每一份招牌寿司。", visualImage: "/demo/campaign-inspiration/sushi-06.webp", visualPrompt: "高端招牌海报构图：优雅留白、精致餐盘与克制的高级餐饮视觉，突出招牌品质和用餐体验。" },
-    { id: "signature-platter", title: "招牌拼盘", hint: "整盘寿司居中呈现，适合主打推荐", color: "#9a2e26", icon: Utensils, sampleTitle: "这一盘，值得分享", sampleCopy: "招牌寿司拼盘，新鲜丰富。约上喜欢的人一起来尝尝。", visualImage: "/demo/campaign-inspiration/sushi-07.webp", visualPrompt: "招牌拼盘海报构图：正面呈现一整盘寿司，配鲜明标题和醒目圆盘构图，让拼盘成为视觉焦点。" },
-    { id: "date-night", title: "约会晚餐", hint: "双人分享场景，营造温暖晚餐氛围", color: "#9e3541", icon: Heart, sampleTitle: "今晚，一起吃寿司", sampleCopy: "分享一盘新鲜寿司，让今晚的约会多一点好味道。", visualImage: "/demo/campaign-inspiration/sushi-08.webp", visualPrompt: "约会晚餐海报构图：双人分享的寿司餐盘、温暖浪漫的晚餐氛围和简洁的邀约文案。" },
+    { id: "new-arrival", title: "新品主推", hint: "大标题配主打寿司，突出新鲜上桌", color: "#e5562d", icon: Sparkles, sampleTitle: "新鲜上桌，值得一试", sampleCopy: "认识一下我们的新成员。新鲜制作，欢迎来店品尝。", visualImage: "/demo/campaign-inspiration/sushi-01.webp" },
+    { id: "lunch-set", title: "套餐组合", hint: "多款寿司组合展示，突出套餐内容", color: "#d38b31", icon: Utensils, sampleTitle: "午市限定 · 寿司套餐", sampleCopy: "午餐时间来点新鲜的。套餐内容和供应时段以门店安排为准。", visualImage: "/demo/campaign-inspiration/sushi-02.webp" },
+    { id: "healthy-light", title: "健康轻食", hint: "清爽留白与鲜艳食材，传达轻盈新鲜", color: "#73934d", icon: Heart, sampleTitle: "新鲜轻食，刚刚好", sampleCopy: "精选食材，清爽又满足。今天也来一份新鲜寿司吧。", visualImage: "/demo/campaign-inspiration/sushi-03.webp" },
+    { id: "limited-offer", title: "限时优惠", hint: "高对比促销标题，折扣信息一眼可见", color: "#d7463b", icon: Tag, sampleTitle: "【活动名称】限时开启", sampleCopy: "【优惠内容】｜【活动时间】｜填写实际活动信息，让顾客一眼看懂。", visualImage: "/demo/campaign-inspiration/sushi-04.webp" },
+    { id: "seafood-feature", title: "海鲜新品", hint: "用一盘海鲜寿司呈现丰富和新鲜感", color: "#b04f39", icon: Sparkles, sampleTitle: "海味上新，鲜美登场", sampleCopy: "从海洋到餐桌，每一口都鲜美。欢迎品尝本周新品。", visualImage: "/demo/campaign-inspiration/sushi-05.webp" },
+    { id: "premium-signature", title: "高端招牌", hint: "深色质感背景，突出招牌与精致体验", color: "#39302b", icon: Crown, sampleTitle: "每一席，都是鲜味", sampleCopy: "精选当季食材，细致呈现每一份招牌寿司。", visualImage: "/demo/campaign-inspiration/sushi-06.webp" },
+    { id: "signature-platter", title: "招牌拼盘", hint: "整盘寿司居中呈现，适合主打推荐", color: "#9a2e26", icon: Utensils, sampleTitle: "这一盘，值得分享", sampleCopy: "招牌寿司拼盘，新鲜丰富。约上喜欢的人一起来尝尝。", visualImage: "/demo/campaign-inspiration/sushi-07.webp" },
+    { id: "date-night", title: "约会晚餐", hint: "双人分享场景，营造温暖晚餐氛围", color: "#9e3541", icon: Heart, sampleTitle: "今晚，一起吃寿司", sampleCopy: "分享一盘新鲜寿司，让今晚的约会多一点好味道。", visualImage: "/demo/campaign-inspiration/sushi-08.webp" },
   ],
 };
 
@@ -184,9 +184,7 @@ export function FidelityDemo({industry,page}: {industry: IndustryId;page:Fidelit
       const blob=await source.blob();
       const form=new FormData();
       form.set("industry",industry);
-      const campaign=CAMPAIGN_OPTIONS[industry].find((option)=>option.id===demo.campaignDirection);
-      const campaignGuidance=campaign?`Campaign purpose: ${campaign.title}. ${campaign.hint}. ${campaign.visualPrompt??""}` : "Choose a fitting promotional mood based on the uploaded subject, keeping the treatment subtle and commercially polished.";
-      form.set("prompt",`${sushi?"Restaurant marketing campaign with elegant Japanese editorial art direction.":"Nail salon marketing campaign with premium editorial art direction."} ${campaignGuidance}`);
+      form.set("campaignDirection",demo.campaignDirection||"new-arrival");
       form.set("ratio",cropOutputId==="square"?"square":cropOutputId==="story-9x16"?"story":"portrait");
       form.set("photo",new File([blob],sushi?"sushi-photo.jpg":"nail-photo.jpg",{type:blob.type||"image/jpeg"}));
       if(overrideToken.trim())form.set("overrideToken",overrideToken.trim());
@@ -225,14 +223,14 @@ export function FidelityDemo({industry,page}: {industry: IndustryId;page:Fidelit
     <SocialActions x={19} y={h-45} w={w-38} count={i===0?"542":"128"}/>
   </Box>;}
 
-  const content:ReactNode=page==="landing"?<>
+  const content:ReactNode=(page==="landing"||generating)?<>
     {sushi?<><Text x={110} y={173} w={633} size={64} weight={900} center style={{lineHeight:1.23}}>让好寿司，{"\n"}吸引更多顾客</Text><Box x={235} y={335} w={421} h={7} style={{background:"var(--fd-primary)",transform:"rotate(-1deg)"}}/><Text x={85} y={357} w={691} size={28} color="#46505c" center>把你的招牌菜、午餐套餐和新品，{"\n"}变成精美的社交媒体内容，让更多人发现你的餐馆。</Text></>:<><Text x={95} y={174} w={660} size={61} weight={900} center style={{lineHeight:1.3}}>让好作品，{"\n"}带来下一次预约</Text><HeartDoodle x={675} y={222}/><Box x={340} y={326} w={340} h={5} style={{background:"#f7609a",borderRadius:"50%"}}/><Text x={65} y={351} w={725} size={31} color="#79797e" center>把你的美甲作品变成精美的社交媒体笔记，{"\n"}吸引更多新客户，提升预约。</Text></>}
     {socialCard(sushi?32:26,sushi?491:508,sushi?245:244,sushi?458:490,3,`${industry}-landing-0`,-3)}
     {socialCard(sushi?284:275,sushi?454:467,sushi?291:304,sushi?499:544,0,`${industry}-landing-1`)}
     {socialCard(sushi?584:592,sushi?491:515,sushi?242:237,sushi?448:480,1,`${industry}-landing-2`,3)}
     {[0,1,2,3].map(i=><Box key={i} x={386+i*20} y={sushi?976:1038} w={i===0?26:10} h={10} style={{background:i===0?"var(--fd-primary)":"var(--fd-tint)",borderRadius:unit(10)}}/>)}
-    <Button x={sushi?69:37} y={sushi?1008:1072} w={sushi?715:781} h={sushi?94:100} disabled={(!demo.ready&&!demo.error)||demo.busy} onClick={()=>demo.error?window.location.reload():go("upload")}><ImagePlus/>{demo.error?"重试加载示例照片":!demo.ready?"正在准备示例照片…":sushi?"上传我的寿司照片":"上传我的美甲作品"}<ArrowRight/></Button>
-    <Text x={80} y={sushi?1115:1182} w={693} size={25} color="var(--fd-muted)" center>无需注册 · 3 分钟生成 · 免费体验</Text>
+    <Button x={sushi?69:37} y={sushi?1008:1072} w={sushi?715:781} h={sushi?94:100} disabled={generating||(!demo.ready&&!demo.error)||demo.busy} onClick={()=>generating?undefined:demo.error?window.location.reload():go("upload")}><ImagePlus/>{generating?"正在为你制作宣传图片…":demo.error?"重试加载示例照片":!demo.ready?"正在准备示例照片…":sushi?"上传我的寿司照片":"上传我的美甲作品"}<ArrowRight/></Button>
+    <Text x={80} y={sushi?1115:1182} w={693} size={25} color="var(--fd-muted)" center>{generating?"正在结合你上传的照片和宣传方向生成图片，请稍候。":"无需注册 · 3 分钟生成 · 免费体验"}</Text>
     {[ImagePlus,CalendarClock,WandSparkles,Smartphone].map((Icon,i)=><span key={i}><Box x={sushi?76+i*202:65+i*211} y={sushi?1176:1244} w={94} h={94} className="fd-pill" style={{borderRadius:"50%"}}><Icon style={{width:unit(53),height:unit(53)}}/></Box><Text x={20+i*210} y={sushi?1277:1347} w={187} size={23} weight={700} center>{sushi?["上传作品照片","选择宣传主题","生成并导出图片","了解代运营服务"][i]:["上传作品照片","填写广告文案","生成并导出图片","了解代运营服务"][i]}</Text><Text x={23+i*210} y={sushi?1316:1389} w={183} size={23} color="var(--fd-muted)" center>{sushi?["选择清晰的\n作品照片","新品、午市套餐\n或节日活动","检查成品并\n下载发布","连接社交平台\n我们帮你发布"][i]:["选择清晰的\n作品照片","填写文案，可选填\n预约时间","检查成品并\n下载发布","连接社交平台\n我们帮你发布"][i]}</Text></span>)}
     <Panel x={sushi?32:24} y={sushi?1398:1474} w={805} h={sushi?165:169}/><Text x={sushi?61:55} y={sushi?1423:1499} w={330} size={29} weight={700}>支持多平台发布</Text><Button x={sushi?542:546} y={sushi?1419:1498} w={260} h={47} secondary small onClick={()=>setModal("service")} style={{background:"transparent",border:0,fontSize:unit(21)}}>了解我们的代运营服务 <ArrowRight/></Button>{commonPlatforms(sushi?1478:1558,true)}
     <Panel x={sushi?32:24} y={sushi?1589:1661} w={805} h={sushi?166:159} tint/>
@@ -350,8 +348,8 @@ export function FidelityDemo({industry,page}: {industry: IndustryId;page:Fidelit
   return <div className="fd-surround"><main className={`fd-stage ${sushi?"fd-sushi":""} ${sushi&&page==="success"?"fd-success-sushi":""} ${page==="upload"?"fd-upload-stage":""}`} style={stageStyle} data-reference={ref.id} data-ready={demo.ready} aria-label={ref.label}>
     <h1 className="sr-only">{ref.label}</h1>
     {!sushi&&["landing","upload"].includes(page)&&<Box x={-80} y={page==="landing"?466:480} w={290} h={290} style={{borderRadius:"50%",background:"#fbe0eb",opacity:.42}}/>}
-    <Header industry={industry} landing={page==="landing"} workspace={["dashboard","content","calendar"].includes(page)} back={()=>go(["dashboard","content","accounts","calendar","schedule"].includes(page)?"dashboard":page==="upload"?"landing":page==="templates"?"upload":page==="edit"?"upload":page==="export"?"edit":page==="success"?"export":"edit")} menu={()=>setModal("menu")}/>
-    {content}{workspace}{schedule}{success}
+    <Header industry={industry} landing={page==="landing"||generating} workspace={["dashboard","content","calendar"].includes(page)} back={()=>go(["dashboard","content","accounts","calendar","schedule"].includes(page)?"dashboard":page==="upload"?"landing":page==="templates"?"upload":page==="edit"?"upload":page==="export"?"edit":page==="success"?"export":"edit")} menu={()=>setModal("menu")}/>
+    {content}{!generating&&workspace}{!generating&&schedule}{!generating&&success}
     <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden aria-label="选择照片" onChange={e=>{void demo.upload(e.target.files);e.target.value="";}}/>
     <input ref={camera} type="file" accept="image/*" capture="environment" hidden aria-label="拍摄照片" onChange={e=>{void demo.upload(e.target.files);e.target.value="";}}/>
   </main>

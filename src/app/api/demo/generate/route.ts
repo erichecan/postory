@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import type { RatioId } from "@/components/create/studio-options";
 import { decodeUpload } from "@/lib/ai/image-bytes";
+import { buildDemoCampaignPrompt, type DemoIndustry } from "@/lib/ai/demo-campaign-prompt";
 import { openAiImageProvider } from "@/lib/ai/openai-image-provider";
 import { completeDemoGeneration, failDemoGeneration, getDemoTrialIdentity, reserveDemoGeneration } from "@/lib/demo/trial-protection";
 import { verifyDemoTurnstile } from "@/lib/demo/turnstile";
@@ -95,12 +96,14 @@ export async function POST(request: NextRequest) {
   if ("error" in parsedForm) return response(parsedForm.error === "tooLarge" ? 413 : 400, { ok: false, reason: parsedForm.error });
   const form = parsedForm.form;
   const industry = String(form.get("industry") ?? "");
-  const promptText = String(form.get("prompt") ?? "").trim();
+  const campaignDirection = String(form.get("campaignDirection") ?? "").trim();
   const ratio = String(form.get("ratio") ?? "portrait") as RatioId;
   const image = form.get("photo");
-  if (!INDUSTRIES.has(industry) || !RATIOS.has(ratio) || !promptText || promptText.length > 500 || !(image instanceof File)) {
+  if (!INDUSTRIES.has(industry) || !RATIOS.has(ratio) || !campaignDirection || campaignDirection.length > 40 || !(image instanceof File)) {
     return response(400, { ok: false, reason: "invalidRequest" });
   }
+  const finalPrompt = buildDemoCampaignPrompt(industry as DemoIndustry, campaignDirection, ratio);
+  if (!finalPrompt) return response(400, { ok: false, reason: "invalidRequest" });
   if (image.size > 10 * 1024 * 1024) return response(413, { ok: false, reason: "tooLarge" });
   const encoded = Buffer.from(await image.arrayBuffer()).toString("base64");
   const upload = decodeUpload(`data:${image.type};base64,${encoded}`);
@@ -122,11 +125,6 @@ export async function POST(request: NextRequest) {
   if (!reservation.ok) return response(reservation.reason === "dailyCap" ? 429 : 403, { ok: false, reason: reservation.reason });
 
   try {
-    const subjectPreservation = industry === "nails"
-      ? "Keep the uploaded manicure exactly recognizable: preserve each nail's design, length, shape, polish color, decoration, the number of fingers, natural anatomy, and skin tone. Do not redesign the nails, add jewelry, or alter the hand."
-      : "Keep the uploaded sushi exactly recognizable: preserve the dish, ingredients, piece count, shapes, arrangement, garnish, plate, and serving presentation. Do not add, remove, replace, or rearrange food.";
-    const enhancement = "Apply a restrained professional photo retouch while preserving the original subject and composition: gently improve exposure, white balance, color fidelity, contrast, and visible detail; reduce mild blur, image noise, and compression artifacts; sharpen naturally present details without halos or plastic texture. If the source is soft, recover only plausible detail and do not invent textures.";
-    const finalPrompt = `${subjectPreservation} ${enhancement} Create only an art-directed photo background and subtle decorative visual treatment around the preserved subject. Do not render any text, letters, numbers, logos, watermarks, prices, dates, or UI. Leave clear negative space for code-rendered typography. Customer visual direction: ${promptText}`;
     const out = await openAiImageProvider.generate({ prompt: finalPrompt, ratio, quality: "standard", input: upload });
     await completeDemoGeneration(reservation.id, out.costMicros);
     return response(200, { ok: true, generationId: reservation.id, quality: "medium", imageDataUrl: `data:${out.mime};base64,${out.bytes.toString("base64")}` });
