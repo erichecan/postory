@@ -85,8 +85,8 @@ export async function POST(request: NextRequest) {
   if (!turnstile.ok) return response(turnstile.reason === "notConfigured" ? 503 : 403, { ok: false, reason: turnstile.reason, requestId });
   if (!process.env.OPENAI_API_KEY) return response(503, { ok: false, reason: "providerUnavailable" });
 
-  const identity = await getDemoTrialIdentity(request);
-  if (!identity) return response(503, { ok: false, reason: "trustedClientIpUnavailable" });
+  const identity = await getDemoTrialIdentity(request, requestId);
+  if (!identity) return response(503, { ok: false, reason: "trustedClientIpUnavailable", requestId });
 
   const idempotencyKey = request.headers.get("idempotency-key") ?? "";
   if (!/^[a-z0-9-]{20,80}$/i.test(idempotencyKey)) return response(400, { ok: false, reason: "invalidRequest" });

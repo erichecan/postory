@@ -31,21 +31,38 @@ function parseVisitorCookie(value: string | undefined) {
   return a.length === b.length && timingSafeEqual(a, b) ? id : null;
 }
 
-export async function getDemoTrialIdentity(request: NextRequest): Promise<DemoTrialIdentity | null> {
+export async function getDemoTrialIdentity(request: NextRequest, requestId?: string): Promise<DemoTrialIdentity | null> {
   const trustedHeader = (process.env.DEMO_TRUSTED_IP_HEADER || "cf-connecting-ip").toLowerCase();
   const headerValue = request.headers.get(trustedHeader)?.trim();
   let ip: string | undefined;
+  let ipDiagnostic: Record<string, unknown> = {
+    configuredHeader: trustedHeader,
+    headerPresent: Boolean(headerValue),
+  };
   if (trustedHeader === "x-forwarded-for" && headerValue) {
-    // Cloud Run appends the observed client address and its forwarding-rule address.
-    // Ignore any caller-supplied prefix and take the address immediately before the final proxy.
     const chain = headerValue.split(",").map((value) => value.trim());
-    const clientCandidate = chain.at(-2);
-    if (chain.length >= 2 && clientCandidate && isIP(clientCandidate)) ip = clientCandidate;
+    // Cloud Run normally appends its observed client address and proxy hop.
+    // Use the address immediately before that final hop; some request paths
+    // provide a single Cloud Run-asserted address instead of a two-item chain.
+    const clientCandidate = chain.length >= 2 ? chain.at(-2) : chain[0];
+    const candidateValid = Boolean(clientCandidate && isIP(clientCandidate));
+    if (candidateValid) ip = clientCandidate;
+    ipDiagnostic = {
+      ...ipDiagnostic,
+      chainLength: chain.length,
+      validAddressCount: chain.filter((value) => isIP(value)).length,
+      selectedPosition: chain.length >= 2 ? "before-final-proxy" : "single-value",
+      selectedAddressValid: candidateValid,
+    };
   } else if (headerValue && !headerValue.includes(",") && isIP(headerValue)) {
     ip = headerValue;
+    ipDiagnostic = { ...ipDiagnostic, chainLength: 1, validAddressCount: 1, selectedPosition: "single-value", selectedAddressValid: true };
   }
   if (!ip && process.env.NODE_ENV !== "production") ip = "127.0.0.1";
-  if (!ip || ip.length > 64) return null;
+  if (!ip || ip.length > 64) {
+    console.warn(JSON.stringify({ event: "demo_client_ip_unavailable", requestId, ...ipDiagnostic }));
+    return null;
+  }
 
   const jar = await cookies();
   const current = parseVisitorCookie(jar.get(DEMO_VISITOR_COOKIE)?.value);
