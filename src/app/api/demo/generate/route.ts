@@ -52,7 +52,9 @@ async function readFormData(request: NextRequest): Promise<{ form: FormData } | 
 
 export async function POST(request: NextRequest) {
   const requestId = crypto.randomUUID();
-  const expectedOrigin = new URL(request.url).origin;
+  // Cloud Run exposes the internal container URL as request.url. Use the
+  // configured public app origin for same-origin and Turnstile host checks.
+  const expectedOrigin = new URL(process.env.APP_URL || request.url).origin;
   const requestOrigin = request.headers.get("origin");
   if (requestOrigin !== expectedOrigin) {
     console.warn(JSON.stringify({
@@ -70,7 +72,7 @@ export async function POST(request: NextRequest) {
   const contentLength = Number(request.headers.get("content-length") ?? 0);
   if (contentLength > MAX_REQUEST_BYTES) return response(413, { ok: false, reason: "tooLarge" });
 
-  const expectedHostname = new URL(request.url).hostname;
+  const expectedHostname = new URL(expectedOrigin).hostname;
   const turnstile = await verifyDemoTurnstile(request.headers.get("x-turnstile-token") ?? "", expectedHostname);
   console.info(JSON.stringify({
     event: "demo_turnstile_diagnostic",
