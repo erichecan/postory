@@ -106,12 +106,19 @@ export async function POST(request: NextRequest) {
   const upload = decodeUpload(`data:${image.type};base64,${encoded}`);
   if (!upload.ok) return response(400, { ok: false, reason: upload.error });
 
-  const reservation = await reserveDemoGeneration({
-    identity,
-    industry: industry as "nails" | "sushi",
-    idempotencyKey,
-    overrideToken: String(form.get("overrideToken") ?? "") || undefined,
-  });
+  let reservation;
+  try {
+    reservation = await reserveDemoGeneration({
+      identity,
+      industry: industry as "nails" | "sushi",
+      idempotencyKey,
+      overrideToken: String(form.get("overrideToken") ?? "") || undefined,
+    });
+  } catch (error) {
+    const code = error && typeof error === "object" && "code" in error && typeof error.code === "string" ? error.code : undefined;
+    console.error(JSON.stringify({ event: "demo_trial_reservation_failed", requestId, errorName: error instanceof Error ? error.name : "UnknownError", code }));
+    return response(503, { ok: false, reason: "trialProtectionUnavailable", requestId });
+  }
   if (!reservation.ok) return response(reservation.reason === "dailyCap" ? 429 : 403, { ok: false, reason: reservation.reason });
 
   try {

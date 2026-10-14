@@ -96,8 +96,10 @@ export async function reserveDemoGeneration(input: {
   return prisma.$transaction(async (tx) => {
     // Serialize requests for this visitor and IP, including requests arriving on different app instances.
     const lockKeys = [`visitor:${input.identity.visitorHash}`, `ip:${input.identity.ipHash}`].sort();
-    for (const key of lockKeys) await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${key}))`;
-    await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext('demo-trial-daily-cap'))`;
+    // Advisory lock functions return PostgreSQL `void`; executeRaw avoids
+    // asking Prisma to deserialize that unsupported result type.
+    for (const key of lockKeys) await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${key}))`;
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('demo-trial-daily-cap'))`;
 
     const existing = await tx.demoTrialGeneration.findFirst({
       where: { OR: [{ visitorHash: input.identity.visitorHash }, { ipHash: input.identity.ipHash }] },

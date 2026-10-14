@@ -191,11 +191,13 @@ export function FidelityDemo({industry,page}: {industry: IndustryId;page:Fidelit
       form.set("photo",new File([blob],sushi?"sushi-photo.jpg":"nail-photo.jpg",{type:blob.type||"image/jpeg"}));
       if(overrideToken.trim())form.set("overrideToken",overrideToken.trim());
       const response=await fetch("/api/demo/generate",{method:"POST",headers:{"idempotency-key":crypto.randomUUID(),"x-turnstile-token":turnstileToken},body:form});
-      const result=await response.json() as {ok?:boolean;reason?:string;imageDataUrl?:string};
+      const responseText=await response.text();
+      let result:{ok?:boolean;reason?:string;imageDataUrl?:string;requestId?:string};
+      try{result=JSON.parse(responseText) as typeof result;}catch{throw new Error(`生成服务返回了异常响应（HTTP ${response.status}），请稍后重试。`);}
       if(!response.ok||!result.ok||!result.imageDataUrl){
         const reason=result.reason;
         if(reason==="alreadyUsed"||reason==="generationFailed")setGenerationBlocked(true);
-        const message=reason==="alreadyUsed"||reason==="overrideInvalid"?"本次网络或设备已使用试用生成次数。请电话联系 PoStory 获取一次性放行码。":reason==="dailyCap"?"今日体验名额已用完，请稍后再试。":reason==="notConfigured"?"在线人机验证尚未配置，请联系 PoStory。":reason==="trustedClientIpUnavailable"?"暂时无法验证网络信息，请联系 PoStory。":"生成服务暂不可用，请联系 PoStory。";
+        const message=reason==="alreadyUsed"||reason==="overrideInvalid"?"本次网络或设备已使用试用生成次数。请电话联系 PoStory 获取一次性放行码。":reason==="dailyCap"?"今日体验名额已用完，请稍后再试。":reason==="notConfigured"?"在线人机验证尚未配置，请联系 PoStory。":reason==="trustedClientIpUnavailable"?"暂时无法验证网络信息，请联系 PoStory。":reason==="trialProtectionUnavailable"?`体验次数校验暂时不可用，请稍后重试（请求编号：${result.requestId??"未知"}）。`:"生成服务暂不可用，请联系 PoStory。";
         throw new Error(message);
       }
       await demo.persistGeneratedPhoto(result.imageDataUrl);
