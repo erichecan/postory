@@ -125,6 +125,19 @@ export async function POST(request: NextRequest) {
   if (!reservation.ok) return response(reservation.reason === "dailyCap" ? 429 : 403, { ok: false, reason: reservation.reason });
 
   try {
+    // Record the exact prompt immediately before the provider call so it can be
+    // compared with the generated result. Never log credentials or uploaded bytes.
+    console.info(JSON.stringify({
+      event: "demo_image_prompt_submitted",
+      requestId,
+      generationId: reservation.id,
+      industry,
+      campaignDirection,
+      ratio,
+      quality: "medium",
+      promptCharacters: finalPrompt.length,
+      prompt: finalPrompt,
+    }));
     const out = await openAiImageProvider.generate({ prompt: finalPrompt, ratio, quality: "standard", input: upload });
     await completeDemoGeneration(reservation.id, out.costMicros);
     return response(200, { ok: true, generationId: reservation.id, quality: "medium", imageDataUrl: `data:${out.mime};base64,${out.bytes.toString("base64")}` });
