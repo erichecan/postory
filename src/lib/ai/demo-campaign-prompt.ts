@@ -127,6 +127,9 @@ export function buildDemoCampaignPrompt(industry: DemoIndustry, direction: strin
 
   return [
     "TASK: Create a polished, production-quality social media advertising image by editing the user's uploaded product photo. The uploaded photo is the product source of truth. Make a visibly art-directed, professionally enhanced image; do not merely place text over the untouched upload.",
+    ...(industry === "sushi" ? [
+      "IMAGE INPUT ROLES: Image 1 is the customer's uploaded sushi photo and the sole source of truth for the advertised food. Preserve its actual sushi, ingredients, count, plating, and viewpoint as closely as possible. Image 2 is the selected campaign inspiration poster and is a visual-layout reference only: borrow its composition, color relationships, negative-space placement, graphic shapes, and overall visual hierarchy. Do not copy or introduce Image 2's food, wording, letters, numbers, logos, restaurant identity, or brand marks. Do not mix the two images or treat the inspiration poster's dish as the product.",
+    ] : []),
     INDUSTRY_PROFILES[industry],
     `CAMPAIGN DIRECTION: ${recipe.name}. ${recipe.composition}`,
     `VISUAL STYLE: ${recipe.artDirection}`,

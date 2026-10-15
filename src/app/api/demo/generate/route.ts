@@ -1,8 +1,11 @@
 import type { NextRequest } from "next/server";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import type { RatioId } from "@/components/create/studio-options";
 import { decodeUpload } from "@/lib/ai/image-bytes";
 import { buildDemoCampaignPrompt, type DemoIndustry } from "@/lib/ai/demo-campaign-prompt";
 import { openAiImageProvider } from "@/lib/ai/openai-image-provider";
+import type { StoredObject } from "@/lib/storage";
 import { completeDemoGeneration, failDemoGeneration, getDemoTrialIdentity, reserveDemoGeneration } from "@/lib/demo/trial-protection";
 import { verifyDemoTurnstile } from "@/lib/demo/turnstile";
 
@@ -12,6 +15,23 @@ export const maxDuration = 240;
 const INDUSTRIES = new Set(["nails", "sushi"]);
 const RATIOS = new Set<RatioId>(["square", "portrait", "story", "landscape"]);
 const MAX_REQUEST_BYTES = 11 * 1024 * 1024;
+const SUSHI_REFERENCE_BY_DIRECTION: Record<string, { id: string; file: string }> = {
+  "new-arrival": { id: "sushi-01", file: "sushi-01.webp" },
+  "lunch-set": { id: "sushi-02", file: "sushi-02.webp" },
+  "healthy-light": { id: "sushi-03", file: "sushi-03.webp" },
+  "limited-offer": { id: "sushi-04", file: "sushi-04.webp" },
+  "seafood-feature": { id: "sushi-05", file: "sushi-05.webp" },
+  "premium-signature": { id: "sushi-06", file: "sushi-06.webp" },
+  "signature-platter": { id: "sushi-07", file: "sushi-07.webp" },
+  "date-night": { id: "sushi-08", file: "sushi-08.webp" },
+};
+
+async function loadSushiCampaignReference(direction: string): Promise<{ id: string; image: StoredObject } | null> {
+  const reference = SUSHI_REFERENCE_BY_DIRECTION[direction];
+  if (!reference) return null;
+  const bytes = await readFile(path.join(process.cwd(), "public", "demo", "campaign-inspiration", reference.file));
+  return { id: reference.id, image: { bytes, mime: "image/webp" } };
+}
 
 function response(status: number, payload: Record<string, unknown>) {
   return Response.json(payload, { status, headers: { "Cache-Control": "no-store, private" } });
@@ -109,6 +129,23 @@ export async function POST(request: NextRequest) {
   const upload = decodeUpload(`data:${image.type};base64,${encoded}`);
   if (!upload.ok) return response(400, { ok: false, reason: upload.error });
 
+  let visualReference: Awaited<ReturnType<typeof loadSushiCampaignReference>> = null;
+  if (industry === "sushi") {
+    try {
+      visualReference = await loadSushiCampaignReference(campaignDirection);
+    } catch (error) {
+      console.error(JSON.stringify({
+        event: "demo_campaign_reference_unavailable",
+        requestId,
+        industry,
+        campaignDirection,
+        errorName: error instanceof Error ? error.name : "UnknownError",
+      }));
+      return response(503, { ok: false, reason: "campaignReferenceUnavailable", requestId });
+    }
+    if (!visualReference) return response(400, { ok: false, reason: "invalidRequest" });
+  }
+
   let reservation;
   try {
     reservation = await reserveDemoGeneration({
@@ -135,10 +172,20 @@ export async function POST(request: NextRequest) {
       campaignDirection,
       ratio,
       quality: "medium",
+      imageInputs: [
+        { role: "product-upload", mime: upload.mime, bytes: upload.bytes.byteLength },
+        ...(visualReference ? [{ role: "campaign-style-reference", id: visualReference.id, mime: visualReference.image.mime, bytes: visualReference.image.bytes.byteLength }] : []),
+      ],
       promptCharacters: finalPrompt.length,
       prompt: finalPrompt,
     }));
-    const out = await openAiImageProvider.generate({ prompt: finalPrompt, ratio, quality: "standard", input: upload });
+    const out = await openAiImageProvider.generate({
+      prompt: finalPrompt,
+      ratio,
+      quality: "standard",
+      input: upload,
+      referenceImages: visualReference ? [{ id: visualReference.id, image: visualReference.image }] : undefined,
+    });
     await completeDemoGeneration(reservation.id, out.costMicros);
     return response(200, { ok: true, generationId: reservation.id, quality: "medium", imageDataUrl: `data:${out.mime};base64,${out.bytes.toString("base64")}` });
   } catch (error) {

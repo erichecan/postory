@@ -42,10 +42,15 @@ async function generate(input: GenerateInput): Promise<GenerateOutput> {
     body.set("quality", qualityFor(input.quality));
     body.set("output_format", "png");
     body.set("n", "1");
-    if (input.input) {
-      const imageBytes = new Uint8Array(input.input.bytes.byteLength);
-      imageBytes.set(input.input.bytes);
-      body.set("image", new Blob([imageBytes.buffer], { type: input.input.mime }), `reference.${input.input.mime === "image/jpeg" ? "jpg" : input.input.mime.split("/")[1]}`);
+    const inputImages = [
+      ...(input.input ? [{ id: "product-upload", image: input.input }] : []),
+      ...(input.referenceImages ?? []),
+    ];
+    for (const [index, source] of inputImages.entries()) {
+      const imageBytes = new Uint8Array(source.image.bytes.byteLength);
+      imageBytes.set(source.image.bytes);
+      const extension = source.image.mime === "image/jpeg" ? "jpg" : source.image.mime.split("/")[1];
+      body.append("image[]", new Blob([imageBytes.buffer], { type: source.image.mime }), `${source.id || `input-${index + 1}`}.${extension}`);
     }
 
     let response: Response;
