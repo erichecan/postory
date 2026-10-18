@@ -1,0 +1,77 @@
+{
+  "trial": {
+    "title": "免费试做 3 张图片",
+    "subtitle": "填一次资料，专属链接随时查看进度",
+    "scopeNote": "试做范围固定为「30 天营销计划 + 3 张图片」，适配更多平台不会减少这 3 张图片的额度。",
+    "agencyName": "你的姓名 / 机构名",
+    "agencyContact": "联系方式（微信 / 邮箱 / 电话，至少留一种）",
+    "clientBrandName": "客户品牌名",
+    "industry": "行业",
+    "country": "地区",
+    "productOrService": "产品、服务或本次活动",
+    "targetAudience": "目标受众（选填）",
+    "highlightNotes": "希望突出什么（选填）",
+    "platforms": "希望适配的平台",
+    "websiteUrl": "官网链接（选填）",
+    "socialHandles": "现有社交账号（选填，例如 Instagram: @brand）",
+    "languagePreference": "语言与风格偏好",
+    "languagePreferencePlaceholder": "例如：中文，活泼一点",
+    "referenceFiles": "Logo / 照片 / 参考内容（选填）",
+    "referenceFilesHint": "缺素材也能先做；最多 5 张，每张不超过 10MB，支持 png / jpg / webp",
+    "submit": "提交申请",
+    "submitting": "提交中…",
+    "errors": {
+      "invalid": "请检查必填项是否填写完整",
+      "tooManyFiles": "最多上传 5 个文件",
+      "fileTooLarge": "有文件超过 10MB",
+      "fileBadType": "只支持 png / jpg / webp 图片"
+    }
+  },
+  "view": {
+    "notFound": "没有找到这个试做申请，请确认链接是否正确",
+    "statusLabel": "状态",
+    "status": {
+      "SUBMITTED": "已提交，等待制作",
+      "IN_PROGRESS": "制作中",
+      "DELIVERED": "已交付样片",
+      "CONVERTED": "已转为付费合作"
+    },
+    "scopeNote": "试做范围：30 天营销计划 + 3 张图片",
+    "missingTitle": "还缺这些资料",
+    "missingNone": "资料已齐全",
+    "missingHint": "缺素材也能先做，制作时会用合理方式替代，不影响交付时间",
+    "missing": {
+      "targetAudience": "目标受众",
+      "highlightNotes": "希望突出的点",
+      "websiteUrl": "官网链接",
+      "references": "Logo / 照片 / 参考内容"
+    },
+    "planTitle": "30 天营销计划",
+    "planEmpty": "制作中，完成后会在这里显示",
+    "planDate": "日期",
+    "planTheme": "主题",
+    "planPlatform": "平台",
+    "assetsTitle": "3 张图片",
+    "assetsEmpty": "制作中，完成后会在这里显示",
+    "assetVariantsTitle": "适配版本（同一份内容）",
+    "referencesTitle": "你上传的参考资料",
+    "feedbackTitle": "反馈",
+    "feedbackCategory": "类型",
+    "feedbackCategoryOptions": {
+      "STYLE": "风格",
+      "CONTENT_ACCURACY": "内容准确性",
+      "REVISION_REQUEST": "修改意见"
+    },
+    "feedbackContent": "具体说说",
+    "feedbackSubmit": "提交反馈",
+    "feedbackSubmitting": "提交中…",
+    "feedbackSuccess": "已收到反馈",
+    "feedbackHistory": "历史反馈",
+    "convertTitle": "想转为付费合作？",
+    "convertBody": "确认风格满意后，联系我们核实预付款，就能把这次试做资料延续到正式服务，不用重新填一遍资料。",
+    "convertContact": "联系我们开通",
+    "errors": {
+      "invalid": "请检查填写内容"
+    }
+  }
+}

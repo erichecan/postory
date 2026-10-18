@@ -736,32 +736,45 @@ model AgencyAccess {
 
 // 代理商为真实客户提交的免费试做申请。转付费前客户还没有自己的 User 账号，结果挂在这张表上。
 model PartnerTrialRequest {
-  id                 String                 @id @default(cuid())
+  id                 String                  @id @default(cuid())
   agencyUserId       String?
-  agencyUser         User?                  @relation(fields: [agencyUserId], references: [id], onDelete: SetNull)
-  agencyName         String                 @db.VarChar(64)
-  agencyContact      String                 @db.VarChar(128)
-  clientBrandName    String                 @db.VarChar(128)
+  agencyUser         User?                   @relation(fields: [agencyUserId], references: [id], onDelete: SetNull)
+  agencyName         String                  @db.VarChar(64)
+  agencyContact      String                  @db.VarChar(128)
+  clientBrandName    String                  @db.VarChar(128)
   industry           Industry
   country            Country
-  productOrService   String                 @db.Text
-  targetAudience     String?                @db.Text
-  highlightNotes     String?                @db.Text
+  productOrService   String                  @db.Text
+  targetAudience     String?                 @db.Text
+  highlightNotes     String?                 @db.Text
   platforms          String[]
   websiteUrl         String?
   socialHandles      Json?
-  languagePreference String                 @default("zh") @db.VarChar(8)
-  viewToken          String                 @unique @db.VarChar(64)
-  status             PartnerTrialStatus     @default(SUBMITTED)
-  convertedUserId    String?                @unique
-  createdAt          DateTime               @default(now())
+  languagePreference String                  @default("zh") @db.VarChar(8)
+  viewToken          String                  @unique @db.VarChar(64)
+  status             PartnerTrialStatus      @default(SUBMITTED)
+  convertedUserId    String?                 @unique
+  createdAt          DateTime                @default(now())
   deliveredAt        DateTime?
   assets             PartnerTrialAsset[]
   planItems          PartnerTrialPlanItem[]
   feedback           PartnerTrialFeedback[]
+  references         PartnerTrialReference[]
 
   @@index([clientBrandName, agencyContact])
   @@index([status, createdAt])
+}
+
+// 代理商提交试做时上传的客户 Logo/实拍照片/参考内容，供 PoStory 制作样片参考，不是交付物
+model PartnerTrialReference {
+  id             String              @id @default(cuid())
+  trialRequestId String
+  trialRequest   PartnerTrialRequest @relation(fields: [trialRequestId], references: [id], onDelete: Cascade)
+  storageKey     String              @unique
+  mimeType       String              @db.VarChar(32)
+  createdAt      DateTime            @default(now())
+
+  @@index([trialRequestId])
 }
 
 // 试做阶段的样片：一张原始图片 + 多平台适配版本，不单独扣额度（同一份内容）

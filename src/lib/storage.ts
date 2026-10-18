@@ -16,11 +16,24 @@ const PUB_KEY_PATTERN = /^pub\/([a-z0-9]{10,40})\/([a-z0-9]{10,40})-([a-f0-9]{16
 // nails/ 前缀存放美甲工作室私有素材库照片，按 studioId 归属，和 gen/（AI 生成）、pub/（公开导出）互相隔离。
 const NAILS_MEDIA_KEY_PATTERN = /^nails\/([a-z0-9]{10,40})\/([a-z0-9]{10,40})\.(?:png|jpg|webp)$/;
 const NAILS_EXPORT_KEY_PATTERN = /^nails-export\/([a-z0-9]{10,40})\/([a-z0-9]{10,40})-([a-f0-9]{16,32})\.png$/;
+// partners-ref/ 前缀存放代理商提交试做申请时上传的客户 Logo/实拍照片/参考内容，试做阶段还没有登录账号，
+// 和 pub/ 一样只靠 key 里的随机十六进制串保证不可猜测，鉴权落在 /api/partners-media 对 PartnerTrialReference 行是否存在的校验上。
+const PARTNERS_REF_KEY_PATTERN = /^partners-ref\/([a-z0-9]{10,40})\/([a-f0-9]{16,32})\.(?:png|jpg|webp)$/;
+// partners-asset/ 前缀存放 PoStory 内部人工制作好、要给代理商看的试做样片，语义上本来就是"要展示给潜在客户看"的东西，
+// 和 partners-ref/ 一样靠 key 里的随机串不可猜测，不要求登录。
+const PARTNERS_ASSET_KEY_PATTERN = /^partners-asset\/([a-z0-9]{10,40})\/([a-f0-9]{16,32})\.(?:png|jpg|webp)$/;
 
 const LOCAL_ROOT = path.join(process.cwd(), ".data", "uploads");
 
 export function isMediaKey(key: string) {
-  return GEN_KEY_PATTERN.test(key) || PUB_KEY_PATTERN.test(key) || NAILS_MEDIA_KEY_PATTERN.test(key) || NAILS_EXPORT_KEY_PATTERN.test(key);
+  return (
+    GEN_KEY_PATTERN.test(key) ||
+    PUB_KEY_PATTERN.test(key) ||
+    NAILS_MEDIA_KEY_PATTERN.test(key) ||
+    NAILS_EXPORT_KEY_PATTERN.test(key) ||
+    PARTNERS_REF_KEY_PATTERN.test(key) ||
+    PARTNERS_ASSET_KEY_PATTERN.test(key)
+  );
 }
 
 export function nailsExportKey(studioId: string, postId: string) {
@@ -83,6 +96,34 @@ export function nailsMediaKey(studioId: string, assetId: string, mime: string) {
 
 export function nailsMediaUrl(key: string) {
   return `/api/nails-media/${key}`;
+}
+
+export function isPartnersRefKey(key: string) {
+  return PARTNERS_REF_KEY_PATTERN.test(key);
+}
+
+export function partnersRefKey(trialRequestId: string, mime: string) {
+  const ext = EXT_BY_MIME[mime];
+  if (!ext || ext === "svg") throw new Error(`unsupported mime ${mime}`);
+  return `partners-ref/${trialRequestId}/${randomBytes(12).toString("hex")}.${ext}`;
+}
+
+export function partnersRefUrl(key: string) {
+  return `/api/partners-media/${key}`;
+}
+
+export function isPartnersAssetKey(key: string) {
+  return PARTNERS_ASSET_KEY_PATTERN.test(key);
+}
+
+export function partnersAssetKey(trialRequestId: string, mime: string) {
+  const ext = EXT_BY_MIME[mime];
+  if (!ext || ext === "svg") throw new Error(`unsupported mime ${mime}`);
+  return `partners-asset/${trialRequestId}/${randomBytes(12).toString("hex")}.${ext}`;
+}
+
+export function partnersAssetUrl(key: string) {
+  return `/api/partners-media/${key}`;
 }
 
 type Backend = {

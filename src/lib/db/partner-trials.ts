@@ -24,6 +24,7 @@ const TRIAL_DETAIL_INCLUDE = {
   assets: { orderBy: { createdAt: "asc" as const } },
   planItems: { orderBy: { date: "asc" as const } },
   feedback: { orderBy: { createdAt: "asc" as const } },
+  references: { orderBy: { createdAt: "asc" as const } },
 };
 
 function generateViewToken() {
@@ -58,4 +59,18 @@ export async function addTrialFeedback(trialRequestId: string, category: Partner
   const owner = await prisma.partnerTrialRequest.findUnique({ where: { id: trialRequestId }, select: { id: true } });
   if (!owner) return null;
   return prisma.partnerTrialFeedback.create({ data: { trialRequestId, category, content }, select: { id: true } });
+}
+
+export async function addTrialReference(trialRequestId: string, storageKey: string, mimeType: string) {
+  return prisma.partnerTrialReference.create({ data: { trialRequestId, storageKey, mimeType }, select: { id: true } });
+}
+
+// 给 /api/partners-media 用：试做阶段没有登录会话，安全边界落在"这个 key 有没有对应的真实数据行"上，
+// 不做 session/归属校验（参考资料和样片的不可猜测性都靠 key 里的随机串）。
+export async function isPartnersRefServable(storageKey: string): Promise<boolean> {
+  return (await prisma.partnerTrialReference.findUnique({ where: { storageKey }, select: { id: true } })) !== null;
+}
+
+export async function isPartnersAssetServable(storageKey: string): Promise<boolean> {
+  return (await prisma.partnerTrialAsset.findUnique({ where: { storageKey }, select: { id: true } })) !== null;
 }

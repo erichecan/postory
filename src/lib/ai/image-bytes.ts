@@ -14,6 +14,10 @@ export function decodeUpload(dataUrl: string): { ok: true; bytes: Buffer; mime: 
   if (!m) return { ok: false, error: "badType" };
   if ((m[2].length * 3) / 4 > UPLOAD_MAX_BYTES + 4) return { ok: false, error: "tooLarge" };
   const bytes = Buffer.from(m[2], "base64");
+  return validateImageBytes(bytes);
+}
+
+export function validateImageBytes(bytes: Buffer): { ok: true; bytes: Buffer; mime: string } | { ok: false; error: UploadError } {
   if (bytes.length > UPLOAD_MAX_BYTES) return { ok: false, error: "tooLarge" };
   const mime = sniffMime(bytes);
   if (!mime) return { ok: false, error: "badType" };

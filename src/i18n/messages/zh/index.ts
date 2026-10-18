@@ -18,7 +18,8 @@ import landing from "./landing.json";
 import legal from "./legal.json";
 import calendar from "./calendar.json";
 import customers from "./customers.json";
+import partners from "./partners.json";
 
-const messages = { nails, common, auth, profile, validation, nav, gallery, templates, designs, admin, platforms, editor, billing, create, plans, generations, landing, legal, calendar, customers };
+const messages = { nails, common, auth, profile, validation, nav, gallery, templates, designs, admin, platforms, editor, billing, create, plans, generations, landing, legal, calendar, customers, partners };
 
 export default messages;

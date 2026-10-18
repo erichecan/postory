@@ -1,0 +1,77 @@
+{
+  "trial": {
+    "title": "Free trial: 3 sample images",
+    "subtitle": "Fill in once, get a private link to track progress",
+    "scopeNote": "The trial scope is fixed at a 30-day marketing plan + 3 images; adding more platform variants never reduces that 3-image allowance.",
+    "agencyName": "Your name / agency",
+    "agencyContact": "Contact (WeChat / email / phone — at least one)",
+    "clientBrandName": "Client brand name",
+    "industry": "Industry",
+    "country": "Region",
+    "productOrService": "Product, service, or this campaign",
+    "targetAudience": "Target audience (optional)",
+    "highlightNotes": "What to highlight (optional)",
+    "platforms": "Platforms to adapt for",
+    "websiteUrl": "Website (optional)",
+    "socialHandles": "Existing social accounts (optional, e.g. Instagram: @brand)",
+    "languagePreference": "Language & tone preference",
+    "languagePreferencePlaceholder": "e.g. English, playful tone",
+    "referenceFiles": "Logo / photos / references (optional)",
+    "referenceFilesHint": "Missing assets are fine; up to 5 files, 10MB each, png / jpg / webp",
+    "submit": "Submit request",
+    "submitting": "Submitting…",
+    "errors": {
+      "invalid": "Please check the required fields",
+      "tooManyFiles": "Up to 5 files",
+      "fileTooLarge": "A file is over 10MB",
+      "fileBadType": "Only png / jpg / webp images are supported"
+    }
+  },
+  "view": {
+    "notFound": "We couldn't find this trial request — please check the link",
+    "statusLabel": "Status",
+    "status": {
+      "SUBMITTED": "Submitted, awaiting production",
+      "IN_PROGRESS": "In production",
+      "DELIVERED": "Samples delivered",
+      "CONVERTED": "Converted to paid"
+    },
+    "scopeNote": "Trial scope: 30-day marketing plan + 3 images",
+    "missingTitle": "Still missing",
+    "missingNone": "All set",
+    "missingHint": "Missing assets are fine — we'll use a reasonable substitute without delaying delivery",
+    "missing": {
+      "targetAudience": "Target audience",
+      "highlightNotes": "What to highlight",
+      "websiteUrl": "Website",
+      "references": "Logo / photos / references"
+    },
+    "planTitle": "30-day marketing plan",
+    "planEmpty": "In production — will show here once ready",
+    "planDate": "Date",
+    "planTheme": "Theme",
+    "planPlatform": "Platform",
+    "assetsTitle": "3 images",
+    "assetsEmpty": "In production — will show here once ready",
+    "assetVariantsTitle": "Platform variants (same content)",
+    "referencesTitle": "Your uploaded references",
+    "feedbackTitle": "Feedback",
+    "feedbackCategory": "Category",
+    "feedbackCategoryOptions": {
+      "STYLE": "Style",
+      "CONTENT_ACCURACY": "Content accuracy",
+      "REVISION_REQUEST": "Revision request"
+    },
+    "feedbackContent": "Details",
+    "feedbackSubmit": "Submit feedback",
+    "feedbackSubmitting": "Submitting…",
+    "feedbackSuccess": "Feedback received",
+    "feedbackHistory": "Feedback history",
+    "convertTitle": "Ready to go paid?",
+    "convertBody": "Once you're happy with the style, contact us to confirm prepayment and carry this trial straight into the real service — no need to fill anything in again.",
+    "convertContact": "Contact us",
+    "errors": {
+      "invalid": "Please check your input"
+    }
+  }
+}
