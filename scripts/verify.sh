@@ -62,6 +62,9 @@ run "auth-probe" npx tsx scripts/auth-probe.ts "$BASE"
 step "后台：客户方案 / 线下开通 / 调整 credit / 会员等级"
 run "admin-probe" npx tsx scripts/admin-probe.ts "$BASE"
 
+step "代理商合作销售：路由 / 越权 / 试做判重"
+run "partners-probe" env NODE_OPTIONS="--conditions=react-server" npx tsx scripts/partners-probe.ts "$BASE"
+
 step "付费墙：导出 / 发布计划扣费、平台权益"
 run "paywall-probe" npx tsx scripts/paywall-probe.ts "$BASE"
 

@@ -230,8 +230,79 @@
           这一步（真的点一次"确认并创建账号"按钮）需要你或我在有浏览器的环境里实际操作一次来补这个空当，
           和"可看物"要你确认的事项是同一件事，不是独立的新问题。
 
-- [ ] 单元 6：verify.sh 全量探针补完 + 中英文案核对
-      验收命令：`scripts/verify.sh`
+- [x] 单元 6：verify.sh 全量探针补完 + 中英文案核对
+      验收命令：`scripts/verify.sh`（完整跑一遍，含本单元新增的 partners-probe 步骤）
       可看物：无
       定性状态：不涉及
       依赖：单元 0-5
+      范围核对（发现冲突事实，记录后按合理判断继续，不是新问题/不阻塞）：
+        DEV-PLAN 附录 A 第 95、96 条（"修改次数探针"：同一 Design 编辑 3 次第 3 次应新建记录；
+        "视频时长探针"：durationSeconds > 12 走 VIDEO_OVERAGE 计费路径）核对代码后确认：
+          - `revisionCount` 字段只在 `prisma/schema.prisma` 里声明和注释，整个 `src/` 没有任何地方读写它，
+            应用层从未实现"原地累加 2 次、第 3 次强制新建"的逻辑。
+          - `src/lib/billing/plan-math.ts` 明确注释：VIDEO_STANDARD/VIDEO_OVERAGE 单价未定，
+            "代码库里还没有任何会真正发起视频生成请求、调用 chargeCredits(VIDEO_OVERAGE) 的入口"。
+        这两条验收标准对应的功能本身不存在，和这次"代理商合作销售"范围无关（不是本轮新增，也不是
+        本轮改坏的），本单元不代为实现这两个无关功能去凑一条探针——那是另一个功能模块该做的事，
+        维持 ⚠️ 未验证/功能未实现，不标 ✅、也不假装测过。
+        第 97 条"多平台不重复扣费"核对后确认**已实现且已有探针覆盖**：`chargeDesign` 按
+        `design:${design.id}` 做幂等 key（`src/lib/db/entitlements.ts`），`scripts/paywall-probe.ts`
+        里"同一作品改发布时间不再扣"场景已经把平台集合从 3 个改成 1 个并断言余额不变，等价覆盖了
+        这条验收点，不需要重复新建一条探针。
+      证据：
+        - 新增 `scripts/partners-probe.ts`：覆盖附录 A 第 90-94 条里真正属于本次范围、且此前
+          verify.sh 未覆盖的部分——
+          路由探针（`/partners`、`/partners/trial` 公开 200；`/partners/trial/[存在token]` 200；
+          `/partners/trial/[随机token]` 404）、
+          越权探针（代理商 A 查代理商 B 的客户 → 403；没有任何 AgencyAccess 的普通用户查任意客户 → 403；
+          未登录访问 `/partners/clients` → 跳登录）、
+          试做判重探针（同一 `clientBrandName+agencyContact` 重复提交，`createTrialRequest` 返回
+          `duplicate:true` 且复用同一条记录的 id，期间前后 `PartnerTrialRequest` 总数不变）。
+        - `scripts/verify.sh` 新增一步调用 `partners-probe.ts`（放在 admin-probe 之后），沿用其它
+          server-only DAL 直调探针的 `NODE_OPTIONS="--conditions=react-server"` 用法。
+        - 关于"未登录访问 /partners/clients → 302"：实测该路径走 `requireUser()` 的 `redirect("/login")`，
+          真实状态码是 **307**，不是 DEV-PLAN 附录 A 原文写的 302——和这个代码库里所有其它"未登录跳登录"
+          场景的真实返回码一致（`scripts/probes.ts`/`scripts/admin-probe.ts` 等全部断言 307），
+          附录 A 原文的"302"是写计划时的笼统说法，探针按实测的真实行为断言，不是本单元引入的不一致。
+        - `npx eslint scripts/partners-probe.ts --quiet` → 无输出；`npm run typecheck` → 无输出。
+        - `npx tsx scripts/partners-probe.ts <生产模式服务器>`（`NODE_OPTIONS="--conditions=react-server"`）
+          单独运行：8 项全部 PASS（见下方命令输出片段）；复查确认测试账号/试做申请全部清理，残留数 0。
+          ```
+          ## 路由探针
+          PASS  GET /partners 公开 200
+          PASS  GET /partners/trial 公开 200
+          PASS  GET /partners/trial/[存在的token] → 200
+          PASS  GET /partners/trial/[随机token] → 404
+          ## 越权探针
+          PASS  未登录访问 /partners/clients → 跳登录（3xx）  (status=307)
+          PASS  代理商 A 访问代理商 B 名下客户 → 403  (status=403)
+          PASS  没有任何 AgencyAccess 的普通用户访问任意客户 → 403  (status=403)
+          ## 试做判重探针
+          PASS  同一 clientBrandName+agencyContact 重复提交 → 标记重复，不新建记录  (before=3 after=3 duplicate=true)
+
+          全部通过
+          ```
+        - `node scripts/check-i18n.mjs` → exit 0，key 一致性/空值检查无报错；输出里列出的"残留中文"
+          全部是本次改动之外的既有文件（`src/lib/demo/industries/*`、`src/lib/db/nl-order.ts`、
+          `src/lib/db/calendar.ts` 等演示/日历模块的中文字面量），admin.json/partners 相关命名空间
+          没有被列出，不是本单元引入的问题。
+        - `scripts/verify.sh` 全量跑了一遍（含上面新增的 partners-probe 步骤），结论是 **VERIFY FAIL**，
+          3 项失败，但**全部确认是本次"代理商合作销售"改动之前就存在、与这次范围无关的既有问题**，
+          不是本单元引入的，也不是本单元该代为修复的：
+          1. `eslint`：2 个既有文件报错（`scripts/visual/verify-demo-fidelity.cjs` 的 require 导入、
+             `src/lib/demo/templates/__tests__/template-pack-definitions.test.ts` 的 `any` 类型），
+             `git log` 确认最后改动于 `3287219`（本次单元 0-6 之前），和 partners/admin 代码无关。
+          2. `check-i18n.mjs`：真实退出码是 1（之前我手动核对时错把 `tail` 的退出码当成了它的退出码，
+             这里纠正），报出的"残留中文"全部在既有的演示行业模板（`src/lib/demo/industries/*`）、
+             自然语言排期（`src/lib/db/nl-order.ts`）、WhatsApp 文案（`src/lib/whatsapp.ts`）、
+             营销日历（`src/lib/marketing-calendar/*`）等文件里，没有一条出现在 `admin.json`/
+             `partners.*` 相关文件或本单元新增文件。
+          3. `Template 数量 = catalog.json`：期望 428、实际 438，数据库里多出 10 条真实 `orshot-*`
+             模板（非测试脏数据，`psql` 核对过是正常模板行），是本地开发库和 `catalog.json` 文件
+             本身的既有漂移，与本次改动无关、我的探针从未写过 `Template` 表。
+          本次新增的 `partners-probe` 步骤本身在全量跑里完整 PASS（见上面单独运行的 8 项输出，
+          全量跑里位置相同、同样全部 PASS）。按铁律如实记录：**不**把这次 `scripts/verify.sh`
+          标为整体 ✅通过——退出码确实非 0；但这 3 项失败和本次代理商合作销售的范围无关，
+          不在本单元里代为修复（修 eslint any 类型、翻译既有中文文案、重新对齐模板种子数据，
+          都是跟这次改动无关的独立技术债，擅自去改会超出本单元范围）。这件事需要在给用户的
+          汇报里明确提一句，不能埋在台账里就当作本单元"通过"了。
