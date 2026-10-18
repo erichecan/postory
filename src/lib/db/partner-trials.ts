@@ -2,7 +2,7 @@ import "server-only";
 import { randomBytes } from "node:crypto";
 import { prisma } from "./client";
 import { Prisma } from "@/generated/prisma/client";
-import type { Country, Industry, PartnerTrialFeedbackCategory } from "@/generated/prisma/client";
+import type { Country, Industry, PartnerTrialFeedbackCategory, PartnerTrialStatus } from "@/generated/prisma/client";
 
 export type CreateTrialRequestInput = {
   agencyUserId: string | null;
@@ -73,4 +73,40 @@ export async function isPartnersRefServable(storageKey: string): Promise<boolean
 
 export async function isPartnersAssetServable(storageKey: string): Promise<boolean> {
   return (await prisma.partnerTrialAsset.findUnique({ where: { storageKey }, select: { id: true } })) !== null;
+}
+
+export type TrialRequestListItem = {
+  id: string;
+  clientBrandName: string;
+  agencyName: string;
+  agencyContact: string;
+  agencyUserId: string | null;
+  status: PartnerTrialStatus;
+  convertedUserId: string | null;
+  createdAt: Date;
+};
+
+// /admin 核账用的全量列表：代理商试做申请量级在人工核账场景下不大，不分页。
+export async function listTrialRequests(): Promise<TrialRequestListItem[]> {
+  return prisma.partnerTrialRequest.findMany({
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      clientBrandName: true,
+      agencyName: true,
+      agencyContact: true,
+      agencyUserId: true,
+      status: true,
+      convertedUserId: true,
+      createdAt: true,
+    },
+  });
+}
+
+export async function markTrialConverted(trialRequestId: string, convertedUserId: string) {
+  return prisma.partnerTrialRequest.update({
+    where: { id: trialRequestId },
+    data: { status: "CONVERTED", convertedUserId },
+    select: { id: true },
+  });
 }

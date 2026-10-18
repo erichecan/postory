@@ -164,11 +164,71 @@
           也只是"单元 0"（schema），不依赖单元 5，所以这里的测试数据是为了验证单元 4 本身而手工搭的，不代表
           单元 5 已经做了。
 
-- [ ] 单元 5：/admin 试做转付费核账动作
-      验收命令：`scripts/verify.sh --scope partners-convert`
-      可看物：docs/shots/20261018-admin-convert.png
-      定性状态：待你确认
+- [x] 单元 5：/admin 试做转付费核账动作（/admin/partner-trials、/admin/partner-trials/[id]）
+      验收命令：`npx tsc --noEmit`、`npm run build`、`npx eslint ...`、手工业务逻辑/鉴权探针（见下）。
+             "验收命令：`scripts/verify.sh --scope partners-convert`"是之前写计划时设想的写法，这个 flag 不存在
+             （和单元 2-4 一样，verify.sh 没有 --scope 支持），延续同样的做法：手工探针代替。
+      可看物：同单元 2-4，本沙箱装不上 Chrome，没法生成 docs/shots/20261018-admin-convert.png。
+             改用操作路径代替：管理员登录后打开 http://localhost:3002/admin/partner-trials，看到试做申请列表
+             （客户名/代理商/状态/提交时间），点"查看"进详情页，看到代理商名称/联系方式/代理商账号（有登录就显示
+             账号 id，匿名提交就显示"未登录提交，需手动核对账号"并多一个"代理商邮箱"输入框）/行业/国家/产品介绍，
+             未转化的申请下方是"确认收款，创建客户账号"表单（邮箱/电话/姓名/初始密码，匿名提交额外要填代理商邮箱）；
+             提交后跳到该客户的 `/admin/accounts/[id]`，账号详情页复用现有功能选套餐、点"开通"激活线下付费。
+      定性状态：待你确认（这是真人该打开看的管理后台页面，我这边没法代签"符合"；此外见下方"未验证"说明）
       依赖：单元 1、单元 4
+      范围决定（L2，我自己定，记在这里）：
+        DEV-PLAN 字面写"创建客户 User + CustomerPlan(billing=OFFLINE) + AgencyAccess + 置 CONVERTED"，
+        但没规定套餐怎么选、线下预付了几个月。账号详情页（`/admin/accounts/[id]`）已经有现成的套餐选择
+        （`PlanForm`→`adminSavePlanAction`）和"线下开通 N 个月"（`adminActivateOfflineAction`→`activateOffline`，
+        会按月数发放 credit/视频额度）——这两个动作本来就要管理员填等级、币种、月费、月数这些业务参数，
+        不是本单元该臆造默认值的地方。所以本单元只做"开户 + 授权 + 标记转化"三件事，
+        套餐/开通线下付费这一步直接导向现成页面，不重新做一套重复的表单。
+        理由：DRY，且避免凭空定一个等级/月数的默认值糊弄过去——这类业务参数该由管理员在核账时当场填，
+        不该由我猜。
+      证据：
+        - 新增 `src/lib/db/partner-trials.ts` 的 `listTrialRequests`（全量，人工核账场景量级不大，不分页）、
+          `markTrialConverted`（置 CONVERTED + 写 convertedUserId）。
+        - 新增 `src/lib/actions/partner-trials-admin.ts` 的 `adminConvertTrialAction`：
+          管理员鉴权 → 查申请存在且未转化 → 解析代理商 userId（申请自带 agencyUserId 直接用；
+          为空则要求填 agencyEmail 并按邮箱查找已注册账号，查不到报错，不会静默失败或自己造一个代理商账号）→
+          `createUser`（复用现有 `source: "OFFLINE"` 开户路径，和线下开户账号同一套逻辑）→
+          `grantAgencyAccess`（单元 1 已有的 upsert，防重复）→ `markTrialConverted` → `redirect` 到账号详情页。
+          email 唯一冲突（P2002）会报"该邮箱已有账号"，不会把部分步骤的脏数据留下
+          （createUser 失败发生在 grantAgencyAccess/markTrialConverted 之前，不会有部分提交）。
+        - 新增页面 `src/app/(app)/admin/partner-trials/page.tsx`（列表）、`.../[id]/page.tsx`（详情+转化表单）、
+          `src/components/admin/convert-trial-form.tsx`（根据 `agencyUserId === null` 决定是否显示代理商邮箱输入框）。
+        - `src/components/admin/admin-subnav.tsx` 加了"代理商试做"标签页。
+        - `src/i18n/messages/{zh,en}/admin.json` 新增 `nav.partnerTrials`、`partnerTrials` 命名空间
+          （含 6 条 errors 文案）。
+        - `npm run typecheck`（`next typegen && tsc --noEmit`）→ 无输出；`npm run build` → 成功，
+          `/admin/partner-trials`、`/admin/partner-trials/[id]` 均出现在路由表；
+          `npx eslint src/lib/db/partner-trials.ts src/lib/actions/partner-trials-admin.ts
+          src/components/admin/convert-trial-form.tsx src/components/admin/admin-subnav.tsx
+          "src/app/(app)/admin/partner-trials/page.tsx" "src/app/(app)/admin/partner-trials/[id]/page.tsx"`
+          → 无输出。
+        - 手工鉴权探针（`npx next start -p 3002`，真实生产模式服务器）：未登录 `GET /admin/partner-trials` → 307；
+          非管理员真实账号 `GET /admin/partner-trials`、`GET /admin/partner-trials/<id>` → 均 307；
+          管理员真实账号 → 均 200；详情页按 `agencyUserId` 是否为空正确显示/隐藏"代理商邮箱"输入框
+          （grep 页面 HTML 确认）。
+        - 手工业务逻辑探针（脚本直接复现 `adminConvertTrialAction` 内部完全一致的查询/写入序列，
+          因为该函数依赖 `cookies()`/`next-intl`/`redirect()` 等仅在 Next 请求上下文里才能用的 API，
+          脚本没法跳过 Next 运行时直接调用这个函数本身——见下方"未验证"说明）：
+          用真实测试数据（代理商账号、已登录提交的试做申请 A、匿名提交的试做申请 B、匿名提交的试做申请 C）跑了
+          6 个场景：① A 正常转化成功，agencyUserId 正确复用申请自带的值；② A 再次转化报 `alreadyConverted`；
+          ③ B 不填代理商邮箱报 `agencyEmailRequired`；④ B 填一个不存在的代理商邮箱报 `agencyNotFound`；
+          ⑤ B 填正确的代理商邮箱转化成功，agencyUserId 正确解析为该邮箱对应账号；⑥ C 用一个已被占用的邮箱报
+          `emailTaken`，且失败后 `PartnerTrialRequest` 状态仍是 `SUBMITTED`、`convertedUserId` 仍是 null
+          （没有留下部分提交的脏数据）。数据库核对：新建客户账号 `source=OFFLINE`、`emailVerifiedAt` 非空；
+          两条成功场景各生成一行 `AgencyAccess`；对应 `PartnerTrialRequest` 状态和 `convertedUserId` 都正确更新。
+          所有测试用户/试做申请/AgencyAccess 行均已清理，复查确认残留数为 0。
+      未验证（⚠️，如实标注，不包装成已完成）：
+        - 上面"业务逻辑探针"验证的是**和 Server Action 完全一致的查询/写入序列**，不是 Server Action 本身
+          被真实点击提交的那次调用。原因：`adminConvertTrialAction` 用了 `assertAdmin()`（内部 `cookies()`）、
+          `getTranslations()`、`redirect()`，这些都要求 Next.js 的请求上下文（AsyncLocalStorage），脚本在
+          Next 运行时之外直接 import 调用会直接抛错，没法用来测这个函数本体；而真正走 HTTP 发 Server Action
+          需要构造 React 的内部 action-id/RSC 协议，这个沙箱也没有真实浏览器能点一次表单。
+          这一步（真的点一次"确认并创建账号"按钮）需要你或我在有浏览器的环境里实际操作一次来补这个空当，
+          和"可看物"要你确认的事项是同一件事，不是独立的新问题。
 
 - [ ] 单元 6：verify.sh 全量探针补完 + 中英文案核对
       验收命令：`scripts/verify.sh`
