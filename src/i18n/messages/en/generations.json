@@ -15,6 +15,7 @@
   "credits": "{count} credits",
   "mode": {
     "PHOTO_ENHANCE": "Photo enhance",
-    "TEXT_TO_IMAGE": "Text to image"
+    "TEXT_TO_IMAGE": "Text to image",
+    "VIDEO": "Video"
   }
 }

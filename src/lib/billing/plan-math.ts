@@ -1,9 +1,14 @@
 import type { ChargeKind, Currency, PlanFees } from "@/types/commerce";
 
+// VIDEO_STANDARD/VIDEO_OVERAGE 单价未定（用户：计费逻辑一会再讨论），且代码库里还没有任何会真正发起
+// 视频生成请求、调用 chargeCredits(VIDEO_STANDARD|VIDEO_OVERAGE) 的入口。这两项先占位为 0，
+// 避免在没有真实单价和真实扣费路径的情况下伪造一个会被当成"已实现"的数字。
 export const CHARGE_CREDITS: Record<ChargeKind, number> = {
   TEMPLATE_EXPORT: 1,
   AI_STANDARD: 1,
   AI_HD: 2,
+  VIDEO_STANDARD: 0,
+  VIDEO_OVERAGE: 0,
 };
 
 export const DEFAULT_PLAN = {

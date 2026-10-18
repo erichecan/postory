@@ -15,6 +15,7 @@
   "credits": "{count} credit",
   "mode": {
     "PHOTO_ENHANCE": "实拍美化",
-    "TEXT_TO_IMAGE": "文生图"
+    "TEXT_TO_IMAGE": "文生图",
+    "VIDEO": "视频"
   }
 }

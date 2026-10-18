@@ -70,11 +70,14 @@ enum ChargeKind {
   TEMPLATE_EXPORT
   AI_STANDARD
   AI_HD
+  VIDEO_STANDARD
+  VIDEO_OVERAGE
 }
 
 enum GenerationMode {
   PHOTO_ENHANCE
   TEXT_TO_IMAGE
+  VIDEO
 }
 
 enum GenerationStatus {
@@ -165,6 +168,19 @@ enum LeadStatus {
   CONVERTED
 }
 
+enum PartnerTrialStatus {
+  SUBMITTED
+  IN_PROGRESS
+  DELIVERED
+  CONVERTED
+}
+
+enum PartnerTrialFeedbackCategory {
+  STYLE
+  CONTENT_ACCURACY
+  REVISION_REQUEST
+}
+
 enum PublishStatus {
   PENDING
   SUCCESS
@@ -173,20 +189,20 @@ enum PublishStatus {
 }
 
 model User {
-  id                    String               @id @default(cuid())
-  phone                 String?              @unique @db.VarChar(20)
-  email                 String?              @unique @db.VarChar(254)
+  id                    String                @id @default(cuid())
+  phone                 String?               @unique @db.VarChar(20)
+  email                 String?               @unique @db.VarChar(254)
   emailVerifiedAt       DateTime?
-  stripeCustomerId      String?              @unique
+  stripeCustomerId      String?               @unique
   passwordHash          String
-  sessionVersion        Int                  @default(0)
-  loginFailures         Int                  @default(0)
+  sessionVersion        Int                   @default(0)
+  loginFailures         Int                   @default(0)
   loginLockedUntil      DateTime?
-  name                  String               @db.VarChar(64)
-  role                  Role                 @default(USER)
-  source                AccountSource        @default(SELF_SIGNUP)
-  disabled              Boolean              @default(false)
-  createdAt             DateTime             @default(now())
+  name                  String                @db.VarChar(64)
+  role                  Role                  @default(USER)
+  source                AccountSource         @default(SELF_SIGNUP)
+  disabled              Boolean               @default(false)
+  createdAt             DateTime              @default(now())
   ayrshareProfileKeyEnc String?
   ayrshareRefId         String?
   profile               BrandProfile?
@@ -201,6 +217,9 @@ model User {
   outreachAutomations   OutreachAutomation[]
   endCustomers          EndCustomer[]
   studio                Studio?
+  agencyAccessGranted   AgencyAccess[]        @relation("AgencyAccessAsAgency")
+  agencyAccessReceived  AgencyAccess[]        @relation("AgencyAccessAsClient")
+  partnerTrialRequests  PartnerTrialRequest[]
 }
 
 // Phase 1: one personally owned studio per account. User is the shared profile.
@@ -461,23 +480,24 @@ model CreditTxn {
 }
 
 model Generation {
-  id          String           @id @default(cuid())
-  userId      String
-  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  parentId    String?
-  mode        GenerationMode
-  quality     String           @db.VarChar(8)
-  size        String           @db.VarChar(16)
-  userPrompt  String           @db.Text
-  finalPrompt String?          @db.Text
-  inputUrl    String?
-  outputUrl   String?
-  credits     Int
-  costMicros  Int?
-  status      GenerationStatus @default(PENDING)
-  error       String?          @db.VarChar(255)
-  startedAt   DateTime?
-  createdAt   DateTime         @default(now())
+  id              String           @id @default(cuid())
+  userId          String
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parentId        String?
+  mode            GenerationMode
+  quality         String           @db.VarChar(8)
+  size            String           @db.VarChar(16)
+  userPrompt      String           @db.Text
+  finalPrompt     String?          @db.Text
+  inputUrl        String?
+  outputUrl       String?
+  durationSeconds Int?
+  credits         Int
+  costMicros      Int?
+  status          GenerationStatus @default(PENDING)
+  error           String?          @db.VarChar(255)
+  startedAt       DateTime?
+  createdAt       DateTime         @default(now())
 
   @@index([userId, createdAt])
   @@index([status, createdAt])
@@ -485,16 +505,16 @@ model Generation {
 
 // Server-side anonymous demo quota ledger. Browser state is never used as the source of truth.
 model DemoTrialGeneration {
-  id             String                     @id @default(cuid())
-  industry       String                     @db.VarChar(32)
-  visitorHash    String                     @db.Char(64)
-  ipHash         String                     @db.Char(64)
-  phoneHash      String?                    @db.Char(64)
-  idempotencyKey String                     @unique @db.Char(64)
-  status         DemoTrialGenerationStatus  @default(RESERVED)
-  quality        String                     @default("medium") @db.VarChar(8)
+  id             String                    @id @default(cuid())
+  industry       String                    @db.VarChar(32)
+  visitorHash    String                    @db.Char(64)
+  ipHash         String                    @db.Char(64)
+  phoneHash      String?                   @db.Char(64)
+  idempotencyKey String                    @unique @db.Char(64)
+  status         DemoTrialGenerationStatus @default(RESERVED)
+  quality        String                    @default("medium") @db.VarChar(8)
   costMicros     Int?
-  createdAt      DateTime                   @default(now())
+  createdAt      DateTime                  @default(now())
   completedAt    DateTime?
 
   @@index([visitorHash, createdAt])
@@ -561,6 +581,7 @@ model Template {
   @@index([status, sortOrder])
 }
 
+// revisionCount: 2 次免费微调原地累加；第 3 次编辑在应用层强制新建一条 Design 并扣新额度
 model Design {
   id               String         @id @default(cuid())
   userId           String
@@ -574,6 +595,7 @@ model Design {
   status           DesignStatus   @default(DRAFT)
   chargedAt        DateTime?
   caption          String?        @db.Text
+  revisionCount    Int            @default(0)
   exportedImageUrl String?
   ayrsharePostId   String?
   publishStatus    PublishStatus?
@@ -696,4 +718,85 @@ model CalendarLead {
   generatedPreviewUrl String?
   status              LeadStatus @default(NEW)
   createdAt           DateTime   @default(now())
+}
+
+// 代理商对某个客户账号的操作授权。数据归属仍是 clientUser 自己（一个客户一个 User/Studio），
+// agencyUser 只是被授权以该客户身份操作，不是另一套租户模型。
+model AgencyAccess {
+  id           String   @id @default(cuid())
+  agencyUserId String
+  agencyUser   User     @relation("AgencyAccessAsAgency", fields: [agencyUserId], references: [id], onDelete: Cascade)
+  clientUserId String
+  clientUser   User     @relation("AgencyAccessAsClient", fields: [clientUserId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+
+  @@unique([agencyUserId, clientUserId])
+  @@index([clientUserId])
+}
+
+// 代理商为真实客户提交的免费试做申请。转付费前客户还没有自己的 User 账号，结果挂在这张表上。
+model PartnerTrialRequest {
+  id                 String                 @id @default(cuid())
+  agencyUserId       String?
+  agencyUser         User?                  @relation(fields: [agencyUserId], references: [id], onDelete: SetNull)
+  agencyName         String                 @db.VarChar(64)
+  agencyContact      String                 @db.VarChar(128)
+  clientBrandName    String                 @db.VarChar(128)
+  industry           Industry
+  country            Country
+  productOrService   String                 @db.Text
+  targetAudience     String?                @db.Text
+  highlightNotes     String?                @db.Text
+  platforms          String[]
+  websiteUrl         String?
+  socialHandles      Json?
+  languagePreference String                 @default("zh") @db.VarChar(8)
+  viewToken          String                 @unique @db.VarChar(64)
+  status             PartnerTrialStatus     @default(SUBMITTED)
+  convertedUserId    String?                @unique
+  createdAt          DateTime               @default(now())
+  deliveredAt        DateTime?
+  assets             PartnerTrialAsset[]
+  planItems          PartnerTrialPlanItem[]
+  feedback           PartnerTrialFeedback[]
+
+  @@index([clientBrandName, agencyContact])
+  @@index([status, createdAt])
+}
+
+// 试做阶段的样片：一张原始图片 + 多平台适配版本，不单独扣额度（同一份内容）
+model PartnerTrialAsset {
+  id               String              @id @default(cuid())
+  trialRequestId   String
+  trialRequest     PartnerTrialRequest @relation(fields: [trialRequestId], references: [id], onDelete: Cascade)
+  storageKey       String              @unique
+  caption          String?             @db.Text
+  platformVariants Json
+  revisionCount    Int                 @default(0)
+  createdAt        DateTime            @default(now())
+
+  @@index([trialRequestId])
+}
+
+model PartnerTrialPlanItem {
+  id             String              @id @default(cuid())
+  trialRequestId String
+  trialRequest   PartnerTrialRequest @relation(fields: [trialRequestId], references: [id], onDelete: Cascade)
+  date           DateTime            @db.Date
+  theme          String              @db.VarChar(128)
+  platform       String              @db.VarChar(32)
+  note           String?             @db.Text
+
+  @@index([trialRequestId, date])
+}
+
+model PartnerTrialFeedback {
+  id             String                       @id @default(cuid())
+  trialRequestId String
+  trialRequest   PartnerTrialRequest          @relation(fields: [trialRequestId], references: [id], onDelete: Cascade)
+  category       PartnerTrialFeedbackCategory
+  content        String                       @db.Text
+  createdAt      DateTime                     @default(now())
+
+  @@index([trialRequestId, createdAt])
 }

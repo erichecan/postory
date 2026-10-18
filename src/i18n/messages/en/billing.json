@@ -85,7 +85,9 @@
     "charge": {
       "TEMPLATE_EXPORT": "Template image",
       "AI_STANDARD": "AI image · Standard",
-      "AI_HD": "AI image · HD"
+      "AI_HD": "AI image · HD",
+      "VIDEO_STANDARD": "Video · within monthly quota",
+      "VIDEO_OVERAGE": "Video · overage"
     },
     "source": {
       "SIGNUP_GIFT": "Sign-up gift",

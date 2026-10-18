@@ -85,7 +85,9 @@
     "charge": {
       "TEMPLATE_EXPORT": "模板出图",
       "AI_STANDARD": "AI 生图 · 标准",
-      "AI_HD": "AI 生图 · 高清"
+      "AI_HD": "AI 生图 · 高清",
+      "VIDEO_STANDARD": "视频 · 月度额度内",
+      "VIDEO_OVERAGE": "视频 · 超额"
     },
     "source": {
       "SIGNUP_GIFT": "注册赠送",

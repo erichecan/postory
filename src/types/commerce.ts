@@ -3,7 +3,12 @@ export type PlanStatus = "DRAFT" | "PENDING_PAYMENT" | "ACTIVE" | "PAST_DUE" | "
 export type PlanBilling = "STRIPE" | "OFFLINE";
 export type GrantSource = "SIGNUP_GIFT" | "MONTHLY" | "TOPUP" | "ADMIN" | "REFUND_RETURN";
 export type TxnKind = "GRANT" | "DEBIT" | "REFUND" | "EXPIRE" | "ADJUST";
-export type ChargeKind = "TEMPLATE_EXPORT" | "AI_STANDARD" | "AI_HD";
+export type ChargeKind =
+  | "TEMPLATE_EXPORT"
+  | "AI_STANDARD"
+  | "AI_HD"
+  | "VIDEO_STANDARD"
+  | "VIDEO_OVERAGE";
 
 export type TierView = {
   id: string;
