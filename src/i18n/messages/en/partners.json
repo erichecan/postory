@@ -1,4 +1,92 @@
 {
+  "landing": {
+    "meta": {
+      "title": "Partner with PoStory",
+      "description": "You own the client, we handle content production and execution. Prepay per client, price however you like, and try it free on one real client first."
+    },
+    "hero": {
+      "tag": "For agencies & marketing freelancers",
+      "title": "You own the client, we handle content production and execution",
+      "subtitle": "Prepay per client and set your own resale price. Try it free on one real client first — a 30-day plan plus 3 images — then keep going if you like it.",
+      "ctaPrimary": "Free trial: 3 images",
+      "ctaSecondary": "See how it works",
+      "sampleCaption": "Real sample: Sophie Chen Beauty Studio, a beauty studio in Canada"
+    },
+    "who": {
+      "title": "Who this is for",
+      "title1": "Marketing freelancers serving local businesses",
+      "body1": "You already have a handful of local-business clients and want to outsource content production so you can focus on client relationships.",
+      "title2": "Agencies / studios",
+      "body2": "You run marketing retainers for businesses and want to add content production and publishing execution.",
+      "title3": "Teams that need outsourced content",
+      "body3": "You have clients but no steady shooting/design/scheduling capacity, and want to buy that per client."
+    },
+    "division": {
+      "title": "How the work splits",
+      "role1": "Agency",
+      "body1": "Owns the client relationship, collects client info and assets, sets the resale price",
+      "role2": "Client",
+      "body2": "Provides real product/service facts and assets, confirms the direction",
+      "role3": "PoStory",
+      "body3": "Produces the agreed content, adapts it per platform, and handles publishing"
+    },
+    "deliver": {
+      "title": "What you get",
+      "title1": "Images",
+      "body1": "Produced at the agreed volume — the same image adapted for different platforms doesn't count twice",
+      "title2": "Short video",
+      "body2": "Counting and revision rules are still being finalized, and don't follow the image rules",
+      "title3": "30-day marketing plan",
+      "body3": "A month of posting cadence laid out by industry and client info",
+      "title4": "Platform adaptation & publishing",
+      "body4": "Exported per-platform versions, published on the agreed schedule",
+      "title5": "Monthly report",
+      "body5": "A summary of that month's output and publishing"
+    },
+    "how": {
+      "title": "How it works",
+      "title1": "Submit client info",
+      "body1": "Fill in the client's basic info, product/service, and assets once",
+      "title2": "Review the plan and samples",
+      "body2": "Use a private link to see the 30-day plan and 3 trial images",
+      "title3": "Confirm and prepay",
+      "body3": "If you're happy, prepay per client and scope to start the real engagement",
+      "title4": "Keep submitting and delivering",
+      "body4": "Keep submitting assets on an agreed cadence while PoStory keeps producing and publishing",
+      "demoLink": "See the full walkthrough →"
+    },
+    "pricing": {
+      "title": "Pricing",
+      "body": "Priced per client and scope — you set your own resale price. The same image adapted for different platforms counts as one piece of content; a new image is what uses up an allowance.",
+      "example": "Example: 3 different images, each adapted for Instagram and Facebook — 6 platform versions total, using only 3 images' worth of allowance.",
+      "contact": "Contact us for pricing"
+    },
+    "participate": {
+      "title": "How clients take part",
+      "body": "You forward the client a private link where they fill in the rest and upload assets. The first trial doesn't require connecting social accounts — that happens once the client moves into the real publishing service."
+    },
+    "faq": {
+      "title": "FAQ",
+      "q1": "What's included in the trial?",
+      "a1": "Always a 30-day marketing plan + 3 images, limited to once per client — you can request it separately for different clients.",
+      "q2": "Can we trial without complete assets?",
+      "a2": "Yes — missing assets get a reasonable substitute without slowing things down, and you can add more later.",
+      "q3": "How long does the trial take?",
+      "a3": "Timing depends on our production schedule; the private link page keeps the status updated.",
+      "q4": "Can it be revised?",
+      "a4": "During the trial you can give feedback on style and content accuracy; revision rules for the real engagement are agreed when you confirm.",
+      "q5": "Do we need to connect the client's social accounts?",
+      "a5": "Not for the trial — that happens once the client moves into the real publishing service.",
+      "q6": "Do we resubmit info when going paid?",
+      "a6": "No — the trial info and confirmed style carry straight over, nothing to redo."
+    },
+    "closing": {
+      "title": "Submit a client and start your free trial",
+      "body": "Try it on one real client first — keep going if you like it.",
+      "ctaPrimary": "Free trial: 3 images",
+      "ctaSecondary": "Contact us directly"
+    }
+  },
   "trial": {
     "title": "Free trial: 3 sample images",
     "subtitle": "Fill in once, get a private link to track progress",

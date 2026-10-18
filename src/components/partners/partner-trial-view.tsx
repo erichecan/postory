@@ -1,4 +1,5 @@
 import { getFormatter, getTranslations } from "next-intl/server";
+import { ContactButton } from "@/components/billing/contact-button";
 import { PartnerTrialFeedbackForm } from "@/components/partners/partner-trial-feedback-form";
 import { missingTrialFields, parsePlatformVariants, type PartnerTrialDetail } from "@/lib/partners/trial-view";
 import { partnersAssetUrl, partnersRefUrl } from "@/lib/storage";
@@ -120,6 +121,7 @@ export async function PartnerTrialView({ trial, token }: { trial: PartnerTrialDe
         <section className="flex flex-col gap-2 rounded-xl border bg-primary/5 p-5">
           <h2 className="font-semibold">{t("convertTitle")}</h2>
           <p className="text-sm text-muted-foreground">{t("convertBody")}</p>
+          <ContactButton label={t("convertContact")} variant="outline" className="w-fit" />
         </section>
       )}
     </div>

@@ -7,8 +7,17 @@ import { PublicHeader } from "@/components/shell/public-header";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getTrialRequestByToken } from "@/lib/db/partner-trials";
 
-export async function generateMetadata(): Promise<Metadata> {
-  return { title: (await getTranslations("partners.trial"))("title") };
+export async function generateMetadata({ params }: { params: Promise<{ token: string }> }): Promise<Metadata> {
+  const [t, trial] = await Promise.all([getTranslations("partners.view"), getTrialRequestByToken((await params).token)]);
+  if (!trial) return { title: t("notFound") };
+  const title = trial.clientBrandName;
+  const description = t(`status.${trial.status}`);
+  return {
+    title,
+    description,
+    openGraph: { title, description, images: ["/visual/campaign-cover.webp"] },
+    twitter: { card: "summary_large_image", title, description, images: ["/visual/campaign-cover.webp"] },
+  };
 }
 
 export default async function PartnerTrialViewPage({ params }: { params: Promise<{ token: string }> }) {

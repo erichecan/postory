@@ -65,11 +65,30 @@
         - `PartnerTrialAsset`（30天计划+3张样片）目前还没有任何写入入口——单元 1 就记过这个遗留，这里再次确认：查看页已经按"空状态"正确处理（`planEmpty`/`assetsEmpty` 文案），等单元 5 的 `/admin` 录入动作做完才能看到非空效果，不是本单元的 bug。
         - 没有真实浏览器环境做视觉截图，"长什么样"这一步需要你自己打开 http://localhost:3002/partners/trial 看一眼，我这边没法越过这一步替你确认。
 
-- [ ] 单元 3：合作介绍页 /partners（文案+真实样例+跳转到现有 demo 流程演示）
-      验收命令：`scripts/verify.sh --scope partners-landing`
-      可看物：docs/shots/20261018-partners-landing.png
-      定性状态：待你确认
-      依赖：单元 2（试做入口要能跳转）
+- [x] 单元 3：合作介绍页 /partners（文案+真实样例+跳转到现有 demo 流程演示）
+      验收命令：`npx tsc --noEmit`、`npm run build`、`npx eslint ...`、手工路由/分享元数据探针（见下）
+      可看物：同单元 2，本沙箱仍然装不上 Chrome，无法生成 docs/shots/20261018-partners-landing.png，
+             改用操作路径代替：打开 http://localhost:3002/partners，首屏是真实样例图（Sophie Chen Beauty Studio），
+             往下依次是"适合谁/合作分工/能交付什么/如何合作/计费说明/客户如何参与/常见问题/结束引导"八个区块，
+             主按钮"免费试做 3 张图片"跳 `/partners/trial`，次按钮"查看合作流程"跳现有 `/demo/my-brand`。
+      定性状态：待你确认（真人该看的页面，我这边没法代签）
+      证据：
+        - 新增 `src/components/partners/partner-landing.tsx`（八个区块的纯展示组件，复用 `/visual/beauty-1`、`beauty-2`、`campaign-cover` 三张 Sophie Chen Beauty Studio 样板图作为"首屏真实样例"，和三节流程演示共用同一套素材，不重复生产，按需求原话第 165/175 条口径）、
+          `src/app/partners/page.tsx`（路由文件，`ds-document`/`PublicHeader`/`AppFooter`/next-intl 约定，与单元 2 的 `/partners/trial` 保持同一体系；全站另有一套 `ps-`/`VisualHeader` 视觉大页体系用于 `/services` 等面向终端商家客户的页面，经核对后判断 `/partners` 的受众是代理商，和 `/partners/trial` 同一受众同一套体系更合适，不跟 `/services` 混用，这个取舍记在这里）。
+        - `src/i18n/messages/{zh,en}/partners.json` 新增 `landing` 命名空间（含 `meta.title/description` 供分享元数据使用）。
+        - `generateMetadata` 接入 OpenGraph/Twitter 卡片（标题/摘要/封面图），满足需求原话第 4 条"补齐链接分享时显示的标题、摘要和封面"；复用同一张 `campaign-cover.webp` 做封面图，因为全站目前没有专门制作的分享封面图素材（记为假设，不阻塞，有专门素材后再换）。
+        - 顺手给 `/partners/trial/[token]`（代理商实际会转发给客户的那条专属链接）也补了同样的 OG 元数据（标题=客户品牌名，摘要=当前状态），比合作介绍页本身更需要这个，手工验证：提交一条新申请拿到 token，`curl` 该页 `<title>`/`og:title`/`og:description`/`og:image` 均正确显示品牌名和状态。
+        - 顺手修复单元 2 遗留的一个小缺口：`partner-trial-view.tsx` 的"转付费"区块只有文案提到"联系我们核实预付款"，却没有真正的联系按钮（`convertContact` 这个翻译 key 之前定义了但没用上）；补了 `<ContactButton>`，手工验证按钮文案"联系我们开通"确实渲染在页面里。
+        - 没有改动面向终端商家客户的主站导航（`src/components/visual/shell.tsx` 的 `publicLinks`）：`/partners` 是面向代理商的独立转发链接入口（需求原话"建议设置独立的合作介绍页"），不是要抢主站给商家客户看的导航位，先不加；之后如果要在主站导航露出，是一行代码的事，记在这里。
+        - `npx tsc --noEmit` → 无输出；`npm run build` → 成功，`/partners` 出现在路由表，构建输出无 warning/error；`npx eslint <改动文件>` → 无输出。
+        - 手工探针（`npm run dev -- -p 3099`）：
+          - `GET /partners` → 200；`<title>`/`og:title`/`og:description`/`og:image` 均正确；页面正文包含八个区块标题且各出现 3 次（可见文案 + RSC payload，属正常重复，不是渲染了多份）；两个指向 `/demo/my-brand` 的链接（次按钮 + "如何合作"区块的"查看完整演示"）和指向 `/partners/trial` 的主按钮均渲染为真实 `<a href="...">`；FAQ 区块渲染出 6 个 `<details>`，和配置的 6 条问答对应。
+          - 复用单元 2 建立的 curl 模拟无 JS Server Action 回退协议，提交一条新申请（品牌名"单元3验证品牌OG"）验证 `/partners/trial/[token]` 的分享元数据和新增的"联系我们开通"按钮。
+        - 测试数据再添一条留在本机开发库（品牌名"单元3验证品牌OG"），和单元 2 的"测试客户品牌A"一样留在本机 `social_shell` 库，可自行用 Prisma Studio 清理。
+      依赖：单元 2
+      遗留（记入风险点，非本单元阻塞项）：
+        - 没有真实浏览器环境做视觉截图，这一步仍然需要你自己打开页面看一眼。
+        - "能交付什么"区块里的"短视频"一项按需求原话如实标注"计数和修改规则尚在确定"，没有编造具体规则。
 
 - [ ] 单元 4：代理商登录后客户汇总 + 跨账号访问鉴权改造（/partners/clients、/partners/clients/[clientUserId]）
       验收命令：`scripts/verify.sh --scope partners-access`
