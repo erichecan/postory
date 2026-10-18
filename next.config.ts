@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   experimental: {
     serverActions: { bodySizeLimit: "12mb" },
+    authInterrupts: true,
   },
   async rewrites() {
     return {

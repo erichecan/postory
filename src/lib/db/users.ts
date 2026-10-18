@@ -70,6 +70,11 @@ export async function findUserRole(id: string) {
   return prisma.user.findUnique({ where: { id }, select: { role: true } });
 }
 
+export async function getUserName(id: string) {
+  const user = await prisma.user.findUnique({ where: { id }, select: { name: true } });
+  return user?.name ?? null;
+}
+
 export async function ensureDemoUser() {
   const existing = await prisma.user.findUnique({ where: { phone: DEMO_USER.phone }, select: { id: true, role: true, disabled: true, sessionVersion: true } });
   if (existing) return existing;

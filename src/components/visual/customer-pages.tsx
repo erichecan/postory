@@ -40,7 +40,7 @@ const dateLabel = (d: string) =>
     year: "numeric",
     timeZone: "UTC",
   });
-const prefix = (data: AgencyData) => (data.demo ? "/demo" : "");
+const prefix = (data: AgencyData) => data.basePath ?? (data.demo ? "/demo" : "");
 export function CustomerFrame({
   data,
   children,
@@ -55,9 +55,15 @@ export function CustomerFrame({
       <VisualHeader
         customer
         demo={data.demo}
+        basePath={data.basePath}
         name={data.name}
         shop={data.shop}
       />
+      {data.readOnly && !data.demo && (
+        <div className="ps-demo-label">
+          正在以客户身份查看（只读） · {data.name}
+        </div>
+      )}
       {data.demo && (
         <div className="ps-demo-label">
           Design demo · Sample business and results{" "}
@@ -1704,19 +1710,23 @@ export function BrandPage({ data }: { data: AgencyData }) {
               you.
             </p>
           </div>
-          <Link
-            className="ps-small-button"
-            href={
-              data.demo ? "/demo/my-brand#connections" : "/profile#connections"
-            }
-          >
-            <LinkIcon size={14} />
-            Manage Connections
-          </Link>
+          {!data.readOnly && (
+            <Link
+              className="ps-small-button"
+              href={
+                data.demo ? "/demo/my-brand#connections" : "/profile#connections"
+              }
+            >
+              <LinkIcon size={14} />
+              Manage Connections
+            </Link>
+          )}
         </div>
-        {data.demo ? (
+        {data.demo || data.readOnly ? (
           <div className="ps-brand-connections">
-            {data.accounts.map((a) => (
+            {data.accounts
+              .filter((a) => data.readOnly ? a.connected : true)
+              .map((a) => (
               <div key={a.platform}>
                 <Platform name={a.platform} size={30} />
                 <div>
@@ -1728,10 +1738,12 @@ export function BrandPage({ data }: { data: AgencyData }) {
                 </div>
               </div>
             ))}
-            <div className="ps-add-tile">
-              <PlusCircle />
-              <span>Demo connections</span>
-            </div>
+            {data.demo && (
+              <div className="ps-add-tile">
+                <PlusCircle />
+                <span>Demo connections</span>
+              </div>
+            )}
           </div>
         ) : (
           <SocialAccountsPanel

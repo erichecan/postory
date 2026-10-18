@@ -161,5 +161,25 @@
     "errors": {
       "invalid": "Please check your input"
     }
+  },
+  "clients": {
+    "meta": {
+      "title": "My Clients — PoStory",
+      "description": "View data for clients who granted you access"
+    },
+    "title": "My Clients",
+    "subtitle": "View authorized clients' brand profile, content and publishing status (read-only)",
+    "empty": "No clients have granted you access yet. Contact PoStory to set up access.",
+    "colClient": "Client",
+    "colShop": "Shop",
+    "colPlatforms": "Connected platforms",
+    "colContentThisMonth": "Content this month",
+    "colGrantedAt": "Granted at",
+    "view": "View",
+    "noShop": "Not set",
+    "noPlatforms": "None",
+    "forbiddenTitle": "No access",
+    "forbiddenBody": "This client hasn't granted you access, or access has been revoked. Contact PoStory to confirm the access relationship.",
+    "backToClients": "Back to clients"
   }
 }

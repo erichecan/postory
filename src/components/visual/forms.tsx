@@ -191,6 +191,7 @@ export function BrandEditor({
   children?: React.ReactNode;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  if (data.readOnly) return null;
   return (
     <>
       <button

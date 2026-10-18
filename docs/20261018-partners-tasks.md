@@ -90,11 +90,79 @@
         - 没有真实浏览器环境做视觉截图，这一步仍然需要你自己打开页面看一眼。
         - "能交付什么"区块里的"短视频"一项按需求原话如实标注"计数和修改规则尚在确定"，没有编造具体规则。
 
-- [ ] 单元 4：代理商登录后客户汇总 + 跨账号访问鉴权改造（/partners/clients、/partners/clients/[clientUserId]）
-      验收命令：`scripts/verify.sh --scope partners-access`
-      可看物：docs/shots/20261018-partners-clients.png
-      定性状态：待你确认
+- [x] 单元 4：代理商登录后客户汇总 + 跨账号访问鉴权改造（/partners/clients、/partners/clients/[clientUserId]）
+      验收命令：`npx tsc --noEmit`、`npm run build`、`npx eslint ...`、手工路由/越权探针（见下）。
+             "验收命令：`scripts/verify.sh --scope partners-access`"是之前写计划时设想的写法，这个 flag 实际不存在
+             （和单元 2、3 一样，verify.sh 目前没有 --scope 支持），延续单元 2/3 的实际做法：手工探针代替。
+      可看物：同单元 2/3，本沙箱装不上 Chrome，没法生成 docs/shots/20261018-partners-clients.png。
+             改用操作路径代替：代理商登录后打开 http://localhost:3002/partners/clients，看到已授权客户列表
+             （客户名/店铺/已连接平台/本月产出/授权时间），点"查看"进 /partners/clients/<id>，复用现有
+             Dashboard/My Brand/My Campaign/Calendar 四个页面展示该客户的真实数据，顶部有"正在以客户身份查看（只读）"
+             提示条，My Brand 页面里所有"✎ Edit"编辑入口和"管理连接/断开连接"按钮都不出现。
+      定性状态：待你确认（这是真人该打开看的页面，我这边没法代签"符合"）
       依赖：单元 0
+      范围决定（L2，我自己定，记在这里）：
+        本单元只做**只读**跨账号查看（Dashboard/My Brand/My Campaign/Calendar 四个现有页面复用），
+        不做"代替客户操作"（/create 生成、/editor/[id] 编辑、日历排期/发布）。
+        理由：追查后发现 `src/lib/actions/designs.ts`、`src/app/(app)/create/page.tsx` 等所有写路径都是
+        `requireUser()`/`assertUser()` 直接绑定 session 自己的 user.id，没有任何"以 clientUserId 身份写"的参数化，
+        要做成真正安全的"代替操作"需要改造一整条链路（AI 生成扣费、排期、发布），工作量和新攻击面都够开一个独立单元，
+        和 DEV-PLAN 自己写的风险点 #1"跨账号访问是全新攻击面"冲突——不该在这个已经是最高风险的单元里再扩大攻击面。
+        这个"代替操作"能力推迟到后续单元，不在本单元范围内。
+      关键发现（如果没发现会出真实 bug，记下来避免以后踩同一个坑）：
+        `BrandPage` 组件里有 7 处 `<BrandEditor data={data}>`（品牌资料/服务/优惠/相册的编辑入口）
+        和一个"已连接社交账号"管理区（`SocialAccountsPanel` + "管理连接"链接），这些全部是绑定调用者自己 session 的
+        写操作（`ProfileForm`、`connectSocialAction`/`disconnectSocialAction`）。如果直接复用这几个组件给代理商看客户数据，
+        代理商点"编辑"改的会是**代理商自己**的品牌资料/社交账号，不是客户的——会悄悄写错数据，不会报错，很难发现。
+        修法：`AgencyData` 新增 `readOnly` 字段；`BrandEditor`（`src/components/visual/forms.tsx`）在 `readOnly` 时直接
+        `return null`（一处改动覆盖全部 7 个调用点，不用逐个包裹）；`BrandPage` 的社交账号区在 `readOnly` 时和 `demo`
+        一样走静态列表分支，不渲染 `SocialAccountsPanel`。`DashboardPage`/`CampaignsPage`/`CampaignDetailPage`/
+        `CalendarPage` 逐个查过，没有类似的写操作绑定，可以直接复用。日历里唯一一处不带前缀的
+        `/editor/${item.id}` 链接经确认是安全的：`getOwnDesign` 按 `userId` 查询，代理商点进去会 404，不会看到或改到
+        别人的内容，保留现状不处理。
+      证据：
+        - 新增 `src/lib/db/agency-access.ts` 的 `listAgencyClientOverviews`（客户列表汇总，固定 4 条查询不随客户数线性增长，
+          满足 DEV-PLAN 风险点 #7）、`hasAnyAgencyAccess`。
+        - 新增 `src/lib/db/users.ts` 的 `getUserName`（给跨账号查看解析客户姓名用）。
+        - 重写 `src/lib/auth/agency-access.ts` 的 `requireClientAccess`：未登录走 `requireUser()` 的 302；已登录但
+          没有这个客户的 `AgencyAccess` 走 `forbidden()`（Next.js 16 `authInterrupts`，真实 403 状态码，不是假装的
+          redirect）；用 `react cache()` 包一层，同一次请求里 layout + page 各调一次只真正查一次库。
+          `next.config.ts` 开启 `experimental.authInterrupts: true`（`forbidden()` 的前提条件）。
+        - `src/lib/agency/types.ts` 的 `AgencyData` 新增 `basePath?`/`readOnly?`；`src/lib/agency/data.ts` 拆出
+          `loadAgencyData(userId, name)`，`getAgencyData()` 保持向后兼容，新增 `getAgencyDataForClient(clientUserId, clientName, basePath)`。
+        - `src/components/visual/shell.tsx`（`VisualHeader` 新增 `basePath` 覆盖导航前缀）、
+          `src/components/visual/customer-pages.tsx`（`prefix()` helper 改用 `data.basePath`，`CustomerFrame` 透传
+          `basePath`，只读查看时顶部提示条，社交账号区 `readOnly` 分支）、`src/components/visual/forms.tsx`
+          （`BrandEditor` 的 `readOnly` 短路）。
+        - 新增路由：`src/app/partners/clients/page.tsx`（客户列表，`PartnerClientsList` 组件）、
+          `src/app/partners/clients/forbidden.tsx`（403 自定义文案）、
+          `src/app/partners/clients/[clientUserId]/layout.tsx`（鉴权闸门）、
+          `.../page.tsx`（Dashboard）、`.../my-brand/page.tsx`、`.../my-campaign/page.tsx`、
+          `.../my-campaign/[campaignId]/page.tsx`、`.../calendar/page.tsx`。
+        - `src/i18n/messages/{zh,en}/partners.json` 新增 `clients` 命名空间。
+        - `npx next typegen && npx tsc --noEmit` → 无输出；`npm run build` → 成功，8 个新路由全部出现在路由表
+          （含 `/partners/clients/[clientUserId]/my-campaign/[campaignId]`）；
+          `npx eslint src/app/partners src/lib/agency src/lib/auth/agency-access.ts src/lib/db/agency-access.ts
+          src/lib/db/users.ts src/components/visual/{customer-pages,shell,forms}.tsx
+          src/components/partners/partner-clients-list.tsx` → 无输出。
+        - 手工越权探针（`npx next start -p 3010`，本机 `social_shell` 库里已有的真实账号：代理商 A=13900000000，
+          代理商 B=13600000002，客户=13700000001 阿杰烘焙；用脚本直接写 `AgencyAccess` 表授予 A→客户 的访问权，
+          AgencyAccess 行留在本机开发库里）：
+          - 未登录 `GET /partners/clients` → 307→`/login?next=...`；未登录 `GET /partners/clients/<id>` → 同样 307。
+          - 代理商 A（有授权）`GET /partners/clients` → 200，正文含客户真名"阿杰烘焙"。
+          - 代理商 A `GET /partners/clients/<客户id>` → 200；`.../my-brand` → 200，正文里 `ps-small-button`
+            （编辑按钮 class）出现 0 次，`connectSocialAction`/`disconnectSocialAction` 出现 0 次，
+            "管理连接"文案出现 0 次，"正在以客户身份查看（只读）"提示条出现 1 次——确认写操作入口全部被隐藏。
+          - 代理商 B（没有这个客户的 `AgencyAccess`）`GET /partners/clients/<客户id>` → 403，正文含"没有权限查看"
+            和"返回客户列表"（`forbidden.tsx` 自定义文案生效，不是默认 Next.js 错误页）。
+          - 客户本人查看自己 `GET /partners/clients/<自己id>` → 200（改用另一个未被禁用的账号验证——原计划用的
+            13700000001 这个账号本身在数据库里是 `disabled=true`，自己登录会被直接 307 到 `/login`，这是账号
+            本身的既有状态，和本单元代码无关，排查后换了另一个未禁用的账号确认"自己查自己"这条路径没问题）。
+      假设（未阻塞开发，记在这里）：
+        - 代理商 A→客户（阿杰烘焙）的 `AgencyAccess` 授权是我手工用脚本写入的测试数据，不是通过产品里的真实流程
+          授予的——因为授予入口本来就是单元 5（`/admin` 试做转付费核账动作）要做的事，单元 4 的 DEV-PLAN 依赖写的
+          也只是"单元 0"（schema），不依赖单元 5，所以这里的测试数据是为了验证单元 4 本身而手工搭的，不代表
+          单元 5 已经做了。
 
 - [ ] 单元 5：/admin 试做转付费核账动作
       验收命令：`scripts/verify.sh --scope partners-convert`

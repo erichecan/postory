@@ -29,6 +29,7 @@ const clientLinks = [
 export function VisualHeader({
   customer = false,
   demo = false,
+  basePath,
   name = "",
   shop = "",
   localeControl,
@@ -36,6 +37,7 @@ export function VisualHeader({
 }: {
   customer?: boolean;
   demo?: boolean;
+  basePath?: string;
   name?: string;
   shop?: string;
   localeControl?: ReactNode;
@@ -45,7 +47,7 @@ export function VisualHeader({
   const [open, setOpen] = useState(false);
   const [account, setAccount] = useState(false);
   const menuRef = useRef<HTMLButtonElement>(null);
-  const prefix = demo ? "/demo" : "";
+  const prefix = basePath ?? (demo ? "/demo" : "");
   const links = customer ? clientLinks : publicLinks;
   return (
     <header className={`ps-header ${customer ? "ps-customer-header" : ""}`}>

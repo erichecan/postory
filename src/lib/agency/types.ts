@@ -24,6 +24,10 @@ export type AgencyData = {
   demo: boolean;
   name: string;
   shop: string;
+  /** 代理商以客户身份查看时的路由前缀（如 /partners/clients/<clientUserId>），覆盖 demo 的 /demo 前缀 */
+  basePath?: string;
+  /** 代理商以客户身份查看时为 true：隐藏品牌资料编辑、社交账号连接管理等写操作入口 */
+  readOnly?: boolean;
   profile: {
     shopName: string | null;
     slogan: string | null;

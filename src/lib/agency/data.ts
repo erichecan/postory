@@ -5,13 +5,12 @@ import { getBrandProfile } from "@/lib/db/profiles";
 import { listSocialAccounts } from "@/lib/db/social";
 import { prisma } from "@/lib/db/client";
 import type { AgencyData, Campaign, ContentItem } from "./types";
-export const getAgencyData = cache(async (): Promise<AgencyData> => {
-  const user = await requireUser();
+async function loadAgencyData(userId: string, name: string): Promise<AgencyData> {
   const [profile, accounts, designs] = await Promise.all([
-    getBrandProfile(user.id),
-    listSocialAccounts(user.id),
+    getBrandProfile(userId),
+    listSocialAccounts(userId),
     prisma.design.findMany({
-      where: { userId: user.id },
+      where: { userId },
       select: {
         id: true,
         title: true,
@@ -88,7 +87,7 @@ export const getAgencyData = cache(async (): Promise<AgencyData> => {
   }
   return {
     demo: false,
-    name: user.name,
+    name,
     shop: profile?.shopName ?? "Your Business",
     profile,
     accounts: accounts.map((a) => ({
@@ -99,4 +98,22 @@ export const getAgencyData = cache(async (): Promise<AgencyData> => {
     campaigns: [...groups.values()],
     items,
   };
+}
+
+export const getAgencyData = cache(async (): Promise<AgencyData> => {
+  const user = await requireUser();
+  return loadAgencyData(user.id, user.name);
 });
+
+/**
+ * 代理商查看客户数据时用：数据来自 clientUserId（已由 requireClientAccess 校验过权限），
+ * 只读，basePath 覆盖导航前缀，页面路由都落在 /partners/clients/[clientUserId]/* 下。
+ */
+export async function getAgencyDataForClient(
+  clientUserId: string,
+  clientName: string,
+  basePath: string,
+): Promise<AgencyData> {
+  const base = await loadAgencyData(clientUserId, clientName);
+  return { ...base, basePath, readOnly: true };
+}

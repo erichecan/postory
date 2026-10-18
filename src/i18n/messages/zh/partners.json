@@ -161,5 +161,25 @@
     "errors": {
       "invalid": "请检查填写内容"
     }
+  },
+  "clients": {
+    "meta": {
+      "title": "我的客户 — PoStory",
+      "description": "查看已授权客户的账号数据"
+    },
+    "title": "我的客户",
+    "subtitle": "查看已授权客户的品牌资料、内容和发布情况（只读）",
+    "empty": "还没有客户授权给你，联系 PoStory 开通后会显示在这里",
+    "colClient": "客户",
+    "colShop": "店铺",
+    "colPlatforms": "已连接平台",
+    "colContentThisMonth": "本月产出",
+    "colGrantedAt": "授权时间",
+    "view": "查看",
+    "noShop": "未填写",
+    "noPlatforms": "暂无",
+    "forbiddenTitle": "没有权限查看",
+    "forbiddenBody": "这个客户没有授权给你，或者授权已被撤销。如需访问，请联系 PoStory 确认授权关系。",
+    "backToClients": "返回客户列表"
   }
 }
