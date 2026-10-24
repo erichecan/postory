@@ -24,6 +24,7 @@ const clientLinks = [
   ["Dashboard", "/dashboard"],
   ["My Campaign", "/my-campaign"],
   ["Marketing Calendar", "/calendar"],
+  ["Restaurant Plans", "/restaurant/campaigns"],
   ["My Brand", "/my-brand"],
 ];
 export function VisualHeader({

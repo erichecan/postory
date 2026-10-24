@@ -15,7 +15,10 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/our-work/") ||
     pathname.startsWith("/demo/") ||
     pathname === "/partners" ||
-    pathname.startsWith("/partners/trial");
+    pathname === "/partners/demo" ||
+    pathname.startsWith("/partners/trial") ||
+    pathname === "/restaurant/request" ||
+    /^\/restaurant\/request\/[a-f0-9]{48}$/.test(pathname);
 
   if (!session && !isPublic) {
     const url = new URL(pathname === "/nails" || pathname.startsWith("/nails/") ? "/nails/login" : "/login", request.url);

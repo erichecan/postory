@@ -1,11 +1,13 @@
 import { getFormatter, getTranslations } from "next-intl/server";
 import { ContactButton } from "@/components/billing/contact-button";
 import { PartnerTrialFeedbackForm } from "@/components/partners/partner-trial-feedback-form";
+import { PartnerTrialSupplementForm } from "@/components/partners/partner-trial-supplement-form";
 import { missingTrialFields, parsePlatformVariants, type PartnerTrialDetail } from "@/lib/partners/trial-view";
 import { partnersAssetUrl, partnersRefUrl } from "@/lib/storage";
+import { isPublishPlatform } from "@/lib/platforms";
 
 export async function PartnerTrialView({ trial, token }: { trial: PartnerTrialDetail; token: string }) {
-  const [t, format] = await Promise.all([getTranslations("partners.view"), getFormatter()]);
+  const [t, format, tp] = await Promise.all([getTranslations("partners.view"), getFormatter(), getTranslations("platforms.publish")]);
   const missing = missingTrialFields(trial);
 
   return (
@@ -32,36 +34,35 @@ export async function PartnerTrialView({ trial, token }: { trial: PartnerTrialDe
         )}
       </section>
 
+      {trial.status !== "CONVERTED" && <PartnerTrialSupplementForm trial={trial} token={token} />}
+
       <section className="flex flex-col gap-3 rounded-xl border bg-card p-5">
         <h2 className="font-semibold">{t("planTitle")}</h2>
         {trial.planItems.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("planEmpty")}</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-xs text-muted-foreground">
-                  <th className="py-1 pr-3">{t("planDate")}</th>
-                  <th className="py-1 pr-3">{t("planTheme")}</th>
-                  <th className="py-1 pr-3">{t("planPlatform")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {trial.planItems.map((item) => (
-                  <tr key={item.id} className="border-t">
-                    <td className="py-1.5 pr-3 whitespace-nowrap">{format.dateTime(item.date, { month: "short", day: "numeric", timeZone: "UTC" })}</td>
-                    <td className="py-1.5 pr-3">{item.theme}</td>
-                    <td className="py-1.5 pr-3">{item.platform}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {trial.planItems.map((item, index) => (
+              <li key={item.id} className="flex flex-col gap-2 rounded-xl border bg-background p-4">
+                <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+                  <span className="font-medium text-primary">{t("planDay", { day: index + 1 })}</span>
+                  <time dateTime={item.date.toISOString()}>{format.dateTime(item.date, { month: "short", day: "numeric", timeZone: "UTC" })}</time>
+                </div>
+                <p className="font-medium">{item.theme}</p>
+                <p className="w-fit rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">
+                  {isPublishPlatform(item.platform) ? tp(item.platform) : item.platform}
+                </p>
+                {item.note && <p className="text-sm leading-relaxed text-muted-foreground">{item.note}</p>}
+              </li>
+            ))}
+          </ol>
         )}
+        <p className="text-xs leading-relaxed text-muted-foreground">{t("planNote")}</p>
       </section>
 
       <section className="flex flex-col gap-3 rounded-xl border bg-card p-5">
         <h2 className="font-semibold">{t("assetsTitle")}</h2>
+        <p className="text-xs text-muted-foreground">{t("assetQuotaNote")}</p>
         {trial.assets.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("assetsEmpty")}</p>
         ) : (
@@ -76,11 +77,13 @@ export async function PartnerTrialView({ trial, token }: { trial: PartnerTrialDe
                   {variants.length > 0 && (
                     <div className="flex flex-col gap-1">
                       <p className="text-xs font-medium text-muted-foreground">{t("assetVariantsTitle")}</p>
-                      <ul className="text-xs text-muted-foreground">
+                      <div className="flex flex-wrap gap-2">
                         {variants.map((v) => (
-                          <li key={v.platform}>{v.platform}</li>
+                          <a key={v.platform} href={v.exportedUrl} target="_blank" rel="noreferrer" className="rounded-full border bg-background px-2.5 py-1 text-xs text-primary hover:border-primary/40">
+                            {isPublishPlatform(v.platform) ? tp(v.platform) : v.platform} ↗
+                          </a>
                         ))}
-                      </ul>
+                      </div>
                     </div>
                   )}
                 </div>

@@ -103,7 +103,8 @@
     "tiers": "Tiers",
     "generations": "AI cost",
     "aiDrafts": "AI drafts",
-    "partnerTrials": "Partner trials"
+    "partnerTrials": "Partner trials",
+    "restaurantRequests": "Restaurant requests"
   },
   "partnerTrials": {
     "title": "Partner trial requests",
@@ -123,6 +124,41 @@
     "fieldIndustry": "Industry",
     "fieldCountry": "Country",
     "fieldProduct": "Product / service",
+    "plan": {
+      "title": "AI-generated 30-day plan ({count} items)",
+      "preview": "Generated from the partner's submitted client details. Retry here if the model was unavailable.",
+      "day": "Day {day}",
+      "hint": "Uses the brand, industry, products or services, audience, marketing highlights, and platforms from the request.",
+      "submit": "Generate / regenerate plan",
+      "pending": "Generating with AI…",
+      "success": "Plan saved and shown on the client's private trial link.",
+      "errors": {
+        "invalid": "Invalid request ID",
+        "notFound": "Trial request not found",
+        "converted": "A converted request cannot have its plan regenerated",
+        "unavailable": "AI generation is temporarily unavailable. Check the service configuration and retry."
+      }
+    },
+    "assets": {
+      "delivered": "Trial images ({count}/3)",
+      "title": "Upload one trial image ({remaining} remaining)",
+      "hint": "Saved as one original content item. Selected platform variants reuse this image and do not increase the image count. Industry-specific asset requirements are still to be decided.",
+      "file": "Image file",
+      "caption": "Content notes / caption",
+      "platforms": "Adapt for platforms (same image)",
+      "untitled": "No notes provided",
+      "submit": "Save this image",
+      "pending": "Uploading…",
+      "success": "Image added to the trial result.",
+      "errors": {
+        "notFound": "Request not found or already converted",
+        "limit": "A trial can have at most 3 images",
+        "fileRequired": "Choose an image",
+        "fileTooLarge": "Image exceeds the size limit",
+        "fileBadType": "Only PNG, JPG, or WebP images are supported",
+        "saveFailed": "Could not save the image. Try again."
+      }
+    },
     "convertedTitle": "Converted to a paying customer",
     "convertedBody": "View customer account →",
     "formTitle": "Confirm payment, create the customer account",

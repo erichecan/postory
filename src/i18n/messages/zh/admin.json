@@ -103,7 +103,8 @@
     "tiers": "会员等级",
     "generations": "AI 成本",
     "aiDrafts": "AI 草稿",
-    "partnerTrials": "代理商试做"
+    "partnerTrials": "代理商试做",
+    "restaurantRequests": "餐厅客户需求"
   },
   "partnerTrials": {
     "title": "代理商试做管理",
@@ -123,6 +124,41 @@
     "fieldIndustry": "行业",
     "fieldCountry": "国家/地区",
     "fieldProduct": "产品/服务",
+    "plan": {
+      "title": "AI 生成的 30 天计划（{count} 条）",
+      "preview": "根据代理商提交的客户资料生成。模型不可用时可在此重试。",
+      "day": "第 {day} 天",
+      "hint": "按申请中的品牌、行业、产品或服务、目标受众、营销重点和平台生成计划。",
+      "submit": "生成 / 重新生成计划",
+      "pending": "AI 正在生成…",
+      "success": "计划已保存并显示在客户专属链接中。",
+      "errors": {
+        "invalid": "申请编号无效",
+        "notFound": "找不到试做申请",
+        "converted": "已转付费的申请不能重新生成计划",
+        "unavailable": "AI 暂时无法生成，请检查服务配置后重试"
+      }
+    },
+    "assets": {
+      "delivered": "试做图片（{count}/3）",
+      "title": "上传一张试做图片（还可上传 {remaining} 张）",
+      "hint": "图片将作为一份原始内容保存。勾选的平台版本复用这张图，不增加图片数量；行业素材分类范围待确定。",
+      "file": "图片文件",
+      "caption": "内容说明 / 配套文案",
+      "platforms": "适配平台（同一张图片）",
+      "untitled": "未填写说明",
+      "submit": "保存这张图片",
+      "pending": "上传中…",
+      "success": "图片已加入试做结果。",
+      "errors": {
+        "notFound": "申请不存在或已转为付费",
+        "limit": "最多录入 3 张试做图片",
+        "fileRequired": "请选择一张图片",
+        "fileTooLarge": "图片超过大小限制",
+        "fileBadType": "只支持 PNG、JPG 或 WebP 图片",
+        "saveFailed": "保存失败，请重试"
+      }
+    },
     "convertedTitle": "已转为付费客户",
     "convertedBody": "查看客户账号 →",
     "formTitle": "确认收款，创建客户账号",

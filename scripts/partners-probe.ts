@@ -1,4 +1,5 @@
 import "./load-env";
+import { readFileSync } from "node:fs";
 import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
@@ -17,6 +18,27 @@ function check(name: string, ok: boolean, detail = "") {
 
 async function get(path: string, cookie?: string) {
   return fetch(BASE + path, { redirect: "manual", headers: cookie ? { cookie } : {} });
+}
+
+const manifest = JSON.parse(readFileSync(".next/server/server-reference-manifest.json", "utf8")) as { node: Record<string, { exportedName: string }> };
+const actionId = (name: string) => {
+  const hit = Object.entries(manifest.node).find(([, v]) => v.exportedName === name);
+  if (!hit) throw new Error(`action ${name} not in manifest`);
+  return hit[0];
+};
+
+// 回放浏览器无 JS 时 useActionState(action) 原生表单回退提交的协议，复现真实用户提交 /partners/trial 表单。
+async function submitTrialForm(fields: Record<string, string>) {
+  const body = new FormData();
+  for (const [k, v] of Object.entries(fields)) body.set(`_1_${k}`, v);
+  body.set("0", JSON.stringify(["$undefined", "$K1"]));
+  const res = await fetch(`${BASE}/partners/trial`, {
+    method: "POST",
+    redirect: "manual",
+    headers: { "Next-Action": actionId("submitPartnerTrialAction"), Accept: "text/x-component" },
+    body,
+  });
+  return { status: res.status, location: res.headers.get("location") ?? res.headers.get("x-action-redirect")?.split(";")[0] ?? "", text: await res.text() };
 }
 
 async function main() {
@@ -42,6 +64,7 @@ async function main() {
     clientBrandName: `探针客户品牌-${stamp}`,
     industry: "BEAUTY_HAIR",
     country: "IE",
+    marketArea: "Dublin",
     productOrService: "美甲工作室",
     targetAudience: null,
     highlightNotes: null,
@@ -53,6 +76,7 @@ async function main() {
 
   console.log("## 路由探针");
   check("GET /partners 公开 200", (await get("/partners")).status === 200);
+  check("GET /partners/demo 引导演示公开 200", (await get("/partners/demo")).status === 200);
   check("GET /partners/trial 公开 200", (await get("/partners/trial")).status === 200);
   check("GET /partners/trial/[存在的token] → 200", (await get(`/partners/trial/${trial.request.viewToken}`)).status === 200);
   check("GET /partners/trial/[随机token] → 404", (await get("/partners/trial/does-not-exist-token")).status === 404);
@@ -74,6 +98,7 @@ async function main() {
     clientBrandName: `探针客户品牌-${stamp}`,
     industry: "BEAUTY_HAIR",
     country: "IE",
+    marketArea: "Dublin",
     productOrService: "美甲工作室（改过的文案）",
     targetAudience: null,
     highlightNotes: null,
@@ -84,6 +109,24 @@ async function main() {
   });
   const after = await prisma.partnerTrialRequest.count();
   check("同一 clientBrandName+agencyContact 重复提交 → 标记重复，不新建记录", dup.duplicate === true && dup.request.id === trial.request.id && after === before, `before=${before} after=${after} duplicate=${dup.duplicate}`);
+
+  console.log("## 试做判重不泄露他人 viewToken 探针（安全修复回归）");
+  const replay = await submitTrialForm({
+    agencyName: "攻击者",
+    agencyContact: `probe-contact-${stamp}`,
+    clientBrandName: `探针客户品牌-${stamp}`,
+    industry: "BEAUTY_HAIR",
+    country: "IE",
+    marketArea: "Dublin",
+    productOrService: "无关内容",
+    targetAudience: "",
+    highlightNotes: "",
+    websiteUrl: "",
+    socialHandles: "",
+    languagePreference: "zh",
+  });
+  const leaksToken = replay.location.includes(trial.request.viewToken) || replay.text.includes(trial.request.viewToken);
+  check("已知 clientBrandName+agencyContact 重复提交 → 不跳转/不回传原申请的 viewToken", !leaksToken, `status=${replay.status} location=${replay.location}`);
 
   await prisma.agencyAccess.deleteMany({ where: { agencyUserId: { in: [agencyA.id, agencyB.id] } } });
   await prisma.partnerTrialRequest.deleteMany({ where: { id: trial.request.id } });

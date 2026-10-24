@@ -8,6 +8,7 @@ const TABS = [
   { href: "/admin/generations", key: "generations" },
   { href: "/admin/ai-drafts", key: "aiDrafts" },
   { href: "/admin/partner-trials", key: "partnerTrials" },
+  { href: "/admin/restaurant-requests", key: "restaurantRequests" },
 ] as const;
 
 export async function AdminSubnav({ active }: { active: (typeof TABS)[number]["key"] }) {

@@ -11,6 +11,7 @@ export type CreateTrialRequestInput = {
   clientBrandName: string;
   industry: Industry;
   country: Country;
+  marketArea: string;
   productOrService: string;
   targetAudience: string | null;
   highlightNotes: string | null;
@@ -63,6 +64,51 @@ export async function addTrialFeedback(trialRequestId: string, category: Partner
 
 export async function addTrialReference(trialRequestId: string, storageKey: string, mimeType: string) {
   return prisma.partnerTrialReference.create({ data: { trialRequestId, storageKey, mimeType }, select: { id: true } });
+}
+
+export async function updateTrialDetails(trialRequestId: string, input: {
+  marketArea: string;
+  productOrService: string;
+  targetAudience: string | null;
+  highlightNotes: string | null;
+  websiteUrl: string | null;
+  platforms: string[];
+  languagePreference: string;
+}) {
+  return prisma.partnerTrialRequest.update({
+    where: { id: trialRequestId },
+    data: input,
+    select: { id: true },
+  });
+}
+
+export async function saveTrialPlan(trialRequestId: string, items: Array<{ day: number; theme: string; platform: string; note: string }>) {
+  const start = new Date();
+  const startUtc = Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate());
+  await prisma.$transaction(async (tx) => {
+    await tx.partnerTrialPlanItem.deleteMany({ where: { trialRequestId } });
+    await tx.partnerTrialPlanItem.createMany({
+      data: items.map((item) => ({
+        trialRequestId,
+        date: new Date(startUtc + (item.day - 1) * 86_400_000),
+        theme: item.theme,
+        platform: item.platform,
+        note: item.note,
+      })),
+    });
+    await tx.partnerTrialRequest.update({ where: { id: trialRequestId }, data: { status: "IN_PROGRESS" } });
+  });
+}
+
+export async function addTrialAsset(input: { trialRequestId: string; storageKey: string; caption: string; platformVariants: Prisma.InputJsonValue }) {
+  return prisma.partnerTrialAsset.create({
+    data: input,
+    select: { id: true },
+  });
+}
+
+export async function markTrialDelivered(trialRequestId: string) {
+  return prisma.partnerTrialRequest.update({ where: { id: trialRequestId }, data: { status: "DELIVERED", deliveredAt: new Date() }, select: { id: true } });
 }
 
 // 给 /api/partners-media 用：试做阶段没有登录会话，安全边界落在"这个 key 有没有对应的真实数据行"上，

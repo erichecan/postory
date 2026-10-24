@@ -3,8 +3,11 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { ConvertTrialForm } from "@/components/admin/convert-trial-form";
+import { GenerateTrialPlanForm } from "@/components/admin/generate-trial-plan-form";
+import { AddTrialAssetForm } from "@/components/admin/add-trial-asset-form";
 import { requireAdmin } from "@/lib/auth/session";
 import { getTrialRequestById } from "@/lib/db/partner-trials";
+import { partnersAssetUrl } from "@/lib/storage";
 
 export default async function PartnerTrialDetailPage({ params }: PageProps<"/admin/partner-trials/[id]">) {
   await requireAdmin();
@@ -44,12 +47,49 @@ export default async function PartnerTrialDetailPage({ params }: PageProps<"/adm
         </div>
         <div>
           <p className="text-xs text-muted-foreground">{t("fieldCountry")}</p>
-          <p className="text-sm">{trial.country}</p>
+          <p className="text-sm">{trial.country}{trial.marketArea ? ` · ${trial.marketArea}` : ""}</p>
         </div>
         <div>
           <p className="text-xs text-muted-foreground">{t("fieldProduct")}</p>
           <p className="text-sm">{trial.productOrService}</p>
         </div>
+      </section>
+
+      <section className="flex flex-col gap-3 rounded-xl border bg-card p-5">
+        <div>
+          <h2 className="font-semibold">{t("plan.title", { count: trial.planItems.length })}</h2>
+          <p className="mt-1 text-xs text-muted-foreground">{t("plan.preview")}</p>
+        </div>
+        {trial.planItems.length > 0 && (
+          <ol className="grid gap-2 sm:grid-cols-2">
+            {trial.planItems.map((item, index) => (
+              <li key={item.id} className="rounded-lg border p-3 text-sm">
+                <span className="text-xs font-medium text-primary">{t("plan.day", { day: index + 1 })} · {item.platform}</span>
+                <p className="mt-1 font-medium">{item.theme}</p>
+                {item.note && <p className="mt-1 text-xs text-muted-foreground">{item.note}</p>}
+              </li>
+            ))}
+          </ol>
+        )}
+        {trial.status !== "CONVERTED" && <GenerateTrialPlanForm trialRequestId={trial.id} />}
+      </section>
+
+      <section className="flex flex-col gap-3 rounded-xl border bg-card p-5">
+        <h2 className="font-semibold">{t("assets.delivered", { count: trial.assets.length })}</h2>
+        {trial.assets.length > 0 && (
+          <div className="grid gap-3 sm:grid-cols-3">
+            {trial.assets.map((asset) => (
+              <div key={asset.id} className="flex flex-col gap-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={partnersAssetUrl(asset.storageKey)} alt="" className="aspect-square w-full rounded-lg border object-cover" />
+                <p className="text-sm">{asset.caption || t("assets.untitled")}</p>
+              </div>
+            ))}
+          </div>
+        )}
+        {trial.assets.length < 3 && trial.status !== "CONVERTED" && (
+          <AddTrialAssetForm trialRequestId={trial.id} platforms={trial.platforms} remaining={3 - trial.assets.length} />
+        )}
       </section>
 
       {trial.status === "CONVERTED" ? (

@@ -973,7 +973,7 @@ const weeklyCopy: Record<string, string[][]> = {
     ],
   ],
 };
-export function IndustryDemoPage({ industry }: { industry: string }) {
+export function IndustryDemoPage({ industry, requestHref }: { industry: string; requestHref?: string }) {
   const c = demoConfig[industry];
   return (
     <PublicFrame className={`ps-demo-page ps-demo-${industry}`}>
@@ -1015,7 +1015,7 @@ export function IndustryDemoPage({ industry }: { industry: string }) {
             </div>
           </div>
           <div className="ps-actions">
-            <CTA />
+            <CTA {...(industry === "restaurant" && requestHref ? { href: requestHref, children: "Plan My Restaurant Campaign" } : {})} />
             <CTA secondary href="/our-work">
               See Other Demos
             </CTA>
@@ -1089,7 +1089,7 @@ export function IndustryDemoPage({ industry }: { industry: string }) {
               Get a customized social media plan based on your business and
               goals.
             </p>
-            <CTA />
+            <CTA {...(industry === "restaurant" && requestHref ? { href: requestHref, children: "Plan My Restaurant Campaign" } : {})} />
           </article>
         </div>
       </section>

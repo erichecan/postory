@@ -22,6 +22,7 @@ const PARTNERS_REF_KEY_PATTERN = /^partners-ref\/([a-z0-9]{10,40})\/([a-f0-9]{16
 // partners-asset/ 前缀存放 PoStory 内部人工制作好、要给代理商看的试做样片，语义上本来就是"要展示给潜在客户看"的东西，
 // 和 partners-ref/ 一样靠 key 里的随机串不可猜测，不要求登录。
 const PARTNERS_ASSET_KEY_PATTERN = /^partners-asset\/([a-z0-9]{10,40})\/([a-f0-9]{16,32})\.(?:png|jpg|webp)$/;
+const RESTAURANT_CAMPAIGN_KEY_PATTERN = /^restaurant-campaign\/([a-z0-9]{10,40})\/([a-f0-9]{16,32})\.(?:png|jpg|webp)$/;
 
 const LOCAL_ROOT = path.join(process.cwd(), ".data", "uploads");
 
@@ -32,7 +33,8 @@ export function isMediaKey(key: string) {
     NAILS_MEDIA_KEY_PATTERN.test(key) ||
     NAILS_EXPORT_KEY_PATTERN.test(key) ||
     PARTNERS_REF_KEY_PATTERN.test(key) ||
-    PARTNERS_ASSET_KEY_PATTERN.test(key)
+    PARTNERS_ASSET_KEY_PATTERN.test(key) ||
+    RESTAURANT_CAMPAIGN_KEY_PATTERN.test(key)
   );
 }
 
@@ -124,6 +126,20 @@ export function partnersAssetKey(trialRequestId: string, mime: string) {
 
 export function partnersAssetUrl(key: string) {
   return `/api/partners-media/${key}`;
+}
+
+export function restaurantCampaignMediaKey(briefId: string, mime: string) {
+  const ext = EXT_BY_MIME[mime];
+  if (!ext || ext === "svg") throw new Error(`unsupported mime ${mime}`);
+  return `restaurant-campaign/${briefId}/${randomBytes(12).toString("hex")}.${ext}`;
+}
+
+export function isRestaurantCampaignMediaKey(key: string) {
+  return RESTAURANT_CAMPAIGN_KEY_PATTERN.test(key);
+}
+
+export function restaurantCampaignMediaUrl(key: string) {
+  return `/api/restaurant-campaign-media/${key}`;
 }
 
 type Backend = {

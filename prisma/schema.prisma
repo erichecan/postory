@@ -181,6 +181,34 @@ enum PartnerTrialFeedbackCategory {
   REVISION_REQUEST
 }
 
+enum RestaurantBriefStatus {
+  SUBMITTED
+  IN_REVIEW
+  IN_PRODUCTION
+  AWAITING_CLIENT
+  ACTIVE
+  CLOSED
+}
+
+enum RestaurantContentStatus {
+  AWAITING_APPROVAL
+  REVISION_REQUESTED
+  APPROVED
+  SCHEDULED
+  PUBLISHED
+  FAILED
+}
+
+enum RestaurantPlanItemStatus {
+  PLANNED
+  IN_PRODUCTION
+  AWAITING_APPROVAL
+  APPROVED
+  SCHEDULED
+  PUBLISHED
+  FAILED
+}
+
 enum PublishStatus {
   PENDING
   SUCCESS
@@ -189,37 +217,40 @@ enum PublishStatus {
 }
 
 model User {
-  id                    String                @id @default(cuid())
-  phone                 String?               @unique @db.VarChar(20)
-  email                 String?               @unique @db.VarChar(254)
-  emailVerifiedAt       DateTime?
-  stripeCustomerId      String?               @unique
-  passwordHash          String
-  sessionVersion        Int                   @default(0)
-  loginFailures         Int                   @default(0)
-  loginLockedUntil      DateTime?
-  name                  String                @db.VarChar(64)
-  role                  Role                  @default(USER)
-  source                AccountSource         @default(SELF_SIGNUP)
-  disabled              Boolean               @default(false)
-  createdAt             DateTime              @default(now())
-  ayrshareProfileKeyEnc String?
-  ayrshareRefId         String?
-  profile               BrandProfile?
-  designs               Design[]
-  plan                  CustomerPlan?
-  grants                CreditGrant[]
-  txns                  CreditTxn[]
-  generations           Generation[]
-  socialAccounts        SocialAccount[]
-  calendarSlots         CalendarSlot[]
-  approvalRequests      ApprovalRequest[]
-  outreachAutomations   OutreachAutomation[]
-  endCustomers          EndCustomer[]
-  studio                Studio?
-  agencyAccessGranted   AgencyAccess[]        @relation("AgencyAccessAsAgency")
-  agencyAccessReceived  AgencyAccess[]        @relation("AgencyAccessAsClient")
-  partnerTrialRequests  PartnerTrialRequest[]
+  id                            String                         @id @default(cuid())
+  phone                         String?                        @unique @db.VarChar(20)
+  email                         String?                        @unique @db.VarChar(254)
+  emailVerifiedAt               DateTime?
+  stripeCustomerId              String?                        @unique
+  passwordHash                  String
+  sessionVersion                Int                            @default(0)
+  loginFailures                 Int                            @default(0)
+  loginLockedUntil              DateTime?
+  name                          String                         @db.VarChar(64)
+  role                          Role                           @default(USER)
+  source                        AccountSource                  @default(SELF_SIGNUP)
+  disabled                      Boolean                        @default(false)
+  createdAt                     DateTime                       @default(now())
+  ayrshareProfileKeyEnc         String?
+  ayrshareRefId                 String?
+  profile                       BrandProfile?
+  designs                       Design[]
+  plan                          CustomerPlan?
+  grants                        CreditGrant[]
+  txns                          CreditTxn[]
+  generations                   Generation[]
+  socialAccounts                SocialAccount[]
+  calendarSlots                 CalendarSlot[]
+  approvalRequests              ApprovalRequest[]
+  outreachAutomations           OutreachAutomation[]
+  endCustomers                  EndCustomer[]
+  studio                        Studio?
+  agencyAccessGranted           AgencyAccess[]                 @relation("AgencyAccessAsAgency")
+  agencyAccessReceived          AgencyAccess[]                 @relation("AgencyAccessAsClient")
+  partnerTrialRequests          PartnerTrialRequest[]
+  referredRestaurantBriefs      RestaurantCampaignBrief[]      @relation("RestaurantBriefReferrer")
+  clientRestaurantBriefs        RestaurantCampaignBrief[]      @relation("RestaurantBriefClient")
+  restaurantPlanItemSubmissions RestaurantPlanItemSubmission[]
 }
 
 // Phase 1: one personally owned studio per account. User is the shared profile.
@@ -744,6 +775,7 @@ model PartnerTrialRequest {
   clientBrandName    String                  @db.VarChar(128)
   industry           Industry
   country            Country
+  marketArea         String?                 @db.VarChar(128)
   productOrService   String                  @db.Text
   targetAudience     String?                 @db.Text
   highlightNotes     String?                 @db.Text
@@ -801,6 +833,134 @@ model PartnerTrialPlanItem {
   note           String?             @db.Text
 
   @@index([trialRequestId, date])
+}
+
+// Customer-owned campaign brief. Referral attribution is optional and does not grant access to the client's workspace.
+model RestaurantCampaignBrief {
+  id                  String                        @id @default(cuid())
+  referralUserId      String?
+  referrer            User?                         @relation("RestaurantBriefReferrer", fields: [referralUserId], references: [id], onDelete: SetNull)
+  clientUserId        String?
+  client              User?                         @relation("RestaurantBriefClient", fields: [clientUserId], references: [id], onDelete: SetNull)
+  token               String                        @unique @db.VarChar(64)
+  status              RestaurantBriefStatus         @default(SUBMITTED)
+  contactName         String                        @db.VarChar(100)
+  contactEmail        String                        @db.VarChar(254)
+  contactPhone        String?                       @db.VarChar(32)
+  businessName        String                        @db.VarChar(128)
+  location            String                        @db.VarChar(160)
+  websiteUrl          String?
+  campaignDirection   String                        @db.VarChar(40)
+  campaignGoal        String                        @db.VarChar(40)
+  campaignDetails     String                        @db.Text
+  campaignStartDate   DateTime?                     @db.Date
+  campaignEndDate     DateTime?                     @db.Date
+  preferredPostWindow String                        @db.VarChar(24)
+  timeZone            String                        @default("Europe/Dublin") @db.VarChar(64)
+  platforms           String[]
+  languagePreference  String                        @default("en") @db.VarChar(8)
+  internalNotes       String?                       @db.Text
+  createdAt           DateTime                      @default(now())
+  updatedAt           DateTime                      @updatedAt
+  references          RestaurantCampaignReference[]
+  content             RestaurantCampaignContent[]
+  marketingPlan       RestaurantMarketingPlan?
+
+  @@index([status, createdAt])
+  @@index([referralUserId, createdAt])
+  @@index([contactEmail])
+}
+
+model RestaurantCampaignReference {
+  id           String                        @id @default(cuid())
+  briefId      String
+  brief        RestaurantCampaignBrief       @relation(fields: [briefId], references: [id], onDelete: Cascade)
+  storageKey   String                        @unique
+  mimeType     String                        @db.VarChar(32)
+  submissionId String?
+  submission   RestaurantPlanItemSubmission? @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime                      @default(now())
+
+  @@index([briefId])
+}
+
+model RestaurantMarketingPlan {
+  id          String                         @id @default(cuid())
+  briefId     String                         @unique
+  brief       RestaurantCampaignBrief        @relation(fields: [briefId], references: [id], onDelete: Cascade)
+  title       String                         @db.VarChar(160)
+  overview    String                         @db.Text
+  startDate   DateTime                       @db.Date
+  endDate     DateTime                       @db.Date
+  cadence     String                         @db.VarChar(160)
+  items       RestaurantMarketingPlanItem[]
+  submissions RestaurantPlanItemSubmission[]
+  createdAt   DateTime                       @default(now())
+  updatedAt   DateTime                       @updatedAt
+}
+
+model RestaurantMarketingPlanItem {
+  id            String                         @id @default(cuid())
+  planId        String
+  plan          RestaurantMarketingPlan        @relation(fields: [planId], references: [id], onDelete: Cascade)
+  date          DateTime                       @db.Date
+  scheduledTime String?                        @db.VarChar(8)
+  title         String                         @db.VarChar(160)
+  theme         String                         @db.VarChar(160)
+  objective     String                         @db.Text
+  concept       String                         @db.Text
+  platforms     String[]
+  status        RestaurantPlanItemStatus       @default(PLANNED)
+  content       RestaurantCampaignContent?
+  submissions   RestaurantPlanItemSubmission[]
+  createdAt     DateTime                       @default(now())
+  updatedAt     DateTime                       @updatedAt
+
+  @@index([planId, date])
+  @@index([status, date])
+}
+
+model RestaurantPlanItemSubmission {
+  id           String                        @id @default(cuid())
+  planId       String
+  plan         RestaurantMarketingPlan       @relation(fields: [planId], references: [id], onDelete: Cascade)
+  planItemId   String?
+  planItem     RestaurantMarketingPlanItem?  @relation(fields: [planItemId], references: [id], onDelete: SetNull)
+  date         DateTime                      @db.Date
+  clientUserId String
+  clientUser   User                          @relation(fields: [clientUserId], references: [id], onDelete: Cascade)
+  note         String?                       @db.Text
+  references   RestaurantCampaignReference[]
+  createdAt    DateTime                      @default(now())
+
+  @@index([planId, date, createdAt])
+  @@index([planItemId, createdAt])
+  @@index([clientUserId, createdAt])
+}
+
+model RestaurantCampaignContent {
+  id             String                       @id @default(cuid())
+  briefId        String
+  brief          RestaurantCampaignBrief      @relation(fields: [briefId], references: [id], onDelete: Cascade)
+  planItemId     String?                      @unique
+  planItem       RestaurantMarketingPlanItem? @relation(fields: [planItemId], references: [id], onDelete: SetNull)
+  title          String                       @db.VarChar(128)
+  caption        String                       @db.Text
+  storageKey     String                       @unique
+  mimeType       String                       @db.VarChar(32)
+  platforms      String[]
+  scheduledAt    DateTime?
+  status         RestaurantContentStatus      @default(AWAITING_APPROVAL)
+  revisionNote   String?                      @db.Text
+  publishStatus  PublishStatus?
+  publishError   String?                      @db.Text
+  providerPostId String?
+  publishedAt    DateTime?
+  createdAt      DateTime                     @default(now())
+  updatedAt      DateTime                     @updatedAt
+
+  @@index([briefId, createdAt])
+  @@index([status, scheduledAt])
 }
 
 model PartnerTrialFeedback {

@@ -13,6 +13,7 @@ import { sendMail } from "@/lib/mail";
 import { DUMMY_HASH, safeNext } from "@/lib/safe-next";
 import { codeSchema, firstError, loginSchema, registerSchema, resetRequestSchema, resetSchema, type FormState } from "@/lib/validation";
 import { appUrl } from "@/lib/app-url";
+import { getRestaurantCampaignLandingPath } from "@/lib/db/restaurant-campaigns";
 
 type AuthErrorKey = "emailTaken" | "invalidCredentials" | "disabled" | "demoUnavailable" | "codeInvalid" | "codeExpired" | "codeTooMany" | "sendFailed" | "loginLocked";
 
@@ -69,7 +70,9 @@ export async function loginAction(_: FormState, formData: FormData): Promise<For
   await clearLoginFailures(user.id);
   if (user.disabled) return { error: await authError("disabled") };
   await createSession({ userId: user.id, role: user.role, sv: user.sessionVersion });
-  redirect(safeNext(formData.get("next")));
+  const next = formData.get("next");
+  if (typeof next === "string" && next) redirect(safeNext(next));
+  redirect((await getRestaurantCampaignLandingPath(user.id)) ?? "/dashboard");
 }
 
 export async function demoLoginAction(): Promise<FormState> {

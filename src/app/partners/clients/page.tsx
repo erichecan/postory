@@ -5,6 +5,7 @@ import { AppFooter } from "@/components/shell/app-footer";
 import { PublicHeader } from "@/components/shell/public-header";
 import { listAgencyClientOverviews } from "@/lib/db/agency-access";
 import { requireUser } from "@/lib/auth/session";
+import Link from "next/link";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("partners.clients.meta");
@@ -26,6 +27,11 @@ export default async function PartnerClientsPage() {
           <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
           <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         </header>
+        <div className="rounded-xl border bg-card p-5">
+          <h2 className="font-semibold">Introduce a restaurant client</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Share the restaurant demo. Their request will be attributed to your account, and they remain the account owner.</p>
+          <Link className="mt-3 inline-block rounded-lg bg-primary px-4 py-2 text-sm text-primary-foreground" href="/partners/restaurant-referral">Get your referral link</Link>
+        </div>
         <PartnerClientsList clients={clients} />
       </main>
       <AppFooter />
