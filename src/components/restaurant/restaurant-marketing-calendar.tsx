@@ -8,7 +8,7 @@ import { decideRestaurantCampaignContentFormAction, submitRestaurantPlanItemInfo
 type Reference = { id: string; storageKey: string; mimeType: string };
 type Submission = { id: string; note: string | null; date: Date; createdAt: Date; references: Reference[] };
 type Content = { id: string; title: string; caption: string; storageKey: string; status: string; scheduledAt: Date | null; revisionNote: string | null } | null;
-type PlanItem = { id: string; date: Date; scheduledTime: string | null; title: string; theme: string; objective: string; concept: string; platforms: string[]; status: string; content: Content; submissions: Submission[] };
+export type PlanItem = { id: string; date: Date; scheduledTime: string | null; title: string; theme: string; objective: string; concept: string; platforms: string[]; status: string; content: Content; submissions: Submission[] };
 
 const statusCopy: Record<string, string> = { PLANNED: "Planned", IN_PRODUCTION: "In production", AWAITING_APPROVAL: "Needs your review", APPROVED: "Approved", SCHEDULED: "Scheduled", PUBLISHED: "Published", FAILED: "Needs attention" };
 const platformShort: Record<string, string> = { instagram: "IG", facebook: "FB", tiktok: "TikTok" };
@@ -22,8 +22,8 @@ function monthStart(date: Date) { return new Date(date.getFullYear(), date.getMo
 function shiftMonth(date: Date, amount: number) { return new Date(date.getFullYear(), date.getMonth() + amount, 1); }
 function prettyDate(key: string) { return parseDay(key).toLocaleDateString("en-IE", { weekday: "long", day: "numeric", month: "long", year: "numeric" }); }
 
-export function RestaurantMarketingCalendar({ briefId, planId, startDate, endDate, items, submissions }: {
-  briefId: string; planId: string; startDate: Date; endDate: Date; items: PlanItem[]; submissions: Submission[];
+export function RestaurantMarketingCalendar({ briefId, planId, startDate, endDate, items, submissions, readOnly = false }: {
+  briefId: string; planId: string; startDate: Date; endDate: Date; items: PlanItem[]; submissions: Submission[]; readOnly?: boolean;
 }) {
   const firstEvent = items[0]?.date ?? startDate;
   const [month, setMonth] = useState(monthStart(localDate(firstEvent)));
@@ -81,7 +81,7 @@ export function RestaurantMarketingCalendar({ briefId, planId, startDate, endDat
           </div>;
         })}
       </div>
-      <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 border-t pt-3 text-xs text-muted-foreground"><span>Hover to preview the promotion direction and platform.</span><span>Click a date to add details or photos.</span></div>
+      <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 border-t pt-3 text-xs text-muted-foreground"><span>Hover to preview the promotion direction and platform.</span><span>{readOnly ? "Click a date to explore this sample calendar." : "Click a date to add details or photos."}</span></div>
     </section>
 
     <section className="overflow-hidden rounded-2xl border bg-card shadow-sm">
@@ -92,9 +92,9 @@ export function RestaurantMarketingCalendar({ briefId, planId, startDate, endDat
 
           {dateSubmissions.length ? <div className="grid gap-2"><p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Information you’ve sent</p>{dateSubmissions.map((submission) => <div key={submission.id} className="rounded-lg bg-muted/60 p-3 text-xs"><p>{submission.note || "Reference photos attached"}</p><div className="mt-2 flex gap-2">{submission.references.map((reference) => <img key={reference.id} src={`/api/restaurant-campaign-media/${reference.storageKey}`} alt="Your reference" className="size-12 rounded object-cover"/>)}</div></div>)}</div> : null}
 
-          <PlanItemInfoForm key={`${selectedDate}:${selectedItem?.id ?? "general"}`} briefId={briefId} planId={planId} planItemId={selectedItem?.id ?? ""} date={selectedDate}/>
+          {!readOnly && <PlanItemInfoForm key={`${selectedDate}:${selectedItem?.id ?? "general"}`} briefId={briefId} planId={planId} planItemId={selectedItem?.id ?? ""} date={selectedDate}/>}
         </div>
-      <div className="mt-3 flex items-start gap-2 px-1 text-xs leading-5 text-muted-foreground"><Clock3 size={14} className="mt-0.5 shrink-0"/>Your team will use these details and references when producing this planned post. You’ll see the result here for review.</div>
+      {!readOnly && <div className="mt-3 flex items-start gap-2 px-1 text-xs leading-5 text-muted-foreground"><Clock3 size={14} className="mt-0.5 shrink-0"/>Your team will use these details and references when producing this planned post. You’ll see the result here for review.</div>}
     </section>
   </div>;
 }
