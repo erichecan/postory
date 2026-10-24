@@ -71,11 +71,11 @@ export function RestaurantMarketingCalendar({ briefId, planId, startDate, endDat
         {cells.map((date, index) => {
           if (!date) return <div key={`blank-${index}`} className="min-h-16 rounded-md sm:min-h-24"/>;
           const key = localKey(date), inPlan = key >= startKey && key <= endKey, dayItems = itemsByDate.get(key) ?? [], selected = key === selectedDate;
-          return <div key={key} className={`relative min-h-16 rounded-md border p-1 transition sm:min-h-24 sm:p-1.5 ${selected ? "border-primary bg-primary/5 ring-1 ring-primary" : inPlan ? "border-border hover:border-primary/60" : "border-transparent opacity-30"}`}>
+          return <div key={key} className={`relative min-h-16 min-w-0 overflow-hidden rounded-md border p-1 transition sm:min-h-24 sm:p-1.5 ${selected ? "border-primary bg-primary/5 ring-1 ring-primary" : inPlan ? "border-border hover:border-primary/60" : "border-transparent opacity-30"}`}>
             <button type="button" disabled={!inPlan} onMouseEnter={() => inPlan && selectDate(key)} onFocus={() => inPlan && selectDate(key)} onClick={() => selectDate(key)} aria-label={`${prettyDate(key)}${dayItems.length ? `, ${dayItems.map((item) => `${item.title} on ${item.platforms.join(", ")}`).join("; ")}` : ", no planned post"}`} className="absolute inset-0 z-0 rounded-md disabled:cursor-default"/>
             <span className={`pointer-events-none relative z-[1] grid size-6 place-items-center rounded-full text-xs ${selected ? "bg-primary text-primary-foreground" : ""}`}>{date.getDate()}</span>
-            <div className="pointer-events-none relative z-[1] mt-1 grid gap-1">
-              {dayItems.slice(0, 2).map((item) => <span key={item.id} className="block rounded bg-violet-500/10 px-1 py-0.5 text-[8px] font-medium leading-3 text-violet-800 sm:text-[9px]"><span className="block truncate">{item.title}</span><span className="mt-0.5 flex items-center gap-1">{item.platforms.map((platform) => <PlatformIcon key={platform} platform={platform} compact />)}</span></span>)}
+            <div className="pointer-events-none relative z-[1] mt-1 grid min-w-0 gap-1">
+              {dayItems.slice(0, 2).map((item) => <span key={item.id} className="block min-w-0 max-w-full overflow-hidden rounded bg-violet-500/10 px-1 py-0.5 text-[8px] font-medium leading-3 text-violet-800 sm:text-[9px]"><span className="block w-full truncate">{item.title}</span><span className="mt-0.5 flex items-center gap-1">{item.platforms.map((platform) => <PlatformIcon key={platform} platform={platform} compact />)}</span></span>)}
               {dayItems.length > 2 && <span className="text-[9px] text-muted-foreground">+{dayItems.length - 2} more</span>}
               {submittedDates.has(key) && <span className="block truncate text-[9px] font-medium text-emerald-700">Details sent</span>}
             </div>
