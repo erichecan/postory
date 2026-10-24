@@ -26,7 +26,7 @@ export default async function RestaurantCampaignPage({ params }: { params: Promi
       </header>
 
       {plan ? <>
-        <div className="mt-5"><RestaurantMarketingCalendar briefId={brief.id} planId={plan.id} startDate={plan.startDate} endDate={plan.endDate} items={plan.items} submissions={plan.submissions}/></div>
+        <div className="mt-5"><RestaurantMarketingCalendar briefId={brief.id} planId={plan.id} startDate={plan.startDate} endDate={plan.endDate} items={plan.items} submissions={plan.submissions} cadence={plan.cadence}/></div>
       </> : <section className="mt-6 rounded-2xl border border-dashed p-8"><h2 className="text-lg font-semibold">Your team is building the calendar</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">We’re mapping the next 30 days around your dishes, promotion dates, and local audience. Your calendar will appear here with planned post dates, channels, and creative direction. You can then add details and reference photos to each planned moment.</p></section>}
     </main>
   );
