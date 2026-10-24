@@ -18,14 +18,26 @@ import { prisma } from "@/lib/db/client";
 import type { FormState } from "@/lib/validation";
 
 const directionValues = ["new-arrival", "lunch-set", "healthy-light", "limited-offer", "seafood-feature", "premium-signature", "signature-platter", "date-night"] as const;
-const goalValues = ["weekday-visits", "new-menu", "group-bookings", "brand-awareness"] as const;
+const goalValues = ["offer-reach", "menu-views", "offer-redemptions", "online-bookings", "dish-discovery", "local-engagement"] as const;
+const featuredItemValues = ["signature-dishes", "lunch-offers", "new-seasonal", "takeaway-sharing", "events", "other"] as const;
 const windowValues = ["flexible", "lunch", "evening"] as const;
+const tierValues = ["starter", "growth"] as const;
+const visualStyleValues = ["appetizing", "warm", "minimal", "follow-brand"] as const;
+const brandVoiceValues = ["friendly", "casual", "premium", "expert"] as const;
 const publishablePlatforms = ["instagram", "facebook", "tiktok"] as const;
 const maxFiles = 6;
 const maxFileBatch = 10 * 1024 * 1024;
 
 const briefSchema = z.object({
   referral: z.string().max(256).optional().default(""),
+  serviceTier: z.enum(tierValues).default("starter"),
+  visualStyle: z.enum(visualStyleValues).default("appetizing"),
+  brandVoice: z.enum(brandVoiceValues).default("friendly"),
+  targetAudience: z.string().trim().max(300).default(""),
+  specificOffer: z.string().trim().max(1500).default(""),
+  brandReferences: z.string().trim().max(500).default(""),
+  contentRestrictions: z.string().trim().max(1000).default(""),
+  featuredItems: z.array(z.enum(featuredItemValues)).min(1).max(6),
   contactName: z.string().trim().min(1).max(100),
   contactEmail: z.string().trim().email().max(254),
   contactPhone: z.string().trim().max(32).optional().default(""),
@@ -49,22 +61,26 @@ function optionalDate(value: string): Date | null | "invalid" {
 }
 
 export async function submitRestaurantCampaignBriefAction(_: FormState, formData: FormData): Promise<FormState> {
-  const parsed = briefSchema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) return { error: "Please check the required fields and try again." };
+  const rawForm = {
+    ...Object.fromEntries(formData),
+    featuredItems: formData.getAll("featuredItems").map(String),
+  };
+  const parsed = briefSchema.safeParse(rawForm);
+  if (!parsed.success) return { error: "请检查必填信息，并至少选择一个主推内容。" };
   const startDate = optionalDate(parsed.data.campaignStartDate);
   const endDate = optionalDate(parsed.data.campaignEndDate);
   if (startDate === "invalid" || endDate === "invalid" || (startDate && endDate && endDate < startDate) || Boolean(startDate) !== Boolean(endDate)) {
-    return { error: "Enter both promotion dates, with the end date on or after the start date." };
+    return { error: "请填写完整的活动起止日期，并确保结束日期不早于开始日期。" };
   }
   const platforms = [...new Set(formData.getAll("platforms").map(String).filter((value) => (publishablePlatforms as readonly string[]).includes(value) && isPublishPlatform(value)))];
-  if (platforms.length === 0) return { error: "Choose at least one supported publishing platform." };
+  if (platforms.length === 0) return { error: "请至少选择一个发布平台。" };
   const files = formData.getAll("referenceFiles").filter((file): file is File => file instanceof File && file.size > 0);
-  if (files.length > maxFiles) return { error: "Upload up to 6 reference photos." };
-  if (files.reduce((size, file) => size + file.size, 0) > maxFileBatch) return { error: "The combined photo size must be 10 MB or less." };
+  if (files.length > maxFiles) return { error: "参考照片最多上传 6 张。" };
+  if (files.reduce((size, file) => size + file.size, 0) > maxFileBatch) return { error: "照片总大小不能超过 10 MB。" };
   const decoded: { bytes: Buffer; mime: string }[] = [];
   for (const file of files) {
     const valid = validateImageBytes(Buffer.from(await file.arrayBuffer()));
-    if (!valid.ok) return { error: valid.error === "tooLarge" ? "A photo is too large." : "Use PNG, JPEG, or WebP photos." };
+    if (!valid.ok) return { error: valid.error === "tooLarge" ? "照片文件过大。" : "请使用 PNG、JPEG 或 WebP 格式的照片。" };
     decoded.push({ bytes: valid.bytes, mime: valid.mime });
   }
 
@@ -78,7 +94,18 @@ export async function submitRestaurantCampaignBriefAction(_: FormState, formData
     websiteUrl: parsed.data.websiteUrl || null,
     campaignDirection: parsed.data.campaignDirection,
     campaignGoal: parsed.data.campaignGoal,
-    campaignDetails: parsed.data.campaignDetails,
+    campaignDetails: [
+      `[Selected service tier: ${parsed.data.serviceTier === "growth" ? "Growth (€249/month, 30 posts)" : "Starter (€149/month, 20 posts)"}]`,
+      `[Featured content: ${parsed.data.featuredItems.join(", ")}]`,
+      `[Visual style: ${parsed.data.visualStyle}]`,
+      `[Brand voice: ${parsed.data.brandVoice}]`,
+      `[Target audience: ${parsed.data.targetAudience || "Not specified"}]`,
+      parsed.data.specificOffer ? `[Specific offer: ${parsed.data.specificOffer}]` : "",
+      parsed.data.brandReferences ? `[Brand references: ${parsed.data.brandReferences}]` : "",
+      parsed.data.contentRestrictions ? `[Content restrictions: ${parsed.data.contentRestrictions}]` : "",
+      "",
+      parsed.data.campaignDetails,
+    ].filter(Boolean).join("\n"),
     campaignStartDate: startDate,
     campaignEndDate: endDate,
     preferredPostWindow: parsed.data.preferredPostWindow,
@@ -97,7 +124,7 @@ export async function submitRestaurantCampaignBriefAction(_: FormState, formData
   } catch {
     await Promise.all(savedKeys.map((key) => deleteObject(key).catch(() => undefined)));
     await deleteRestaurantBrief(brief.id).catch(() => undefined);
-    return { error: "We could not save your request. Please try again." };
+    return { error: "暂时无法保存你的需求，请稍后重试。" };
   }
 
   redirect(`/restaurant/request/${brief.token}`);
