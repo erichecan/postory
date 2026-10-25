@@ -15,10 +15,18 @@ import { Photo } from "./primitives";
 import { logoutAction } from "@/lib/actions/auth";
 const publicLinks = [
   ["Services", "/services"],
-  ["Who We Help", "/who-we-help"],
   ["Our Work", "/our-work"],
   ["How It Works", "/how-it-works"],
   ["About", "/about"],
+];
+const industryLinks = [
+  ["All industries", "/who-we-help"],
+  ["Restaurants & cafés", "/our-work/restaurant"],
+  ["Nail studios", "/our-work/nails"],
+  ["Electricians", "/our-work/electrician"],
+  ["Roofers", "/our-work/roofer"],
+  ["Beauty & wellness", "/our-work/beauty"],
+  ["Other home services", "/our-work/contractor"],
 ];
 const clientLinks = [
   ["Dashboard", "/dashboard"],
@@ -46,6 +54,7 @@ export function VisualHeader({
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [industriesOpen, setIndustriesOpen] = useState(false);
   const [account, setAccount] = useState(false);
   const menuRef = useRef<HTMLButtonElement>(null);
   const prefix = basePath ?? (demo ? "/demo" : "");
@@ -59,11 +68,41 @@ export function VisualHeader({
           aria-label={customer ? "Client navigation" : "Main navigation"}
           onKeyDown={(e) => {
             if (e.key === "Escape") {
+              setIndustriesOpen(false);
               setOpen(false);
               menuRef.current?.focus();
             }
           }}
         >
+          {!customer && (
+            <div className="ps-nav-dropdown">
+              <button
+                type="button"
+                className={`ps-nav-dropdown-trigger ${pathname.startsWith("/our-work/") || pathname === "/who-we-help" ? "ps-nav-dropdown-active" : ""}`}
+                aria-expanded={industriesOpen}
+                aria-controls="ps-industry-menu"
+                onClick={() => setIndustriesOpen(!industriesOpen)}
+              >
+                Who We Help <ChevronDown size={14} />
+              </button>
+              {industriesOpen && (
+                <div className="ps-nav-dropdown-menu" id="ps-industry-menu">
+                  {industryLinks.map(([label, url]) => (
+                    <Link
+                      key={url}
+                      href={url}
+                      onClick={() => {
+                        setIndustriesOpen(false);
+                        setOpen(false);
+                      }}
+                    >
+                      {label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
           {links.map(([label, url]) => (
             <Link
               key={url}

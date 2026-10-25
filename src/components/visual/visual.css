@@ -76,6 +76,50 @@
   height: 100%;
   flex: 1;
 }
+.ps-nav-dropdown {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+.ps-nav-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.ps-nav-dropdown-trigger:hover,
+.ps-nav-dropdown-trigger.ps-nav-dropdown-active {
+  color: var(--ps-pink);
+}
+.ps-nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% - 1px);
+  left: -16px;
+  z-index: 60;
+  display: grid;
+  min-width: 250px;
+  padding: 8px;
+  border: 1px solid var(--ps-line);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 14px 32px #0c174f1c;
+}
+.ps-nav-dropdown-menu a {
+  min-height: 42px;
+  padding: 10px 12px;
+  border-radius: 7px;
+  white-space: normal;
+}
+.ps-nav-dropdown-menu a:hover {
+  background: #fff2f8;
+  color: var(--ps-pink);
+}
 .ps-nav a {
   display: flex;
   align-items: center;
@@ -120,6 +164,27 @@
 }
 .ps-button-secondary:hover {
   background: #fff2f8;
+}
+.ps-demo-back {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 18px 40px 0;
+}
+.ps-demo-back a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  color: var(--ps-copy);
+  font-size: 14px;
+}
+.ps-demo-back a:hover {
+  color: var(--ps-pink);
+}
+.ps-industry-detail {
+  display: block;
+  margin: 12px 0 18px;
+  color: var(--ps-copy);
+  line-height: 1.6;
 }
 .ps-header .ps-button {
   min-height: 29px;
@@ -4029,6 +4094,9 @@
   color: var(--ps-ink);
 }
 @media (max-width: 700px) {
+  .ps-demo-back {
+    padding: 12px 16px 0;
+  }
   .ps-public {
     width: 100%;
   }
@@ -4068,6 +4136,24 @@
   }
   .ps-header .ps-nav a {
     min-height: 44px;
+  }
+  .ps-nav-dropdown {
+    display: grid;
+  }
+  .ps-nav-dropdown-trigger {
+    min-height: 44px;
+    justify-content: space-between;
+  }
+  .ps-nav-dropdown-menu {
+    position: static;
+    min-width: 0;
+    padding: 0 0 8px 12px;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .ps-nav-dropdown-menu a {
+    min-height: 40px;
   }
   .ps-header .ps-nav a[aria-current="page"]:after {
     left: 0;

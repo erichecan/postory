@@ -20,9 +20,6 @@ import {
   Users,
   Utensils,
   Wrench,
-  Dumbbell,
-  ShoppingBag,
-  BriefcaseBusiness,
   Gem,
   Handshake,
   Bot,
@@ -50,20 +47,20 @@ import { Logo } from "@/components/brand/logo";
 const industries = [
   {
     key: "restaurant",
-    title: "Restaurant & Food",
-    body: "Promotions, signature dishes, behind-the-scenes, customer favourites and local engagement.",
+    title: "Restaurants & Cafés",
+    body: "Turn signature dishes, seasonal menus, daily specials and the people behind your kitchen into a steady stream of local content.",
     icon: Utensils,
   },
   {
     key: "beauty",
-    title: "Beauty & Wellness",
-    body: "Services, transformations, promotions, education and appointment-focused content.",
+    title: "Beauty & Nail Studios",
+    body: "Showcase your services, finished work, client stories, seasonal offers and the moments that help fill your appointment book.",
     icon: Leaf,
   },
   {
     key: "contractor",
-    title: "Home Services & Contractors",
-    body: "Completed projects, before-and-afters, services, seasonal tips and local awareness.",
+    title: "Home Services & Trades",
+    body: "Build trust with project reveals, before-and-afters, practical seasonal advice and clear service explainers for roofing, electrical and other local trades.",
     icon: House,
   },
 ];
@@ -973,24 +970,39 @@ const weeklyCopy: Record<string, string[][]> = {
     ],
   ],
 };
-export function IndustryDemoPage({ industry, requestHref }: { industry: string; requestHref?: string }) {
+export function IndustryDemoPage({
+  industry,
+  requestHref,
+  title,
+  body,
+  tag,
+}: {
+  industry: string;
+  requestHref?: string;
+  title?: string;
+  body?: string;
+  tag?: string;
+}) {
   const c = demoConfig[industry];
   return (
     <PublicFrame className={`ps-demo-page ps-demo-${industry}`}>
+      <div className="ps-demo-back">
+        <Link href="/who-we-help">← Back to Who We Help</Link>
+      </div>
       <section className="ps-demo-hero">
         <div>
           <Tag>
-            {industry === "beauty"
+            {tag ?? (industry === "beauty"
               ? "BEAUTY & WELLNESS"
-              : industry.toUpperCase()}{" "}
+              : industry.toUpperCase())}{" "}
             DEMO
           </Tag>
           <h1>
-            {c.title}
+            {title ?? c.title}
             <br />
             <span className="ps-gradient-text">Social Media Demo</span>
           </h1>
-          <p>{c.body}</p>
+          <p>{body ?? c.body}</p>
           <div className="ps-demo-numbers">
             <div>
               <CalendarDays />
@@ -1322,37 +1334,46 @@ export function ProcessPage() {
 export function IndustriesPage() {
   const defs = [
     {
-      title: "Beauty & Wellness",
-      body: "Spas, beauty studios, salons, skincare clinics, and wellness centers.",
-      icon: Leaf,
-      href: "/our-work/beauty",
-    },
-    {
       title: "Restaurants & Cafés",
-      body: "Restaurants, cafés, bars, bakeries, and food & beverage businesses.",
+      body: "Restaurants, cafés and bakeries can share signature dishes, seasonal menus, daily specials and the story behind the kitchen.",
+      detail: "Menu highlights · daily specials · chef stories · local events",
       icon: Utensils,
       href: "/our-work/restaurant",
     },
     {
-      title: "Home Services & Contractors",
-      body: "Contractors, renovation, cleaning, plumbing, electrical, and other home services.",
+      title: "Nail Studios",
+      body: "Nail technicians can show finished sets, seasonal designs and the care behind their work, then turn inspiration into appointment inquiries.",
+      detail: "Nail sets · transformations · aftercare tips · appointment offers",
+      icon: Leaf,
+      href: "/our-work/nails",
+    },
+    {
+      title: "Electricians",
+      body: "Electrical businesses can explain services clearly, show completed work and share useful safety guidance that builds local confidence.",
+      detail: "Completed work · safety tips · service explainers · team stories",
       icon: Wrench,
+      href: "/our-work/electrician",
+    },
+    {
+      title: "Roofers",
+      body: "Roofing teams can make project quality visible and help homeowners understand seasonal maintenance and common warning signs.",
+      detail: "Before-and-afters · roof care · project stories · seasonal advice",
+      icon: House,
+      href: "/our-work/roofer",
+    },
+    {
+      title: "Beauty & Wellness",
+      body: "Salons, spas and wellness studios can explain services, share transformations and give clients a reason to book.",
+      detail: "Services · client stories · education · appointment offers",
+      icon: Leaf,
+      href: "/our-work/beauty",
+    },
+    {
+      title: "Other Home Services",
+      body: "Renovators, plumbers, cleaners and other local trades can build trust by showing real work and answering common questions.",
+      detail: "Projects · practical tips · seasonal content · local stories",
+      icon: House,
       href: "/our-work/contractor",
-    },
-    {
-      title: "Fitness & Health",
-      body: "Gyms, personal trainers, yoga studios, pilates, and wellness coaches.",
-      icon: Dumbbell,
-    },
-    {
-      title: "Retail & Boutiques",
-      body: "Clothing stores, gift shops, specialty retail, and local boutiques.",
-      icon: ShoppingBag,
-    },
-    {
-      title: "Professional Services",
-      body: "Real estate, mortgage, accounting, consulting, and other professional services.",
-      icon: BriefcaseBusiness,
     },
   ];
   return (
@@ -1367,13 +1388,13 @@ export function IndustriesPage() {
             Same goal.
           </>
         }
-        body="We help local businesses attract more customers with professional social media content — so you can focus on what you do best."
+        body="Your social media should look and sound like your business. We plan content around what you sell, the work you do and the customers you want to reach — then create a clear, consistent presence for your local community."
       />
       <section className="ps-industries-main">
         <SectionTitle
           tag="POPULAR INDUSTRIES"
-          title="Tailored content for your industry"
-          body="We understand the unique needs of different businesses and create content that speaks to your customers, your services, and your local market."
+          title="Made for the way your business wins customers"
+          body="A restaurant needs to make people hungry. A nail studio needs to show its work. A roofer or electrician needs to earn trust. We shape the content plan around those real buying decisions."
         />
         <div className="ps-industry-grid">
           {defs.map((s, i) => (
@@ -1385,8 +1406,9 @@ export function IndustriesPage() {
                 </span>
                 <h3>{s.title}</h3>
                 <p>{s.body}</p>
-                <CTA secondary href={s.href || "/assessment"}>
-                  {s.href ? "View Demo" : "Learn More"}
+                <small className="ps-industry-detail">{s.detail}</small>
+                <CTA secondary href={s.href}>
+                  View {s.title} Demo
                 </CTA>
               </div>
             </article>
@@ -1396,8 +1418,8 @@ export function IndustriesPage() {
       <section className="ps-more-industries">
         <SectionTitle
           tag="AND MANY MORE"
-          title="We work with a wide range of local businesses"
-          body="If your business serves local customers, we can help you grow with social media."
+          title="Your industry not listed? We can still help."
+          body="We also work with fitness and wellness studios, retailers, pet care, auto services, professional practices and other local businesses. Tell us what you do and we’ll shape a plan around it."
         />
         <div>
           {[
@@ -1422,7 +1444,7 @@ export function IndustriesPage() {
           })}
         </div>
       </section>
-      <BottomCTA title="Let’s create social media that brings you more customers." />
+      <BottomCTA title="Let’s make your business easier to discover and remember." />
     </PublicFrame>
   );
 }
