@@ -42,7 +42,7 @@ export function RestaurantMarketingCalendar({ briefId, planId, startDate, endDat
   const dateItems = itemsByDate.get(selectedDate) ?? [];
   const selectedItem = dateItems.find((item) => item.id === selectedItemId) ?? dateItems[0] ?? null;
   const itemReference = selectedItem?.submissions.flatMap((submission) => submission.references)[0] ?? null;
-  const previewImage = selectedItem?.content ? `/api/restaurant-campaign-media/${selectedItem.content.storageKey}` : selectedItem?.previewImage ?? (itemReference ? `/api/restaurant-campaign-media/${itemReference.storageKey}` : readOnly ? "/demo/photos/sushi-salmon-nigiri.png" : null);
+  const previewImage = selectedItem?.content ? `/api/restaurant-campaign-media/${selectedItem.content.storageKey}` : selectedItem?.previewImage ?? (itemReference ? `/api/restaurant-campaign-media/${itemReference.storageKey}` : readOnly ? "/demo/photos/restaurant-calendar/signature.jpg" : null);
   const previewImageLabel = selectedItem?.content ? "Content preview" : selectedItem?.previewImage || readOnly ? "Creative direction sample" : itemReference ? "Your reference photo" : "Creative preview";
   const dateSubmissions = submissions.filter((submission) => dayKey(submission.date) === selectedDate);
   const submittedDates = new Set(submissions.map((submission) => dayKey(submission.date)));
