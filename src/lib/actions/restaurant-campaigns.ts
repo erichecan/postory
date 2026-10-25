@@ -15,6 +15,7 @@ import { listConnectedPlatforms } from "@/lib/db/social";
 import { getEntitlements } from "@/lib/db/entitlements";
 import { publishDesignToAyrshare } from "@/lib/db/ayrshare-publish";
 import { prisma } from "@/lib/db/client";
+import { getRestaurantPlatformDistribution } from "@/lib/restaurant-campaign-planning";
 import type { FormState } from "@/lib/validation";
 
 const directionValues = ["new-arrival", "lunch-set", "healthy-light", "limited-offer", "seafood-feature", "premium-signature", "signature-platter", "date-night"] as const;
@@ -74,6 +75,7 @@ export async function submitRestaurantCampaignBriefAction(_: FormState, formData
   }
   const platforms = [...new Set(formData.getAll("platforms").map(String).filter((value) => (publishablePlatforms as readonly string[]).includes(value) && isPublishPlatform(value)))];
   if (platforms.length === 0) return { error: "请至少选择一个发布平台。" };
+  const platformDistribution = getRestaurantPlatformDistribution(parsed.data.serviceTier === "growth" ? 30 : 20, platforms);
   const files = formData.getAll("referenceFiles").filter((file): file is File => file instanceof File && file.size > 0);
   if (files.length > maxFiles) return { error: "参考照片最多上传 6 张。" };
   if (files.reduce((size, file) => size + file.size, 0) > maxFileBatch) return { error: "照片总大小不能超过 10 MB。" };
@@ -96,6 +98,7 @@ export async function submitRestaurantCampaignBriefAction(_: FormState, formData
     campaignGoal: parsed.data.campaignGoal,
     campaignDetails: [
       `[Selected service tier: ${parsed.data.serviceTier === "growth" ? "Growth (€249/month, 30 posts)" : "Starter (€149/month, 20 posts)"}]`,
+      `[Suggested monthly platform distribution: ${platformDistribution.map(({ label, count }) => `${label} ${count}`).join(", ")} posts; each post is assigned to one primary platform and TikTok posts are evenly spaced.]`,
       `[Featured content: ${parsed.data.featuredItems.join(", ")}]`,
       `[Visual style: ${parsed.data.visualStyle}]`,
       `[Brand voice: ${parsed.data.brandVoice}]`,
