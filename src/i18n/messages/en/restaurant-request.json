@@ -6,7 +6,8 @@
     "description": "Choose a goal, set your content direction, then select a package and review the monthly schedule."
   },
   "form": {
-    "steps": { "goal": "Choose a goal", "direction": "Brand & content direction", "package": "Package & submit" },
+    "steps": { "goal": "Choose a goal", "direction": "Brand & content direction", "package": "Package", "social": "Connect accounts" },
+    "stepsLabel": "Campaign request steps",
     "goal": {
       "title": "What would you most like customers to do?",
       "description": "Choose one main goal. Each goal has observable measures so you can review the results.",
@@ -109,7 +110,8 @@
       "locationPlaceholder": "For example: Dublin 2",
       "website": "Website or social profile",
       "back": "← Back to brand & content direction",
-      "stepLabel": "Step 3 of 3 · Package selected last",
+      "stepLabel": "Step 3 of 4 · Select a service package",
+      "next": "Continue: connect social accounts →",
       "submitting": "Submitting…",
       "submit": "Submit campaign brief →",
       "errors": {
@@ -122,6 +124,25 @@
         "invalidPhotoFormat": "Use PNG, JPEG, or WebP photos.",
         "saveFailed": "We couldn’t save your request. Please try again."
       }
+    },
+    "social": {
+      "title": "Connect your social accounts",
+      "description": "Connect each platform separately so the team can prepare publishing for the accounts you choose.",
+      "signInHint": "Sign in or create a PoStory account in a new tab, then return here to connect your platforms.",
+      "signIn": "Sign in",
+      "createAccount": "Create account",
+      "connect": "Connect",
+      "connecting": "Opening…",
+      "connected": "Connected",
+      "notConnected": "Not connected",
+      "refresh": "Refresh status",
+      "refreshing": "Refreshing…",
+      "popupBlocked": "Your browser blocked the authorization window. Allow pop-ups for this site and try again.",
+      "connectionFailed": "Could not start the connection. Please try again.",
+      "optionalHint": "Connecting accounts is optional. You can submit your request now and connect later from your restaurant account.",
+      "back": "← Back to package",
+      "stepLabel": "Step 4 of 4 · Account connection",
+      "submit": "Submit campaign brief →"
     }
   },
   "statusPage": {

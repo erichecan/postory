@@ -6,7 +6,8 @@
     "description": "先选择宣传目标，再确定内容方向，最后选择套餐并查看月度排期。"
   },
   "form": {
-    "steps": { "goal": "选择目标", "direction": "品牌与内容方向", "package": "套餐与提交" },
+    "steps": { "goal": "选择目标", "direction": "品牌与内容方向", "package": "套餐", "social": "连接账号" },
+    "stepsLabel": "宣传需求填写步骤",
     "goal": {
       "title": "这次宣传，你最希望顾客做什么？",
       "description": "选择一个主要目标。每个目标都对应可观察的数据，方便之后回顾效果。",
@@ -109,7 +110,8 @@
       "locationPlaceholder": "例如：Dublin 2",
       "website": "网站或社交主页",
       "back": "← 返回品牌与内容方向",
-      "stepLabel": "第 3 步 / 3 · 套餐最后选择",
+      "stepLabel": "第 3 步 / 4 · 选择服务套餐",
+      "next": "继续：连接社交账号 →",
       "submitting": "正在提交…",
       "submit": "提交制作需求 →",
       "errors": {
@@ -122,6 +124,25 @@
         "invalidPhotoFormat": "请使用 PNG、JPEG 或 WebP 格式的照片。",
         "saveFailed": "暂时无法保存你的需求，请稍后重试。"
       }
+    },
+    "social": {
+      "title": "连接你的社交账号",
+      "description": "每个平台可以单独授权，方便团队为你选择的账号准备发布内容。",
+      "signInHint": "请在新标签页登录或创建 PoStory 账号，然后回到这里连接平台。",
+      "signIn": "登录",
+      "createAccount": "创建账号",
+      "connect": "连接账号",
+      "connecting": "正在打开…",
+      "connected": "已连接",
+      "notConnected": "未连接",
+      "refresh": "刷新连接状态",
+      "refreshing": "正在刷新…",
+      "popupBlocked": "浏览器拦截了授权窗口，请允许此网站打开弹出窗口后重试。",
+      "connectionFailed": "无法启动账号连接，请重试。",
+      "optionalHint": "连接账号不是提交需求的必填项。你可以先提交，之后再从餐厅账号中连接。",
+      "back": "← 返回套餐选择",
+      "stepLabel": "第 4 步 / 4 · 账号连接",
+      "submit": "提交制作需求 →"
     }
   },
   "statusPage": {
