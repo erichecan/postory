@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireUser } from "@/lib/auth/session";
 import { listRestaurantBriefsForClient } from "@/lib/db/restaurant-campaigns";
 import { RestaurantMarketingCalendar, type PlanItem } from "@/components/restaurant/restaurant-marketing-calendar";
+import { getRestaurantPlatformSequence } from "@/lib/restaurant-campaign-planning";
 
 const sampleStart = new Date("2026-11-01T00:00:00.000Z");
 const sampleEnd = new Date("2026-11-30T00:00:00.000Z");
@@ -52,7 +53,16 @@ const extraSamplePosts = [
   submissions: [],
   previewImage: ["/demo/photos/restaurant-calendar/chef-nigiri.jpg", "/demo/photos/restaurant-calendar/lunch-set.jpg", "/demo/photos/restaurant-calendar/sushi-counter.jpg", "/demo/photos/restaurant-calendar/fresh-ingredients.jpg", "/demo/photos/restaurant-calendar/roll-made-to-order.jpg", "/demo/photos/restaurant-calendar/sushi-night.jpg", "/demo/photos/restaurant-calendar/bento-lunch.jpg", "/demo/photos/restaurant-calendar/guest-favourites.jpg"][index % 8],
 }));
-const sampleMonthItems = [...sampleItems, ...extraSamplePosts];
+const orderedSampleMonthItems = [...sampleItems, ...extraSamplePosts].sort((a, b) => a.date.getTime() - b.date.getTime());
+const samplePlatforms = getRestaurantPlatformSequence(30, ["instagram", "facebook", "tiktok"]);
+const sampleMonthItems = orderedSampleMonthItems.map((item, index) => {
+  const platform = samplePlatforms[index];
+  return {
+    ...item,
+    platforms: [platform],
+    ...(platform === "tiktok" ? { concept: `Short vertical video: ${item.concept}` } : {}),
+  };
+});
 
 export default async function RestaurantCampaignsPage() {
   const user = await requireUser();

@@ -75,6 +75,7 @@ export async function submitRestaurantCampaignBriefAction(_: FormState, formData
   }
   const platforms = [...new Set(formData.getAll("platforms").map(String).filter((value) => (publishablePlatforms as readonly string[]).includes(value) && isPublishPlatform(value)))];
   if (platforms.length === 0) return { error: "choosePlatform" };
+  if (platforms.includes("tiktok") && !platforms.some((platform) => platform !== "tiktok")) return { error: "chooseFeedPlatform" };
   const platformDistribution = getRestaurantPlatformDistribution(parsed.data.serviceTier === "growth" ? 30 : 20, platforms);
   const files = formData.getAll("referenceFiles").filter((file): file is File => file instanceof File && file.size > 0);
   if (files.length > maxFiles) return { error: "tooManyPhotos" };
@@ -98,7 +99,7 @@ export async function submitRestaurantCampaignBriefAction(_: FormState, formData
     campaignGoal: parsed.data.campaignGoal,
     campaignDetails: [
       `[Selected service tier: ${parsed.data.serviceTier === "growth" ? "Growth (€249/month, 30 posts)" : "Starter (€149/month, 20 posts)"}]`,
-      `[Suggested monthly platform distribution: ${platformDistribution.map(({ label, count }) => `${label} ${count}`).join(", ")} posts; each post is assigned to one primary platform and TikTok posts are evenly spaced.]`,
+      `[Suggested monthly platform distribution: ${platformDistribution.map(({ id, label, count }) => `${label} ${count}${id === "tiktok" ? " video posts" : " posts"}`).join(", ")}; each post is assigned to one primary platform and TikTok video posts are evenly spaced.]`,
       `[Featured content: ${parsed.data.featuredItems.join(", ")}]`,
       `[Visual style: ${parsed.data.visualStyle}]`,
       `[Brand voice: ${parsed.data.brandVoice}]`,

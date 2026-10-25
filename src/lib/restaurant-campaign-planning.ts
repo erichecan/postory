@@ -6,15 +6,12 @@ export const restaurantSocialPlatforms = [
 
 export type RestaurantSocialPlatform = (typeof restaurantSocialPlatforms)[number]["id"];
 
-export function getRestaurantPlatformDistribution(
-  totalPosts: number,
-  selectedPlatforms: readonly string[],
-) {
-  const selected = restaurantSocialPlatforms.filter((platform) => selectedPlatforms.includes(platform.id));
-  if (!selected.length || totalPosts <= 0) return [];
+const tiktokVideoCountByPackage: Record<number, number> = { 20: 4, 30: 8 };
 
-  const totalWeight = selected.reduce((sum, platform) => sum + platform.weight, 0);
-  const allocations = selected.map((platform, index) => {
+function allocateByWeight(totalPosts: number, platforms: typeof restaurantSocialPlatforms[number][]) {
+  if (!platforms.length) return new Map<RestaurantSocialPlatform, number>();
+  const totalWeight = platforms.reduce((sum, platform) => sum + platform.weight, 0);
+  const allocations = platforms.map((platform, index) => {
     const exact = (totalPosts * platform.weight) / totalWeight;
     return { ...platform, count: Math.floor(exact), remainder: exact % 1, index };
   });
@@ -24,8 +21,20 @@ export function getRestaurantPlatformDistribution(
     allocation.count += 1;
     unassigned -= 1;
   }
+  return new Map(allocations.map(({ id, count }) => [id, count]));
+}
 
-  return allocations.map(({ id, label, count }) => ({ id, label, count }));
+export function getRestaurantPlatformDistribution(
+  totalPosts: number,
+  selectedPlatforms: readonly string[],
+) {
+  const selected = restaurantSocialPlatforms.filter((platform) => selectedPlatforms.includes(platform.id));
+  if (!selected.length || totalPosts <= 0) return [];
+  const tiktok = selected.find((platform) => platform.id === "tiktok");
+  const feedPlatforms = selected.filter((platform) => platform.id !== "tiktok");
+  const tiktokCount = tiktok ? Math.min(tiktokVideoCountByPackage[totalPosts] ?? Math.round(totalPosts * 0.267), totalPosts) : 0;
+  const feedAllocations = allocateByWeight(totalPosts - tiktokCount, feedPlatforms);
+  return selected.map(({ id, label }) => ({ id, label, count: id === "tiktok" ? tiktokCount : feedAllocations.get(id) ?? 0 }));
 }
 
 export function getRestaurantPlatformSequence(
