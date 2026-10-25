@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { decideRestaurantCampaignContentFormAction } from "@/lib/actions/restaurant-campaigns";
 import { getRestaurantBriefByToken } from "@/lib/db/restaurant-campaigns";
+import { RestaurantRequestStatusActions } from "@/components/restaurant/restaurant-request-status-actions";
 
 export default async function RestaurantRequestStatusPage({ params }: { params: Promise<{ token: string }> }) {
   const t = await getTranslations("restaurantRequest.statusPage");
@@ -32,19 +33,32 @@ export default async function RestaurantRequestStatusPage({ params }: { params: 
     lunch: t("preferredTimes.lunch"),
     evening: t("preferredTimes.evening"),
   };
+  const isNewRequest = brief.status === "SUBMITTED";
 
   return (
     <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-12">
       <p className="text-sm font-semibold uppercase tracking-widest text-primary">PoStory · {brief.businessName}</p>
-      <h1 className="mt-3 text-3xl font-semibold">{t("title")}</h1>
+      <h1 className="mt-3 text-3xl font-semibold">{isNewRequest ? t("successTitle") : t("title")}</h1>
       <p className="mt-2 text-muted-foreground">{t("status")}: {briefStatuses[brief.status] ?? brief.status}</p>
+      {isNewRequest && <section className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5 sm:p-6">
+        <p className="text-sm font-semibold text-emerald-800">✓ {t("successStatus")}</p>
+        <p className="mt-2 text-sm leading-6 text-emerald-950">{t("successDescription")}</p>
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">{(["review", "preview", "approve"] as const).map((step, index) => <div key={step} className="rounded-xl border border-emerald-200/80 bg-white/80 p-3"><span className="text-xs font-semibold text-emerald-700">{index + 1}</span><p className="mt-1 text-sm leading-5 text-emerald-950">{t(`nextSteps.${step}`)}</p></div>)}</div>
+        <p className="mt-4 text-sm text-emerald-900">{t("trackingDescription")}</p>
+        <RestaurantRequestStatusActions copyLabel={t("copyLink")} copiedLabel={t("copied")} refreshLabel={t("refresh")} refreshingLabel={t("refreshing")}/>
+      </section>}
       <section className="mt-8 rounded-xl border p-5">
         <h2 className="font-semibold">{t("brief")}</h2>
         <p className="mt-2 whitespace-pre-wrap">{brief.campaignDetails}</p>
         <p className="mt-3 text-sm text-muted-foreground">{t("platforms")}: {brief.platforms.join(", ")} · {t("preferredTime")}: {preferredTimes[brief.preferredPostWindow] ?? brief.preferredPostWindow}</p>
         {brief.references.length > 0 && <div className="mt-4 flex flex-wrap gap-3">{brief.references.map((item) => <img key={item.id} src={`/api/restaurant-campaign-media/${item.storageKey}`} alt={t("referenceAlt")} className="h-24 w-24 rounded-lg object-cover" />)}</div>}
       </section>
-      <div className="mt-8 grid gap-5">
+      <section className="mt-8">
+        <h2 className="text-xl font-semibold">{t("contentSectionTitle")}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{t("contentSectionDescription")}</p>
+        {brief.content.length === 0 && <div className="mt-4 rounded-xl border border-dashed bg-muted/30 p-5 text-sm text-muted-foreground">{t("noContentYet")}</div>}
+      </section>
+      <div className="mt-4 grid gap-5">
         {brief.content.map((content) => <article key={content.id} className="overflow-hidden rounded-2xl border">
           <img src={`/api/restaurant-campaign-media/${content.storageKey}`} alt={content.title} className="max-h-[540px] w-full bg-muted object-contain" />
           <div className="p-5">

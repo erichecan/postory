@@ -147,6 +147,22 @@
   },
   "statusPage": {
     "title": "Campaign request",
+    "successTitle": "Your request was submitted successfully",
+    "successStatus": "We’ve received your campaign brief",
+    "successDescription": "Your request is now in the team’s review queue. Connecting a social account does not publish anything by itself; the ads will be created and reviewed with you before publishing.",
+    "nextSteps": {
+      "review": "The team reviews your goals, offer details, and selected platforms.",
+      "preview": "When the ad creatives are ready, their images and captions will appear on this page.",
+      "approve": "Review each creative here, request changes, and follow its scheduled or published status."
+    },
+    "trackingDescription": "Save this private page link. Return here to see your request status and review the ads as they are added.",
+    "copyLink": "Copy this page link",
+    "copied": "Link copied",
+    "refresh": "Refresh status",
+    "refreshing": "Refreshing…",
+    "contentSectionTitle": "Ad previews and review",
+    "contentSectionDescription": "Your creative previews, captions, and review actions will be shown here.",
+    "noContentYet": "No ad creative is ready yet. This page will show the preview here once the team starts adding content.",
     "status": "Status",
     "statuses": {
       "SUBMITTED": "Request received",

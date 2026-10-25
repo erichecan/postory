@@ -147,6 +147,22 @@
   },
   "statusPage": {
     "title": "餐厅宣传需求",
+    "successTitle": "需求已成功提交",
+    "successStatus": "我们已收到你的制作需求",
+    "successDescription": "需求已进入团队审核队列。授权社交账号本身不会发布广告；团队制作好素材后会先交给你审核确认，再安排发布。",
+    "nextSteps": {
+      "review": "团队会先核对你的宣传目标、优惠信息和所选平台。",
+      "preview": "广告素材完成后，图片和文案会显示在本页面。",
+      "approve": "你可以在这里逐条审核、提出修改，并查看排期或发布状态。"
+    },
+    "trackingDescription": "请保存这个专属页面链接。之后从这里查看需求进度，并审核团队添加的广告内容。",
+    "copyLink": "复制本页链接",
+    "copied": "链接已复制",
+    "refresh": "刷新进度",
+    "refreshing": "正在刷新…",
+    "contentSectionTitle": "广告预览与审核",
+    "contentSectionDescription": "广告图片、文案和审核操作会显示在这里。",
+    "noContentYet": "目前还没有制作好的广告素材。团队开始添加内容后，预览会显示在这里。",
     "status": "当前状态",
     "statuses": {
       "SUBMITTED": "已收到需求",
