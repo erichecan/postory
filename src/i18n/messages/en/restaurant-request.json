@@ -197,6 +197,18 @@
     "publishingNote": "Approval confirms the creative. Your account must be connected to the selected social platforms and have an active publishing plan before posts can be scheduled.",
     "preferredTimes": { "flexible": "Flexible", "lunch": "Lunch time", "evening": "Dinner time" }
   },
+  "campaignsPage": {
+    "eyebrow": "PoStory Restaurant",
+    "title": "Your marketing plans",
+    "description": "See what your team is planning, what needs your review, and what is scheduled for your social channels.",
+    "createButton": "Create a campaign now",
+    "preparing": "Your first plan is being prepared",
+    "plannedMoments": "{count, plural, one {# planned post} other {# planned posts}}",
+    "viewPlan": "View marketing plan",
+    "emptyTitle": "Your restaurant plan will appear here",
+    "emptyDescription": "After you submit your brief, connect it to this account from the private request link sent to you.",
+    "statuses": { "ACTIVE": "Active", "SUBMITTED": "Request received", "IN_REVIEW": "In review", "IN_PRODUCTION": "In production", "AWAITING_CLIENT": "Needs your review", "CLOSED": "Closed" }
+  },
   "claimPage": {
     "invalidLink": "This restaurant request link is invalid",
     "notFound": "Restaurant request not found",

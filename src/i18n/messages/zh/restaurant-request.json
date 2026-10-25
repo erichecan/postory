@@ -197,6 +197,18 @@
     "publishingNote": "确认内容代表创意已通过。要安排发布，你的账号还需连接所选社交平台，并拥有有效的发布计划。",
     "preferredTimes": { "flexible": "灵活安排", "lunch": "午餐时段", "evening": "晚餐时段" }
   },
+  "campaignsPage": {
+    "eyebrow": "PoStory 餐厅服务",
+    "title": "你的营销计划",
+    "description": "查看团队正在筹备的内容、待你审核的项目，以及已安排发布的社媒内容。",
+    "createButton": "现在就去制作",
+    "preparing": "团队正在准备你的第一份计划",
+    "plannedMoments": "已规划 {count} 条内容",
+    "viewPlan": "查看营销计划",
+    "emptyTitle": "你的餐厅计划会显示在这里",
+    "emptyDescription": "提交需求后，请通过发送给你的专属链接将这份需求关联到此账号。",
+    "statuses": { "ACTIVE": "进行中", "SUBMITTED": "已收到需求", "IN_REVIEW": "审核中", "IN_PRODUCTION": "制作中", "AWAITING_CLIENT": "待你审核", "CLOSED": "已结束" }
+  },
   "claimPage": {
     "invalidLink": "餐厅需求链接无效",
     "notFound": "没有找到这份餐厅需求",

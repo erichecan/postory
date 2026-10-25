@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { LOCALES, type Locale } from "@/i18n/config";
 import { setLocaleAction } from "@/lib/actions/locale";
@@ -11,11 +12,15 @@ const LABELS: Record<Locale, string> = { zh: "ä¸­", en: "EN" }; // i18n-allow: è
 export function LocaleSwitcher({ className }: { className?: string }) {
   const t = useTranslations("common");
   const locale = useLocale();
+  const router = useRouter();
   const [pending, start] = useTransition();
 
   const choose = (next: Locale) => {
     if (next === locale) return;
-    start(() => setLocaleAction(next));
+    start(async () => {
+      await setLocaleAction(next);
+      router.refresh();
+    });
   };
 
   return (
