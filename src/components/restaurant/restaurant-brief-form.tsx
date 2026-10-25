@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useActionState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { submitRestaurantCampaignBriefAction } from "@/lib/actions/restaurant-campaigns";
 import { Platform } from "@/components/visual/primitives";
 import { getRestaurantPlatformDistribution, getRestaurantPlatformSequence } from "@/lib/restaurant-campaign-planning";
@@ -22,6 +22,7 @@ const packagePlans = {
 
 export function RestaurantBriefForm({ referral = "", signedIn, connectedPlatforms }: { referral?: string; signedIn: boolean; connectedPlatforms: string[] }) {
   const t = useTranslations("restaurantRequest.form");
+  const locale = useLocale();
   const [state, action, pending] = useActionState(submitRestaurantCampaignBriefAction, undefined);
   const [step, setStep] = useState(1);
   const [goal, setGoal] = useState("offer-reach");
@@ -62,7 +63,7 @@ export function RestaurantBriefForm({ referral = "", signedIn, connectedPlatform
       <h2 className="text-lg font-semibold">{t("goal.title")}</h2>
       <p className="mt-1 text-sm text-muted-foreground">{t("goal.description")}</p>
       <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{goalIds.map((id) => <button key={id} type="button" onClick={() => setGoal(id)} aria-pressed={goal === id} className={`min-h-24 rounded-xl border p-4 text-left transition ${goal === id ? "border-primary bg-primary/[0.04] ring-1 ring-primary" : "hover:border-primary/50"}`}><span className="font-medium">{t(`goal.goals.${id}.title`)}</span><span className="mt-2 block text-xs leading-5 text-muted-foreground">{t(`goal.goals.${id}.metric`)}</span></button>)}</div>
-      <div className="mt-4 rounded-xl border p-4"><p className="text-sm font-medium">{t("goal.activityTitle")}</p><p className="mt-1 text-xs text-muted-foreground">{t("goal.activityHint")}</p><div className="mt-3 grid gap-3 sm:grid-cols-2"><label className="grid gap-1.5 text-sm">{t("goal.startDate")}<input name="campaignStartDate" type="date" className="rounded-lg border bg-background px-3 py-2"/></label><label className="grid gap-1.5 text-sm">{t("goal.endDate")}<input name="campaignEndDate" type="date" className="rounded-lg border bg-background px-3 py-2"/></label></div></div>
+      <div className="mt-4 rounded-xl border p-4"><p className="text-sm font-medium">{t("goal.activityTitle")}</p><p className="mt-1 text-xs text-muted-foreground">{t("goal.activityHint")}</p><div className="mt-3 grid gap-3 sm:grid-cols-2"><label className="grid gap-1.5 text-sm">{t("goal.startDate")}<input lang={locale === "en" ? "en-CA" : "zh-CN"} name="campaignStartDate" type="date" className="rounded-lg border bg-background px-3 py-2"/></label><label className="grid gap-1.5 text-sm">{t("goal.endDate")}<input lang={locale === "en" ? "en-CA" : "zh-CN"} name="campaignEndDate" type="date" className="rounded-lg border bg-background px-3 py-2"/></label></div></div>
       <div className="mt-5 flex justify-end"><button type="button" onClick={() => setStep(2)} className="rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground">{t("goal.next")}</button></div>
     </section>
 
