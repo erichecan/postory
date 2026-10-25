@@ -225,6 +225,26 @@
   gap: 12px;
   align-items: center;
 }
+.restaurant-request-calendar-platforms .ps-platform {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 7px;
+}
+.restaurant-request-calendar-platforms .ps-platform-instagram svg {
+  width: 22px !important;
+  height: 22px !important;
+}
+@media (max-width: 640px) {
+  .restaurant-request-calendar-platforms .ps-platform {
+    width: 18px !important;
+    height: 18px !important;
+    border-radius: 5px;
+  }
+  .restaurant-request-calendar-platforms .ps-platform-instagram svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+}
 .ps-section-heading {
   display: flex;
   justify-content: space-between;
