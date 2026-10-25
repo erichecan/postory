@@ -67,22 +67,22 @@ export async function submitRestaurantCampaignBriefAction(_: FormState, formData
     featuredItems: formData.getAll("featuredItems").map(String),
   };
   const parsed = briefSchema.safeParse(rawForm);
-  if (!parsed.success) return { error: "请检查必填信息，并至少选择一个主推内容。" };
+  if (!parsed.success) return { error: "invalidBrief" };
   const startDate = optionalDate(parsed.data.campaignStartDate);
   const endDate = optionalDate(parsed.data.campaignEndDate);
   if (startDate === "invalid" || endDate === "invalid" || (startDate && endDate && endDate < startDate) || Boolean(startDate) !== Boolean(endDate)) {
-    return { error: "请填写完整的活动起止日期，并确保结束日期不早于开始日期。" };
+    return { error: "invalidDates" };
   }
   const platforms = [...new Set(formData.getAll("platforms").map(String).filter((value) => (publishablePlatforms as readonly string[]).includes(value) && isPublishPlatform(value)))];
-  if (platforms.length === 0) return { error: "请至少选择一个发布平台。" };
+  if (platforms.length === 0) return { error: "choosePlatform" };
   const platformDistribution = getRestaurantPlatformDistribution(parsed.data.serviceTier === "growth" ? 30 : 20, platforms);
   const files = formData.getAll("referenceFiles").filter((file): file is File => file instanceof File && file.size > 0);
-  if (files.length > maxFiles) return { error: "参考照片最多上传 6 张。" };
-  if (files.reduce((size, file) => size + file.size, 0) > maxFileBatch) return { error: "照片总大小不能超过 10 MB。" };
+  if (files.length > maxFiles) return { error: "tooManyPhotos" };
+  if (files.reduce((size, file) => size + file.size, 0) > maxFileBatch) return { error: "photosTooLarge" };
   const decoded: { bytes: Buffer; mime: string }[] = [];
   for (const file of files) {
     const valid = validateImageBytes(Buffer.from(await file.arrayBuffer()));
-    if (!valid.ok) return { error: valid.error === "tooLarge" ? "照片文件过大。" : "请使用 PNG、JPEG 或 WebP 格式的照片。" };
+    if (!valid.ok) return { error: valid.error === "tooLarge" ? "photoTooLarge" : "invalidPhotoFormat" };
     decoded.push({ bytes: valid.bytes, mime: valid.mime });
   }
 
@@ -127,7 +127,7 @@ export async function submitRestaurantCampaignBriefAction(_: FormState, formData
   } catch {
     await Promise.all(savedKeys.map((key) => deleteObject(key).catch(() => undefined)));
     await deleteRestaurantBrief(brief.id).catch(() => undefined);
-    return { error: "暂时无法保存你的需求，请稍后重试。" };
+    return { error: "saveFailed" };
   }
 
   redirect(`/restaurant/request/${brief.token}`);
@@ -286,11 +286,11 @@ export async function adminSetRestaurantBriefStatusAction(_: FormState, formData
 export async function claimRestaurantCampaignAction(_: FormState, formData: FormData): Promise<FormState> {
   const user = await assertUser();
   const token = String(formData.get("token") ?? "");
-  if (!/^[a-f0-9]{48}$/.test(token)) return { error: "This request link is invalid." };
+  if (!/^[a-f0-9]{48}$/.test(token)) return { error: "invalidLink" };
   if (!user.email || !user.emailVerifiedAt) redirect(`/verify-email?next=${encodeURIComponent(`/restaurant/request/${token}/claim`)}`);
   const brief = await getRestaurantBriefForClaim(token);
-  if (!brief || brief.contactEmail.toLowerCase() !== user.email.toLowerCase()) return { error: "Sign in with the verified email address you supplied with the restaurant request." };
-  if (brief.clientUserId && brief.clientUserId !== user.id) return { error: "This restaurant request is already linked to another account." };
+  if (!brief || brief.contactEmail.toLowerCase() !== user.email.toLowerCase()) return { error: "verifiedEmailMismatch" };
+  if (brief.clientUserId && brief.clientUserId !== user.id) return { error: "alreadyLinked" };
   if (!brief.clientUserId) await linkRestaurantBriefClient(brief.id, user.id, brief.referralUserId);
   redirect(`/restaurant/campaigns/${brief.id}`);
 }

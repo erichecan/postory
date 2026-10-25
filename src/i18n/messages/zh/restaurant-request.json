@@ -1,0 +1,179 @@
+{
+  "page": {
+    "eyebrow": "PoStory · 餐厅内容宣传",
+    "title": "规划餐厅下个月的社交内容",
+    "description": "先选择宣传目标，再确定内容方向，最后选择套餐并查看月度排期。"
+  },
+  "form": {
+    "steps": { "goal": "选择目标", "direction": "品牌与内容方向", "package": "套餐与提交" },
+    "goal": {
+      "title": "这次宣传，你最希望顾客做什么？",
+      "description": "选择一个主要目标。每个目标都对应可观察的数据，方便之后回顾效果。",
+      "goals": {
+        "offer-reach": { "title": "让更多人知道午餐有优惠", "metric": "关注触达人数、内容浏览量" },
+        "menu-views": { "title": "让更多人查看午餐菜单", "metric": "关注菜单页访问、菜单链接点击" },
+        "offer-redemptions": { "title": "让顾客领取或使用优惠", "metric": "关注优惠码领取、实际核销" },
+        "online-bookings": { "title": "带来更多在线预订", "metric": "关注预订链接点击、完成预订" },
+        "dish-discovery": { "title": "推广一道招牌菜或新品", "metric": "关注内容浏览、收藏与分享" },
+        "local-engagement": { "title": "让本地顾客参与互动", "metric": "关注评论、私信咨询、分享" }
+      },
+      "activityTitle": "如有相关活动，可补充日期与优惠",
+      "activityHint": "例如：工作日午餐套餐 €12.50，11 月 1–30 日供应",
+      "startDate": "活动开始",
+      "endDate": "活动结束",
+      "next": "继续：品牌与内容方向 →"
+    },
+    "direction": {
+      "title": "品牌与内容方向",
+      "description": "告诉我们要面向谁、主推什么，以及画面希望是什么感觉。",
+      "featuredTitle": "本次主推什么？",
+      "multiSelect": "可多选",
+      "featured": {
+        "signature-dishes": { "title": "招牌菜 / 人气菜", "hint": "突出顾客常点的菜品" },
+        "lunch-offers": { "title": "午餐 / 套餐优惠", "hint": "说明价格、时段和优惠条件" },
+        "new-seasonal": { "title": "新品 / 季节限定", "hint": "介绍新品亮点与供应时间" },
+        "takeaway-sharing": { "title": "外卖 / 分享套餐", "hint": "适合外带、多人分享或团购" },
+        "events": { "title": "节日 / 聚会活动", "hint": "节庆菜单、团体餐或特别场合" },
+        "other": { "title": "其他主推内容", "hint": "补充你本月想重点宣传的内容" }
+      },
+      "specificOffer": "具体菜品、价格与供应信息",
+      "specificOfferPlaceholder": "例如：午餐套餐 €12.50，周一至周五 12–3 点；含味噌汤和三文鱼卷。请提供准确价格、条件与卖点。",
+      "campaignDetails": "其他活动说明与必须出现的信息",
+      "campaignDetailsPlaceholder": "描述本次活动、希望顾客采取的动作，以及必须准确呈现的细节。",
+      "audience": "希望吸引哪类顾客？",
+      "audiencePlaceholder": "附近上班族、学生、家庭客、聚会顾客……",
+      "directionTitle": "主要宣传角度",
+      "campaignDirection": "选择方向",
+      "postWindow": "希望发布的时段",
+      "directions": {
+        "lunch-set": "午餐套餐",
+        "new-arrival": "新品上市",
+        "limited-offer": "限时优惠",
+        "premium-signature": "招牌菜",
+        "healthy-light": "新鲜健康",
+        "seafood-feature": "海鲜主打",
+        "signature-platter": "分享拼盘",
+        "date-night": "约会晚餐"
+      },
+      "windows": { "flexible": "灵活安排", "lunch": "午餐时段", "evening": "晚餐时段" },
+      "visualStyleTitle": "画面风格",
+      "visualStyles": {
+        "appetizing": { "title": "明亮诱人", "hint": "突出菜品色泽与细节" },
+        "warm": { "title": "温馨有氛围", "hint": "呈现空间与聚餐体验" },
+        "minimal": { "title": "简洁菜单感", "hint": "优惠、价格、时段一眼看懂" },
+        "follow-brand": { "title": "沿用现有品牌", "hint": "按你提供的 Logo、配色和样例" }
+      },
+      "brandVoice": "文案语气",
+      "brandVoices": { "friendly": "亲切友好", "casual": "轻松活泼", "premium": "精致高级", "expert": "强调工艺与食材" },
+      "languagePreference": "内容语言",
+      "languages": { "en": "英文", "zh": "中文" },
+      "platformsTitle": "发布平台",
+      "platformsHint": "至少选择一个，系统会按平台特点分配每月内容。",
+      "platformNames": { "instagram": "Instagram", "facebook": "Facebook", "tiktok": "TikTok" },
+      "brandReferences": "品牌 / Logo / 宣传参考",
+      "brandReferencesPlaceholder": "品牌色、网站或社交账号链接",
+      "photos": "菜品与门店照片",
+      "photosHint": "最多 6 张，真实照片有助于我们使用你的菜品和品牌素材。",
+      "restrictions": "事实限制与不要出现的内容",
+      "restrictionsPlaceholder": "过敏原、不可承诺的信息、必须注明的条件、不要出现的元素……",
+      "previewLabel": "内容方向预览",
+      "previewImage": "真实菜品照片 + 清晰优惠信息",
+      "previewTitle": "午餐好味道，也有好价格",
+      "previewHint": "最终画面会根据你选择的主推内容、品牌素材和照片制作。",
+      "back": "← 返回目标",
+      "next": "继续：套餐与提交 →"
+    },
+    "package": {
+      "title": "最后选择内容套餐",
+      "description": "先定目标和创作方向，再按每月内容量选择。月历预览会随套餐同步更新。",
+      "moreContent": "更多内容",
+      "perPost": "/ 条",
+      "perMonth": "/ 月",
+      "dailyRate": "/ 天",
+      "monthlyContent": "条内容 / 月",
+      "monthlyFee": "套餐月费",
+      "examplePrice": "示例价格，最终交付范围提交后确认。",
+      "calendarTitle": "{name} 月度内容日历预览",
+      "postCount": "{count} 条 / 30 天",
+      "calendarHint": "每条内容只安排到一个主要发布平台；TikTok 发布频率较低，并会均匀分散在整月。实际排期由团队确认。",
+      "platformPostCount": "{platform} · {count} 条",
+      "weekdays": { "mon": "一", "tue": "二", "wed": "三", "thu": "四", "fri": "五", "sat": "六", "sun": "日" },
+      "contactName": "联系人姓名",
+      "contactNamePlaceholder": "姓名",
+      "email": "联系邮箱",
+      "phone": "联系电话",
+      "businessName": "餐厅名称",
+      "businessNamePlaceholder": "餐厅名称",
+      "location": "城市 / 区域",
+      "locationPlaceholder": "例如：Dublin 2",
+      "website": "网站或社交主页",
+      "back": "← 返回品牌与内容方向",
+      "stepLabel": "第 3 步 / 3 · 套餐最后选择",
+      "submitting": "正在提交…",
+      "submit": "提交制作需求 →",
+      "errors": {
+        "invalidBrief": "请检查必填信息，并至少选择一个主推内容。",
+        "invalidDates": "请填写完整的活动起止日期，并确保结束日期不早于开始日期。",
+        "choosePlatform": "请至少选择一个发布平台。",
+        "tooManyPhotos": "参考照片最多上传 6 张。",
+        "photosTooLarge": "照片总大小不能超过 10 MB。",
+        "photoTooLarge": "照片文件过大。",
+        "invalidPhotoFormat": "请使用 PNG、JPEG 或 WebP 格式的照片。",
+        "saveFailed": "暂时无法保存你的需求，请稍后重试。"
+      }
+    }
+  },
+  "statusPage": {
+    "title": "餐厅宣传需求",
+    "status": "当前状态",
+    "statuses": {
+      "SUBMITTED": "已收到需求",
+      "IN_REVIEW": "正在审核",
+      "IN_PRODUCTION": "内容制作中",
+      "AWAITING_CLIENT": "等待你审核",
+      "ACTIVE": "宣传计划已确认",
+      "CLOSED": "已关闭"
+    },
+    "brief": "你的需求信息",
+    "platforms": "发布平台",
+    "preferredTime": "希望发布时段",
+    "referenceAlt": "餐厅参考照片",
+    "contentStatuses": {
+      "AWAITING_APPROVAL": "等待审核",
+      "REVISION_REQUESTED": "已请求修改",
+      "APPROVED": "已通过",
+      "SCHEDULED": "已排期",
+      "PUBLISHED": "已发布",
+      "FAILED": "发布失败"
+    },
+    "previousFeedback": "上次反馈",
+    "approve": "确认这条内容",
+    "revisionPlaceholder": "希望修改哪些内容？",
+    "requestChanges": "请求修改",
+    "planTitle": "查看你的餐厅营销计划",
+    "planDescription": "将这份需求关联到 PoStory 账号。团队可以在同一个地方管理计划、待发布内容、审核请求和发布进度。",
+    "connect": "关联我的 PoStory 账号",
+    "publishingNote": "确认内容代表创意已通过。要安排发布，你的账号还需连接所选社交平台，并拥有有效的发布计划。",
+    "preferredTimes": { "flexible": "灵活安排", "lunch": "午餐时段", "evening": "晚餐时段" }
+  },
+  "claimPage": {
+    "invalidLink": "餐厅需求链接无效",
+    "notFound": "没有找到这份餐厅需求",
+    "eyebrow": "PoStory 餐厅服务",
+    "title": "关联餐厅账号",
+    "description": "关联后，团队会在这里为你的餐厅制定和维护营销计划，包括宣传主题、待发布内容、审核步骤和发布状态。",
+    "alreadyConnected": "这份需求已经关联到一个账号。如果该账号属于你，可以继续查看餐厅计划。",
+    "openPlans": "查看我的餐厅计划",
+    "connectTitle": "关联你的餐厅账号"
+  },
+  "claimForm": {
+    "matchHint": "我们会使用 PoStory 账号中已验证的邮箱来匹配这份需求。",
+    "connecting": "正在关联…",
+    "connect": "将我的餐厅关联到 PoStory",
+    "errors": {
+      "invalidLink": "这份需求链接无效。",
+      "verifiedEmailMismatch": "请使用提交餐厅需求时填写并已验证的邮箱登录。",
+      "alreadyLinked": "这份餐厅需求已关联到其他账号。"
+    }
+  }
+}

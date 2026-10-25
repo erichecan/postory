@@ -1,0 +1,179 @@
+{
+  "page": {
+    "eyebrow": "PoStory · Restaurant Campaign",
+    "title": "Plan your restaurant’s next month of content",
+    "description": "Choose a goal, set your content direction, then select a package and review the monthly schedule."
+  },
+  "form": {
+    "steps": { "goal": "Choose a goal", "direction": "Brand & content direction", "package": "Package & submit" },
+    "goal": {
+      "title": "What would you most like customers to do?",
+      "description": "Choose one main goal. Each goal has observable measures so you can review the results.",
+      "goals": {
+        "offer-reach": { "title": "Let more people know about your lunch offer", "metric": "Track reach and content views" },
+        "menu-views": { "title": "Get more people to view your lunch menu", "metric": "Track menu visits and menu link clicks" },
+        "offer-redemptions": { "title": "Get customers to claim or use an offer", "metric": "Track offer claims and redemptions" },
+        "online-bookings": { "title": "Bring in more online bookings", "metric": "Track booking link clicks and completed bookings" },
+        "dish-discovery": { "title": "Promote a signature dish or new item", "metric": "Track views, saves, and shares" },
+        "local-engagement": { "title": "Encourage local customers to engage", "metric": "Track comments, messages, and shares" }
+      },
+      "activityTitle": "Add dates and offer details, if applicable",
+      "activityHint": "For example: Weekday lunch set for €12.50, available November 1–30",
+      "startDate": "Offer starts",
+      "endDate": "Offer ends",
+      "next": "Continue: brand & content direction →"
+    },
+    "direction": {
+      "title": "Brand & content direction",
+      "description": "Tell us who you want to reach, what to feature, and how you want the visuals to feel.",
+      "featuredTitle": "What would you like to feature?",
+      "multiSelect": "Select all that apply",
+      "featured": {
+        "signature-dishes": { "title": "Signature or popular dishes", "hint": "Showcase customer favourites" },
+        "lunch-offers": { "title": "Lunch or set-menu offers", "hint": "Include price, hours, and offer terms" },
+        "new-seasonal": { "title": "New or seasonal items", "hint": "Introduce what is new and when it is available" },
+        "takeaway-sharing": { "title": "Takeaway or sharing sets", "hint": "For takeaway, groups, or sharing" },
+        "events": { "title": "Events and celebrations", "hint": "Seasonal menus, group dining, or special occasions" },
+        "other": { "title": "Other highlights", "hint": "Add another priority for this month" }
+      },
+      "specificOffer": "Dish, price, and availability details",
+      "specificOfferPlaceholder": "For example: Lunch set €12.50, Monday–Friday, 12–3 pm; includes miso soup and salmon rolls. Please share accurate prices, terms, and highlights.",
+      "campaignDetails": "Other campaign details and required information",
+      "campaignDetailsPlaceholder": "Describe the campaign, what you want customers to do, and any details that must be accurate.",
+      "audience": "Who would you like to reach?",
+      "audiencePlaceholder": "Nearby office workers, students, families, groups…",
+      "directionTitle": "Main campaign angle",
+      "campaignDirection": "Campaign angle",
+      "postWindow": "Preferred posting time",
+      "directions": {
+        "lunch-set": "Lunch set",
+        "new-arrival": "New arrival",
+        "limited-offer": "Limited-time offer",
+        "premium-signature": "Signature dish",
+        "healthy-light": "Fresh and healthy",
+        "seafood-feature": "Seafood feature",
+        "signature-platter": "Sharing platter",
+        "date-night": "Date-night dining"
+      },
+      "windows": { "flexible": "Flexible", "lunch": "Lunch time", "evening": "Dinner time" },
+      "visualStyleTitle": "Visual style",
+      "visualStyles": {
+        "appetizing": { "title": "Bright and appetizing", "hint": "Bring out the colour and details of each dish" },
+        "warm": { "title": "Warm and atmospheric", "hint": "Show the space and dining experience" },
+        "minimal": { "title": "Clean menu style", "hint": "Make offers, prices, and hours easy to scan" },
+        "follow-brand": { "title": "Follow our existing brand", "hint": "Use the logo, colours, and examples you provide" }
+      },
+      "brandVoice": "Writing tone",
+      "brandVoices": { "friendly": "Friendly", "casual": "Casual and lively", "premium": "Refined", "expert": "Focused on craft and ingredients" },
+      "languagePreference": "Content language",
+      "languages": { "en": "English", "zh": "Chinese" },
+      "platformsTitle": "Publishing platforms",
+      "platformsHint": "Choose at least one. We’ll distribute monthly posts to fit each platform.",
+      "platformNames": { "instagram": "Instagram", "facebook": "Facebook", "tiktok": "TikTok" },
+      "brandReferences": "Brand, logo, or campaign references",
+      "brandReferencesPlaceholder": "Brand colours, website, or social profile links",
+      "photos": "Dish and restaurant photos",
+      "photosHint": "Up to 6 images. Real photos help us use your dishes and brand assets.",
+      "restrictions": "Facts to respect and things to avoid",
+      "restrictionsPlaceholder": "Allergens, claims we cannot make, required terms, or elements to avoid…",
+      "previewLabel": "Content direction preview",
+      "previewImage": "Real dish photos + clear offer details",
+      "previewTitle": "Great lunch, at a great price",
+      "previewHint": "Final visuals will reflect your featured items, brand assets, and photos.",
+      "back": "← Back to goal",
+      "next": "Continue: package & submit →"
+    },
+    "package": {
+      "title": "Choose your content package",
+      "description": "Set your goal and creative direction first, then choose a monthly content volume. The calendar updates with your package.",
+      "moreContent": "More content",
+      "perPost": "/ post",
+      "perMonth": "/ month",
+      "dailyRate": "per day",
+      "monthlyContent": "posts / month",
+      "monthlyFee": "Monthly package fee",
+      "examplePrice": "Example pricing; final scope will be confirmed after submission.",
+      "calendarTitle": "{name} monthly content calendar",
+      "postCount": "{count} posts / 30 days",
+      "calendarHint": "Each post is assigned to one primary platform. TikTok is scheduled less often and spaced throughout the month. The team will confirm the final schedule.",
+      "platformPostCount": "{platform} · {count} posts",
+      "weekdays": { "mon": "Mon", "tue": "Tue", "wed": "Wed", "thu": "Thu", "fri": "Fri", "sat": "Sat", "sun": "Sun" },
+      "contactName": "Contact name",
+      "contactNamePlaceholder": "Your name",
+      "email": "Email address",
+      "phone": "Phone number",
+      "businessName": "Restaurant name",
+      "businessNamePlaceholder": "Restaurant name",
+      "location": "City / area",
+      "locationPlaceholder": "For example: Dublin 2",
+      "website": "Website or social profile",
+      "back": "← Back to brand & content direction",
+      "stepLabel": "Step 3 of 3 · Package selected last",
+      "submitting": "Submitting…",
+      "submit": "Submit campaign brief →",
+      "errors": {
+        "invalidBrief": "Please check the required details and select at least one featured item.",
+        "invalidDates": "Enter both offer dates and make sure the end date is not before the start date.",
+        "choosePlatform": "Choose at least one publishing platform.",
+        "tooManyPhotos": "Upload up to 6 reference photos.",
+        "photosTooLarge": "The combined photo size must be 10 MB or less.",
+        "photoTooLarge": "One of the photos is too large.",
+        "invalidPhotoFormat": "Use PNG, JPEG, or WebP photos.",
+        "saveFailed": "We couldn’t save your request. Please try again."
+      }
+    }
+  },
+  "statusPage": {
+    "title": "Campaign request",
+    "status": "Status",
+    "statuses": {
+      "SUBMITTED": "Request received",
+      "IN_REVIEW": "Being reviewed",
+      "IN_PRODUCTION": "Content in production",
+      "AWAITING_CLIENT": "Your review is needed",
+      "ACTIVE": "Campaign approved",
+      "CLOSED": "Closed"
+    },
+    "brief": "Your brief",
+    "platforms": "Platforms",
+    "preferredTime": "Preferred time",
+    "referenceAlt": "Restaurant reference photo",
+    "contentStatuses": {
+      "AWAITING_APPROVAL": "Awaiting approval",
+      "REVISION_REQUESTED": "Changes requested",
+      "APPROVED": "Approved",
+      "SCHEDULED": "Scheduled",
+      "PUBLISHED": "Published",
+      "FAILED": "Could not publish"
+    },
+    "previousFeedback": "Previous feedback",
+    "approve": "Approve this content",
+    "revisionPlaceholder": "What would you like changed?",
+    "requestChanges": "Request a change",
+    "planTitle": "View your restaurant marketing plan",
+    "planDescription": "Connect this request to your PoStory account. Your team can keep the plan, upcoming content, review requests, and publishing progress together in one place.",
+    "connect": "Connect my PoStory account",
+    "publishingNote": "Approval confirms the creative. Your account must be connected to the selected social platforms and have an active publishing plan before posts can be scheduled.",
+    "preferredTimes": { "flexible": "Flexible", "lunch": "Lunch time", "evening": "Dinner time" }
+  },
+  "claimPage": {
+    "invalidLink": "This restaurant request link is invalid",
+    "notFound": "Restaurant request not found",
+    "eyebrow": "PoStory Restaurant",
+    "title": "Connect your restaurant account",
+    "description": "Once connected, your team can build and manage the restaurant marketing plan here, including campaign themes, upcoming content, reviews, and publishing status.",
+    "alreadyConnected": "This request is already connected to an account. If it belongs to you, continue to your restaurant plan.",
+    "openPlans": "Open my restaurant plans",
+    "connectTitle": "Connect your restaurant’s account"
+  },
+  "claimForm": {
+    "matchHint": "We’ll match this request with the verified email address on your PoStory account.",
+    "connecting": "Connecting…",
+    "connect": "Connect my restaurant to PoStory",
+    "errors": {
+      "invalidLink": "This request link is invalid.",
+      "verifiedEmailMismatch": "Sign in with the verified email address you provided with the restaurant request.",
+      "alreadyLinked": "This restaurant request is already linked to another account."
+    }
+  }
+}

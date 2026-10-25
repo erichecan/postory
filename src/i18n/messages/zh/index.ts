@@ -19,7 +19,8 @@ import legal from "./legal.json";
 import calendar from "./calendar.json";
 import customers from "./customers.json";
 import partners from "./partners.json";
+import restaurantRequest from "./restaurant-request.json";
 
-const messages = { nails, common, auth, profile, validation, nav, gallery, templates, designs, admin, platforms, editor, billing, create, plans, generations, landing, legal, calendar, customers, partners };
+const messages = { nails, common, auth, profile, validation, nav, gallery, templates, designs, admin, platforms, editor, billing, create, plans, generations, landing, legal, calendar, customers, partners, restaurantRequest };
 
 export default messages;

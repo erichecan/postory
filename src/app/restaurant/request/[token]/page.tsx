@@ -1,15 +1,70 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { decideRestaurantCampaignContentFormAction } from "@/lib/actions/restaurant-campaigns";
 import { getRestaurantBriefByToken } from "@/lib/db/restaurant-campaigns";
 
-const statusText: Record<string, string> = { SUBMITTED: "Request received", IN_REVIEW: "Being reviewed", IN_PRODUCTION: "Content in production", AWAITING_CLIENT: "Your review is needed", ACTIVE: "Campaign approved", CLOSED: "Closed" };
 export default async function RestaurantRequestStatusPage({ params }: { params: Promise<{ token: string }> }) {
+  const t = await getTranslations("restaurantRequest.statusPage");
   const { token } = await params;
   if (!/^[a-f0-9]{48}$/.test(token)) notFound();
   const brief = await getRestaurantBriefByToken(token);
   if (!brief) notFound();
-  return <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-12"><p className="text-sm font-semibold uppercase tracking-widest text-primary">PoStory · {brief.businessName}</p><h1 className="mt-3 text-3xl font-semibold">Campaign request</h1><p className="mt-2 text-muted-foreground">Status: {statusText[brief.status] ?? brief.status}</p><section className="mt-8 rounded-xl border p-5"><h2 className="font-semibold">Your brief</h2><p className="mt-2">{brief.campaignDetails}</p><p className="mt-3 text-sm text-muted-foreground">Platforms: {brief.platforms.join(", ")} · Preferred time: {brief.preferredPostWindow}</p>{brief.references.length > 0 && <div className="mt-4 flex flex-wrap gap-3">{brief.references.map((item) => <img key={item.id} src={`/api/restaurant-campaign-media/${item.storageKey}`} alt="Restaurant reference" className="h-24 w-24 rounded-lg object-cover" />)}</div>}</section>
-    <div className="mt-8 grid gap-5">{brief.content.map((content) => <article key={content.id} className="overflow-hidden rounded-2xl border"><img src={`/api/restaurant-campaign-media/${content.storageKey}`} alt={content.title} className="max-h-[540px] w-full bg-muted object-contain" /><div className="p-5"><p className="text-xs uppercase tracking-wide text-muted-foreground">{content.status.replaceAll("_", " ")}</p><h2 className="mt-1 text-xl font-semibold">{content.title}</h2><p className="mt-3 whitespace-pre-wrap">{content.caption}</p>{content.revisionNote && <p className="mt-3 rounded-lg bg-muted p-3 text-sm">Previous feedback: {content.revisionNote}</p>}{["AWAITING_APPROVAL", "REVISION_REQUESTED"].includes(content.status) && <div className="mt-5 flex flex-wrap gap-3"><form action={decideRestaurantCampaignContentFormAction}><input type="hidden" name="token" value={token} /><input type="hidden" name="contentId" value={content.id} /><input type="hidden" name="decision" value="APPROVED" /><button className="rounded-lg bg-primary px-4 py-2 text-primary-foreground">Approve this content</button></form><form action={decideRestaurantCampaignContentFormAction} className="flex flex-1 flex-wrap gap-2"><input type="hidden" name="token" value={token} /><input type="hidden" name="contentId" value={content.id} /><input type="hidden" name="decision" value="REVISION_REQUESTED" /><input required minLength={5} maxLength={2000} name="revisionNote" placeholder="What would you like changed?" className="min-w-48 flex-1 rounded-lg border px-3 py-2" /><button className="rounded-lg border px-4 py-2">Request a change</button></form></div>}</div></article>)}</div>
-    <section className="mt-8 rounded-2xl border border-primary/25 bg-primary/5 p-5"><h2 className="text-lg font-semibold">See your ongoing restaurant marketing plan</h2><p className="mt-2 text-sm text-muted-foreground">Connect this request to your PoStory account. Your team will keep the plan, upcoming content, review requests, and publishing progress together in one place.</p><Link href={`/restaurant/request/${token}/claim`} className="mt-4 inline-flex rounded-lg bg-primary px-4 py-2 text-sm text-primary-foreground">Connect my PoStory account</Link></section><p className="mt-5 text-sm text-muted-foreground">Approval confirms the creative. Your account must be connected to the selected social platforms and have an active publishing plan before we schedule posts.</p></main>;
+
+  const briefStatuses: Record<string, string> = {
+    SUBMITTED: t("statuses.SUBMITTED"),
+    IN_REVIEW: t("statuses.IN_REVIEW"),
+    IN_PRODUCTION: t("statuses.IN_PRODUCTION"),
+    AWAITING_CLIENT: t("statuses.AWAITING_CLIENT"),
+    ACTIVE: t("statuses.ACTIVE"),
+    CLOSED: t("statuses.CLOSED"),
+  };
+  const contentStatuses: Record<string, string> = {
+    AWAITING_APPROVAL: t("contentStatuses.AWAITING_APPROVAL"),
+    REVISION_REQUESTED: t("contentStatuses.REVISION_REQUESTED"),
+    APPROVED: t("contentStatuses.APPROVED"),
+    SCHEDULED: t("contentStatuses.SCHEDULED"),
+    PUBLISHED: t("contentStatuses.PUBLISHED"),
+    FAILED: t("contentStatuses.FAILED"),
+  };
+  const preferredTimes: Record<string, string> = {
+    flexible: t("preferredTimes.flexible"),
+    lunch: t("preferredTimes.lunch"),
+    evening: t("preferredTimes.evening"),
+  };
+
+  return (
+    <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-12">
+      <p className="text-sm font-semibold uppercase tracking-widest text-primary">PoStory · {brief.businessName}</p>
+      <h1 className="mt-3 text-3xl font-semibold">{t("title")}</h1>
+      <p className="mt-2 text-muted-foreground">{t("status")}: {briefStatuses[brief.status] ?? brief.status}</p>
+      <section className="mt-8 rounded-xl border p-5">
+        <h2 className="font-semibold">{t("brief")}</h2>
+        <p className="mt-2 whitespace-pre-wrap">{brief.campaignDetails}</p>
+        <p className="mt-3 text-sm text-muted-foreground">{t("platforms")}: {brief.platforms.join(", ")} · {t("preferredTime")}: {preferredTimes[brief.preferredPostWindow] ?? brief.preferredPostWindow}</p>
+        {brief.references.length > 0 && <div className="mt-4 flex flex-wrap gap-3">{brief.references.map((item) => <img key={item.id} src={`/api/restaurant-campaign-media/${item.storageKey}`} alt={t("referenceAlt")} className="h-24 w-24 rounded-lg object-cover" />)}</div>}
+      </section>
+      <div className="mt-8 grid gap-5">
+        {brief.content.map((content) => <article key={content.id} className="overflow-hidden rounded-2xl border">
+          <img src={`/api/restaurant-campaign-media/${content.storageKey}`} alt={content.title} className="max-h-[540px] w-full bg-muted object-contain" />
+          <div className="p-5">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">{contentStatuses[content.status] ?? content.status.replaceAll("_", " ")}</p>
+            <h2 className="mt-1 text-xl font-semibold">{content.title}</h2>
+            <p className="mt-3 whitespace-pre-wrap">{content.caption}</p>
+            {content.revisionNote && <p className="mt-3 rounded-lg bg-muted p-3 text-sm">{t("previousFeedback")}: {content.revisionNote}</p>}
+            {["AWAITING_APPROVAL", "REVISION_REQUESTED"].includes(content.status) && <div className="mt-5 flex flex-wrap gap-3">
+              <form action={decideRestaurantCampaignContentFormAction}><input type="hidden" name="token" value={token} /><input type="hidden" name="contentId" value={content.id} /><input type="hidden" name="decision" value="APPROVED" /><button className="rounded-lg bg-primary px-4 py-2 text-primary-foreground">{t("approve")}</button></form>
+              <form action={decideRestaurantCampaignContentFormAction} className="flex flex-1 flex-wrap gap-2"><input type="hidden" name="token" value={token} /><input type="hidden" name="contentId" value={content.id} /><input type="hidden" name="decision" value="REVISION_REQUESTED" /><input required minLength={5} maxLength={2000} name="revisionNote" placeholder={t("revisionPlaceholder")} className="min-w-48 flex-1 rounded-lg border px-3 py-2" /><button className="rounded-lg border px-4 py-2">{t("requestChanges")}</button></form>
+            </div>}
+          </div>
+        </article>)}
+      </div>
+      <section className="mt-8 rounded-2xl border border-primary/25 bg-primary/5 p-5">
+        <h2 className="text-lg font-semibold">{t("planTitle")}</h2>
+        <p className="mt-2 text-sm text-muted-foreground">{t("planDescription")}</p>
+        <Link href={`/restaurant/request/${token}/claim`} className="mt-4 inline-flex rounded-lg bg-primary px-4 py-2 text-sm text-primary-foreground">{t("connect")}</Link>
+      </section>
+      <p className="mt-5 text-sm text-muted-foreground">{t("publishingNote")}</p>
+    </main>
+  );
 }
