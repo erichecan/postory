@@ -25,6 +25,12 @@ For one set of appliance-store footage, for example, possible test hypotheses ar
 
 These are genuinely different creative directions only if the opening, information order, visuals, and CTA change. Do not invent price, condition, warranty, delivery, or stock facts.
 
+## Style profile and acceptance standards
+
+A client/project style profile should persist the standards learned from repeated real edits: preferred hook/pacing, cover composition, typography, caption density, safe margins, framing, transitions, logo treatment, music level, and treatments to avoid. Keep examples and reference frames where possible; a verbal note such as “a little bigger” should be converted to a stored rule only after the reviewer confirms it.
+
+Reviewers should be able to leave timecoded notes and classify them (for example: factual claim, crop/framing, caption, pacing, transition, audio, or brand style). Recurring preferences can update the client's profile after confirmation. The system should generate a contact sheet and preview so subjective checks are visible. Machine QA can check factual traceability, text bounds/readability, caption timing, blank frames, audio sync, and export settings; aesthetic approval remains reviewable by a person.
+
 ## Workflow A: media understanding
 
 ### Inputs
@@ -138,6 +144,15 @@ Over time, a client-specific learning profile may summarize:
 - Which claims, visuals, tones, or formats the client approved or rejected.
 
 Store the source and date window for each insight. Do not generalize one client's result to another client, and do not treat correlation from a small uncontrolled sample as proof.
+
+## Resource and iteration efficiency
+
+- Keep originals immutable. Separate source assets, cached analysis, proxy/preview renders, temporary intermediates, and approved finals.
+- Check available disk space before long renders. Reuse transcripts, keyframes, and analysis when the source hash and settings have not changed.
+- Delete only clearly regenerable intermediates according to a documented retention policy. Never silently remove source assets or approved deliverables.
+- Use deterministic scripts for metadata extraction, caching, timeline execution, rendering, and mechanical QA. Use the model for interpretation, story choices, and explaining changes.
+- For a small revision, pass only the affected time range and relevant context instead of rereading every source from scratch.
+- Track elapsed production/review time, number of preview rounds, and repeated note categories. Use real frequent jobs to judge whether a Skill saves time while maintaining the client’s quality bar.
 
 ## Scope and approval boundaries
 
