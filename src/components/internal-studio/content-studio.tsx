@@ -73,8 +73,10 @@ async function videoFrames(file: File): Promise<Frame[]> {
   video.muted = true;
   video.playsInline = true;
   try {
+    const metadataReady = waitEvent(video, "loadedmetadata", 22000);
     video.src = url;
-    await waitEvent(video, "loadedmetadata", 22000);
+    video.load();
+    await metadataReady;
     const duration = video.duration;
     if (!Number.isFinite(duration) || duration <= 0) throw new Error("无法识别视频时长。");
     const fractions = duration < 3 ? [0.2, 0.6] : [0.04, 0.2, 0.38, 0.56, 0.74, 0.92];
