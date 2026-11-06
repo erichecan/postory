@@ -7,6 +7,7 @@ Open the public PoStory repository and read this folder before implementing:
 - Product workflow and requirements: PRODUCT_SPEC.md
 - Sample clip analysis: MEDIA_SAMPLE_REVIEW.md
 - Skills and source research: SKILLS_AND_RESEARCH.md
+- Workflow iteration, style profiles, storage and token efficiency: WORKFLOW_DESIGN_PRINCIPLES.md
 
 ## Paste-ready prompt
 
