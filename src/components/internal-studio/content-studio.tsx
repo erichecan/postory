@@ -154,7 +154,7 @@ export function ContentStudio() {
   const [saved, setSaved] = useState<{ name: string; url: string; ratio: Ratio }[]>([]);
 
   const activeProduct = analysis?.products[selectedProduct];
-  const selectedFrame = frames[activeProduct?.frameIndex ?? activeIndex] ?? frames[0];
+  const selectedFrame = frames[activeIndex] ?? frames[0];
   const cropBox = useMemo(() => box, [box]);
 
   function setFilesFromInput(value: FileList | null) {
@@ -352,7 +352,7 @@ export function ContentStudio() {
                 <div className="pcs-card-head"><div><h2>产品裁切与标准展示图</h2><p>先对齐真实商品，再决定用于哪种内容尺寸。</p></div><span className="pcs-small-tag">03 / 04</span></div>
                 {frames.length ? <>
                   {analysis?.products?.length ? <div className="pcs-product-tabs">{analysis.products.map((p,i)=><button key={p.id} type="button" className={selectedProduct===i?"is-active":""} onClick={()=>pickProduct(i)}>{p.name}</button>)}</div>:null}
-                  <div className="pcs-frame-picker"><label htmlFor="pcs-frame-choice">原始关键帧</label><select id="pcs-frame-choice" value={activeProduct ? activeProduct.frameIndex : activeIndex} onChange={e=>{setActiveIndex(Number(e.target.value)); if (analysis) setSelectedProduct(analysis.products.findIndex(p=>p.frameIndex===Number(e.target.value))>=0?analysis.products.findIndex(p=>p.frameIndex===Number(e.target.value)):selectedProduct);}}>{frames.map((f,i)=><option value={i} key={i}>{f.source} · {f.time.toFixed(1)} 秒</option>)}</select></div>
+                  <div className="pcs-frame-picker"><label htmlFor="pcs-frame-choice">原始关键帧</label><select id="pcs-frame-choice" value={activeIndex} onChange={e=>{setActiveIndex(Number(e.target.value));setBox([10,10,80,80]);}}>{frames.map((f,i)=><option value={i} key={i}>{f.source} · {f.time.toFixed(1)} 秒</option>)}</select></div>
                   <div className="pcs-refine-image">
                     <img src={(frames[activeIndex] || selectedFrame).dataUrl} alt="原始画面"/>
                     <div className="pcs-bbox" style={{left:box[0]+"%",top:box[1]+"%",width:box[2]+"%",height:box[3]+"%"}}/>
