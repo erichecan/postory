@@ -97,6 +97,31 @@ Keep separate views for:
 
 Metrics vary by platform and access. Record platform, date window, audience/placement, budget, and metric definition. Do not infer causality from a single post or uncontrolled organic comparison. Test a small number of meaningfully different variants; change one major variable at a time where possible.
 
+## Proposed monthly testing cycle
+
+A draft operating rhythm discussed in the conversation was:
+
+- Week 1: publish/test about five posts across distinct angles.
+- Review available results and decide which themes merit more work.
+- Weeks 2–3: produce/publish about ten optimized posts and test selected hooks or formats.
+- Week 4: publish the remaining five and record what to carry into next month.
+
+This 5/10/5 split is a hypothesis, not an evidence-backed performance rule. Organic results are noisy and the plan must fit the client's approval cadence and package. Prefer adjusting upcoming topics, titles, covers, order, or publication times within scope. Do not imply the small batch has proven causation or turn it into unlimited revision work.
+
+The earlier conversation also proposed an internal six-dimension creative checklist: hook (25%), useful value (20%), share/save/discussion motivation (20%), visual pace (15%), audience fit (10%), and CTA (10%). Example scores such as 67/100 were illustrative and uncalibrated. If used, explain the concrete issue and recommended change; never present the total as a viral probability or prediction.
+
+## Client learning profile
+
+Over time, a client-specific learning profile may summarize:
+
+- Which themes repeatedly led to watch time, saves, shares, profile visits, or inquiries.
+- Which openings retained viewers, when platform analytics make that available.
+- Which products/services generated qualified inquiries.
+- Which paid creatives generated more qualified leads or a lower CPL under comparable conditions.
+- Which claims, visuals, tones, or formats the client approved or rejected.
+
+Store the source and date window for each insight. Do not generalize one client's result to another client, and do not treat correlation from a small uncontrolled sample as proof.
+
 ## Scope and approval boundaries
 
 - C$599/month, 20 pieces, 30-day calendar, two consolidated revision rounds, and monthly reporting are conversation context, not verified commercial terms. Preserve current contract and product settings until checked.
