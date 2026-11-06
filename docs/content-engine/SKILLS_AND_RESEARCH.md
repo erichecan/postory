@@ -12,7 +12,7 @@ Research and source review captured in the November 2026 conversation. Repositor
 
 ### Media analysis and general editing
 
-- [video2text skill repository/project instructions](https://github.com/vlln/video2text) — the local skill used in the conversation supports local-file transcription and frame inspection. Confirm the source URL/repository identity before installing from it; this link is a candidate locator, not an audited dependency.
+- The local video2text Skill used in this conversation — supports local-file transcription and frame inspection. Its public source repository was not established during this research, so do not install from an assumed URL.
 - [codex-video-use](https://github.com/AxelkHellberg/codex-video-use) — Codex-oriented local editing toolkit for subtitles, timing-aware cuts, overlays, and verification. Useful to study for a reproducible source-folder-to-preview workflow. It is transcript/timing oriented, so PoStory needs a visual-first route for silent product footage.
 - [Ripple](https://github.com/conmeara/ripple) — combines a video-editing skill, CLI, timeline sheet, and a VIDEO.md style guide. Useful design reference for time-aligned visual/audio evidence and reusable taste rules.
 - [naive-video-skill](https://github.com/naive-kun/naive-video-skill) — fuller guided workflow for talking-head production with project state, preview, quality gates, and user approval. Better suited to narrated footage than this sample.
