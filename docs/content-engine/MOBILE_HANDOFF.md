@@ -22,3 +22,15 @@ Do not promise viral reach or fabricate product specifications. Keep organic per
 Treat docs/content-engine/ as current discovery context, not a mandate to rewrite the whole app. Inspect actual architecture and existing product decisions first. Identify a narrow end-to-end vertical slice that fits the codebase, then implement it. Preserve user changes already present in the working tree; do not reset, overwrite, or commit unrelated work. Report the files changed, what works, and the remaining steps.
 
 The eight example clips were analyzed in the prior conversation but are not in GitHub. Ask the user to attach or select them again only if a task genuinely needs the original media files.
+
+
+## November 5 integration addendum
+
+Before implementing, also read:
+- [Agency discovery and 2026-11-05 decisions](AGENCY_DISCOVERY_2026-11-05.md)
+- [Integrated media-to-publishing workflow](INTEGRATED_DELIVERY_WORKFLOW.md)
+- [Decision log and unresolved assumptions](DECISION_LOG_2026-11-05.md)
+
+The agency already supplies original filming and manages its own clients. Do not create an interface that publicly grades or criticizes its filming; focus on available content, optional variants and specific factual/material gaps. The bespoke C$599 proposal is 20 distinct units across a 30-day calendar, two consolidated revision rounds and a month-end report; it **does not** promise four newly edited short videos. Separate independent advanced editing and advertising from the base package. Do not market PoStory as SaaS, do not claim guaranteed virality, and never silently contact an agency's end customer.
+
+Treat the overnight interview/multicamera work as separate specialist branches of the media pipeline. Start by mapping actual repository capabilities against the unified data/review flow before creating any new implementation.

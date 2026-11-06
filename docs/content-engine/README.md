@@ -41,3 +41,15 @@ The sample videos were supplied privately through WeChat. No video files, thumbn
 - Separate organic content learning from paid-ad performance.
 - Present a reviewable plan and preview before final render or publication.
 - Preserve source assets and make edits reproducible from a timeline/edit decision file.
+
+
+## November 5 agency and workflow integration
+
+The 2026-11-05 daytime discussion about the agency's four objections, communication boundaries, genuine original-photo production, content quality, traffic/ads hypotheses, and C$599 bespoke package is captured in:
+- [Agency discovery / commercial decisions](AGENCY_DISCOVERY_2026-11-05.md)
+- [Integrated media-to-publishing workflow](INTEGRATED_DELIVERY_WORKFLOW.md)
+- [Decision and uncertainty log](DECISION_LOG_2026-11-05.md)
+
+These complement the overnight product specification, skills research, sample footage review, interview and multicamera routes. They **do not** mean any candidate skill was installed, every proposed feature is implemented, or actual agency media is available in this repository.
+
+For implementation, first inspect current code and instructions, then use [the Codex handoff](MOBILE_HANDOFF.md). Do not conflate the C$599 bespoke offer with standard agency or store-owner plans.
