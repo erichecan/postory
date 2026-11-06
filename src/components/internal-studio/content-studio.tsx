@@ -354,8 +354,10 @@ export function ContentStudio() {
                   {analysis?.products?.length ? <div className="pcs-product-tabs">{analysis.products.map((p,i)=><button key={p.id} type="button" className={selectedProduct===i?"is-active":""} onClick={()=>pickProduct(i)}>{p.name}</button>)}</div>:null}
                   <div className="pcs-frame-picker"><label htmlFor="pcs-frame-choice">原始关键帧</label><select id="pcs-frame-choice" value={activeIndex} onChange={e=>{setActiveIndex(Number(e.target.value));setBox([10,10,80,80]);}}>{frames.map((f,i)=><option value={i} key={i}>{f.source} · {f.time.toFixed(1)} 秒</option>)}</select></div>
                   <div className="pcs-refine-image">
-                    <img src={(frames[activeIndex] || selectedFrame).dataUrl} alt="原始画面"/>
-                    <div className="pcs-bbox" style={{left:box[0]+"%",top:box[1]+"%",width:box[2]+"%",height:box[3]+"%"}}/>
+                    <div className="pcs-img-holder">
+                      <img src={(frames[activeIndex] || selectedFrame).dataUrl} alt="原始画面"/>
+                      <div className="pcs-bbox" style={{left:box[0]+"%",top:box[1]+"%",width:box[2]+"%",height:box[3]+"%"}}/>
+                    </div>
                   </div>
                   <div className="pcs-slider-grid">
                     {["左侧起点","上侧起点","裁切宽度","裁切高度"].map((label,i)=><label key={i}><span>{label} · {box[i]}%</span><input aria-label={label} type="range" min={i<2?0:5} max={i<2?95:100} step={1} value={box[i]} onChange={e=>updateBox(i,Number(e.target.value))}/></label>)}
