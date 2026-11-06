@@ -24,3 +24,21 @@ This document records a concise summary and PoStory product implications. It doe
 7. **Refine from high-frequency real work.** Start with one narrow repeat task, gather corrections across representative clients and content types, update style rules, and keep examples of accepted and rejected outputs. Do not optimize a Skill against a single showcase clip.
 
 These principles complement the other documents in this folder: the product spec defines workflow boundaries, while the sample media review provides one concrete product-showcase case.
+
+
+## Case 2: reusing an AI workflow for long interviews
+
+Source supplied in the conversation: [WeChat Channels video by Dr. Xiaohui](https://weixin.qq.com/sph/AQ1nVjUuGb), approximately 4:15. This is a concise summary of the user-provided transcript, not a republication of the full transcript.
+
+The speaker describes using an AI agent on long-form interviews to draft/correct subtitles, identify candidate golden quotes, prepare large captions, chapters, speaker switches, name labels, and packaging. They spent several days calibrating the workflow against personal taste and then reused it on multiple interviews. The speaker reports that contextual subtitle correction is around 80–90% accurate in their experience and recommends that a person review uncertain spans.
+
+### Product implications
+
+- Store word/segment confidence and flag names, numbers, product terms, overlap, and low-confidence phrases for review. Confidence is a triage aid, not a guarantee of correctness.
+- Let the system propose quotable moments with timestamps, the exact supporting transcript, a proposed hook, and a reason. The editor approves before those moments become clips or captions.
+- Create chapters from the transcript and let a reviewer rename them; preserve links to exact source timestamps.
+- Speaker labels and lower thirds require identity confirmation. Do not infer a person's name from speech unless supplied by approved metadata.
+- Save accepted style and correction rules per client/project and reapply them on the next interview. Keep a visible way to review and revise those rules.
+- Evaluate on several representative interviews, not one showcase. Measure corrected error rate, accepted quote candidates, review time, and revision rounds.
+
+The 80–90% figure is the speaker's self-reported experience, not an independent benchmark or a PoStory accuracy claim. The described workflow is for long interviews and should complement, not replace, the visual-first product-showcase route used for the sample product clips.
