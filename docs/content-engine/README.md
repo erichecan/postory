@@ -25,6 +25,7 @@ This is a content production and learning workflow, not a promise to make every 
 - [Product specification](PRODUCT_SPEC.md): proposed workflows, data, guardrails, and acceptance criteria.
 - [Sample media review](MEDIA_SAMPLE_REVIEW.md): analysis of the eight short product/demo clips discussed in the conversation.
 - [Skills research](SKILLS_AND_RESEARCH.md): which existing skills are useful and what to borrow.
+- [Workflow refinement principles](WORKFLOW_DESIGN_PRINCIPLES.md): durable taste rules, iterative review, media lifecycle, and token efficiency.
 - [Mobile handoff](MOBILE_HANDOFF.md): prompt to paste into the other Codex conversation.
 
 ## Important media handling
