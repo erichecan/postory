@@ -8,6 +8,23 @@ An agency provides approved photos, videos, product/service facts, brand guidanc
 
 The system must keep the agency in control of client-facing claims, creative approval, publication, and spend.
 
+## Content value dimensions
+
+Use three outcome dimensions when planning and reviewing creative work:
+
+1. **Worth watching:** the opening earns attention and the message sustains interest.
+2. **Worth sharing/saving:** the post offers a useful tip, surprising insight, proof, or discussion point.
+3. **Worth acting on:** the right local customer can see a relevant next step such as asking about stock, getting a quote, booking, or visiting.
+
+Not every post needs to excel at all three. A practical post with modest reach can be valuable if it generates qualified local inquiries; broad views without relevant action may have little business value.
+
+For one set of appliance-store footage, for example, possible test hypotheses are:
+- Price/value: show a real, currently verified offer.
+- Buying education: explain what the buyer should check before purchasing a discounted appliance.
+- Local inquiry: feature verified local stock or a confirmed in-store service and invite a specific inquiry.
+
+These are genuinely different creative directions only if the opening, information order, visuals, and CTA change. Do not invent price, condition, warranty, delivery, or stock facts.
+
 ## Workflow A: media understanding
 
 ### Inputs
