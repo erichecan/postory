@@ -42,3 +42,21 @@ The speaker describes using an AI agent on long-form interviews to draft/correct
 - Evaluate on several representative interviews, not one showcase. Measure corrected error rate, accepted quote candidates, review time, and revision rounds.
 
 The 80–90% figure is the speaker's self-reported experience, not an independent benchmark or a PoStory accuracy claim. The described workflow is for long interviews and should complement, not replace, the visual-first product-showcase route used for the sample product clips.
+
+
+## Case 3: AI-assisted multicamera interview editing
+
+Source supplied in the conversation: [WeChat Channels video by Dr. Xiaohui](https://weixin.qq.com/sph/ARMiTNXQAK), approximately 4:35. The author describes a trial edit on a three-camera interview and reports that the agent aligned color, selected/switches between close-ups and a wide shot, added captions, logo and name labels, then scanned subtitles for likely errors. The author says several rounds of aesthetic feedback were needed and estimates one export took about ten minutes.
+
+These are creator-reported results from one example, not an independent benchmark, general editing-time estimate, or guaranteed PoStory capability.
+
+### Product implications
+
+- A multicamera interview route needs source grouping, audio/timecode synchronization, camera/angle labels, color-matching controls, and a cut plan that records the chosen camera at each interval.
+- Let the model propose angle changes using speaker turns, emphasis, pauses, and framing; show the proposed choices in a timeline/contact sheet for human review. Do not claim to know audience preferences without evidence.
+- Logo overlays, lower thirds, caption style, and brand rules should be reusable presets with safe-area checks.
+- Subtitle correction should present confidence and original audio/time ranges; names and domain phrases should be checked against a client-approved glossary or reviewer.
+- Keep transcript correction, color matching, multicamera cut selection, graphics, and final pacing as separate reviewable operations. This makes a correction local and lets an editor override the agent's judgment.
+- AI can reduce repetitive assembly, but story rhythm, audience fit, and the reason for each shot change remain editorial decisions that require review.
+
+The source names GPT-6 Astra and estimates a short turnaround, but neither model behavior nor render time has been independently validated for PoStory.
