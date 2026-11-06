@@ -105,6 +105,7 @@ Keep originals read-only. Every edit should be reproducible from the source asse
 Do not force all media through a talking-head workflow.
 
 - Talking head / interview: ASR, confidence-aware subtitle review, speaker/name validation, candidate quote selection, chapter draft, filler/retake review, natural pause trimming, captions, reframing. Quote clips, lower thirds, and chapter labels require review against their source timestamps.
+- Multicamera interview: group and sync camera sources, expose camera labels and timecode, propose cutaways by speaker turn/emphasis, optionally match color, and add approved logo/lower-third/caption presets. Keep the cut plan editable; a person reviews shot rhythm, identity/name spelling, and any uncertain subtitle corrections.
 - Product showcase / store footage: visual shot selection, product/detail/action alternation, optional approved voiceover or text, music/audio cleanup.
 - Project case / before-after: preserve chronology, show evidence, identify location and work scope only when verified.
 - Screen recording / tutorial: OCR/UI landmarks, step order, cursor focus, readable captions.
