@@ -14,6 +14,7 @@ type Frame = { time: number; dataUrl: string; source: string };
 type Product = {
   id: string; name: string; category: string; features: string[];
   frameIndex: number; bbox: number[]; caution: string; angles: string[];
+  variants?: { color: string; frameIndex: number; bbox: number[] }[];
 };
 type AnalyzeResponse = { summary: string; products: Product[] };
 type Stage = "upload" | "products" | "refine" | "next";
@@ -153,6 +154,7 @@ export function ContentStudio() {
   const [analysis, setAnalysis] = useState<AnalyzeResponse | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState(0);
+  const [selectedVariant, setSelectedVariant] = useState(0);
   const [box, setBox] = useState<number[]>([10, 10, 80, 80]);
   const [ratio, setRatio] = useState<Ratio>("1:1");
   const [saved, setSaved] = useState<{ name: string; url: string; ratio: Ratio }[]>([]);
@@ -179,65 +181,102 @@ export function ContentStudio() {
     setStage("upload");
   }
 
-  async function prepare() {
-    if (!files.length) return;
+  async function extractFrames(): Promise<Frame[]> {
+    const videos = files.filter(file => file.type.startsWith("video/"));
+    if (videos.some(file => !file.type.includes("mp4") && !file.type.includes("webm") && !file.type.includes("quicktime"))) {
+      throw new Error("建议使用 MP4/H.264 视频，其他格式取决于浏览器是否支持。");
+    }
+    const all: Frame[] = [];
+    for (const [index, file] of files.entries()) {
+      setBusyLabel(`正在提取关键帧 ${index + 1}/${files.length}…`);
+      const next = file.type.startsWith("video/") ? await videoFrames(file) : [await imageFrame(file)];
+      all.push(...next);
+    }
+    return all;
+  }
+
+  async function analyzeFrames(framesToAnalyze: Frame[]) {
+    const batches = Array.from({ length: Math.ceil(framesToAnalyze.length / ANALYSIS_BATCH_SIZE) }, (_, i) => {
+      const start = i * ANALYSIS_BATCH_SIZE;
+      return { start, frames: framesToAnalyze.slice(start, start + ANALYSIS_BATCH_SIZE) };
+    });
+    const summaries: string[] = [];
+    const products: Product[] = [];
+    for (const [batchIndex, batch] of batches.entries()) {
+      setBusyLabel(`正在识别商品 ${batchIndex + 1}/${batches.length} 批…`);
+      const res = await fetch("/api/internal/content-studio/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ context, frames: batch.frames.map(({ time, dataUrl }) => ({ time, dataUrl })) })
+      });
+      const data = await res.json() as AnalyzeResponse & { error?: string };
+      if (!res.ok) throw new Error(data.error || `第 ${batchIndex + 1} 批商品识别失败`);
+      summaries.push(data.summary);
+      products.push(...data.products.map((product, productIndex) => ({
+        ...product,
+        id: `batch-${batchIndex + 1}-${productIndex + 1}`,
+        frameIndex: Math.min(framesToAnalyze.length - 1, batch.start + product.frameIndex),
+        variants: product.variants?.map(variant => ({
+          ...variant,
+          frameIndex: Math.min(framesToAnalyze.length - 1, batch.start + variant.frameIndex),
+        })),
+      })));
+    }
+
+    let finalProducts = products;
+    if (batches.length > 1 && products.length > 1) {
+      setBusyLabel("正在汇总同款商品与颜色…");
+      try {
+        const res = await fetch("/api/internal/content-studio/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mode: "consolidate", context, products }),
+        });
+        const data = await res.json() as AnalyzeResponse & { error?: string };
+        if (res.ok && Array.isArray(data.products)) {
+          finalProducts = data.products.map((product, index) => ({ ...product, id: `group-${index + 1}` }));
+          summaries.push(data.summary);
+        } else {
+          summaries.push("跨批次同款汇总未完成，已保留各批次识别结果。" );
+        }
+      } catch {
+        summaries.push("跨批次同款汇总暂不可用，已保留各批次识别结果。" );
+      }
+    }
+
+    setAnalysis({ summary: summaries.join("；"), products: finalProducts });
+    if (finalProducts.length) {
+      setSelectedProduct(0);
+      setSelectedVariant(0);
+      setActiveIndex(finalProducts[0].variants?.[0]?.frameIndex ?? finalProducts[0].frameIndex);
+      setBox(finalProducts[0].variants?.[0]?.bbox ?? finalProducts[0].bbox);
+    }
+  }
+
+  async function startRecognition() {
+    if (!files.length || busy) return;
     setBusy(true);
-    setBusyLabel("正在准备关键帧提取…");
     setError("");
+    setAnalysis(null);
     try {
-      const all: Frame[] = [];
-      const videos = files.filter(file => file.type.startsWith("video/"));
-      if (videos.some(file => !file.type.includes("mp4") && !file.type.includes("webm") && !file.type.includes("quicktime"))) {
-        throw new Error("建议使用 MP4/H.264 视频，其他格式取决于浏览器是否支持。");
-      }
-      for (const [index, file] of files.entries()) {
-        setBusyLabel(`正在处理素材 ${index + 1}/${files.length}…`);
-        const next = file.type.startsWith("video/") ? await videoFrames(file) : [await imageFrame(file)];
-        all.push(...next);
-      }
-      setFrames(all);
+      const extracted = await extractFrames();
+      setFrames(extracted);
       setActiveIndex(0);
       setStage("products");
+      await analyzeFrames(extracted);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "抽帧失败");
+      setError(e instanceof Error ? e.message : "商品识别失败");
     } finally {
       setBusy(false);
     }
   }
 
-  async function analyze() {
+  async function retryAnalysis() {
     if (!frames.length || busy) return;
     setBusy(true);
     setError("");
     try {
-      const batches = Array.from({ length: Math.ceil(frames.length / ANALYSIS_BATCH_SIZE) }, (_, i) => {
-        const start = i * ANALYSIS_BATCH_SIZE;
-        return { start, frames: frames.slice(start, start + ANALYSIS_BATCH_SIZE) };
-      });
-      const summaries: string[] = [];
-      const products: Product[] = [];
-      for (const [batchIndex, batch] of batches.entries()) {
-        setBusyLabel(`正在识别第 ${batchIndex + 1}/${batches.length} 批关键帧…`);
-        const res = await fetch("/api/internal/content-studio/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ context, frames: batch.frames.map(({ time, dataUrl }) => ({ time, dataUrl })) })
-        });
-        const data = await res.json() as AnalyzeResponse & { error?: string };
-        if (!res.ok) throw new Error(data.error || `第 ${batchIndex + 1} 批商品识别失败`);
-        summaries.push(data.summary);
-        products.push(...data.products.map((product, productIndex) => ({
-          ...product,
-          id: `batch-${batchIndex + 1}-${productIndex + 1}`,
-          frameIndex: Math.min(frames.length - 1, batch.start + product.frameIndex),
-        })));
-      }
-      setAnalysis({ summary: summaries.join("；"), products });
-      if (products.length) {
-        setSelectedProduct(0);
-        setActiveIndex(products[0].frameIndex);
-        setBox(products[0].bbox);
-      }
+      await analyzeFrames(frames);
     } catch (e) {
       setError(e instanceof Error ? e.message : "商品识别失败");
     } finally {
@@ -249,9 +288,18 @@ export function ContentStudio() {
     const product = analysis?.products[index];
     if (!product) return;
     setSelectedProduct(index);
-    setActiveIndex(product.frameIndex);
-    setBox(product.bbox);
+    setSelectedVariant(0);
+    setActiveIndex(product.variants?.[0]?.frameIndex ?? product.frameIndex);
+    setBox(product.variants?.[0]?.bbox ?? product.bbox);
     setStage("refine");
+  }
+
+  function pickVariant(index: number) {
+    const variant = activeProduct?.variants?.[index];
+    if (!variant) return;
+    setSelectedVariant(index);
+    setActiveIndex(variant.frameIndex);
+    setBox(variant.bbox);
   }
 
   function updateBox(index: number, number: number) {
@@ -330,35 +378,36 @@ export function ContentStudio() {
           <section className="pcs-work">
             {stage === "upload" && (
               <>
-                <div className="pcs-card-head"><div><h2>导入实拍素材</h2><p>最多选择 8 个文件；多条视频会逐条抽帧，再分批识别。</p></div><span className="pcs-small-tag">01 / 04</span></div>
+                <div className="pcs-card-head"><div><h2>导入实拍素材</h2><p>选好素材后点一次开始识别，系统会自动抽帧、识别并汇总同款商品。</p></div><span className="pcs-small-tag">01 / 04</span></div>
                 <input ref={fileInput} type="file" accept="image/*,video/*" multiple hidden onChange={event => setFilesFromInput(event.target.files)}/>
                 <button type="button" className="pcs-drop" onClick={() => fileInput.current?.click()}>
                   <span className="pcs-drop-icon"><UploadCloud size={27}/></span><strong>点击选择视频或图片</strong>
                   <span>支持 MP4 等浏览器可解码的视频格式，以及 JPG / PNG / WebP 等图片</span>
-                  <small>单批最多 8 个文件，单个最多 500 MB · 每条视频最多抽取 6 帧 · 按每批 8 帧顺序调用识别，素材越多等待时间和 OpenAI 用量越高。视频原文件仅在浏览器本地读取。</small>
+                  <small>单批最多 8 个文件，单个最多 500 MB · 每条视频最多抽取 6 帧 · 视频原文件仅在浏览器本地读取。素材越多，识别等待时间和 OpenAI 用量越高。</small>
                 </button>
                 {!!files.length && <div className="pcs-file-list">{files.map((f,i)=><div className="pcs-file" key={i}><FileImage size={19}/><span>{f.name}</span><small>{(f.size/1048576).toFixed(1)} MB</small></div>)}</div>}
                 <label className="pcs-label" htmlFor="pcs-context">商品或客户背景（可选）</label>
                 <textarea id="pcs-context" className="pcs-textarea" maxLength={1000} value={context} onChange={e => setContext(e.target.value)} placeholder="例如：多伦多的家电折扣店，本次拍摄冰箱、洗衣机等现货；价格与型号尚待确认。"/>
-                <div className="pcs-actions"><button className="pcs-primary" type="button" disabled={!files.length || busy} onClick={prepare}>{busy?<LoaderCircle className="pcs-spin" size={17}/>:<ScanSearch size={17}/>} {busy?busyLabel:"提取商品关键帧"}</button></div>
+                <div className="pcs-actions"><button className="pcs-primary" type="button" disabled={!files.length || busy} onClick={startRecognition}>{busy?<LoaderCircle className="pcs-spin" size={17}/>:<ScanSearch size={17}/>} {busy?busyLabel:"开始识别商品"}</button></div>
               </>
             )}
 
             {stage === "products" && (
               <>
-                <div className="pcs-card-head"><div><h2>商品识别与关键画面</h2><p>检查抽帧结果，识别后再确认商品身份和产品细节。</p></div><span className="pcs-small-tag">02 / 04</span></div>
-                {!frames.length ? <div className="pcs-empty">请先上传素材并提取关键帧。</div>:(
+                <div className="pcs-card-head"><div><h2>识别报告与关键画面</h2><p>同款不同颜色会归在一起；背景货架和杂物会尽量忽略。请核对识别结果。</p></div><span className="pcs-small-tag">02 / 04</span></div>
+                {!frames.length ? <div className="pcs-empty">请先上传素材并开始识别。</div>:(
                   <>
                     <div className="pcs-frame-grid">{frames.map((frame,i)=><button key={i} type="button" className={"pcs-frame "+(activeIndex===i?"is-selected":"")} onClick={()=>setActiveIndex(i)}><img src={frame.dataUrl} alt={"素材关键帧 "+(i+1)}/><span>{frame.source} · {frame.time.toFixed(1)}s</span></button>)}</div>
-                    <div className="pcs-actions"><button className="pcs-primary" disabled={busy} onClick={analyze} type="button">{busy?<LoaderCircle className="pcs-spin" size={17}/>:<Sparkles size={17}/>} {busy?busyLabel:"识别画面中的商品"}</button><button className="pcs-outline" type="button" onClick={()=>{setBox([10,10,80,80]);setStage("refine");}}>跳过识别，手工裁切</button></div>
+                    <div className="pcs-actions">{!analysis && <button className="pcs-primary" disabled={busy} onClick={retryAnalysis} type="button">{busy?<LoaderCircle className="pcs-spin" size={17}/>:<Sparkles size={17}/>} {busy?busyLabel:"重试商品识别"}</button>}<button className="pcs-outline" type="button" onClick={()=>{setBox([10,10,80,80]);setStage("refine");}}>跳过识别，手工裁切</button></div>
                   </>
                 )}
                 {analysis && <div className="pcs-results">
                   <div className="pcs-results-title"><strong>识别报告</strong><button type="button" className="pcs-plain-button" onClick={exportReport}><ArrowDownToLine size={15}/> 下载 JSON</button></div>
                   <p>{analysis.summary}</p>
-                  {!analysis.products.length && <p>本批次没有可靠识别出的商品。可返回检查画面，或进入手工裁切。</p>}
+                  {!!analysis.products.length && <p className="pcs-next-hint">下一步：点击商品卡片进入产品裁切；核对主体和颜色，可切换不同颜色画面，调整裁切框后导出标准产品 PNG。</p>}
+                  {!analysis.products.length && <p>这组素材暂未识别到可靠商品。可检查关键画面，或进入手工裁切。</p>}
                   {analysis.products.map((product,i)=><button type="button" key={product.id} className="pcs-product" onClick={()=>pickProduct(i)}>
-                    <img src={frames[product.frameIndex]?.dataUrl} alt={product.name}/><span><strong>{product.name}</strong><small>{product.category} · {product.features.join("、") || "外观特征待确认"}</small><em>{product.caution || "品牌、型号、价格仍需人工核实"}</em></span><ImagePlus size={18}/>
+                    <img src={frames[product.variants?.[0]?.frameIndex ?? product.frameIndex]?.dataUrl} alt={product.name}/><span><strong>{product.name}</strong><small>{product.category} · {product.features.join("、") || "外观特征待确认"}</small>{!!product.variants?.length && <small>颜色：{product.variants.map(variant=>variant.color).join("、")}</small>}<em>{product.caution || "品牌、型号、价格仍需人工核实"}</em></span><ImagePlus size={18}/>
                   </button>)}
                 </div>}
               </>
@@ -369,6 +418,7 @@ export function ContentStudio() {
                 <div className="pcs-card-head"><div><h2>产品裁切与标准展示图</h2><p>先对齐真实商品，再决定用于哪种内容尺寸。</p></div><span className="pcs-small-tag">03 / 04</span></div>
                 {frames.length ? <>
                   {analysis?.products?.length ? <div className="pcs-product-tabs">{analysis.products.map((p,i)=><button key={p.id} type="button" className={selectedProduct===i?"is-active":""} onClick={()=>pickProduct(i)}>{p.name}</button>)}</div>:null}
+                  {!!activeProduct?.variants && activeProduct.variants.length > 1 && <div className="pcs-product-tabs"><strong>同款颜色：</strong>{activeProduct.variants.map((variant,i)=><button key={`${variant.color}-${variant.frameIndex}`} type="button" className={selectedVariant===i?"is-active":""} onClick={()=>pickVariant(i)}>{variant.color}</button>)}</div>}
                   <div className="pcs-frame-picker"><label htmlFor="pcs-frame-choice">原始关键帧</label><select id="pcs-frame-choice" value={activeIndex} onChange={e=>{setActiveIndex(Number(e.target.value));setBox([10,10,80,80]);}}>{frames.map((f,i)=><option value={i} key={i}>{f.source} · {f.time.toFixed(1)} 秒</option>)}</select></div>
                   <div className="pcs-refine-image">
                     <div className="pcs-img-holder">
