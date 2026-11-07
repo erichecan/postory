@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import { TimeZoneSync } from "@/components/i18n/time-zone-sync";
@@ -11,8 +11,20 @@ import "@/components/design-system/components.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("common");
-  return { title: `${t("brandName")} · ${t("tagline")}`, description: t("metaDescription") };
+  return {
+    title: `${t("brandName")} · ${t("tagline")}`,
+    description: t("metaDescription"),
+    applicationName: "PoStory Content Studio",
+    appleWebApp: { capable: true, title: "PoStory Studio", statusBarStyle: "default" },
+  };
 }
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#ec348b",
+};
 
 const UI_FONTS = "https://fonts.googleapis.com/css2?family=Inter:wght@400..900&family=Noto+Sans+SC:wght@400..900&display=swap";
 
