@@ -398,7 +398,10 @@ export function ContentStudio() {
                 {!frames.length ? <div className="pcs-empty">请先上传素材并开始识别。</div>:(
                   <>
                     <div className="pcs-frame-grid">{frames.map((frame,i)=><button key={i} type="button" className={"pcs-frame "+(activeIndex===i?"is-selected":"")} onClick={()=>setActiveIndex(i)}><img src={frame.dataUrl} alt={"素材关键帧 "+(i+1)}/><span>{frame.source} · {frame.time.toFixed(1)}s</span></button>)}</div>
-                    <div className="pcs-actions">{!analysis && <button className="pcs-primary" disabled={busy} onClick={retryAnalysis} type="button">{busy?<LoaderCircle className="pcs-spin" size={17}/>:<Sparkles size={17}/>} {busy?busyLabel:"重试商品识别"}</button>}<button className="pcs-outline" type="button" onClick={()=>{setBox([10,10,80,80]);setStage("refine");}}>跳过识别，手工裁切</button></div>
+                    <div className="pcs-actions">
+                      {!analysis && <button className="pcs-primary" disabled={busy} onClick={retryAnalysis} type="button">{busy?<LoaderCircle className="pcs-spin" size={17}/>:<Sparkles size={17}/>} {busy?busyLabel:"重试商品识别"}</button>}
+                      {!busy && (!analysis || !analysis.products.length) && <button className="pcs-outline" type="button" onClick={()=>{setBox([10,10,80,80]);setStage("refine");}}>{analysis ? "手工裁切关键画面" : "跳过识别，直接手工裁切"}</button>}
+                    </div>
                   </>
                 )}
                 {analysis && <div className="pcs-results">
