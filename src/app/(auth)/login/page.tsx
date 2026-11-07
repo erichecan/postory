@@ -9,7 +9,10 @@ import { safeNext } from "@/lib/safe-next";
 
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   const { next, reset } = await searchParams;
-  if (await getCurrentUser()) redirect(safeNext(next));
+  const user = await getCurrentUser();
+  if (user) {
+    redirect(typeof next === "string" && next ? safeNext(next) : user.role === "ADMIN" ? "/internal/content-studio" : "/dashboard");
+  }
   const t = await getTranslations("auth.reset");
   return (
     <AuthShell>
