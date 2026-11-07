@@ -19,6 +19,8 @@ type AnalyzeResponse = { summary: string; products: Product[] };
 type Stage = "upload" | "products" | "refine" | "next";
 type Ratio = "1:1" | "4:5" | "16:9";
 
+const ANALYSIS_BATCH_SIZE = 8;
+
 const STEPS: { id: Stage; label: string; detail: string; Icon: typeof UploadCloud }[] = [
   { id: "upload", label: "素材上传", detail: "导入图片或视频", Icon: UploadCloud },
   { id: "products", label: "商品识别", detail: "逐帧查找商品", Icon: ScanSearch },
@@ -180,21 +182,20 @@ export function ContentStudio() {
   async function prepare() {
     if (!files.length) return;
     setBusy(true);
-    setBusyLabel("正在浏览器内提取关键帧…");
+    setBusyLabel("正在准备关键帧提取…");
     setError("");
     try {
       const all: Frame[] = [];
       const videos = files.filter(file => file.type.startsWith("video/"));
-      if (videos.length > 1) throw new Error("当前测试版每批最多处理 1 条视频，可同时上传图片。");
-      if (videos.length && !videos[0].type.includes("mp4") && !videos[0].type.includes("webm") && !videos[0].type.includes("quicktime")) {
+      if (videos.some(file => !file.type.includes("mp4") && !file.type.includes("webm") && !file.type.includes("quicktime"))) {
         throw new Error("建议使用 MP4/H.264 视频，其他格式取决于浏览器是否支持。");
       }
-      for (const file of files) {
+      for (const [index, file] of files.entries()) {
+        setBusyLabel(`正在处理素材 ${index + 1}/${files.length}…`);
         const next = file.type.startsWith("video/") ? await videoFrames(file) : [await imageFrame(file)];
         all.push(...next);
       }
-      const sampled = all.length <= 8 ? all : all.filter((_, i) => i % Math.ceil(all.length / 8) === 0).slice(0, 8);
-      setFrames(sampled);
+      setFrames(all);
       setActiveIndex(0);
       setStage("products");
     } catch (e) {
@@ -207,21 +208,35 @@ export function ContentStudio() {
   async function analyze() {
     if (!frames.length || busy) return;
     setBusy(true);
-    setBusyLabel("正在识别商品与可用画面…");
     setError("");
     try {
-      const res = await fetch("/api/internal/content-studio/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ context, frames: frames.map(({ time, dataUrl }) => ({ time, dataUrl })) })
+      const batches = Array.from({ length: Math.ceil(frames.length / ANALYSIS_BATCH_SIZE) }, (_, i) => {
+        const start = i * ANALYSIS_BATCH_SIZE;
+        return { start, frames: frames.slice(start, start + ANALYSIS_BATCH_SIZE) };
       });
-      const data = await res.json() as AnalyzeResponse & { error?: string };
-      if (!res.ok) throw new Error(data.error || "商品识别失败");
-      setAnalysis({ summary: data.summary, products: data.products });
-      if (data.products.length) {
+      const summaries: string[] = [];
+      const products: Product[] = [];
+      for (const [batchIndex, batch] of batches.entries()) {
+        setBusyLabel(`正在识别第 ${batchIndex + 1}/${batches.length} 批关键帧…`);
+        const res = await fetch("/api/internal/content-studio/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ context, frames: batch.frames.map(({ time, dataUrl }) => ({ time, dataUrl })) })
+        });
+        const data = await res.json() as AnalyzeResponse & { error?: string };
+        if (!res.ok) throw new Error(data.error || `第 ${batchIndex + 1} 批商品识别失败`);
+        summaries.push(data.summary);
+        products.push(...data.products.map((product, productIndex) => ({
+          ...product,
+          id: `batch-${batchIndex + 1}-${productIndex + 1}`,
+          frameIndex: Math.min(frames.length - 1, batch.start + product.frameIndex),
+        })));
+      }
+      setAnalysis({ summary: summaries.join("；"), products });
+      if (products.length) {
         setSelectedProduct(0);
-        setActiveIndex(data.products[0].frameIndex);
-        setBox(data.products[0].bbox);
+        setActiveIndex(products[0].frameIndex);
+        setBox(products[0].bbox);
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "商品识别失败");
@@ -315,12 +330,12 @@ export function ContentStudio() {
           <section className="pcs-work">
             {stage === "upload" && (
               <>
-                <div className="pcs-card-head"><div><h2>导入实拍素材</h2><p>选择一条视频或多张图片，开始识别可用商品。</p></div><span className="pcs-small-tag">01 / 04</span></div>
+                <div className="pcs-card-head"><div><h2>导入实拍素材</h2><p>最多选择 8 个文件；多条视频会逐条抽帧，再分批识别。</p></div><span className="pcs-small-tag">01 / 04</span></div>
                 <input ref={fileInput} type="file" accept="image/*,video/*" multiple hidden onChange={event => setFilesFromInput(event.target.files)}/>
                 <button type="button" className="pcs-drop" onClick={() => fileInput.current?.click()}>
                   <span className="pcs-drop-icon"><UploadCloud size={27}/></span><strong>点击选择视频或图片</strong>
                   <span>支持 MP4 等浏览器可解码的视频格式，以及 JPG / PNG / WebP 等图片</span>
-                  <small>单批最多 8 个文件，单个最多 500 MB · 视频原文件不会上传服务器，关键帧仅在发起识别时提交</small>
+                  <small>单批最多 8 个文件，单个最多 500 MB · 每条视频最多抽取 6 帧 · 按每批 8 帧顺序调用识别，素材越多等待时间和 OpenAI 用量越高。视频原文件仅在浏览器本地读取。</small>
                 </button>
                 {!!files.length && <div className="pcs-file-list">{files.map((f,i)=><div className="pcs-file" key={i}><FileImage size={19}/><span>{f.name}</span><small>{(f.size/1048576).toFixed(1)} MB</small></div>)}</div>}
                 <label className="pcs-label" htmlFor="pcs-context">商品或客户背景（可选）</label>
