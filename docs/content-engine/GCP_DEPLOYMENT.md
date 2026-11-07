@@ -9,6 +9,7 @@ Status: **ready for isolated staging deployment**. The production service is `po
 - The existing runtime identity has Secret Manager access. The production service uses `DATABASE_URL` and `AUTH_SECRET` references for login/session verification.
 - `feat/internal-content-studio-mvp` passes `npm run typecheck` and `npm run build`.
 - The workbench is responsive and includes a Web App Manifest for phone home-screen installation. Cloud Run hosts the web/PWA service; it does not host a native iOS or Android install package.
+- The manifest URL is publicly served so the phone browser can read install metadata before sign-in; the studio and analysis API remain admin-protected.
 
 ## Isolation and access
 
