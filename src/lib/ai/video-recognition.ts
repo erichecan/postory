@@ -16,7 +16,7 @@ const USD_PER_MILLION_INPUT_TOKENS = 0.1;
 const USD_PER_MILLION_OUTPUT_TOKENS = 0.5;
 const TRANSCRIPTION_USD_PER_MINUTE = 0.0045;
 
-type Frame = { number: number; seconds: number; bytes: Buffer };
+type Frame = { number: number; seconds: number; bytes: Buffer; mimeType: string };
 type Confidence = "high" | "medium" | "low";
 
 export type VideoRecognitionResult = {
@@ -60,6 +60,7 @@ export type VideoRecognitionResult = {
 };
 
 export type VideoRecognitionRun = {
+  mediaType: "video";
   video: { durationSeconds: number; width: number; height: number; audioAvailable: boolean };
   sample: { initialFrames: number; supplementalFrames: number; totalFrames: number; sceneChangesDetected: number };
   transcript: { status: "transcribed" | "no_audio" | "failed"; text: string; audioSeconds: number; estimatedUsd: number };
@@ -69,6 +70,9 @@ export type VideoRecognitionRun = {
   result: VideoRecognitionResult;
   warnings: string[];
 };
+
+export type ImageRecognitionRun = Omit<VideoRecognitionRun, "video" | "mediaType"> & { mediaType: "image" };
+export type MediaRecognitionRun = VideoRecognitionRun | ImageRecognitionRun;
 
 export class VideoRecognitionError extends Error {
   constructor(public code: "ffmpeg_missing" | "video_invalid" | "video_too_long" | "provider_unavailable" | "provider_failed" | "invalid_model_output", message: string) {
@@ -111,7 +115,7 @@ async function extractFrames(input: string, outDir: string, duration: number): P
   for (let index = 0; index < baseTimes.length; index++) {
     const file = path.join(outDir, `frame-${String(index + 1).padStart(2, "0")}.jpg`);
     await execFileAsync(command("ffmpeg"), ["-hide_banner", "-loglevel", "error", "-ss", baseTimes[index].toFixed(3), "-i", input, "-frames:v", "1", "-vf", "scale=1024:1024:force_original_aspect_ratio=decrease", "-q:v", "3", "-y", file], { timeout: 30_000, maxBuffer: 2 * 1024 * 1024 });
-    initial.push({ number: index + 1, seconds: baseTimes[index], bytes: await readFile(file) });
+    initial.push({ number: index + 1, seconds: baseTimes[index], bytes: await readFile(file), mimeType: "image/jpeg" });
   }
 
   let sceneTimes: number[] = [];
@@ -146,7 +150,7 @@ async function extractFrames(input: string, outDir: string, duration: number): P
     const seconds = supplementalTimes[index];
     const file = path.join(outDir, `frame-extra-${index + 1}.jpg`);
     await execFileAsync(command("ffmpeg"), ["-hide_banner", "-loglevel", "error", "-ss", seconds.toFixed(3), "-i", input, "-frames:v", "1", "-vf", "scale=1024:1024:force_original_aspect_ratio=decrease", "-q:v", "3", "-y", file], { timeout: 30_000, maxBuffer: 2 * 1024 * 1024 });
-    frames.push({ number: BASE_FRAME_COUNT + index + 1, seconds, bytes: await readFile(file) });
+    frames.push({ number: BASE_FRAME_COUNT + index + 1, seconds, bytes: await readFile(file), mimeType: "image/jpeg" });
   }
   return { frames, sceneChanges: sceneTimes.length };
 }
@@ -179,7 +183,7 @@ async function analyzeFrames(frames: Frame[], customerDescription: string, custo
   const prompt = [
     "Analyze this customer-provided retail/service video for an internal PoStory content workflow.",
     "The uploader description can be vague or wrong. Treat it only as a hint, never as proof of object identity or factual claims.",
-    "Images are samples from the whole clip, ordered by internal frame number. Do not infer unseen scenes.",
+    "Visual samples are provided in numbered order. For a video they are selected moments across the clip; for a still image, that image is the only view of the asset. Do not infer unseen scenes.",
     "Find the overall marketing theme, noteworthy product candidates, relations such as a shared sale/budget/bundle, and content opportunities.",
     "Each candidate group must represent exactly one physically distinct product or one clearly repeated instance of the same product. Never put several different pieces of furniture/appliances/products into one catch-all candidate just because they share a category or video segment.",
     "Merge across frames only when there is strong evidence that it is the exact same product; set sameItemAcrossFrames=true only in that case. If you cannot tell whether two shown items are identical, set sameItemAcrossFrames=false and separate them into one-frame candidates. Keep different models/options separate. A set is represented as separate candidates connected by a bundle relationship, never as one candidate group.",
@@ -197,7 +201,7 @@ async function analyzeFrames(frames: Frame[], customerDescription: string, custo
   const content: Array<Record<string, unknown>> = [{ type: "input_text", text: prompt }];
   for (const frame of frames) {
     content.push({ type: "input_text", text: `Sample frame number ${frame.number}.` });
-    content.push({ type: "input_image", image_url: `data:image/jpeg;base64,${frame.bytes.toString("base64")}`, detail: "high" });
+    content.push({ type: "input_image", image_url: `data:${frame.mimeType};base64,${frame.bytes.toString("base64")}`, detail: "high" });
   }
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -285,6 +289,7 @@ export async function recognizeVideo(input: { videoBytes: Buffer; extension: str
     const analyzed = await analyzeFrames(extracted.frames, input.customerDescription, input.customerFacts, transcript.text);
     if (analyzed.invalidFrameReference) warnings.push("The model returned out-of-range sample references; invalid references were removed.");
     return {
+      mediaType: "video",
       video: { durationSeconds, width, height, audioAvailable },
       sample: { initialFrames: BASE_FRAME_COUNT, supplementalFrames: extracted.frames.length - BASE_FRAME_COUNT, totalFrames: extracted.frames.length, sceneChangesDetected: extracted.sceneChanges },
       transcript,
@@ -297,4 +302,25 @@ export async function recognizeVideo(input: { videoBytes: Buffer; extension: str
   } finally {
     await rm(tempRoot, { recursive: true, force: true }).catch(() => undefined);
   }
+}
+
+export async function recognizeImage(input: { imageBytes: Buffer; mimeType: string; customerDescription: string; customerFacts: string }): Promise<ImageRecognitionRun> {
+  const startedAt = Date.now();
+  apiKey();
+  const analyzed = await analyzeFrames(
+    [{ number: 1, seconds: 0, bytes: input.imageBytes, mimeType: input.mimeType }],
+    input.customerDescription,
+    input.customerFacts,
+    "",
+  );
+  return {
+    mediaType: "image",
+    sample: { initialFrames: 1, supplementalFrames: 0, totalFrames: 1, sceneChangesDetected: 0 },
+    transcript: { status: "no_audio", text: "", audioSeconds: 0, estimatedUsd: 0 },
+    model: VISION_MODEL,
+    usage: { inputTokens: analyzed.inputTokens, outputTokens: analyzed.outputTokens, estimatedUsd: analyzed.usd },
+    elapsedMs: Date.now() - startedAt,
+    result: analyzed.result,
+    warnings: analyzed.invalidFrameReference ? ["The model returned out-of-range sample references; invalid references were removed."] : [],
+  };
 }

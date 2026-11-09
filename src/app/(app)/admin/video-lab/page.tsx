@@ -14,7 +14,7 @@ export default async function AdminVideoLabPage() {
         <h1 className="mt-2 text-2xl font-semibold tracking-tight">{t("title")}</h1>
         <p className="mt-2 max-w-3xl text-sm text-muted-foreground">{t("subtitle")}</p>
       </header>
-      <VideoLab />
+      <VideoLab cloudRunUploadLimit={Boolean(process.env.K_SERVICE)} />
     </div>
   );
 }

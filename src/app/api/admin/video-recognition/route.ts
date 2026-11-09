@@ -1,13 +1,17 @@
 import type { NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
-import { VideoRecognitionError, recognizeVideo } from "@/lib/ai/video-recognition";
+import { VideoRecognitionError, recognizeImage, recognizeVideo } from "@/lib/ai/video-recognition";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
 const MAX_VIDEO_BYTES = 250 * 1024 * 1024;
-const MAX_REQUEST_BYTES = MAX_VIDEO_BYTES + 2 * 1024 * 1024;
-const EXTENSIONS = new Set(["mp4", "mov", "m4v", "webm"]);
+const MAX_CLOUD_VIDEO_BYTES = 30 * 1024 * 1024;
+const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
+const MAX_ALLOWED_VIDEO_BYTES = process.env.K_SERVICE ? MAX_CLOUD_VIDEO_BYTES : MAX_VIDEO_BYTES;
+const MAX_REQUEST_BYTES = MAX_ALLOWED_VIDEO_BYTES + 2 * 1024 * 1024;
+const VIDEO_TYPES = new Map([["mp4", "video/mp4"], ["mov", "video/quicktime"], ["m4v", "video/mp4"], ["webm", "video/webm"]]);
+const IMAGE_TYPES = new Map([["jpg", "image/jpeg"], ["jpeg", "image/jpeg"], ["png", "image/png"], ["webp", "image/webp"]]);
 
 function json(status: number, body: Record<string, unknown>) {
   return Response.json(body, { status, headers: { "Cache-Control": "no-store, private" } });
@@ -60,16 +64,22 @@ export async function POST(request: NextRequest) {
   catch { return json(413, { ok: false, reason: "tooLarge" }); }
   if (!form) return json(400, { ok: false, reason: "invalidForm" });
 
-  const file = form.get("video");
+  const file = form.get("file") ?? form.get("video");
   if (!(file instanceof File) || file.size === 0) return json(422, { ok: false, reason: "videoRequired" });
-  if (file.size > MAX_VIDEO_BYTES) return json(413, { ok: false, reason: "tooLarge" });
   const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
-  if (!EXTENSIONS.has(extension)) return json(415, { ok: false, reason: "unsupportedFormat" });
+  const videoMimeType = VIDEO_TYPES.get(extension);
+  const imageMimeType = IMAGE_TYPES.get(extension);
+  if (!videoMimeType && !imageMimeType) return json(415, { ok: false, reason: "unsupportedFormat" });
+  const maxBytes = videoMimeType ? MAX_ALLOWED_VIDEO_BYTES : MAX_IMAGE_BYTES;
+  if (file.size > maxBytes) return json(413, { ok: false, reason: videoMimeType ? process.env.K_SERVICE ? "videoTooLargeCloud" : "tooLarge" : "imageTooLarge" });
   const description = String(form.get("description") ?? "").slice(0, 1_000);
   const customerFacts = String(form.get("customerFacts") ?? "").slice(0, 6_000);
 
   try {
-    const result = await recognizeVideo({ videoBytes: Buffer.from(await file.arrayBuffer()), extension, customerDescription: description, customerFacts });
+    const bytes = Buffer.from(await file.arrayBuffer());
+    const result = videoMimeType
+      ? await recognizeVideo({ videoBytes: bytes, extension, customerDescription: description, customerFacts })
+      : await recognizeImage({ imageBytes: bytes, mimeType: imageMimeType!, customerDescription: description, customerFacts });
     return json(200, { ok: true, result });
   } catch (error) {
     if (error instanceof VideoRecognitionError) {
