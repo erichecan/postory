@@ -1,0 +1,3 @@
+# Keep the shallow-cloned GitHub repositories available locally without
+# embedding their .git directories, build output, or dependencies in PoStory.
+repositories/

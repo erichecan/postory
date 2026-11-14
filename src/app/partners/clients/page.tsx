@@ -23,9 +23,10 @@ export default async function PartnerClientsPage() {
     <div className="ds-document flex min-h-screen flex-col">
       <PublicHeader signedIn />
       <main className="mx-auto flex w-full max-w-[960px] flex-1 flex-col gap-6 px-4 py-12">
-        <header className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
-          <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
+        <header className="flex flex-wrap items-end justify-between gap-3">
+          <div><h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("subtitle")}</p></div>
+          <Link className="rounded-lg border bg-card px-4 py-2 text-sm" href="/ad-ops">Open Ads Studio →</Link>
         </header>
         <div className="rounded-xl border bg-card p-5">
           <h2 className="font-semibold">Introduce a restaurant client</h2>

@@ -1000,7 +1000,9 @@ export function IndustryDemoPage({
           <h1>
             {title ?? c.title}
             <br />
-            <span className="ps-gradient-text">Social Media Demo</span>
+          <span className="ps-gradient-text">
+            {industry === "restaurant" ? "Built around your restaurant." : "Social Media Demo"}
+          </span>
           </h1>
           <p>{body ?? c.body}</p>
           <div className="ps-demo-numbers">
@@ -1076,6 +1078,33 @@ export function IndustryDemoPage({
       <section className="ps-demo-content">
         <DemoGallery industry={industry} />
       </section>
+      {industry === "restaurant" && <section className="ps-container grid gap-8 rounded-3xl bg-primary/5 px-5 py-10 sm:px-10 sm:py-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+        <div>
+          <Tag>CONSISTENCY BUILDS RECOGNITION</Tag>
+          <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">A promotion is one post. Your brand is the whole story.</h2>
+          <p className="mt-4 max-w-2xl leading-7 text-muted-foreground">New dishes, customer favourites, kitchen moments, your team, useful tips, local events and timely offers all give people a reason to remember you. A 30-day plan keeps those stories moving, even when service gets busy.</p>
+          <p className="mt-3 max-w-2xl leading-7 text-muted-foreground">The world’s best-known brands still advertise after decades. Consistent visibility is part of building a familiar brand—not a promise that every post will turn into an immediate sale.</p>
+        </div>
+        <div className="rounded-2xl border bg-background p-6 sm:p-8">
+          <Tag>STRAIGHTFORWARD MONTHLY PRICING</Tag>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+            <article className="rounded-xl border p-4">
+              <h3 className="font-semibold">Starter</h3>
+              <p className="mt-3 text-3xl font-semibold tracking-tight">€149<span className="text-sm font-normal text-muted-foreground"> / month</span></p>
+              <p className="mt-3 text-sm leading-6">8 planned posts, including 2 short videos. One location and up to 2 eligible connected platforms.</p>
+            </article>
+            <article className="rounded-xl border border-primary/40 bg-primary/5 p-4">
+              <h3 className="font-semibold">Growth</h3>
+              <p className="mt-3 text-3xl font-semibold tracking-tight">€299<span className="text-sm font-normal text-muted-foreground"> / month</span></p>
+              <p className="mt-3 text-sm leading-6">12 planned posts, including 4 short videos. One location and up to 3 eligible connected platforms.</p>
+            </article>
+          </div>
+          <p className="mt-4 text-sm text-muted-foreground">Each plan includes a monthly calendar and one review round before scheduling. Paid ad budgets are separate. Platform availability and account eligibility can vary.</p>
+          <div className="ps-actions mt-6">
+            <CTA href={requestHref ?? "/restaurant/request"}>See My 30-Day Calendar</CTA>
+          </div>
+        </div>
+      </section>}
       <section className="ps-demo-calendar" id="calendar">
         <div className="ps-strategy-heading">
           <SectionTitle
@@ -1097,11 +1126,10 @@ export function IndustryDemoPage({
           <article>
             <Photo name={`${industry}-cta`} />
             <h2>{c.cta}</h2>
-            <p>
-              Get a customized social media plan based on your business and
-              goals.
-            </p>
-            <CTA {...(industry === "restaurant" && requestHref ? { href: requestHref, children: "Plan My Restaurant Campaign" } : {})} />
+            <p>{industry === "restaurant"
+              ? "Preview your month of content, share your business details, and choose which accounts you want to connect. We’ll confirm the plan with you before scheduled publishing begins."
+              : "Get a customized social media plan based on your business and goals."}</p>
+            <CTA {...(industry === "restaurant" && requestHref ? { href: requestHref, children: "Start My Restaurant Plan" } : {})} />
           </article>
         </div>
       </section>

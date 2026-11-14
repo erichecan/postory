@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f8fc"><link rel="icon" href="favicon.svg" type="image/svg+xml"><title>PoStory Ads Studio</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="demo-ribbon"><span class="pulse"></span> 原型演示环境 · 所有账户、授权、指标与投放状态均为模拟数据 <button id="resetDemo" class="ribbon-reset">重置演示</button></div>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#overview" aria-label="PoStory Ads Studio"><span class="brand-mark">P</span><span>PoStory <small>ADS STUDIO</small></span></a>
+      <div class="workspace-switch"><span class="workspace-icon">PS</span><span><b>PoStory Agency</b><small>内部运营工作区</small></span><span class="chevron">⌄</span></div>
+      <div class="nav-label">工作台</div>
+      <nav id="mainNav" class="main-nav">
+        <button data-page="overview" class="nav-item active"><span class="nav-icon">◫</span>总览</button>
+        <button data-page="clients" class="nav-item"><span class="nav-icon">♧</span>客户管理 <span class="nav-count">6</span></button>
+        <button data-page="campaigns" class="nav-item"><span class="nav-icon">▤</span>推广任务</button>
+        <button data-page="approvals" class="nav-item"><span class="nav-icon">✓</span>审批中心 <span id="approvalCount" class="nav-count hot">2</span></button>
+        <button data-page="delivery" class="nav-item"><span class="nav-icon">◉</span>投放模拟</button>
+        <button data-page="reports" class="nav-item"><span class="nav-icon">▥</span>报告</button>
+      </nav>
+      <div class="nav-label nav-label-bottom">管理</div>
+      <button class="nav-item" data-page="connections"><span class="nav-icon">⌘</span>平台授权</button>
+      <button class="nav-item" data-page="settings"><span class="nav-icon">⚙</span>工作区设置</button>
+      <div class="sidebar-bottom">
+        <div class="support-card"><div class="support-icon">?</div><b>需要帮助？</b><span>查看演示流程与安全说明</span><a href="../workflow.md" target="_blank">打开操作指南 <span>↗</span></a></div>
+        <div class="profile"><div class="avatar avatar-pink">EL</div><span><b>Emily Lin</b><small>运营管理员</small></span><button class="more" aria-label="账户菜单">···</button></div>
+      </div>
+    </aside>
+    <main class="main-area">
+      <header class="topbar"><div class="breadcrumbs"><span>工作台</span><b>/</b><strong id="breadcrumb">总览</strong></div><div class="top-actions"><span class="demo-live"><i></i>模拟模式</span><button class="icon-button" title="通知">♧<em></em></button><button id="clientPreview" class="button button-secondary preview-button"><span>↗</span> 客户入口预览</button><div class="avatar avatar-purple">EL</div></div></header>
+      <div id="pageContent" class="page-content"></div>
+    </main>
+  </div>
+  <div id="modalRoot"></div>
+  <div id="toastRoot" class="toast-root" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>

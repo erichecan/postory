@@ -12,6 +12,32 @@ enum Role {
   ADMIN
 }
 
+enum AdOpsPlatformAccountStatus {
+  NOT_CONNECTED
+  AUTHORIZATION_PENDING
+  AUTHORIZED
+  EXPIRED
+  REVOKED
+}
+
+enum AdOpsTaskStatus {
+  DRAFT
+  PREFLIGHT_BLOCKED
+  NEEDS_APPROVAL
+  READY
+  SIMULATED_RUNNING
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum AdOpsApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CHANGES_REQUESTED
+}
+
 enum AccountSource {
   SELF_SIGNUP
   OFFLINE
@@ -251,6 +277,11 @@ model User {
   referredRestaurantBriefs      RestaurantCampaignBrief[]      @relation("RestaurantBriefReferrer")
   clientRestaurantBriefs        RestaurantCampaignBrief[]      @relation("RestaurantBriefClient")
   restaurantPlanItemSubmissions RestaurantPlanItemSubmission[]
+  adOpsProfilesAsAgency         AdOpsClientProfile[]           @relation("AdOpsAgency")
+  adOpsProfilesAsClient         AdOpsClientProfile[]           @relation("AdOpsClient")
+  adOpsApprovalsRequested       AdOpsTaskApproval[]            @relation("AdOpsApprovalRequester")
+  adOpsApprovalsDecided         AdOpsTaskApproval[]            @relation("AdOpsApprovalDecider")
+  adOpsAuditEvents              AdOpsAuditEvent[]
 }
 
 // Phase 1: one personally owned studio per account. User is the shared profile.
@@ -614,26 +645,27 @@ model Template {
 
 // revisionCount: 2 次免费微调原地累加；第 3 次编辑在应用层强制新建一条 Design 并扣新额度
 model Design {
-  id               String         @id @default(cuid())
+  id               String               @id @default(cuid())
   userId           String
-  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   templateId       String?
-  template         Template?      @relation(fields: [templateId], references: [id], onDelete: SetNull)
-  title            String         @db.VarChar(128)
+  template         Template?            @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  title            String               @db.VarChar(128)
   pages            Json
   platforms        String[]
   scheduledAt      DateTime?
-  status           DesignStatus   @default(DRAFT)
+  status           DesignStatus         @default(DRAFT)
   chargedAt        DateTime?
-  caption          String?        @db.Text
-  revisionCount    Int            @default(0)
+  caption          String?              @db.Text
+  revisionCount    Int                  @default(0)
   exportedImageUrl String?
   ayrsharePostId   String?
   publishStatus    PublishStatus?
-  publishError     String?        @db.Text
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  publishError     String?              @db.Text
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
   calendarSlot     CalendarSlot?
+  adOpsTasks       AdOpsPromotionTask[]
 
   @@index([userId, updatedAt])
 }
@@ -763,6 +795,150 @@ model AgencyAccess {
 
   @@unique([agencyUserId, clientUserId])
   @@index([clientUserId])
+}
+
+// Paid media is a separate capability from SocialAccount (organic publishing).
+// This profile stores client-approved business boundaries, never platform tokens.
+model AdOpsClientProfile {
+  id                   String                 @id @default(cuid())
+  agencyUserId         String
+  agencyUser           User                   @relation("AdOpsAgency", fields: [agencyUserId], references: [id], onDelete: Cascade)
+  clientUserId         String
+  clientUser           User                   @relation("AdOpsClient", fields: [clientUserId], references: [id], onDelete: Cascade)
+  objective            String                 @db.VarChar(40)
+  currency             Currency               @default(EUR)
+  monthlyBudgetMinor   Int
+  dailyBudgetMinor     Int
+  serviceArea          String                 @db.VarChar(255)
+  excludedAreas        String?                @db.VarChar(500)
+  timeZone             String                 @default("Europe/Dublin") @db.VarChar(64)
+  recommendedPlatforms String[]               @default([])
+  approvedOfferTypes   String[]               @default([])
+  autoRunInPolicy      Boolean                @default(false)
+  clientConfirmedAt    DateTime?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  platformAccounts     AdOpsPlatformAccount[]
+  tasks                AdOpsPromotionTask[]
+  auditEvents          AdOpsAuditEvent[]
+
+  @@unique([agencyUserId, clientUserId])
+  @@index([agencyUserId, updatedAt])
+  @@index([clientUserId, updatedAt])
+}
+
+// Organic social connections cannot authorize paid advertising. OAuth credentials
+// will be handled by a dedicated encrypted credential service in a later phase.
+model AdOpsPlatformAccount {
+  id                String                     @id @default(cuid())
+  profileId         String
+  profile           AdOpsClientProfile         @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  platform          String                     @db.VarChar(32)
+  externalAccountId String?                    @db.VarChar(128)
+  displayName       String?                    @db.VarChar(128)
+  status            AdOpsPlatformAccountStatus @default(NOT_CONNECTED)
+  authorizedAt      DateTime?
+  revokedAt         DateTime?
+  createdAt         DateTime                   @default(now())
+  updatedAt         DateTime                   @updatedAt
+  tasks             AdOpsPromotionTask[]
+
+  @@unique([profileId, platform, externalAccountId])
+  @@index([profileId, status])
+}
+
+model AdOpsPromotionTask {
+  id                     String                @id @default(cuid())
+  profileId              String
+  profile                AdOpsClientProfile    @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  platformAccountId      String?
+  platformAccount        AdOpsPlatformAccount? @relation(fields: [platformAccountId], references: [id], onDelete: SetNull)
+  contentDesignId        String?
+  contentDesign          Design?               @relation(fields: [contentDesignId], references: [id], onDelete: SetNull)
+  title                  String                @db.VarChar(160)
+  objective              String                @db.VarChar(40)
+  platform               String                @db.VarChar(32)
+  offerType              String                @db.VarChar(40)
+  offerTitle             String                @db.VarChar(160)
+  offerDetails           String                @db.Text
+  startsAt               DateTime              @db.Date
+  endsAt                 DateTime              @db.Date
+  dailyBudgetMinor       Int
+  totalBudgetMinor       Int
+  serviceAreaSnapshot    String                @db.VarChar(255)
+  audienceRecommendation String                @db.VarChar(500)
+  creativeCopy           String                @db.Text
+  creativeSource         String?               @db.VarChar(160)
+  destinationType        String                @db.VarChar(32)
+  destinationUrl         String?               @db.Text
+  redemptionInstructions String?               @db.Text
+  preflight              Json?
+  status                 AdOpsTaskStatus       @default(DRAFT)
+  version                Int                   @default(1)
+  autoApproved           Boolean               @default(false)
+  createdByUserId        String
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  approvals              AdOpsTaskApproval[]
+  auditEvents            AdOpsAuditEvent[]
+  metrics                AdOpsMetricSnapshot[]
+
+  @@index([profileId, status, startsAt])
+  @@index([createdByUserId, createdAt])
+}
+
+model AdOpsTaskApproval {
+  id            String              @id @default(cuid())
+  taskId        String
+  task          AdOpsPromotionTask  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskVersion   Int
+  status        AdOpsApprovalStatus @default(PENDING)
+  reason        String              @db.Text
+  requestedById String
+  requestedBy   User                @relation("AdOpsApprovalRequester", fields: [requestedById], references: [id], onDelete: Cascade)
+  decidedById   String?
+  decidedBy     User?               @relation("AdOpsApprovalDecider", fields: [decidedById], references: [id], onDelete: SetNull)
+  decisionNote  String?             @db.Text
+  requestedAt   DateTime            @default(now())
+  decidedAt     DateTime?
+
+  @@unique([taskId, taskVersion])
+  @@index([status, requestedAt])
+}
+
+model AdOpsMetricSnapshot {
+  id                String             @id @default(cuid())
+  taskId            String
+  task              AdOpsPromotionTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  periodStart       DateTime           @db.Date
+  periodEnd         DateTime           @db.Date
+  spendMinor        Int                @default(0)
+  clicks            Int                @default(0)
+  voucherClaims     Int                @default(0)
+  confirmedBookings Int                @default(0)
+  redemptions       Int                @default(0)
+  salesMinor        Int?
+  dataSource        String             @db.VarChar(40)
+  syncedAt          DateTime           @default(now())
+
+  @@unique([taskId, periodStart, periodEnd, dataSource])
+  @@index([taskId, periodEnd])
+}
+
+model AdOpsAuditEvent {
+  id          String              @id @default(cuid())
+  profileId   String
+  profile     AdOpsClientProfile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  taskId      String?
+  task        AdOpsPromotionTask? @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  actorUserId String
+  actor       User                @relation(fields: [actorUserId], references: [id], onDelete: Cascade)
+  action      String              @db.VarChar(48)
+  details     Json?
+  createdAt   DateTime            @default(now())
+
+  @@index([profileId, createdAt])
+  @@index([taskId, createdAt])
 }
 
 // 代理商为真实客户提交的免费试做申请。转付费前客户还没有自己的 User 账号，结果挂在这张表上。

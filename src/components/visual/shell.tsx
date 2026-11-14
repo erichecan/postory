@@ -33,6 +33,7 @@ const clientLinks = [
   ["My Campaign", "/my-campaign"],
   ["Marketing Calendar", "/calendar"],
   ["Restaurant Plans", "/restaurant/campaigns"],
+  ["Advertising", "/ad-ops/portal"],
   ["My Brand", "/my-brand"],
 ];
 export function VisualHeader({
