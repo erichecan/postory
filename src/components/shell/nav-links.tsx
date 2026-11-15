@@ -18,7 +18,7 @@ export function NavLinks({ isAdmin }: { isAdmin: boolean }) {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const links = isAdmin
-    ? [...LINKS, { href: "/admin/accounts", key: "adminAccounts" } as const]
+    ? [...LINKS, { href: "/internal/content-studio", label: "内容工作台" } as const, { href: "/admin/accounts", key: "adminAccounts" } as const]
     : [
         { href: "/dashboard", label: "Dashboard" },
         { href: "/my-campaign", label: "My Campaign" },

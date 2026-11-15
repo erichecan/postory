@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySession } from "@/lib/auth/token";
 import { isLoopbackHost, isVideoLabLocalAccessEnabled } from "@/lib/auth/video-lab-local-access";
 
-const PUBLIC_PATHS = ["/", "/login", "/register", "/plans", "/forgot-password", "/reset-password", "/calendar-preview", "/services", "/who-we-help", "/our-work", "/how-it-works", "/about", "/assessment"];
+const PUBLIC_PATHS = ["/", "/login", "/register", "/plans", "/forgot-password", "/reset-password", "/calendar-preview", "/services", "/who-we-help", "/our-work", "/how-it-works", "/about", "/assessment", "/manifest.webmanifest"];
 
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;

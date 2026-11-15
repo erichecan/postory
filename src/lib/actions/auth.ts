@@ -72,6 +72,7 @@ export async function loginAction(_: FormState, formData: FormData): Promise<For
   await createSession({ userId: user.id, role: user.role, sv: user.sessionVersion });
   const next = formData.get("next");
   if (typeof next === "string" && next) redirect(safeNext(next));
+  if (user.role === "ADMIN") redirect("/internal/content-studio");
   redirect((await getRestaurantCampaignLandingPath(user.id)) ?? "/dashboard");
 }
 
