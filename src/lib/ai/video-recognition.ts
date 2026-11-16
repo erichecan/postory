@@ -16,7 +16,7 @@ const USD_PER_MILLION_INPUT_TOKENS = 0.1;
 const USD_PER_MILLION_OUTPUT_TOKENS = 0.5;
 const TRANSCRIPTION_USD_PER_MINUTE = 0.0045;
 
-type Frame = { number: number; seconds: number; bytes: Buffer; filePath: string };
+type Frame = { number: number; seconds: number; bytes: Buffer; filePath: string; mimeType?: string };
 type Confidence = "high" | "medium" | "low";
 
 export type VideoRecognitionResult = {
@@ -61,6 +61,7 @@ export type VideoRecognitionResult = {
 };
 
 export type VideoRecognitionRun = {
+  mediaType: "video" | "image";
   video: { durationSeconds: number; width: number; height: number; audioAvailable: boolean };
   sample: { initialFrames: number; supplementalFrames: number; totalFrames: number; sceneChangesDetected: number };
   transcript: { status: "transcribed" | "no_audio" | "failed" | "skipped"; text: string; audioSeconds: number; estimatedUsd: number };
@@ -74,7 +75,7 @@ export type VideoRecognitionRun = {
 };
 
 export class VideoRecognitionError extends Error {
-  constructor(public code: "ffmpeg_missing" | "video_invalid" | "video_too_long" | "provider_unavailable" | "provider_failed" | "invalid_model_output" | "codex_unavailable" | "codex_not_logged_in" | "codex_failed", message: string) {
+  constructor(public code: "ffmpeg_missing" | "video_invalid" | "video_too_long" | "image_invalid" | "provider_unavailable" | "provider_failed" | "invalid_model_output" | "codex_unavailable" | "codex_not_logged_in" | "codex_failed", message: string) {
     super(message);
     this.name = "VideoRecognitionError";
   }
@@ -114,7 +115,7 @@ async function extractFrames(input: string, outDir: string, duration: number): P
   for (let index = 0; index < baseTimes.length; index++) {
     const file = path.join(outDir, `frame-${String(index + 1).padStart(2, "0")}.jpg`);
     await execFileAsync(command("ffmpeg"), ["-hide_banner", "-loglevel", "error", "-ss", baseTimes[index].toFixed(3), "-i", input, "-frames:v", "1", "-vf", "scale=1024:1024:force_original_aspect_ratio=decrease", "-q:v", "3", "-y", file], { timeout: 30_000, maxBuffer: 2 * 1024 * 1024 });
-    initial.push({ number: index + 1, seconds: baseTimes[index], bytes: await readFile(file), filePath: file });
+    initial.push({ number: index + 1, seconds: baseTimes[index], bytes: await readFile(file), filePath: file, mimeType: "image/jpeg" });
   }
 
   let sceneTimes: number[] = [];
@@ -149,7 +150,7 @@ async function extractFrames(input: string, outDir: string, duration: number): P
     const seconds = supplementalTimes[index];
     const file = path.join(outDir, `frame-extra-${index + 1}.jpg`);
     await execFileAsync(command("ffmpeg"), ["-hide_banner", "-loglevel", "error", "-ss", seconds.toFixed(3), "-i", input, "-frames:v", "1", "-vf", "scale=1024:1024:force_original_aspect_ratio=decrease", "-q:v", "3", "-y", file], { timeout: 30_000, maxBuffer: 2 * 1024 * 1024 });
-    frames.push({ number: BASE_FRAME_COUNT + index + 1, seconds, bytes: await readFile(file), filePath: file });
+    frames.push({ number: BASE_FRAME_COUNT + index + 1, seconds, bytes: await readFile(file), filePath: file, mimeType: "image/jpeg" });
   }
   return { frames, sceneChanges: sceneTimes.length };
 }
@@ -178,16 +179,17 @@ function extractText(response: unknown): string {
   return "";
 }
 
-function buildAnalysisPrompt(frames: Frame[], customerDescription: string, customerFacts: string, transcript: string) {
+function buildAnalysisPrompt(frames: Frame[], customerDescription: string, customerFacts: string, transcript: string, mediaType: "video" | "image" = "video") {
+  const isImage = mediaType === "image";
   return [
-    "Analyze this customer-provided retail/service video for an internal PoStory content workflow.",
+    isImage ? "Analyze this customer-provided retail/service image for an internal PoStory content workflow." : "Analyze this customer-provided retail/service video for an internal PoStory content workflow.",
     "The uploader description can be vague or wrong. Treat it only as a hint, never as proof of object identity or factual claims.",
-    "Images are samples from the whole clip, ordered by internal frame number. Do not infer unseen scenes.",
+    isImage ? "This is one still image. Describe only what is visible in the image; do not infer motion, preparation steps, other views, or unseen scenes." : "Images are samples from the whole clip, ordered by internal frame number. Do not infer unseen scenes.",
     "Find the overall marketing theme, noteworthy product candidates, relations such as a shared sale/budget/bundle, and content opportunities.",
-    "Classify the dominant purpose of the whole clip, not an isolated action. Choose product_use only when the clip primarily demonstrates how to operate or use a product, or shows a use process. A host handling products while presenting a retail sale, promotion, or Black Friday offer is promotion; mainly presenting products without an offer is product_showcase.",
-    "Each candidate group must represent exactly one physically distinct product or one clearly repeated instance of the same product. Never put several different pieces of furniture/appliances/products into one catch-all candidate just because they share a category or video segment.",
-    "Merge across frames only when there is strong evidence that it is the exact same product; set sameItemAcrossFrames=true only in that case. If you cannot tell whether two shown items are identical, set sameItemAcrossFrames=false and separate them into one-frame candidates. Keep different models/options separate. A set is represented as separate candidates connected by a bundle relationship, never as one candidate group.",
-    "Do not promote shelves, clutter, or background items to content candidates. Include a product candidate only when it is clearly shown, repeatedly visible, or explicitly featured in speech/text.",
+    isImage ? "Classify the main purpose of this image. Use product_showcase for a clearly featured item, store_intro for a venue or interior, and promotion only when an offer is visibly stated or provided by the customer. Do not infer a use process from a still image." : "Classify the dominant purpose of the whole clip, not an isolated action. Choose product_use only when the clip primarily demonstrates how to operate or use a product, or shows a use process. A host handling products while presenting a retail sale, promotion, or Black Friday offer is promotion; mainly presenting products without an offer is product_showcase.",
+    "Candidates represent distinct product listings for marketing, not each physical unit in a shop. Group multiple units of the same product category/model shown together (for example, a row of treadmills) into ONE candidate, even if they are physically separate machines. Split same-category items only when the video clearly shows meaningfully different models/options that should be marketed separately. Never put different product categories into one catch-all candidate.",
+    "sameItemAcrossFrames describes whether the exact physical unit is confirmed across frames; set it true only with strong evidence. If physical identity is uncertain, keep it false, but do not create duplicate marketing candidates just because the same product category appears in multiple frames. Keep clearly different models/options separate. A bundle of different product categories is represented as separate candidates connected by a bundle relationship.",
+    "Do not promote shelves, clutter, or background items to content candidates. Include a product candidate only when it is clearly shown, repeatedly visible, or explicitly featured in speech/text. If several instances of the same product category are visible in one scene, describe them as one product candidate and note that multiple units are shown.",
     "Never state product names, brands, model numbers, prices, currencies, specifications, stock, or offer terms as verified facts. Flag claims read from overlay text or speech as unverified.",
     "Never infer USD/CAD from the store location or language. If the speaker says '刀' or 'dollars' without specifying a currency, preserve the ambiguity and say the currency is unconfirmed; do not translate it to US dollars. Do not put a currency name in the overview or theme summaries unless it is explicitly stated.",
     "Use generic IDs like candidate-1, not guessed brand/model names. Give each candidate a short displayName for its recognizable product category (for example, massage chair, refrigerator, or office chair); use 'Unclear product' if uncertain. Do not output visual feature descriptions in any text field.",
@@ -195,7 +197,7 @@ function buildAnalysisPrompt(frames: Frame[], customerDescription: string, custo
     `Uploader description (unverified hint): ${customerDescription || "(none)"}`,
     `Customer-provided product/menu facts (not independently verified): ${customerFacts || "(none)"}`,
     `Speech transcript (may be inaccurate and is not proof): ${transcript || "(not transcribed in local Codex mode)"}`,
-    `The only valid sample frame numbers are: ${frames.map((frame) => frame.number).join(", ")}. Each candidate's sampledFrameNumbers must use only these numbers and group only identical items.`,
+    `The only valid sample ${isImage ? "image" : "frame"} numbers are: ${frames.map((frame) => frame.number).join(", ")}. Each candidate's sampledFrameNumbers must use only these numbers. Group repeated units of the same category/model as one marketing candidate; use separate candidates for distinct categories or clearly different models.`,
     "Return conservative, useful results. Keep summaries brief and in the language used by the customer materials.",
   ].join("\n\n");
 }
@@ -221,36 +223,42 @@ function normalizeAnalysis(text: string, frames: Frame[], inputTokens: number, o
     const valid = candidate.sampledFrameNumbers.filter((number) => Number.isInteger(number) && number >= 1 && number <= Math.min(frames.length, MAX_FRAMES));
     if (valid.length !== candidate.sampledFrameNumbers.length) invalidFrameReference = true;
     const unique = [...new Set(valid)];
-    const uncertainIdentity = /cannot (?:confirm|tell).*(?:same|identical)|unclear whether.*same|无法确认.*同一|不确定.*同一|无法判断.*同一|不能确认.*同一/i.test(candidate.reason);
-    if (unique.length > 1 && (!candidate.sameItemAcrossFrames || uncertainIdentity)) {
-      const ids = unique.map((_, index) => `${candidate.candidateId}-${index + 1}`);
-      candidateExpansions.set(candidate.candidateId, ids);
-      for (const [index, frameNumber] of unique.entries()) candidateGroups.push({
-        ...candidate,
-        candidateId: ids[index],
-        sampledFrameNumbers: [frameNumber],
-        sameItemAcrossFrames: false,
-        confidence: "low",
-        contentPotential: candidate.contentPotential === "store_or_event_only" ? "store_or_event_only" : "unclear",
-        reason: `${candidate.reason}（不同画面间的商品身份无法确认，已拆为独立候选；请用商品清单核对。）`,
-      });
-    } else {
-      candidateExpansions.set(candidate.candidateId, [candidate.candidateId]);
-      candidateGroups.push({ ...candidate, sampledFrameNumbers: unique });
-    }
+    candidateExpansions.set(candidate.candidateId, [candidate.candidateId]);
+    candidateGroups.push({ ...candidate, sampledFrameNumbers: unique });
   }
-  result.candidateGroups = candidateGroups;
-  for (const relationship of result.relationships) relationship.candidateIds = relationship.candidateIds.flatMap((id) => candidateExpansions.get(id) ?? [id]);
-  for (const opportunity of result.opportunities) opportunity.candidateIds = opportunity.candidateIds.flatMap((id) => candidateExpansions.get(id) ?? [id]);
+  const canonicalIds = new Map<string, string>();
+  const mergedByProduct = new Map<string, VideoRecognitionResult["candidateGroups"][number]>();
+  const uniqueCandidateGroups: VideoRecognitionResult["candidateGroups"] = [];
+  for (const candidate of candidateGroups) {
+    const normalizedName = candidate.displayName.trim().toLocaleLowerCase().replace(/\s+/g, " ");
+    const distinctVariant = /different (?:models?|versions?|options?)|distinct models?|separate models?|不同型号|不同款式|不同版本|不同配置/i.test(candidate.reason);
+    const canMerge = candidate.contentPotential === "single_product" && !distinctVariant && normalizedName.length > 0 && !["unclear product", "unknown product", "不明商品", "未知商品"].includes(normalizedName);
+    const existing = canMerge ? mergedByProduct.get(normalizedName) : undefined;
+    if (!existing) {
+      uniqueCandidateGroups.push(candidate);
+      canonicalIds.set(candidate.candidateId, candidate.candidateId);
+      if (canMerge) mergedByProduct.set(normalizedName, candidate);
+      continue;
+    }
+    canonicalIds.set(candidate.candidateId, existing.candidateId);
+    existing.sampledFrameNumbers = [...new Set([...existing.sampledFrameNumbers, ...candidate.sampledFrameNumbers])];
+    existing.individuallyProminent ||= candidate.individuallyProminent;
+    existing.sameItemAcrossFrames &&= candidate.sameItemAcrossFrames;
+    if (["high", "medium", "low"].indexOf(candidate.confidence) < ["high", "medium", "low"].indexOf(existing.confidence)) existing.confidence = candidate.confidence;
+  }
+  const expandCanonicalIds = (id: string) => [...new Set((candidateExpansions.get(id) ?? [id]).map((expandedId) => canonicalIds.get(expandedId) ?? expandedId))];
+  result.candidateGroups = uniqueCandidateGroups;
+  for (const relationship of result.relationships) relationship.candidateIds = [...new Set(relationship.candidateIds.flatMap(expandCanonicalIds))];
+  for (const opportunity of result.opportunities) opportunity.candidateIds = [...new Set(opportunity.candidateIds.flatMap(expandCanonicalIds))];
   return { result, inputTokens, outputTokens, usd, invalidFrameReference };
 }
 
-async function analyzeFrames(frames: Frame[], customerDescription: string, customerFacts: string, transcript: string) {
-  const prompt = buildAnalysisPrompt(frames, customerDescription, customerFacts, transcript);
+async function analyzeFrames(frames: Frame[], customerDescription: string, customerFacts: string, transcript: string, mediaType: "video" | "image" = "video") {
+  const prompt = buildAnalysisPrompt(frames, customerDescription, customerFacts, transcript, mediaType);
   const content: Array<Record<string, unknown>> = [{ type: "input_text", text: prompt }];
   for (const frame of frames) {
-    content.push({ type: "input_text", text: `Sample frame number ${frame.number}.` });
-    content.push({ type: "input_image", image_url: `data:image/jpeg;base64,${frame.bytes.toString("base64")}`, detail: "high" });
+    content.push({ type: "input_text", text: `Sample ${mediaType === "image" ? "image" : "frame"} number ${frame.number}.` });
+    content.push({ type: "input_image", image_url: `data:${frame.mimeType ?? "image/jpeg"};base64,${frame.bytes.toString("base64")}`, detail: "high" });
   }
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -298,7 +306,7 @@ function runCodex(args: string[], prompt: string, cwd: string, env: NodeJS.Proce
   });
 }
 
-async function analyzeFramesWithCodex(frames: Frame[], customerDescription: string, customerFacts: string) {
+async function analyzeFramesWithCodex(frames: Frame[], customerDescription: string, customerFacts: string, mediaType: "video" | "image" = "video") {
   const env = { ...process.env };
   for (const key of ["OPENAI_API_KEY", "OPENAI_BASE_URL", "CODEX_ACCESS_TOKEN", "CODEX_API_KEY"]) delete env[key];
   await new Promise<void>((resolve, reject) => execFile(process.env.CODEX_CLI_PATH?.trim() || "codex", ["login", "status"], { env, timeout: 15_000, maxBuffer: 64 * 1024 }, (error, stdout, stderr) => {
@@ -313,7 +321,7 @@ async function analyzeFramesWithCodex(frames: Frame[], customerDescription: stri
   const args = ["exec", "--ephemeral", "--skip-git-repo-check", "--sandbox", "read-only", "--json", "--output-schema", schemaPath, "--output-last-message", outputPath];
   for (const frame of frames) args.push("--image", frame.filePath);
   args.push("-");
-  const stdout = await runCodex(args, buildAnalysisPrompt(frames, customerDescription, customerFacts, ""), outDir, env);
+  const stdout = await runCodex(args, buildAnalysisPrompt(frames, customerDescription, customerFacts, "", mediaType), outDir, env);
   let inputTokens = 0;
   let outputTokens = 0;
   for (const line of stdout.split(/\r?\n/)) {
@@ -363,6 +371,7 @@ export async function recognizeVideo(input: { videoBytes: Buffer; extension: str
     const analyzed = useCodex ? await analyzeFramesWithCodex(extracted.frames, input.customerDescription, input.customerFacts) : await analyzeFrames(extracted.frames, input.customerDescription, input.customerFacts, transcript.text);
     if (analyzed.invalidFrameReference) warnings.push("The model returned out-of-range sample references; invalid references were removed.");
     return {
+      mediaType: "video",
       video: { durationSeconds, width, height, audioAvailable },
       sample: { initialFrames: BASE_FRAME_COUNT, supplementalFrames: extracted.frames.length - BASE_FRAME_COUNT, totalFrames: extracted.frames.length, sceneChangesDetected: extracted.sceneChanges },
       transcript,
@@ -370,9 +379,60 @@ export async function recognizeVideo(input: { videoBytes: Buffer; extension: str
       framePreviews: [...new Set(analyzed.result.candidateGroups.flatMap((candidate) => candidate.sampledFrameNumbers.slice(0, 1)))]
         .map((number) => extracted.frames.find((frame) => frame.number === number))
         .filter((frame): frame is Frame => Boolean(frame))
-        .map((frame) => ({ number: frame.number, dataUrl: `data:image/jpeg;base64,${frame.bytes.toString("base64")}` })),
+        .map((frame) => ({ number: frame.number, dataUrl: `data:${frame.mimeType ?? "image/jpeg"};base64,${frame.bytes.toString("base64")}` })),
       model: useCodex ? "Codex CLI (local account)" : VISION_MODEL,
       usage: { inputTokens: analyzed.inputTokens, outputTokens: analyzed.outputTokens, estimatedUsd: analyzed.usd === null ? null : analyzed.usd + transcript.estimatedUsd },
+      elapsedMs: Date.now() - startedAt,
+      result: analyzed.result,
+      warnings,
+    };
+  } finally {
+    await rm(tempRoot, { recursive: true, force: true }).catch(() => undefined);
+  }
+}
+
+export async function recognizeImage(input: { imageBytes: Buffer; extension: string; mimeType: string; customerDescription: string; customerFacts: string }): Promise<VideoRecognitionRun> {
+  const startedAt = Date.now();
+  const useCodex = isLocalCodexMode();
+  if (!useCodex) apiKey();
+  if (!["image/jpeg", "image/png", "image/webp"].includes(input.mimeType)) throw new VideoRecognitionError("image_invalid", "Only JPEG, PNG, and WebP images are supported");
+  const tempRoot = await mkdtemp(path.join(os.tmpdir(), "postory-image-lab-"));
+  const imagePath = path.join(tempRoot, `upload.${input.extension}`);
+  try {
+    await writeFile(imagePath, input.imageBytes);
+    const { stdout } = await execFileAsync(command("ffprobe"), ["-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height", "-of", "json", imagePath], { timeout: 30_000, maxBuffer: 1024 * 1024 }).catch((error: unknown) => {
+      const code = error && typeof error === "object" && "code" in error ? String(error.code) : "";
+      if (code === "ENOENT") throw new VideoRecognitionError("ffmpeg_missing", "ffprobe/ffmpeg is not installed");
+      throw new VideoRecognitionError("image_invalid", "Image could not be read");
+    });
+    const probe = JSON.parse(stdout) as { streams?: Array<{ width?: number; height?: number }> };
+    const stream = probe.streams?.[0];
+    const width = Number(stream?.width ?? 0);
+    const height = Number(stream?.height ?? 0);
+    if (!width || !height || width * height > 80_000_000) throw new VideoRecognitionError("image_invalid", "Image dimensions are invalid or too large");
+    const previewExtension = input.mimeType === "image/jpeg" ? "jpg" : "png";
+    const previewMimeType = previewExtension === "jpg" ? "image/jpeg" : "image/png";
+    const previewPath = path.join(tempRoot, `preview.${previewExtension}`);
+    await execFileAsync(command("ffmpeg"), ["-hide_banner", "-loglevel", "error", "-i", imagePath, "-frames:v", "1", "-vf", "scale=1600:1600:force_original_aspect_ratio=decrease", "-q:v", "4", "-y", previewPath], { timeout: 60_000, maxBuffer: 1024 * 1024 }).catch((error: unknown) => {
+      const code = error && typeof error === "object" && "code" in error ? String(error.code) : "";
+      if (code === "ENOENT") throw new VideoRecognitionError("ffmpeg_missing", "ffprobe/ffmpeg is not installed");
+      throw new VideoRecognitionError("image_invalid", "Image could not be normalized");
+    });
+    const previewBytes = await readFile(previewPath);
+    const frame: Frame = { number: 1, seconds: 0, bytes: previewBytes, filePath: previewPath, mimeType: previewMimeType };
+    const analyzed = useCodex
+      ? await analyzeFramesWithCodex([frame], input.customerDescription, input.customerFacts, "image")
+      : await analyzeFrames([frame], input.customerDescription, input.customerFacts, "", "image");
+    const warnings = analyzed.invalidFrameReference ? ["The model returned out-of-range sample references; invalid references were removed."] : [];
+    return {
+      mediaType: "image",
+      video: { durationSeconds: 0, width, height, audioAvailable: false },
+      sample: { initialFrames: 1, supplementalFrames: 0, totalFrames: 1, sceneChangesDetected: 0 },
+      transcript: { status: "no_audio", text: "", audioSeconds: 0, estimatedUsd: 0 },
+      provider: useCodex ? "codex_cli" : "openai_api",
+      framePreviews: [{ number: 1, dataUrl: `data:${previewMimeType};base64,${previewBytes.toString("base64")}` }],
+      model: useCodex ? "Codex CLI (local account)" : VISION_MODEL,
+      usage: { inputTokens: analyzed.inputTokens, outputTokens: analyzed.outputTokens, estimatedUsd: analyzed.usd },
       elapsedMs: Date.now() - startedAt,
       result: analyzed.result,
       warnings,

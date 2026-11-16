@@ -1,23 +1,34 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import type { VideoRecognitionRun } from "@/lib/ai/video-recognition";
+import { saveVideoMarketingPlanHandoff, type VideoMarketingPlanActivity, type VideoMarketingPlanProduct } from "@/lib/ai/video-marketing-plan-handoff";
 
 type ApiReply = { ok: true; result: VideoRecognitionRun } | { ok: false; reason: string; message?: string };
 type ProductImageReply = { message?: string } & ({ ok: true; imageDataUrl: string; provider: "codex_cli" | "openai_api" } | { ok: false; reason: string });
 const MAX_BYTES = 250 * 1024 * 1024;
-const MAX_VIDEOS = 5;
+const MAX_ASSETS = 5;
+const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
 
-type VideoEntry = { id: string; file: File | null; description: string };
-type VideoOutcome = { id: string; fileName: string; result?: VideoRecognitionRun; error?: string };
+type MediaEntry = { id: string; file: File | null; description: string };
+type MediaType = "video" | "image";
+type VideoOutcome = { id: string; fileName: string; mediaType: MediaType; result?: VideoRecognitionRun; error?: string };
+
+function mediaTypeOf(file: File): MediaType | null {
+  if (file.type.startsWith("video/")) return "video";
+  if (["image/jpeg", "image/png", "image/webp"].includes(file.type)) return "image";
+  return null;
+}
 
 export function VideoLab() {
   const t = useTranslations("admin.videoLab");
+  const router = useRouter();
   const fileInputs = useRef(new Map<string, HTMLInputElement>());
   const candidateAnchor = useRef<HTMLElement | null>(null);
-  const [videos, setVideos] = useState<VideoEntry[]>([{ id: "video-1", file: null, description: "" }]);
+  const [videos, setVideos] = useState<MediaEntry[]>([{ id: "asset-1", file: null, description: "" }]);
   const [customerFacts, setCustomerFacts] = useState("");
   const [running, setRunning] = useState(false);
   const [error, setError] = useState("");
@@ -46,9 +57,9 @@ export function VideoLab() {
   }, [imageToPreview]);
 
   function addFiles(slotId: string, incoming: File[]) {
-    const files = incoming;
+    const files = incoming.filter((file) => mediaTypeOf(file));
     if (!files.length) return;
-    setError("");
+    setError(files.length !== incoming.length ? t("errors.unsupportedAssetFormat") : "");
     setOutcomes([]);
     setOptimizedImages({});
     setOptimizedImageProviders({});
@@ -58,9 +69,9 @@ export function VideoLab() {
     setOptimizationErrors({});
     setCompletedCount(0);
     const slotIndex = videos.findIndex((video) => video.id === slotId);
-    const roomForExtras = Math.max(0, MAX_VIDEOS - (videos.length - (slotIndex >= 0 ? 1 : 0)) - 1);
-    const accepted = incoming.slice(0, roomForExtras + 1);
-    if (accepted.length < incoming.length) setError(t("errors.maxVideos"));
+    const roomForExtras = Math.max(0, MAX_ASSETS - (videos.length - (slotIndex >= 0 ? 1 : 0)) - 1);
+    const accepted = files.slice(0, roomForExtras + 1);
+    if (accepted.length < files.length) setError(t("errors.maxVideos"));
     const extraFiles = accepted.slice(slotIndex >= 0 ? 1 : 0);
     const next = [...videos];
     if (slotIndex >= 0) next[slotIndex] = { ...next[slotIndex], file: accepted[0] };
@@ -123,6 +134,53 @@ export function VideoLab() {
     await generateProductImage(`${outcomeId}:${candidateId}`, productName, preview.dataUrl);
   }
 
+  async function openMarketingPlan() {
+    const handoffId = crypto.randomUUID();
+    const products: VideoMarketingPlanProduct[] = [];
+    const activities: VideoMarketingPlanActivity[] = [];
+    const productIndexes = new Map<string, number>();
+    for (const outcome of outcomes) {
+      if (!outcome.result) continue;
+      for (const candidate of outcome.result.result.candidateGroups) {
+        if (candidate.contentPotential === "store_or_event_only") {
+          const activityFrame = outcome.result.framePreviews.find((frame) => frame.number === candidate.sampledFrameNumbers[0]);
+          activities.push({ id: `${outcome.id}:${candidate.candidateId}`, videoName: outcome.fileName, title: candidate.displayName, description: candidate.reason, overview: outcome.result.result.overview, theme: outcome.result.result.themeCategory, referenceImageDataUrl: activityFrame?.dataUrl ?? null });
+          continue;
+        }
+        if (candidate.contentPotential !== "single_product") continue;
+        const normalizedName = candidate.displayName.trim().toLocaleLowerCase().replace(/\s+/g, " ");
+        const distinctVariant = /different (?:models?|versions?|options?)|distinct models?|separate models?|不同型号|不同款式|不同版本|不同配置/i.test(candidate.reason);
+        const dedupeKey = `${outcome.id}:${normalizedName}${distinctVariant ? `:${candidate.candidateId}` : ""}`;
+        const imageKey = `${outcome.id}:${candidate.candidateId}`;
+        const optimizedImageDataUrl = optimizedImages[imageKey] ?? null;
+        const frameNumber = candidate.sampledFrameNumbers[0];
+        const originalImageDataUrl = outcome.result.framePreviews.find((frame) => frame.number === frameNumber)?.dataUrl ?? null;
+        const existingIndex = productIndexes.get(dedupeKey);
+        if (existingIndex !== undefined) {
+          const existing = products[existingIndex];
+          if (!existing.optimizedImageDataUrl && optimizedImageDataUrl || !existing.originalImageDataUrl && originalImageDataUrl) {
+            products[existingIndex] = {
+              ...existing,
+              optimizedImageDataUrl: existing.optimizedImageDataUrl ?? optimizedImageDataUrl,
+              originalImageDataUrl: existing.originalImageDataUrl ?? originalImageDataUrl,
+            };
+          }
+          continue;
+        }
+        productIndexes.set(dedupeKey, products.length);
+        products.push({ id: imageKey, videoName: outcome.fileName, name: candidate.displayName, reason: candidate.reason, confidence: candidate.confidence, originalImageDataUrl, optimizedImageDataUrl, currentPrice: "", promotionalPrice: "", productFacts: "" });
+      }
+    }
+    if (!products.length && !activities.length) { setError(t("errors.noProductsForPlan")); return; }
+    setError("");
+    try {
+      await saveVideoMarketingPlanHandoff({ id: handoffId, products, activities, customerFacts, goal: "store_visits", location: "", startDate: "", endDate: "", platforms: [], notes: "" });
+      router.push(`/admin/marketing-plan?handoff=${encodeURIComponent(handoffId)}`);
+    } catch {
+      setError(t("errors.planHandoffFailed"));
+    }
+  }
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
@@ -137,46 +195,57 @@ export function VideoLab() {
     if (!videos.length) { setError(t("errors.videoRequired")); return; }
     const incomplete = videos.find((video) => !video.file);
     if (incomplete) { setError(t("errors.videoRequired")); return; }
-    const readyVideos = videos as Array<VideoEntry & { file: File }>;
+    const readyVideos = videos as Array<MediaEntry & { file: File }>;
     setRunning(true);
     try {
       const nextOutcomes: VideoOutcome[] = [];
       for (let index = 0; index < readyVideos.length; index++) {
         const video = readyVideos[index];
         try {
-          if (video.file.size > MAX_BYTES) {
-            nextOutcomes.push({ id: video.id, fileName: video.file.name, error: t("errors.tooLarge", { file: video.file.name }) });
+          const mediaType = mediaTypeOf(video.file);
+          if (!mediaType) {
+            nextOutcomes.push({ id: video.id, fileName: video.file.name, mediaType: "image", error: t("errors.unsupportedAssetFormat") });
+            setOutcomes([...nextOutcomes]);
+            setCompletedCount(index + 1);
+            continue;
+          }
+          const maxBytes = mediaType === "image" ? MAX_IMAGE_BYTES : MAX_BYTES;
+          if (video.file.size > maxBytes) {
+            nextOutcomes.push({ id: video.id, fileName: video.file.name, mediaType, error: t(mediaType === "image" ? "errors.imageTooLarge" : "errors.tooLarge", { file: video.file.name }) });
             setOutcomes([...nextOutcomes]);
             setCompletedCount(index + 1);
             continue;
           }
           const form = new FormData();
-          form.set("video", video.file);
+          form.set(mediaType, video.file);
           form.set("description", video.description);
           form.set("customerFacts", customerFacts);
           const response = await fetch("/api/admin/video-recognition", { method: "POST", body: form, cache: "no-store" });
           const body = await response.json() as ApiReply;
           if (!response.ok || !body.ok) {
             const reason = body.ok ? "processingFailed" : body.reason;
-            nextOutcomes.push({ id: video.id, fileName: video.file.name, error: t(`errors.${reason}` as never) });
+            nextOutcomes.push({ id: video.id, fileName: video.file.name, mediaType, error: t(`errors.${reason}` as never) });
           } else {
-            nextOutcomes.push({ id: video.id, fileName: video.file.name, result: body.result });
+            nextOutcomes.push({ id: video.id, fileName: video.file.name, mediaType, result: body.result });
             setOutcomes([...nextOutcomes]);
-            const primaryProduct = [...body.result.result.candidateGroups]
+            const products = [...body.result.result.candidateGroups]
               .filter((candidate) => candidate.contentPotential === "single_product")
-              .sort((a, b) => Number(b.individuallyProminent) - Number(a.individuallyProminent) || ({ high: 0, medium: 1, low: 2 }[a.confidence] - { high: 0, medium: 1, low: 2 }[b.confidence]))[0];
-            if (primaryProduct) {
-              const frameNumber = primaryProduct.sampledFrameNumbers[0];
+              .sort((a, b) => Number(b.individuallyProminent) - Number(a.individuallyProminent) || ({ high: 0, medium: 1, low: 2 }[a.confidence] - { high: 0, medium: 1, low: 2 }[b.confidence]));
+            const imageTasks = products.flatMap((candidate) => {
+              const frameNumber = candidate.sampledFrameNumbers[0];
               const preview = body.result.framePreviews.find((frame) => frame.number === frameNumber);
               if (preview) {
-                const imageKey = `${video.id}:${primaryProduct.candidateId}`;
-                setAutoOptimizeKeys((current) => ({ ...current, [imageKey]: true }));
-                await generateProductImage(imageKey, primaryProduct.displayName, preview.dataUrl);
+                return [{ key: `${video.id}:${candidate.candidateId}`, name: candidate.displayName, dataUrl: preview.dataUrl }];
               }
+              return [];
+            });
+            if (mediaType === "video") {
+              setAutoOptimizeKeys((current) => ({ ...current, ...Object.fromEntries(imageTasks.map((task) => [task.key, true])) }));
+              for (const task of imageTasks) await generateProductImage(task.key, task.name, task.dataUrl);
             }
           }
         } catch {
-          nextOutcomes.push({ id: video.id, fileName: video.file.name, error: t("errors.network") });
+          nextOutcomes.push({ id: video.id, fileName: video.file.name, mediaType: mediaTypeOf(video.file) ?? "image", error: t("errors.network") });
         }
         setOutcomes([...nextOutcomes]);
         setCompletedCount(index + 1);
@@ -198,7 +267,7 @@ export function VideoLab() {
           <div className="flex flex-col gap-3">
             <div className="flex items-end justify-between gap-3">
               <div><p className="text-sm font-medium">{t("videoLabel")}</p><p className="mt-1 text-xs text-muted-foreground">{t("videoHelp")}</p></div>
-              <span className="shrink-0 text-xs text-muted-foreground">{videos.length}/{MAX_VIDEOS}</span>
+              <span className="shrink-0 text-xs text-muted-foreground">{videos.length}/{MAX_ASSETS}</span>
             </div>
             {videos.map((video, index) => (
               <div key={video.id} className="grid gap-3 rounded-xl border p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] sm:p-4">
@@ -210,13 +279,13 @@ export function VideoLab() {
                   <input
                     ref={(node) => { if (node) fileInputs.current.set(video.id, node); else fileInputs.current.delete(video.id); }}
                     type="file"
-                    accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.m4v,.webm"
+                    accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.m4v,.webm,image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
                     multiple={index === 0}
                     disabled={running}
                     onChange={(event) => { const selected = Array.from(event.currentTarget.files ?? []); event.currentTarget.value = ""; addFiles(video.id, selected); }}
                     className="sr-only"
                   />
-                  {video.file ? <span className="truncate text-xs text-muted-foreground" title={video.file.name}>{video.file.name} · {(video.file.size / 1024 / 1024).toFixed(1)} MB</span> : <span className="text-xs text-muted-foreground">{t("chooseVideoHelp")}</span>}
+                  {video.file ? <span className="truncate text-xs text-muted-foreground" title={video.file.name}>{mediaTypeOf(video.file) === "image" ? t("imageTypeLabel") : t("videoTypeLabel")} · {video.file.name} · {(video.file.size / 1024 / 1024).toFixed(1)} MB</span> : <span className="text-xs text-muted-foreground">{t("chooseVideoHelp")}</span>}
                   {!running && <button type="button" onClick={() => { setVideos((current) => current.filter((item) => item.id !== video.id)); setOutcomes([]); setError(""); }} className="self-start text-xs text-muted-foreground underline">{t("removeVideo")}</button>}
                 </div>
                 <label className="flex flex-col gap-2 text-sm font-medium">
@@ -226,7 +295,7 @@ export function VideoLab() {
                 </label>
               </div>
             ))}
-            {videos.length < MAX_VIDEOS && <button type="button" disabled={running} onClick={() => setVideos((current) => [...current, { id: crypto.randomUUID(), file: null, description: "" }])} className="self-start rounded-lg border px-3 py-2 text-sm font-medium disabled:opacity-50">{t("addVideo")}</button>}
+            {videos.length < MAX_ASSETS && <button type="button" disabled={running} onClick={() => setVideos((current) => [...current, { id: crypto.randomUUID(), file: null, description: "" }])} className="self-start rounded-lg border px-3 py-2 text-sm font-medium disabled:opacity-50">{t("addVideo")}</button>}
           </div>
 
           <label className="flex flex-col gap-2 text-sm font-medium">
@@ -262,22 +331,23 @@ export function VideoLab() {
                   const optimizedImage = optimizedImages[imageKey];
                   return <li key={candidate.candidateId} className="grid gap-4 rounded-xl border bg-card p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:p-4">
                     <div className="min-w-0">
-                      <p className="mb-2 text-sm font-semibold">{t("originalFrames")}</p>
+                      <p className="mb-2 text-sm font-semibold">{t(outcome.mediaType === "image" ? "originalImage" : "originalFrames")}</p>
                       {preview ? <figure className="overflow-hidden rounded-lg border bg-white">
                         <button type="button" onClick={() => setImageToPreview({ src: preview.dataUrl, alt: t("sampleFrameAlt", { number: preview.number }), width: run.video.width, height: run.video.height })} className="flex min-h-64 w-full items-center justify-center bg-white p-2" aria-label={t("openImagePreview")}>
-                          <Image src={preview.dataUrl} width={run.video.width} height={run.video.height} unoptimized alt={t("sampleFrameAlt", { number: preview.number })} className="max-h-80 w-auto max-w-full object-contain" />
+                          <Image src={preview.dataUrl} width={run.video.width} height={run.video.height} unoptimized alt={t(outcome.mediaType === "image" ? "uploadedImageAlt" : "sampleFrameAlt", { number: preview.number })} className="max-h-80 w-auto max-w-full object-contain" />
                         </button>
                         <figcaption className="border-t px-3 py-2 text-center text-xs text-muted-foreground">{t("clickToEnlarge")}</figcaption>
                       </figure> : <div className="flex min-h-64 items-center justify-center rounded-lg border border-dashed text-xs text-muted-foreground">{t("noPreview")}</div>}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold">{t("recognizedProduct")}</p>
+                      <p className="text-sm font-semibold">{t(candidate.contentPotential === "store_or_event_only" ? "recognizedCampaign" : "recognizedProduct")}</p>
                       <h4 className="mt-1 text-lg font-semibold">{candidate.displayName}</h4>
                       <p className="mt-2 text-sm text-muted-foreground">{candidate.reason}</p>
                       <p className="mt-3 text-xs text-muted-foreground">{confidenceLabel(candidate.confidence)} · {potentialLabel(candidate.contentPotential)}</p>
-                      {!optimizedImage && <button type="button" disabled={optimizingKey !== null || running || !preview} onClick={() => void optimizeCandidate(outcome.id, candidate.candidateId, candidate.displayName, frameNumber)} className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:cursor-wait disabled:opacity-60">{imageStatuses[imageKey] === "generating" ? imageRetryAttempts[imageKey] ? t("retryingProductImage", { attempt: imageRetryAttempts[imageKey] }) : t(autoOptimizeKeys[imageKey] ? "autoOptimizingProduct" : "optimizingProduct") : t("optimizeProductImage")}</button>}
-                      {optimizationErrors[imageKey] && <p role="alert" className="mt-2 text-xs text-destructive">{optimizationErrors[imageKey]}</p>}
-                      {optimizedImage && <figure className="mt-4 overflow-hidden rounded-lg border bg-white">
+                      {candidate.contentPotential === "single_product" ? <>
+                        {!optimizedImage && <button type="button" disabled={optimizingKey !== null || running || !preview} onClick={() => void optimizeCandidate(outcome.id, candidate.candidateId, candidate.displayName, frameNumber)} className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:cursor-wait disabled:opacity-60">{imageStatuses[imageKey] === "generating" ? imageRetryAttempts[imageKey] ? t("retryingProductImage", { attempt: imageRetryAttempts[imageKey] }) : t(autoOptimizeKeys[imageKey] ? "autoOptimizingProduct" : "optimizingProduct") : t("optimizeProductImage")}</button>}
+                        {optimizationErrors[imageKey] && <p role="alert" className="mt-2 text-xs text-destructive">{optimizationErrors[imageKey]}</p>}
+                        {optimizedImage && <figure className="mt-4 overflow-hidden rounded-lg border bg-white">
                         <p className="border-b px-3 py-2 text-sm font-semibold">{t("optimizedProductImage")}{optimizedImageProviders[imageKey] ? ` · ${t(optimizedImageProviders[imageKey] === "codex_cli" ? "localCodexImage" : "cloudOpenAiImage")}` : ""}</p>
                         <button type="button" onClick={() => setImageToPreview({ src: optimizedImage, alt: t("optimizedProductAlt", { product: candidate.displayName }), width: 1024, height: 1024 })} className="flex w-full items-center justify-center bg-white p-2" aria-label={t("openImagePreview")}>
                           <Image src={optimizedImage} width={1024} height={1024} unoptimized alt={t("optimizedProductAlt", { product: candidate.displayName })} className="max-h-80 w-full object-contain" />
@@ -287,7 +357,8 @@ export function VideoLab() {
                           <button type="button" disabled={optimizingKey !== null || running || !preview} onClick={() => void optimizeCandidate(outcome.id, candidate.candidateId, candidate.displayName, frameNumber)} className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-primary px-3 text-sm font-semibold text-primary-foreground disabled:cursor-wait disabled:opacity-60">{optimizingKey === imageKey ? t("optimizingProduct") : t("regenerateProductImage")}</button>
                           <a href={optimizedImage} download={`${candidate.displayName}-product.png`} className="inline-flex h-11 w-full items-center justify-center rounded-lg border px-3 text-center text-sm font-medium hover:bg-muted">{t("downloadProductImage")}</a>
                         </div>
-                      </figure>}
+                        </figure>}
+                      </> : <p className="mt-4 rounded-lg bg-muted/50 px-3 py-2 text-xs text-muted-foreground">{t(candidate.contentPotential === "store_or_event_only" ? "campaignCandidateNoImage" : "unclearCandidateNoImage")}</p>}
                     </div>
                   </li>;
                 })}
@@ -299,13 +370,18 @@ export function VideoLab() {
 
           {run.result.unverifiedClaims.length > 0 && <article className="rounded-2xl border bg-card p-5"><h3 className="font-semibold">{t("unverifiedTitle")}</h3><p className="mt-1 text-xs text-muted-foreground">{t("unverifiedHelp")}</p><ul className="mt-3 flex flex-col gap-2">{run.result.unverifiedClaims.map((item, index) => <li key={`${item.kind}-${index}`} className="rounded-xl bg-muted/40 p-3 text-sm"><span className="font-medium">{item.kind}</span><p className="mt-1 text-muted-foreground">{item.claim}</p><p className="mt-1 text-xs text-muted-foreground">{item.source}</p></li>)}</ul></article>}
 
-          {run.transcript.status === "transcribed" && run.transcript.text && <details className="rounded-2xl border bg-card p-5"><summary className="cursor-pointer font-semibold">{t("transcriptTitle", { cost: run.transcript.estimatedUsd.toFixed(5) })}</summary><p className="mt-3 whitespace-pre-wrap text-sm text-muted-foreground">{run.transcript.text}</p></details>}
-          {run.transcript.status === "no_audio" && <p className="text-xs text-muted-foreground">{t("noAudio")}</p>}
-          {run.transcript.status === "skipped" && <p className="text-xs text-muted-foreground">{t("localTranscriptSkipped")}</p>}
+          {outcome.mediaType === "video" && run.transcript.status === "transcribed" && run.transcript.text && <details className="rounded-2xl border bg-card p-5"><summary className="cursor-pointer font-semibold">{t("transcriptTitle", { cost: run.transcript.estimatedUsd.toFixed(5) })}</summary><p className="mt-3 whitespace-pre-wrap text-sm text-muted-foreground">{run.transcript.text}</p></details>}
+          {outcome.mediaType === "video" && run.transcript.status === "no_audio" && <p className="text-xs text-muted-foreground">{t("noAudio")}</p>}
+          {outcome.mediaType === "video" && run.transcript.status === "skipped" && <p className="text-xs text-muted-foreground">{t("localTranscriptSkipped")}</p>}
           </>; })()}
           </div>)}
         </section>
       )}
+
+      {outcomes.some((outcome) => outcome.result) && <section className="flex flex-col gap-4 rounded-2xl border bg-card p-5 sm:flex-row sm:items-center sm:justify-between sm:p-7">
+        <div><h2 className="text-lg font-semibold">{t("planEntryTitle")}</h2><p className="mt-1 text-sm text-muted-foreground">{t("planEntryHelp")}</p></div>
+        <button type="button" disabled={running} onClick={() => void openMarketingPlan()} className="inline-flex h-11 shrink-0 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground disabled:cursor-wait disabled:opacity-60">{t("planEntryButton")}</button>
+      </section>}
 
       {imageToPreview && <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
         <button type="button" className="absolute inset-0 bg-black/85" onClick={() => setImageToPreview(null)} aria-label={t("closeImagePreview")} />

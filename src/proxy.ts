@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySession } from "@/lib/auth/token";
 import { isLoopbackHost, isVideoLabLocalAccessEnabled } from "@/lib/auth/video-lab-local-access";
 
-const PUBLIC_PATHS = ["/", "/login", "/register", "/plans", "/forgot-password", "/reset-password", "/calendar-preview", "/services", "/who-we-help", "/our-work", "/how-it-works", "/about", "/assessment"];
+const PUBLIC_PATHS = ["/", "/login", "/register", "/plans", "/forgot-password", "/reset-password", "/calendar-preview", "/services", "/who-we-help", "/our-work", "/how-it-works", "/about", "/assessment", "/store", "/team", "/managed"];
 
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
@@ -21,11 +21,11 @@ export async function proxy(request: NextRequest) {
     pathname === "/restaurant/request" ||
     /^\/restaurant\/request\/[a-f0-9]{48}$/.test(pathname);
 
-  const localVideoLab = pathname === "/admin/video-lab"
+  const localVideoTool = (["/admin/video-lab", "/admin/marketing-plan"].includes(pathname) || pathname.startsWith("/admin/marketing-plan/"))
     && isVideoLabLocalAccessEnabled()
     && isLoopbackHost(request.headers.get("x-forwarded-host") ?? request.headers.get("host"));
 
-  if (!session && !isPublic && !localVideoLab) {
+  if (!session && !isPublic && !localVideoTool) {
     const url = new URL(pathname === "/nails" || pathname.startsWith("/nails/") ? "/nails/login" : "/login", request.url);
     url.searchParams.set("next", pathname + search);
     return NextResponse.redirect(url);

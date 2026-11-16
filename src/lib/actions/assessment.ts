@@ -34,7 +34,8 @@ const schema = z.object({
     "Improve social media consistency",
     "Promote services or products",
   ]),
-  details: z.string().trim().max(500),
+  details: z.string().trim().max(10_000),
+  offer: z.enum(["store", "team", "managed"]).optional(),
 });
 export async function submitAssessment(
   _: AssessmentState,
@@ -59,7 +60,7 @@ export async function submitAssessment(
     await sendMail({
       to: process.env.LEAD_NOTIFY_EMAIL ?? "szahua@gmail.com",
       subject: `PoStory assessment: ${d.shopName.replace(/[\r\n]/g, " ")}`,
-      text: `Business: ${d.shopName}\nIndustry: ${d.businessType}\nLocation: ${d.location}\nReply to: ${d.email || "Not supplied"}\nWebsite/social: ${d.website || "Not supplied"}\nGoal: ${d.goal}\nDetails: ${d.details || "Not supplied"}`,
+      text: `Requested offer: ${d.offer || "General assessment"}\nBusiness: ${d.shopName}\nIndustry: ${d.businessType}\nLocation: ${d.location}\nReply to: ${d.email || "Not supplied"}\nWebsite/social: ${d.website || "Not supplied"}\nGoal: ${d.goal}\nDetails: ${d.details || "Not supplied"}`,
     });
     return { ok: true };
   } catch {

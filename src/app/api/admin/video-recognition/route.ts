@@ -1,14 +1,16 @@
 import type { NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
-import { VideoRecognitionError, recognizeVideo } from "@/lib/ai/video-recognition";
+import { VideoRecognitionError, recognizeImage, recognizeVideo } from "@/lib/ai/video-recognition";
 import { isLoopbackHost, isVideoLabLocalAccessEnabled } from "@/lib/auth/video-lab-local-access";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
 const MAX_VIDEO_BYTES = 250 * 1024 * 1024;
+const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
 const MAX_REQUEST_BYTES = MAX_VIDEO_BYTES + 2 * 1024 * 1024;
 const EXTENSIONS = new Set(["mp4", "mov", "m4v", "webm"]);
+const IMAGE_TYPES: Record<string, string> = { jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp" };
 
 function json(status: number, body: Record<string, unknown>) {
   return Response.json(body, { status, headers: { "Cache-Control": "no-store, private" } });
@@ -72,16 +74,26 @@ export async function POST(request: NextRequest) {
   catch { return json(413, { ok: false, reason: "tooLarge" }); }
   if (!form) return json(400, { ok: false, reason: "invalidForm" });
 
-  const file = form.get("video");
-  if (!(file instanceof File) || file.size === 0) return json(422, { ok: false, reason: "videoRequired" });
-  if (file.size > MAX_VIDEO_BYTES) return json(413, { ok: false, reason: "tooLarge" });
+  const video = form.get("video");
+  const image = form.get("image");
+  if ((video && image) || (!(video instanceof File) && !(image instanceof File))) return json(422, { ok: false, reason: "assetRequired" });
+  const file = video instanceof File ? video : image as File;
+  const isImage = image instanceof File;
+  if (file.size === 0) return json(422, { ok: false, reason: "assetRequired" });
+  if (file.size > (isImage ? MAX_IMAGE_BYTES : MAX_VIDEO_BYTES)) return json(413, { ok: false, reason: isImage ? "imageTooLarge" : "tooLarge" });
   const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
-  if (!EXTENSIONS.has(extension)) return json(415, { ok: false, reason: "unsupportedFormat" });
+  if (isImage) {
+    const expectedType = IMAGE_TYPES[extension];
+    if (!expectedType || file.type !== expectedType) return json(415, { ok: false, reason: "unsupportedImageFormat" });
+  } else if (!EXTENSIONS.has(extension)) return json(415, { ok: false, reason: "unsupportedFormat" });
   const description = String(form.get("description") ?? "").slice(0, 1_000);
   const customerFacts = String(form.get("customerFacts") ?? "").slice(0, 6_000);
 
   try {
-    const result = await recognizeVideo({ videoBytes: Buffer.from(await file.arrayBuffer()), extension, customerDescription: description, customerFacts });
+    const bytes = Buffer.from(await file.arrayBuffer());
+    const result = isImage
+      ? await recognizeImage({ imageBytes: bytes, extension, mimeType: file.type, customerDescription: description, customerFacts })
+      : await recognizeVideo({ videoBytes: bytes, extension, customerDescription: description, customerFacts });
     return json(200, { ok: true, result });
   } catch (error) {
     if (error instanceof VideoRecognitionError) {

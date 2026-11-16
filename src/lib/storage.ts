@@ -77,6 +77,12 @@ export function publicMediaKey(userId: string, designId: string, mime: string) {
   return `pub/${userId}/${designId}-${randomBytes(12).toString("hex")}.${ext}`;
 }
 
+export function marketingImageCacheKey(digest: string, mime: string) {
+  const ext = EXT_BY_MIME[mime];
+  if (!ext || ext === "svg" || !/^[a-f0-9]{64}$/.test(digest)) throw new Error("invalid marketing image cache key");
+  return `pub/postorycache01/${digest.slice(0, 32)}-${digest.slice(32, 48)}.${ext}`;
+}
+
 export function publicMediaUrl(key: string) {
   return `${appUrl()}/api/public-media/${key}`;
 }

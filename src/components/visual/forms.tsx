@@ -4,17 +4,20 @@ import { ArrowRight, Mail, X } from "lucide-react";
 import { submitAssessment, submitFeedback } from "@/lib/actions/assessment";
 import { ProfileForm } from "@/components/profile/profile-form";
 import type { AgencyData } from "@/lib/agency/types";
-export function AssessmentForm() {
+export function AssessmentForm({ offer, initial }: {
+  offer?: "store" | "team" | "managed";
+  initial?: Partial<{ shopName: string; businessType: string; location: string; goal: string; details: string }>;
+} = {}) {
   const [state, action, pending] = useActionState(submitAssessment, undefined);
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(initial?.details?.length ?? 0);
   const [values, setValues] = useState<Record<string, string>>({
-    businessType: "",
-    shopName: "",
-    location: "",
+    businessType: initial?.businessType ?? "",
+    shopName: initial?.shopName ?? "",
+    location: initial?.location ?? "",
     email: "",
     website: "",
-    goal: "",
-    details: "",
+    goal: initial?.goal ?? "",
+    details: initial?.details ?? "",
   });
   function update(
     event: ChangeEvent<
@@ -28,12 +31,12 @@ export function AssessmentForm() {
 
   return (
     <form action={action} className="ps-form">
+      {offer && <input type="hidden" name="offer" value={offer} />}
       {state?.ok ? (
         <div className="ps-form-success" role="status">
-          <h3>Thank you for telling us about your business.</h3>
+          <h3>{offer ? "Your request has been sent." : "Thank you for telling us about your business."}</h3>
           <p>
-            Your assessment request has been delivered. We’ll get back to you
-            using the contact details you provided.
+            We’ll get back to you using the contact details you provided.
           </p>
         </div>
       ) : (
@@ -97,12 +100,13 @@ export function AssessmentForm() {
             )}
           </label>
           <label>
-            Email Address <span>(optional)</span>
+            Email Address {offer ? <em>*</em> : <span>(optional)</span>}
             <input
               name="email"
               value={values.email}
               onChange={update}
               type="email"
+              required={!!offer}
               maxLength={254}
               placeholder="you@yourbusiness.com"
               aria-invalid={!!state?.fields?.email}
@@ -155,11 +159,11 @@ export function AssessmentForm() {
               name="details"
               value={values.details}
               onChange={update}
-              maxLength={500}
+              maxLength={10000}
               rows={4}
               placeholder="Share any additional information about your business, target audience or specific needs."
             />
-            <small className="ps-char-count">{count}/500</small>
+            <small className="ps-char-count">{count}/10000</small>
           </label>
           {state?.error && (
             <p className="ps-error" role="alert">
@@ -167,7 +171,7 @@ export function AssessmentForm() {
             </p>
           )}
           <button type="submit" className="ps-button" disabled={pending}>
-            {pending ? "Submitting…" : "Submit Assessment"}
+            {pending ? "Sending…" : offer ? "Send my request" : "Submit Assessment"}
             <ArrowRight size={16} />
           </button>
         </>
