@@ -5973,13 +5973,18 @@
 .storex-carousel-copy { display: flex; flex-direction: column; justify-content: center; padding: 54px 48px 88px; }
 .storex-carousel-copy .storex-eyebrow { color: #ff8ac4; }
 .storex-carousel-copy h2 { max-width: 480px; margin: 14px 0 14px; color: #fff; font-size: clamp(28px,3vw,40px); line-height: 1.22; letter-spacing: -.025em; }
-.storex-carousel-copy > p { max-width: 470px; margin: 0; color: #e1e6f3; font-size: 15px; line-height: 1.75; }
+.ps-storex .storex-carousel-copy > p { max-width: 470px; margin: 0; color: #e1e6f3; font-size: 15px; line-height: 1.75; }
 .storex-outcome { display: grid; gap: 5px; max-width: 360px; margin-top: 25px; padding: 14px 16px; border: 1px solid #ffffff26; border-radius: 12px; background: #ffffff0c; }
-.storex-outcome span, .storex-outcome small { color: #b9c2dc; font-size: 11px; }
+.ps-storex .storex-outcome span, .ps-storex .storex-outcome small { color: #d1d9eb; font-size: 11px; }
 .storex-outcome strong { color: #fff; font-size: 14px; }
 .storex-carousel-visual { position: relative; display: grid; align-items: center; min-width: 0; padding: 26px 30px 54px 8px; }
-.storex-capability-visual { display: grid; grid-template-columns: minmax(190px,1fr) 250px; align-items: center; gap: 19px; width: 100%; }
+.storex-capability-visual { display: grid; grid-template-columns: minmax(190px,1fr) 250px; grid-template-rows: auto 16px auto auto; align-items: center; gap: 9px 19px; width: 100%; }
 .storex-capability-brand { display: grid; justify-items: center; gap: 6px; padding: 18px; border: 1px solid #ffffff28; border-radius: 16px; background: #ffffff12; text-align: center; }
+.storex-capability-visual > .storex-capability-brand { grid-column: 1; grid-row: 1; }
+.storex-capability-visual > .storex-capability-arrow { grid-column: 1; grid-row: 2; }
+.storex-capability-visual > .storex-capability-steps { grid-column: 1; grid-row: 3; }
+.storex-capability-visual > .storex-capability-platforms { grid-column: 1; grid-row: 4; }
+.storex-capability-visual > .storex-phone { grid-column: 2; grid-row: 1 / span 4; justify-self: center; }
 .storex-capability-icon { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 13px; color: #fff; background: #e8007f; font-weight: 800; }
 .storex-capability-brand strong { color: #fff; font-size: 14px; }
 .storex-capability-brand small { color: #d1d8e9; font-size: 10px; }
@@ -6000,7 +6005,8 @@
 .storex-phone-social > span:nth-child(2) { display: grid; flex: 1; gap: 1px; }
 .storex-phone-social strong { color: #202a47; font-size: 8px; }
 .storex-phone-social small { color: #818aa0; font-size: 7px; }
-.storex-phone-social > svg { color: #3b4d79; }
+.storex-phone-platform { display: grid; width: 17px; height: 17px; flex: 0 0 17px; place-items: center; border-radius: 5px; color: #fff; background: linear-gradient(135deg,#f4a23b,#e53375 58%,#7652c6); font-size: 12px; font-style: normal; font-weight: 800; }
+.storex-phone-platform.facebook { background: #1877f2; }
 .storex-phone-image { position: relative; height: 186px; margin-top: 7px; overflow: hidden; border-radius: 8px; background: #e9edf4; }
 .storex-phone-image img { object-fit: cover; }
 .storex-phone-copy { padding: 5px 3px 7px; }
@@ -6012,7 +6018,7 @@
 .storex-campaign-visual { display: flex; justify-content: center; align-items: center; gap: 22px; width: 100%; }
 .storex-platform-note { display: grid; gap: 5px; max-width: 145px; color: #fff; }
 .storex-platform-note strong { font-size: 14px; }
-.storex-platform-note span { color: #c5cde0; font-size: 11px; line-height: 1.5; }
+.ps-storex .storex-platform-note span { color: #e0e6f2; font-size: 11px; line-height: 1.5; }
 .storex-carousel-controls { position: absolute; right: 34px; bottom: 23px; left: 34px; display: flex; align-items: center; justify-content: center; gap: 17px; }
 .storex-carousel-controls > button { display: grid; width: 31px; height: 31px; place-items: center; border: 1px solid #ffffff3d; border-radius: 50%; color: #fff; background: #ffffff10; cursor: pointer; }
 .storex-carousel-controls > div { display: flex; align-items: center; gap: 7px; }
@@ -6032,12 +6038,16 @@
 .storex-flow-top { display: flex; align-items: center; justify-content: space-between; color: #77819a; font-size: 12px; }
 .storex-back { display: inline-flex; align-items: center; gap: 6px; padding: 7px 0; border: 0; color: #535f7e; background: transparent; font-size: 12px; cursor: pointer; }
 .storex-stepper { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 0; margin: 21px 0 19px; padding: 0 5px; }
-.storex-stepper > div { position: relative; display: flex; align-items: center; gap: 8px; min-width: 0; color: #939bb0; }
-.storex-stepper > div:not(:last-child)::after { position: absolute; top: 15px; right: 7px; left: 40px; height: 1px; background: #dde2ed; content: ""; }
-.storex-stepper > div > span { z-index: 1; display: grid; width: 30px; height: 30px; flex: 0 0 30px; place-items: center; border: 1px solid #d6dce8; border-radius: 50%; color: #8490a8; background: #f6f7fb; font-size: 12px; }
-.storex-stepper > div b { overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.storex-stepper > div, .storex-stepper > button { position: relative; display: flex; align-items: center; gap: 8px; min-width: 0; color: #939bb0; }
+.storex-stepper > div:not(:last-child)::after, .storex-stepper > button:not(:last-child)::after { position: absolute; top: 15px; right: 7px; left: 40px; height: 1px; background: #dde2ed; content: ""; }
+.storex-stepper > button { padding: 0; border: 0; background: transparent; text-align: left; cursor: pointer; }
+.storex-stepper > button.is-done { color: #d50075; }
+.storex-stepper > button.is-done:hover b { text-decoration: underline; text-underline-offset: 3px; }
+.storex-stepper > button.is-done:focus-visible { border-radius: 7px; outline: 2px solid #e6007e; outline-offset: 3px; }
+.storex-stepper > div > span, .storex-stepper > button > span { z-index: 1; display: grid; width: 30px; height: 30px; flex: 0 0 30px; place-items: center; border: 1px solid #d6dce8; border-radius: 50%; color: #8490a8; background: #f6f7fb; font-size: 12px; }
+.storex-stepper > div b, .storex-stepper > button b { overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
 .storex-stepper > div.is-current { color: #d50075; }
-.storex-stepper > div.is-current > span, .storex-stepper > div.is-done > span { border-color: #e6007e; color: #fff; background: #e6007e; }
+.storex-stepper > div.is-current > span, .storex-stepper > button.is-done > span { border-color: #e6007e; color: #fff; background: #e6007e; }
 .storex-step-panel { padding: 30px; border: 1px solid #e0e5ef; border-radius: 17px; background: #fff; }
 .storex-step-panel h1, .storex-calendar-title h1 { margin: 7px 0 5px; color: #182246; font-size: 28px; line-height: 1.25; }
 .storex-step-help, .storex-calendar-title p { margin: 0; color: #68738e; font-size: 13px; line-height: 1.6; }
@@ -6136,7 +6146,7 @@
 @media (max-width: 900px) {
   .storex-carousel { grid-template-columns: 1fr .95fr; min-height: 470px; }
   .storex-carousel-copy { padding: 35px 25px 78px; }
-  .storex-capability-visual { grid-template-columns: minmax(145px,1fr) 215px; gap: 11px; }
+  .storex-capability-visual { grid-template-columns: minmax(145px,1fr) 215px; gap: 7px 11px; }
   .storex-capability-visual .storex-phone { width: 215px; }
   .storex-calendar-layout { grid-template-columns: minmax(0,1fr) minmax(310px,.8fr); }
   .storex-day { min-height: 82px; padding: 3px; }
@@ -6152,25 +6162,25 @@
   .storex-carousel { grid-template-columns: 1fr; min-height: auto; border-radius: 17px; }
   .storex-carousel-copy { padding: 25px 20px 8px; }
   .storex-carousel-copy h2 { margin: 8px 0; font-size: 24px; }
-  .storex-carousel-copy > p { font-size: 12px; line-height: 1.6; }
+  .ps-storex .storex-carousel-copy > p { font-size: 12px; line-height: 1.6; }
   .storex-outcome { margin-top: 13px; padding: 10px 12px; }
   .storex-carousel-visual { min-height: 340px; padding: 16px 10px 55px; }
-  .storex-capability-visual { grid-template-columns: minmax(130px,1fr) 190px; gap: 9px; }
-  .storex-capability-visual .storex-phone { width: 190px; padding: 8px; border-radius: 23px; }
+  .storex-capability-visual { grid-template-columns: minmax(0,1fr) minmax(0,44%); gap: 5px 9px; }
+  .storex-capability-visual .storex-phone { width: 100%; min-width: 0; padding: 8px; border-radius: 23px; }
   .storex-phone-image { height: 145px; }
   .storex-capability-steps { gap: 5px; }
   .storex-capability-steps span { min-height: 32px; padding: 5px; gap: 5px; font-size: 9px; }
   .storex-capability-brand { padding: 11px 6px; }
   .storex-campaign-visual { gap: 12px; }
-  .storex-campaign-visual .storex-phone { width: 225px; }
+  .storex-campaign-visual .storex-phone { width: min(225px,68%); }
   .storex-platform-note { max-width: 105px; }
   .storex-landing-bottom { align-items: stretch; flex-direction: column; padding: 16px; }
   .storex-landing-bottom .storex-primary { width: 100%; }
   .storex-stepper { overflow-x: auto; grid-template-columns: repeat(5,minmax(90px,1fr)); gap: 9px; padding-bottom: 5px; }
-  .storex-stepper > div { gap: 5px; }
-  .storex-stepper > div > span { width: 25px; height: 25px; flex-basis: 25px; }
-  .storex-stepper > div:not(:last-child)::after { top: 12px; left: 32px; }
-  .storex-stepper > div b { font-size: 9px; }
+  .storex-stepper > div, .storex-stepper > button { gap: 5px; }
+  .storex-stepper > div > span, .storex-stepper > button > span { width: 25px; height: 25px; flex-basis: 25px; }
+  .storex-stepper > div:not(:last-child)::after, .storex-stepper > button:not(:last-child)::after { top: 12px; left: 32px; }
+  .storex-stepper > div b, .storex-stepper > button b { font-size: 9px; }
   .storex-step-panel { padding: 20px 16px; }
   .storex-step-panel h1, .storex-calendar-title h1 { font-size: 23px; }
   .storex-step-help { font-size: 11px; }
