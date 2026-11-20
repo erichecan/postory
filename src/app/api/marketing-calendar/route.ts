@@ -19,6 +19,15 @@ const INDUSTRY_RULES: Record<string, string> = {
   "家居服务": "以具体服务范围、施工/上门流程、现场准备、报价前须知和服务区域为内容支柱。不得虚构资质、报价、工期或保修。",
   "其他本地商家": "以具体服务、客户常见问题、真实工作过程、到店/预约方式和本地便利为内容支柱。不要虚构产品事实或结果承诺。",
 };
+const OBJECTIVE_RULES: Record<string, string> = {
+  "增加到店客流或预约": "Lead with a concrete reason to visit or book, tell the local customer what they can do and when, and end with a clear reservation, ordering, or walk-in action. Do not imply guaranteed footfall.",
+  "推广新品或主推商品／服务": "Make the named new or featured item the hero. Explain one confirmed reason it suits a real customer occasion, then invite the customer to view, try, order, or book it.",
+  "提高复购和会员活跃": "Speak to existing customers and give them a specific reason to return or participate. Use only the confirmed member benefit or activity rules; never invent points, rewards, or eligibility.",
+  "提高客单价和组合销售": "Show a useful pairing, set, add-on, or choice that makes the visit more valuable. State only confirmed inclusions and prices; do not pressure the customer or invent savings.",
+  "带动淡时段或指定日期": "Make the confirmed day or time central to the idea and explain why visiting then is convenient or worthwhile. Use a price incentive only when the merchant confirmed one.",
+  "提高服务地区内的知名度": "Make the local area and the shop's real character recognizable. Create a useful introduction that gives a nearby customer a concrete reason to remember or contact the business.",
+  "我还不确定": "Use the supplied business goal and product facts to propose a small, understandable starting campaign. Do not claim a business outcome or invent an offer.",
+};
 
 type PlanInput = {
   industry: string; businessName: string; location: string; audience: string; goal: string; offer: string; notes: string;
@@ -96,6 +105,7 @@ function buildPrompt(input: PlanInput) {
   return [
     "Create practical, platform-ready social media marketing posts for one real local business. Return only JSON matching the supplied schema.",
     `INDUSTRY RULES (${input.industry}): ${INDUSTRY_RULES[input.industry]}`,
+    `CAMPAIGN OBJECTIVE RULES (${input.goal}): ${OBJECTIVE_RULES[input.goal] || "Build each idea around the merchant's stated objective, customer action, and confirmed facts."}`,
     "This is direct-response local-business advertising, not a news feed or a content calendar summary. Every post must sell a specific reason to visit, order, book, ask, or participate. Do not write announcements like 'we are introducing', generic descriptions, or passive summaries.",
     "Copy structure: (1) first line is a sharp customer-facing hook built around appetite, a real customer choice, a specific occasion, a useful answer, or a confirmed deal; (2) make the product/service and customer payoff concrete using only supplied facts; (3) close with one direct action the customer can take today. Make the headline specific enough to stop a local customer scrolling. Avoid generic labels and empty praise such as 'delicious', 'high quality', or 'don't miss out' without evidence.",
     "When a confirmed promotion exists, turn it into a clear offer: who it is for, what is included, price/discount and valid dates only when supplied, then a direct order/reservation CTA. When no discount is confirmed, make a compelling non-discount campaign around a real menu item, choice, occasion, question, local routine, or visit; do not invent urgency, prize, bundle, or scarcity.",
