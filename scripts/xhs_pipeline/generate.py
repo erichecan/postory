@@ -211,7 +211,8 @@ def build_prompt(context, brief: str, recent: list[dict] | None = None) -> tuple
 {material_text}
 
 优先围绕一个中小企业经营者需要判断的问题展开：问题是什么、该看什么证据或指标、可以考虑什么动作。
-使用公开来源时标注出处或将来源融入叙述；综合多个来源形成 PoStory 自己的解释，不模仿来源作者的口吻，不大段照抄。
+面向读者的文案先讲现场、问题或判断。不要反复以「某媒体某年报道」开段；完整出处放入 sources，需要近处归因的事实用一句自然的话带到，并保留必要的时间和地区。
+把建议和推断顺着场景讲出来，使用条件、可能性或检查方法来交代边界。禁止在开头、正文和图卡中使用「编辑分析／推论」「编辑点评」等内部标签。交稿前按审稿规则把这些句子读一遍、改顺再输出。
 区分事实、案例和观点，保留案例边界。不要编造数据、客户案例、效果、价格或承诺。
 请只输出一个合法 JSON 对象，不要 Markdown 代码围栏或额外解释，结构如下：
 {{
@@ -232,6 +233,26 @@ def build_prompt(context, brief: str, recent: list[dict] | None = None) -> tuple
 
 要求：标题候选 3–5 个，使用具体行业场景和店主会说的话术，避免咨询报告腔；正文图卡 4–7 页，每页只讲一个要点。每页都要有视觉承载物，但不要强迫每页放人物；内页仅在角色能帮助讲解、倾听、提醒或展示时指定一个姿态，否则省略 visual.mascot_pose 或设为 none。整篇最多在 2–3 张内页出现角色，不得连续重复同一姿态；封面人物动作和位置由程序安排。根据页面内容在场景、旅程、步骤、分组、对比、矩阵、漏斗、对话、清单、故事板等图形语法中选择，避免整篇重复一种结构。items 每项尽量控制在 12 个汉字内。封面标题以首选标题为基础，可为视觉阅读压缩但不能改变承诺。图形标签必须来自本页真实内容；不要请求生成临时图片。source url 必须逐字来自输入素材，不得编造。完整提供读者需要的信息，不以评论/私信换答案。输出适合加拿大及北美华人店主阅读的自然中文；不要声称已发布或保证爆款。"""
     return prompt, material_files
+
+
+_INTERNAL_LABEL = re.compile(
+    r"(?:编辑\s*(?:分析|推论|推断|判断|点评|建议)(?:\s*[/／、与和]\s*(?:分析|推论|推断|判断|点评|建议))?"
+    r"|(?:^|\n)\s*(?:分析\s*[/／、]\s*(?:推论|推断)|推论|推断))\s*(?:[：:]|$)"
+)
+
+
+class ReaderVoiceError(ValueError):
+    """Internal editorial wording leaked into a reader-facing field."""
+
+
+def _validate_reader_voice(fields: list) -> None:
+    for field in fields:
+        if isinstance(field, list):
+            _validate_reader_voice(field)
+        elif isinstance(field, str):
+            match = _INTERNAL_LABEL.search(field)
+            if match:
+                raise ReaderVoiceError(f"读者文案出现内部标签「{match.group().strip()}」，请改成自然叙述")
 
 
 def _extract_json(raw: str) -> dict:
@@ -264,6 +285,9 @@ def _extract_json(raw: str) -> dict:
     if not str(note["selected_title"]).strip() or not str(note["caption"]).strip():
         raise ValueError("首选标题和正文说明不能为空")
     note["cover"].setdefault("title", note["selected_title"])
+    voice_fields = [note.get(key) for key in ("selected_title", "opening", "caption")]
+    voice_fields.extend(note["cover"].get(key) for key in ("label", "title", "subtitle"))
+    voice_fields.extend(note["cover"]["diagram"].get(key) for key in ("title", "items"))
     page_poses: list[str] = []
     page_diagrams: list[str] = []
     for index, page in enumerate(note["pages"], 1):
@@ -271,6 +295,8 @@ def _extract_json(raw: str) -> dict:
             raise ValueError(f"第 {index} 张正文图卡缺少标题或正文")
         if not isinstance(page.get("diagram"), dict):
             raise ValueError(f"第 {index} 张正文图卡缺少内容匹配的图解")
+        voice_fields.extend(page.get(key) for key in ("label", "title", "body", "points", "callout", "footnote"))
+        voice_fields.extend(page["diagram"].get(key) for key in ("title", "items"))
         visual = page.get("visual") if isinstance(page.get("visual"), dict) else {}
         pose = str(visual.get("mascot_pose") or "").strip().lower().replace("_", "-")
         if pose and pose not in ALLOWED_MASCOT_POSES:
@@ -282,6 +308,7 @@ def _extract_json(raw: str) -> dict:
         page_diagrams.append(diagram_type)
     if sum(pose not in {"", "none", "off", "false"} for pose in page_poses) > 3:
         raise ValueError("内页最多在 3 张卡片中使用引导角色")
+    _validate_reader_voice(voice_fields)
     validate_cover_story(note)
     all_poses = page_poses
     for current, following in zip(all_poses, all_poses[1:]):
@@ -300,7 +327,15 @@ def generate(brief: str) -> Path:
     recent = recent_editorial_drafts(drafts_dir)
     prompt, material_files = build_prompt(context, brief, recent)
     raw = run_prompt(context, prompt, route="first_draft", timeout=900)
-    note = _extract_json(raw)
+    try:
+        note = _extract_json(raw)
+    except ReaderVoiceError as exc:
+        revised_prompt = (
+            f"{prompt}\n\n【交稿前改写】上一稿未通过口吻检查：{exc}。"
+            "重新输出完整 JSON，把建议和判断融入正文，保留原文出处和事实边界。\n"
+            f"【待润色草稿】\n{raw}"
+        )
+        note = _extract_json(run_prompt(context, revised_prompt, route="first_draft", timeout=900))
     # Keep citations tied to URLs actually present in the supplied material.
     allowed_urls = {
         url.rstrip(".,;:，。；：）】")
