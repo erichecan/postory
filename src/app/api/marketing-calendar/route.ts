@@ -194,6 +194,11 @@ export async function POST(request: NextRequest) {
       return post;
     });
     if ([...expected.values()].some((value) => value !== 0)) throw new Error("invalid_output");
+    // A non-promotional brief must never quietly turn into an invented discounted offer.
+    const noConfirmedPromotion = /^(本次不设置价格优惠|不做促销)/.test(input.offer);
+    if (noConfirmedPromotion && posts.some((post) => post.contentFormat === "offer_poster" || post.promotionTerms.length > 0)) throw new Error("invalid_output");
+    // Keep image copy compact for mobile reading; the full explanation belongs in the social caption.
+    if (posts.some((post) => post.headline.length > 100 || post.callToAction.length > 120)) throw new Error("invalid_output");
     const postsByDateAndPlatform = new Map(posts.map((post) => [`${post.date}|${post.platform}`, post]));
     const orderedPosts = input.dates.map((slot) => postsByDateAndPlatform.get(`${slot.date}|${slot.platform}`)!);
     return json(200, { ok: true, provider: localCodex ? "codex_cli" : "openai_api", posts: orderedPosts });
