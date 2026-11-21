@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/db/client";
 import { getCurrentUser } from "@/lib/auth/session";
 import { ownedContentShop, isContentShopId } from "@/lib/content-engine/shop-access";
+import { validateBrandImage, BrandImageValidationError } from "@/lib/content-engine/brand-image-validation";
 import { contentBrandMediaKey, contentBrandMediaUrl, deleteObject, putObject } from "@/lib/storage";
 
 export const runtime = "nodejs";
@@ -14,12 +15,6 @@ function validOrigin(request: NextRequest) {
     const host = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim() || request.headers.get("host");
     return !!origin && !!host && new URL(origin).host.toLowerCase() === host.toLowerCase();
   } catch { return false; }
-}
-function detectMime(bytes: Buffer): string | null {
-  if (bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))) return "image/png";
-  if (bytes.length > 3 && bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255) return "image/jpeg";
-  if (bytes.subarray(0,4).toString() === "RIFF" && bytes.subarray(8,12).toString() === "WEBP") return "image/webp";
-  return null;
 }
 export async function POST(request: NextRequest) {
   const user = await getCurrentUser();
@@ -40,8 +35,12 @@ export async function POST(request: NextRequest) {
     const limit = kind === "logo" ? 5 : kind === "store" ? 15 : 20;
     if (currentCount >= limit) return Response.json({ error: "asset_limit" }, { status: 409 });
     const bytes = Buffer.from(await file.arrayBuffer());
-    const mime = detectMime(bytes);
-    if (!mime || mime !== file.type) return Response.json({ error: "invalid_image_type" }, { status: 415 });
+    let mime: string;
+    try { ({mime} = await validateBrandImage(bytes,file.type)); }
+    catch (error) {
+      if (error instanceof BrandImageValidationError) return Response.json({ error: error.reason }, { status: 422 });
+      throw error;
+    }
     const id = randomBytes(12).toString("hex");
     const key = contentBrandMediaKey(shopId,id,mime);
     await putObject(key, bytes);
