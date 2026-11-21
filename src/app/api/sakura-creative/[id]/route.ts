@@ -118,7 +118,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       status: 200,
       headers: { "Content-Type": "image/jpeg", "Cache-Control": "public, max-age=3600, s-maxage=86400", "X-Content-Type-Options": "nosniff" }
     });
-  } catch {
+  } catch (error) {
+    console.error("Sakura demo creative failed", id, error instanceof Error ? error.message : "unknown");
     return new Response("Creative preview unavailable", { status: 503 });
   }
 }
