@@ -103,18 +103,39 @@ try {
   assert.equal((await prisma.contentBrandProfile.updateMany({where:{shopId:shopA.id,revision:3},
     data:{revision:{increment:1}}})).count,0,"stale approval must fail compare-and-swap");
 
+  // The prior approved revision remains selectable after creating a new draft.
+  await prisma.$transaction(async tx=>{
+    const changed=await tx.contentBrandProfile.updateMany({
+      where:{shopId:shopA.id,revision:4},
+      data:{revision:{increment:1},data:{shopName:"Sushi A",status:"draft",version:5}}
+    });
+    assert.equal(changed.count,1);
+    await tx.contentBrandReviewEvent.create({
+      data:{shopId:shopA.id,actorUserId:ownerA,event:"new_draft_revision",revision:5,
+        snapshot:{shopName:"Sushi A",status:"draft",version:5}}
+    });
+  });
+  const history=await prisma.contentBrandReviewEvent.findFirst({
+    where:{shopId:shopA.id,event:"approved_by_merchant"},orderBy:{revision:"desc"}
+  });
+  assert.equal(history?.revision,4,"approved revision must persist after later draft");
+  assert.equal((history?.snapshot as {status?:string})?.status,"approved");
+  assert.equal((await prisma.contentBrandProfile.findUniqueOrThrow({where:{shopId:shopA.id}})).revision,5);
+  assert.equal((await prisma.contentBrandReviewEvent.findMany({where:{shopId:shopB.id}})).length,0);
+  assert.equal((await prisma.contentBrandReviewEvent.findMany({where:{shopId:shopA.id}})).length,3);
+
   // An error after the profile update must roll back both profile and event.
   await assert.rejects(prisma.$transaction(async tx=>{
     const updated=await tx.contentBrandProfile.updateMany({
-      where:{shopId:shopA.id,revision:4},
-      data:{revision:{increment:1},data:{status:"draft",version:5}}
+      where:{shopId:shopA.id,revision:5},
+      data:{revision:{increment:1},data:{status:"draft",version:6}}
     });
     assert.equal(updated.count,1);
     throw new Error("simulate_review_event_failure");
   }),/simulate_review_event_failure/);
-  assert.equal((await prisma.contentBrandProfile.findUniqueOrThrow({where:{shopId:shopA.id}})).revision,4,
+  assert.equal((await prisma.contentBrandProfile.findUniqueOrThrow({where:{shopId:shopA.id}})).revision,5,
     "failed review transaction must not advance revision");
-  assert.equal((await prisma.contentBrandReviewEvent.findMany({where:{shopId:shopA.id}})).length,2,
+  assert.equal((await prisma.contentBrandReviewEvent.findMany({where:{shopId:shopA.id}})).length,3,
     "failed review transaction must not append an audit event");
   assert.equal((await prisma.contentBrandReviewEvent.findMany({where:{shopId:shopOtherOwner.id}})).length,0);
 
