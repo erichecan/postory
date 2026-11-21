@@ -92,6 +92,15 @@ export function SushiBrandIntake() {
     return ()=>{cancelled=true;};
   },[shopId]);
 
+  function switchShop(nextShopId: string){
+    if(saving||loadingDraft)return;
+    for(const asset of images){
+      if(asset.file){URL.revokeObjectURL(asset.url);imageUrls.current.delete(asset.url);}
+    }
+    setImages([]);setRevision(null);setSaveMessage("");setError("");
+    setShopId(nextShopId);
+  }
+
   async function createShop(){
     const name=newShopName.trim();
     if (!name || creatingShop)return;
@@ -104,7 +113,7 @@ export function SushiBrandIntake() {
       if(!response.ok||!result.shop)throw new Error(result.error||"create_failed");
       setShops(current=>[...current,result.shop!]);
       setNewShopName("");
-      setShopId(result.shop.id);
+      switchShop(result.shop.id);
     }catch{setError("创建门店失败，请检查名称或门店数量限制。");}
     finally{setCreatingShop(false);}
   }
@@ -200,7 +209,7 @@ setSaveMessage("");
     {loadingDraft && <div className="ps-brand-auth-notice">正在检查已保存的品牌档案…</div>}
     {!loginRequired && <section className="ps-brand-shop-selector" aria-label="选择寿司门店">
       <div><strong>选择需要建立档案的门店</strong><span>每家门店的 Logo、照片与品牌资料互不共享</span></div>
-      <select aria-label="当前门店" value={shopId} onChange={e=>{setShopId(e.target.value);setError("");}} disabled={loadingDraft||saving}>
+      <select aria-label="当前门店" value={shopId} onChange={e=>switchShop(e.target.value)} disabled={loadingDraft||saving}>
         {!shopId&&<option value="">请选择或新建门店</option>}
         {shops.map(shop=><option key={shop.id} value={shop.id}>{shop.name}</option>)}
       </select>
