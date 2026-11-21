@@ -49,7 +49,7 @@ function overlay(id: Id): string {
       return '<defs><linearGradient id="shade" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#140e090f" offset="0"/><stop stop-color="#160e09df" offset="1"/></linearGradient></defs>' +
         rect(0, 0, W, H, "url(#shade)") +
         brand("#fff7e9", 116) +
-        word(75, 990, "BACK AROUND THE TABLE.", 51, "#f7e6c3", 500, 'font-family="Georgia,serif" font-style="italic"') +
+        word(75, 990, "BACK AROUND THE TABLE.", 51, "#f7e6c3", 500, 'font-style="italic"') +
         word(72, 1115, "SUSHI NIGHT", 94, "#ffffff", 800) +
         word(72, 1225, "AGAIN?", 112, "#ffffff", 800) +
         word(75, 1294, "PLAN YOUR NEXT VISIT  ↗", 22, "#fff7e9", 650);
