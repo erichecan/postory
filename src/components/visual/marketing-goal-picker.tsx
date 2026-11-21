@@ -96,7 +96,7 @@ export function MarketingGoalPicker({
         <div className="storex-case-dialog-media"><SushiCampaignPoster campaign={example} modal/></div>
         <div className="storex-case-dialog-body">
           <span className="storex-eyebrow">SAKURA SUSHI · {example.purpose}</span>
-          <h2 id="storex-case-dialog-title">{example.headline.replace("\\n", " ")}</h2>
+          <h2 id="storex-case-dialog-title">{example.headline.replace(/\n/g, " ")}</h2>
           <p>{example.description}</p>
           <h3>配套社媒文案 · 示例</h3>
           <p className="storex-case-social-copy">{example.socialCopy}</p>
