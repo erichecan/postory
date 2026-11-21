@@ -6301,3 +6301,62 @@
   .ps-storex .storex-mode-preview-image { height: 185px; }
   .ps-storex .storex-step-panel h1 { font-size: 26px; }
 }
+
+
+/* PoStory V2 continuation: make remaining forms and schedule match the new decision screens. */
+.ps-storex .storex-flow-top,
+.ps-storex .storex-back { font-size: 14px; }
+.ps-storex .storex-stepper { margin-top: 24px; margin-bottom: 22px; }
+.ps-storex .storex-stepper > div b,
+.ps-storex .storex-stepper > button b { font-size: 13px; }
+.ps-storex .storex-stepper > div > span,
+.ps-storex .storex-stepper > button > span { width: 32px; height: 32px; flex-basis: 32px; font-size: 13px; }
+.ps-storex .storex-step-panel { padding: 35px; border-color: #e7e7ed; border-radius: 19px; }
+.ps-storex .storex-step-panel h1,
+.ps-storex .storex-calendar-title h1 { font-size: clamp(27px,3vw,35px); color: #272934; line-height: 1.22; letter-spacing: -.035em; }
+.ps-storex .storex-field { font-size: 14px; color: #313543; gap: 9px; }
+.ps-storex .storex-field > span b { font-size: 12px; }
+.ps-storex .storex-field input,
+.ps-storex .storex-field select,
+.ps-storex .storex-field textarea { min-height: 47px; font-size: 15px; padding: 11px 13px; color: #2a2e39; border-radius: 11px; border-color: #e0e1e8; }
+.ps-storex .storex-field textarea { line-height: 1.65; }
+.ps-storex .storex-field input:focus-visible,
+.ps-storex .storex-field textarea:focus-visible,
+.ps-storex .storex-field select:focus-visible { border-color: #d63884; box-shadow: 0 0 0 3px #ec008c17; }
+.ps-storex .storex-step-actions { margin-top: 28px; }
+.ps-storex .storex-step-actions .storex-primary { min-height: 47px; padding: 0 20px; }
+.ps-storex .storex-promo-section { background: #faf9fb; padding: 22px; border-radius: 14px; }
+.ps-storex .storex-promo-section h2 { font-size: 18px; color: #292c37; }
+.ps-storex .storex-product { background: #fff; padding: 21px; border-radius: 15px; border-color: #e5e5eb; }
+.ps-storex .storex-product-heading { font-size: 16px; }
+.ps-storex .storex-product-heading button { font-size: 13px; }
+.ps-storex .storex-photo-preview { font-size: 13px; }
+.ps-storex .storex-product-promo-note { font-size: 13px; }
+.ps-storex .storex-add-product { min-height: 43px; font-size: 14px; padding: 0 15px; }
+.ps-storex .storex-channel-list label { font-size: 14px; min-height: 42px; border-radius: 11px; padding: 9px 13px; }
+.ps-storex .storex-channel-list input { accent-color: #d52b83; }
+.ps-storex .storex-schedule-count { font-size: 15px; padding: 15px; border-radius: 11px; }
+.ps-storex .storex-error { font-size: 14px; }
+.ps-storex .storex-calendar-title p { font-size: 15px; line-height: 1.65; }
+.ps-storex .storex-month-title h2 { font-size: 19px; color: #292e3a; }
+.ps-storex .storex-calendar-shell,
+.ps-storex .storex-drawer { border-color: #e5e5eb; border-radius: 17px; }
+.ps-storex .storex-drawer-head h2 { font-size: 19px; }
+.ps-storex .storex-drawer-actions .storex-primary,
+.ps-storex .storex-drawer-actions .storex-secondary { min-height: 43px; font-size: 13px; }
+.ps-storex .storex-publish-hint { font-size: 12px; line-height: 1.6; }
+.ps-storex .storex-drawer-empty strong { font-size: 16px; }
+.ps-storex .storex-drawer-empty span { font-size: 13px; }
+.ps-storex .storex-case-dialog:focus { outline: none; }
+@media(max-width:680px) {
+  .ps-storex .storex-step-panel { padding: 23px 17px; }
+  .ps-storex .storex-stepper > div b,
+  .ps-storex .storex-stepper > button b { font-size: 12px; }
+  .ps-storex .storex-step-panel h1,
+  .ps-storex .storex-calendar-title h1 { font-size: 27px; }
+  .ps-storex .storex-step-help { font-size: 14px; }
+  .ps-storex .storex-product { padding: 16px; }
+  .ps-storex .storex-channel-list label { font-size: 13px; }
+  .ps-storex .storex-drawer-actions .storex-primary,
+  .ps-storex .storex-drawer-actions .storex-secondary { font-size: 12px; }
+}
