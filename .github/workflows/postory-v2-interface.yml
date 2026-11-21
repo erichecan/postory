@@ -4,6 +4,16 @@ on:
   pull_request:
     paths:
       - "src/components/visual/**"
+      - "src/lib/publishing/**"
+      - "src/lib/actions/designs.ts"
+      - "src/lib/actions/restaurant-campaigns.ts"
+      - "src/lib/db/approval.ts"
+      - "src/lib/db/restaurant-campaigns.ts"
+      - "src/components/editor/publish-dialog.tsx"
+      - "prisma/**"
+      - "Dockerfile"
+      - "scripts/verify-publishing-safety.ts"
+
       - "src/app/api/sakura-creative/**"
       - "src/app/api/marketing-calendar/**"
       - "scripts/verify-sakura-creative.ts"
@@ -36,5 +46,7 @@ jobs:
         run: npx tsx scripts/verify-store-framework.ts
       - name: Render seven Sakura campaign images
         run: npx tsx scripts/verify-sakura-creative.ts
+      - name: Verify publication safety guards
+        run: npx tsx scripts/verify-publishing-safety.ts
       - name: Production build
         run: npm run build
