@@ -24,6 +24,10 @@ export function SushiBrandIntake() {
   const [images, setImages] = useState<IntakeImage[]>([]);
   const [error, setError] = useState("");
   const [revision, setRevision] = useState<number | null>(null);
+  const [shops, setShops] = useState<Array<{id:string;name:string;industry:string}>>([]);
+  const [shopId, setShopId] = useState("");
+  const [newShopName, setNewShopName] = useState("");
+  const [creatingShop, setCreatingShop] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loadingDraft, setLoadingDraft] = useState(true);
   const [loginRequired, setLoginRequired] = useState(false);
@@ -33,18 +37,44 @@ export function SushiBrandIntake() {
 
   useEffect(() => {
     let cancelled = false;
-    async function loadDraft() {
+    async function loadShops() {
       try {
-        const response = await fetch("/api/content-engine/brand", { cache: "no-store" });
+        const response = await fetch("/api/content-engine/shops", { cache:"no-store" });
         if (cancelled) return;
-        if (response.status === 401) { setLoginRequired(true); return; }
+        if (response.status===401) {setLoginRequired(true);return;}
+        if (!response.ok) throw new Error("shops_failed");
+        const data = await response.json() as {shops:Array<{id:string;name:string;industry:string}>};
+        if (cancelled) return;
+        const sushiShops=data.shops.filter(shop=>shop.industry==="sushi");
+        setShops(sushiShops);
+        const requested = new URLSearchParams(window.location.search).get("shop");
+        const chosen=sushiShops.find(shop=>shop.id===requested)||sushiShops[0];
+        if (chosen) setShopId(chosen.id);
+      } catch {
+        if (!cancelled) setError("无法读取门店列表，请检查账号登录状态或网络。");
+      } finally {if (!cancelled) setLoadingDraft(false);}
+    }
+    void loadShops();
+    return ()=>{cancelled=true;};
+  }, []);
+
+  useEffect(() => {
+    if (!shopId) return;
+    let cancelled=false;
+    async function loadDraft() {
+      setLoadingDraft(true);
+      try{
+        const response=await fetch(`/api/content-engine/brand?shopId=${encodeURIComponent(shopId)}`,{cache:"no-store"});
         if (!response.ok) throw new Error("load_failed");
-        const data = await response.json() as { profile?: {
+        const data=await response.json() as {profile?:{
           revision:number;businessName:string;serviceArea:string;locale:"zh"|"en";
           tagline:string;website:string;voice:"minimal"|"warm"|"bright";accent:string;
           assets:Array<{id:string;kind:AssetType;url:string}>;
-        } | null };
-        if (cancelled || !data.profile) return;
+        }|null};
+        if(cancelled) return;
+        setRevision(null);setStage("details");setSaveMessage("");
+        setBusinessName("");setLocation("");setTagline("");setWebsite("");setTone("minimal");setLanguage("en");setAccent("#2F5149");setImages([]);
+        if(!data.profile)return;
         setBusinessName(data.profile.businessName);
         setLocation(data.profile.serviceArea);
         setLanguage(data.profile.locale);
@@ -54,24 +84,39 @@ export function SushiBrandIntake() {
         setAccent(data.profile.accent);
         setRevision(data.profile.revision);
         setImages(data.profile.assets.map(a=>({id:a.id,name:"已保存素材",url:a.url,type:a.kind})));
-        setSaveMessage(`已恢复保存的第 ${data.profile.revision} 版草稿。`);
-      } catch {
-        if (!cancelled) setError("暂时无法读取已保存品牌档案，请稍后再试。");
-      } finally {
-        if (!cancelled) setLoadingDraft(false);
-      }
+        setSaveMessage(`已恢复第 ${data.profile.revision} 版草稿。`);
+      } catch { if(!cancelled)setError("无法恢复该门店的品牌档案。"); }
+      finally {if(!cancelled)setLoadingDraft(false);}
     }
     void loadDraft();
-    return () => { cancelled = true; };
-  }, []);
+    return ()=>{cancelled=true;};
+  },[shopId]);
+
+  async function createShop(){
+    const name=newShopName.trim();
+    if (!name || creatingShop)return;
+    setCreatingShop(true);setError("");
+    try {
+      const response=await fetch("/api/content-engine/shops",{
+        method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,industry:"sushi"})
+      });
+      const result=await response.json() as {shop?:{id:string;name:string;industry:string};error?:string};
+      if(!response.ok||!result.shop)throw new Error(result.error||"create_failed");
+      setShops(current=>[...current,result.shop!]);
+      setNewShopName("");
+      setShopId(result.shop.id);
+    }catch{setError("创建门店失败，请检查名称或门店数量限制。");}
+    finally{setCreatingShop(false);}
+  }
 
   async function saveDraft() {
-    if (!canProceed || saving || loadingDraft || loginRequired) return;
+    if (!canProceed || saving || loadingDraft || loginRequired || !shopId) return;
     setSaving(true); setError(""); setSaveMessage("");
     try {
       const uploaded = await Promise.all(images.map(async asset => {
         if (!asset.file) return { id:asset.id,url:asset.url,name:asset.name,type:asset.type };
         const form = new FormData();
+        form.append("shopId",shopId);
         form.append("kind",asset.type);
         form.append("file",asset.file);
         const response = await fetch("/api/content-engine/brand/assets",{method:"POST",body:form});
@@ -82,7 +127,7 @@ export function SushiBrandIntake() {
       const response = await fetch("/api/content-engine/brand",{
         method:"PUT",headers:{"Content-Type":"application/json"},
         body:JSON.stringify({
-          businessName,serviceArea:location,locale:language,tagline,website,
+          shopId,businessName,serviceArea:location,locale:language,tagline,website,
           voice:tone,accent,assetIds:uploaded.map(a=>a.id),expectedRevision:revision
         }),
       });
@@ -153,8 +198,16 @@ setSaveMessage("");
     </div>
     {loginRequired && <div className="ps-brand-auth-notice"><ShieldCheck size={18}/> 你可以先体验品牌档案预览；需要 <Link href="/login?next=%2Ffor%2Fsushi%2Fbrand">登录 PoStory</Link> 才能安全保存并跨设备恢复资料。</div>}
     {loadingDraft && <div className="ps-brand-auth-notice">正在检查已保存的品牌档案…</div>}
+    {!loginRequired && <section className="ps-brand-shop-selector" aria-label="选择寿司门店">
+      <div><strong>选择需要建立档案的门店</strong><span>每家门店的 Logo、照片与品牌资料互不共享</span></div>
+      <select aria-label="当前门店" value={shopId} onChange={e=>{setShopId(e.target.value);setError("");}} disabled={loadingDraft||saving}>
+        {!shopId&&<option value="">请选择或新建门店</option>}
+        {shops.map(shop=><option key={shop.id} value={shop.id}>{shop.name}</option>)}
+      </select>
+      <div className="ps-brand-shop-create"><input aria-label="新门店名称" maxLength={120} placeholder="输入另一家寿司店名称" value={newShopName} onChange={e=>setNewShopName(e.target.value)}/><button type="button" disabled={!newShopName.trim()||creatingShop} onClick={()=>void createShop()}>{creatingShop?"创建中…":"添加门店"}</button></div>
+    </section>}
     <nav className="ps-brand-steps" aria-label="品牌建档步骤">
-      {[["details","01","门店信息"],["photos","02","真实素材"],["profile","03","品牌预览"]].map(([key,index,label])=><button key={key} type="button" className={stage === key ? "active" : ""} onClick={() => { if (key === "details" || canProceed) {setStage(key as typeof stage);setError("");} }} disabled={key !== "details" && !canProceed}><span>{index}</span>{label}</button>)}
+      {[["details","01","门店信息"],["photos","02","真实素材"],["profile","03","品牌预览"]].map(([key,index,label])=><button key={key} type="button" className={stage === key ? "active" : ""} onClick={() => { if (key === "details" || canProceed) {setStage(key as typeof stage);setError("");} }} disabled={key !== "details" && (!canProceed || (!loginRequired && !shopId))}><span>{index}</span>{label}</button>)}
     </nav>
     {stage === "details" && <section className="ps-brand-panel">
       <div className="ps-brand-panel-head"><span className="ps-vertical-eyebrow">01 / THE BASICS</span><h2>品牌从真实的名字开始。</h2><p>以下信息用于预览品牌档案。请填写门店真实资料，系统不会擅自生成菜单价格或营业承诺。</p></div>
@@ -166,7 +219,7 @@ setSaveMessage("");
         <label>主要内容语言<select value={language} onChange={(e)=>setLanguage(e.target.value as "zh"|"en")}><option value="en">English</option><option value="zh">简体中文</option></select></label>
         <label>希望呈现的品牌感觉<select value={tone} onChange={(e)=>setTone(e.target.value as typeof tone)}><option value="minimal">简约精致</option><option value="warm">温暖社区</option><option value="bright">年轻活力</option></select></label>
       </div>
-      <div className="ps-brand-panel-actions"><span>在确认保存草稿前，这些信息不会上传。</span><button type="button" disabled={!canProceed} className="ps-vertical-button" onClick={()=>setStage("photos")}>下一步 · 上传素材 <ArrowRight size={17}/></button></div>
+      <div className="ps-brand-panel-actions"><span>在确认保存草稿前，这些信息不会上传。</span><button type="button" disabled={!canProceed || (!loginRequired && !shopId)} className="ps-vertical-button" onClick={()=>setStage("photos")}>下一步 · 上传素材 <ArrowRight size={17}/></button></div>
     </section>}
     {stage === "photos" && <section className="ps-brand-panel">
       <div className="ps-brand-panel-head"><span className="ps-vertical-eyebrow">02 / REAL MATERIALS</span><h2>我们更相信真实的作品。</h2><p>优先上传你的 Logo、门店实景和真实菜品照片。选好的素材会先在浏览器预览。只有点击保存草稿且已登录后，才会通过私有接口上传；不会自动修图或发布。</p></div>
@@ -194,9 +247,9 @@ setSaveMessage("");
         </div>
       </div>
       {saveMessage && <p className="ps-brand-local-confirm" role="status"><Check size={17}/>{saveMessage}</p>}{error && <p className="ps-brand-error" role="alert">{error}</p>}
-      <div className="ps-brand-panel-actions"><button type="button" className="ps-brand-secondary" onClick={()=>setStage("photos")}>返回修改素材</button>{loginRequired ? <Link className="ps-vertical-button" href="/login?next=%2Ffor%2Fsushi%2Fbrand"><ShieldCheck size={17}/> 登录后保存</Link> : <button type="button" className="ps-vertical-button" disabled={!canProceed || saving || loadingDraft} onClick={()=>void saveDraft()}><ShieldCheck size={17}/>{saving ? "正在安全保存…" : "保存品牌档案草稿"}</button>}</div>
+      <div className="ps-brand-panel-actions"><button type="button" className="ps-brand-secondary" onClick={()=>setStage("photos")}>返回修改素材</button>{loginRequired ? <Link className="ps-vertical-button" href="/login?next=%2Ffor%2Fsushi%2Fbrand"><ShieldCheck size={17}/> 登录后保存</Link> : <button type="button" className="ps-vertical-button" disabled={!canProceed || !shopId || saving || loadingDraft} onClick={()=>void saveDraft()}><ShieldCheck size={17}/>{saving ? "正在安全保存…" : "保存品牌档案草稿"}</button>}</div>
     </section>}
-    <aside className="ps-brand-privacy"><LockKeyhole size={17}/><span>品牌资料只在登录并点击“保存品牌档案草稿”后上传到私有存储。保存的是未审核草稿，不等于商家授权图片使用、正式确认品牌规范或批准发布。</span></aside>
+    <aside className="ps-brand-privacy"><LockKeyhole size={17}/><span>品牌资料在登录、选择门店并点击“保存品牌档案草稿”后上传到门店专属的私有存储。保存的是未审核草稿，不等于商家授权图片使用、正式确认品牌规范或批准发布。</span></aside>
     <footer className="ps-brand-footer"><Link href="/for/sushi">Sushi Marketing</Link><span>PoStory · Done-for-You Marketing</span></footer>
   </main>;
 }
