@@ -24,6 +24,8 @@ export function SushiBrandIntake() {
   const [images, setImages] = useState<IntakeImage[]>([]);
   const [error, setError] = useState("");
   const [revision, setRevision] = useState<number | null>(null);
+  const [profileStatus, setProfileStatus] = useState<"draft" | "pending_review">("draft");
+  const [savedFingerprint, setSavedFingerprint] = useState("");
   const [shops, setShops] = useState<Array<{id:string;name:string;industry:string}>>([]);
   const [shopId, setShopId] = useState("");
   const [newShopName, setNewShopName] = useState("");
@@ -67,12 +69,12 @@ export function SushiBrandIntake() {
         const response=await fetch(`/api/content-engine/brand?shopId=${encodeURIComponent(shopId)}`,{cache:"no-store"});
         if (!response.ok) throw new Error("load_failed");
         const data=await response.json() as {profile?:{
-          revision:number;businessName:string;serviceArea:string;locale:"zh"|"en";
+          revision:number;status:"draft"|"pending_review";businessName:string;serviceArea:string;locale:"zh"|"en";
           tagline:string;website:string;voice:"minimal"|"warm"|"bright";accent:string;
           assets:Array<{id:string;kind:AssetType;url:string}>;
         }|null};
         if(cancelled) return;
-        setRevision(null);setStage("details");setSaveMessage("");
+        setRevision(null);setProfileStatus("draft");setSavedFingerprint("");setStage("details");setSaveMessage("");
         setBusinessName("");setLocation("");setTagline("");setWebsite("");setTone("minimal");setLanguage("en");setAccent("#2F5149");setImages([]);
         if(!data.profile)return;
         setBusinessName(data.profile.businessName);
@@ -83,6 +85,8 @@ export function SushiBrandIntake() {
         setTone(data.profile.voice);
         setAccent(data.profile.accent);
         setRevision(data.profile.revision);
+        setProfileStatus(data.profile.status);
+        setSavedFingerprint(JSON.stringify([data.profile.businessName,data.profile.serviceArea,data.profile.locale,data.profile.tagline,data.profile.website,data.profile.voice,data.profile.accent,data.profile.assets.map(a=>a.id)]));
         setImages(data.profile.assets.map(a=>({id:a.id,name:"已保存素材",url:a.url,type:a.kind})));
         setSaveMessage(`已恢复第 ${data.profile.revision} 版草稿。`);
       } catch { if(!cancelled)setError("无法恢复该门店的品牌档案。"); }
@@ -97,7 +101,7 @@ export function SushiBrandIntake() {
     for(const asset of images){
       if(asset.file){URL.revokeObjectURL(asset.url);imageUrls.current.delete(asset.url);}
     }
-    setImages([]);setRevision(null);setSaveMessage("");setError("");
+    setImages([]);setRevision(null);setSavedFingerprint("");setProfileStatus("draft");setSaveMessage("");setError("");
     setShopId(nextShopId);
   }
 
@@ -145,6 +149,8 @@ export function SushiBrandIntake() {
       for (const asset of images) if (asset.file) { URL.revokeObjectURL(asset.url); imageUrls.current.delete(asset.url); }
       setImages(uploaded);
       setRevision(data.profile.revision);
+      setProfileStatus("draft");
+      setSavedFingerprint(JSON.stringify([businessName,location,language,tagline,website,tone,accent,uploaded.map(a=>a.id)]));
       setSaveMessage(`品牌档案第 ${data.profile.revision} 版草稿已安全保存。后续仍需要商家和设计人员确认，才能用于正式发布。`);
     } catch (cause) {
       const detail = cause instanceof Error ? cause.message : "save_failed";
@@ -152,6 +158,27 @@ export function SushiBrandIntake() {
         detail === "invalid_asset_ownership" ? "素材权限检查失败，请重新选择图片。" :
         detail === "login_required" ? "请先登录后再保存。" : "保存未成功，已保留当前页面中的内容，请稍后重试。");
     } finally { setSaving(false); }
+  }
+
+  const fingerprint=JSON.stringify([businessName,location,language,tagline,website,tone,accent,images.map(a=>a.id)]);
+  const unchangedSinceSave=!!revision && fingerprint===savedFingerprint;
+  async function requestBrandReview() {
+    if (!shopId || !revision || !unchangedSinceSave || saving || profileStatus!=="draft") return;
+    setSaving(true);setError("");setSaveMessage("");
+    try {
+      const response=await fetch("/api/content-engine/brand/review",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({shopId,expectedRevision:revision})
+      });
+      const data=await response.json() as {revision?:number;error?:string};
+      if(!response.ok || !data.revision) throw new Error(data.error||"review_failed");
+      setRevision(data.revision);
+      setProfileStatus("pending_review");
+      setSaveMessage(`已提交第 ${data.revision} 版品牌档案审核，尚未获准用于发布。`);
+    }catch(error) {
+      const message=error instanceof Error?error.message:"review_failed";
+      setError(message==="revision_conflict"?"该档案已有更新，请刷新后再提交审核。":"提交审核失败，请检查登录状态或稍后再试。");
+    } finally {setSaving(false);}
   }
 
   const logo = images.find((asset) => asset.type === "logo");
@@ -256,7 +283,7 @@ setSaveMessage("");
         </div>
       </div>
       {saveMessage && <p className="ps-brand-local-confirm" role="status"><Check size={17}/>{saveMessage}</p>}{error && <p className="ps-brand-error" role="alert">{error}</p>}
-      <div className="ps-brand-panel-actions"><button type="button" className="ps-brand-secondary" onClick={()=>setStage("photos")}>返回修改素材</button>{loginRequired ? <Link className="ps-vertical-button" href="/login?next=%2Ffor%2Fsushi%2Fbrand"><ShieldCheck size={17}/> 登录后保存</Link> : <button type="button" className="ps-vertical-button" disabled={!canProceed || !shopId || saving || loadingDraft} onClick={()=>void saveDraft()}><ShieldCheck size={17}/>{saving ? "正在安全保存…" : "保存品牌档案草稿"}</button>}</div>
+      <div className="ps-brand-panel-actions"><button type="button" className="ps-brand-secondary" onClick={()=>setStage("photos")}>返回修改素材</button>{loginRequired ? <Link className="ps-vertical-button" href="/login?next=%2Ffor%2Fsushi%2Fbrand"><ShieldCheck size={17}/> 登录后保存</Link> : <button type="button" className="ps-vertical-button" disabled={!canProceed || !shopId || saving || loadingDraft} onClick={()=>void saveDraft()}><ShieldCheck size={17}/>{saving ? "正在安全保存…" : "保存品牌档案草稿"}</button>{profileStatus==="pending_review" ? <span className="ps-brand-review-status">已提交审核，未获批准</span> : <button type="button" className="ps-brand-secondary" disabled={!unchangedSinceSave || saving} onClick={()=>void requestBrandReview()}>提交审核</button>}}</div>
     </section>}
     <aside className="ps-brand-privacy"><LockKeyhole size={17}/><span>品牌资料在登录、选择门店并点击“保存品牌档案草稿”后上传到门店专属的私有存储。保存的是未审核草稿，不等于商家授权图片使用、正式确认品牌规范或批准发布。</span></aside>
     <footer className="ps-brand-footer"><Link href="/for/sushi">Sushi Marketing</Link><span>PoStory · Done-for-You Marketing</span></footer>
