@@ -33,8 +33,9 @@ export async function validateBrandImage(bytes: Buffer, claimedMime: string): Pr
   const mime = magicMime(bytes);
   if (!mime || mime !== claimedMime) throw new BrandImageValidationError("invalid_image_type");
   try {
-    const image = sharp(bytes, { failOn: "error", limitInputPixels: MAX_BRAND_IMAGE_PIXELS });
-    const meta = await image.metadata();
+    // Read metadata first; no pixel decoding occurs during this step.
+    // Enforce size limits before constructing a decoder for the full raster.
+    const meta = await sharp(bytes, { failOn: "error", limitInputPixels: 0 }).metadata();
     const formatMime = meta.format === "png" ? "image/png" : meta.format === "jpeg" ? "image/jpeg" : meta.format === "webp" ? "image/webp" : null;
     if (formatMime !== mime) throw new BrandImageValidationError("invalid_image_type");
     if (!meta.width || !meta.height || meta.width > MAX_BRAND_IMAGE_EDGE || meta.height > MAX_BRAND_IMAGE_EDGE ||
@@ -43,7 +44,7 @@ export async function validateBrandImage(bytes: Buffer, claimedMime: string): Pr
     }
     // stats() forces the image decoder through the actual pixel data, not
     // merely a signature/header check. Sharp is bounded by limitInputPixels.
-    await image.stats();
+    await sharp(bytes, { failOn: "error", limitInputPixels: MAX_BRAND_IMAGE_PIXELS }).stats();
     return {mime,width:meta.width,height:meta.height};
   } catch (error) {
     if (error instanceof BrandImageValidationError) throw error;
