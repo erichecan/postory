@@ -28,6 +28,6 @@ jobs:
       - name: TypeScript
         run: npx tsc --noEmit
       - name: ESLint of changed components
-        run: npx eslint src/components/visual/marketing-goal-picker.tsx src/components/visual/store-marketing-experience.tsx
+        run: npx eslint src/components/visual/marketing-goal-picker.tsx src/components/visual/sushi-campaign-poster.tsx src/components/visual/store-marketing-experience.tsx
       - name: Production build
         run: npm run build
