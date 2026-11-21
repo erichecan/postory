@@ -42,22 +42,22 @@ function overlay(id: Id): string {
         rect(0, 0, W, H, "url(#shade)") +
         rect(65, 76, 330, 53, cream) + word(86, 113, "THE FEATURED ROLL", 22, ink, 800, 'letter-spacing="2"') +
         brand("#ffffff", 210) +
-        word(65, 1090, "A CLOSER", 97, "#ffffff", 800) +
-        word(65, 1200, "LOOK.", 118, "#ffffff", 850) +
+        word(65, 1090, "A ROLL", 97, "#ffffff", 800) +
+        word(65, 1200, "WORTH A LOOK.", 78, "#ffffff", 850) +
         word(65, 1285, "EXPLORE THE MENU  ↗", 25, "#ffffff", 650);
     case "repeat":
       return '<defs><linearGradient id="shade" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#140e090f" offset="0"/><stop stop-color="#160e09df" offset="1"/></linearGradient></defs>' +
         rect(0, 0, W, H, "url(#shade)") +
         brand("#fff7e9", 116) +
-        word(75, 990, "ANOTHER NIGHT.", 56, "#f7e6c3", 500, 'font-family="Georgia,serif" font-style="italic"') +
-        word(72, 1115, "ANOTHER", 96, "#ffffff", 800) +
-        word(72, 1225, "SUSHI PLAN.", 96, "#ffffff", 800) +
+        word(75, 990, "BACK AROUND THE TABLE.", 51, "#f7e6c3", 500, 'font-family="Georgia,serif" font-style="italic"') +
+        word(72, 1115, "SUSHI NIGHT", 94, "#ffffff", 800) +
+        word(72, 1225, "AGAIN?", 112, "#ffffff", 800) +
         word(75, 1294, "PLAN YOUR NEXT VISIT  ↗", 22, "#fff7e9", 650);
     case "basket":
       return rect(0, 860, W, 490, cream) +
         brand(ink, 960) +
-        word(74, 1090, "GOOD FOOD.", 88, ink, 850) +
-        word(74, 1180, "BETTER SHARED.", 85, ink, 850) +
+        word(74, 1090, "SUSHI", 92, ink, 850) +
+        word(74, 1180, "TO SHARE.", 92, ink, 850) +
         word(74, 1285, "EXPLORE THE MENU  ↗", 23, orange, 800);
     case "offpeak":
       return rect(0, 0, 535, H, "#c4523d") +
@@ -71,14 +71,14 @@ function overlay(id: Id): string {
     case "awareness":
       return '<defs><linearGradient id="shade" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#00000030" offset="0"/><stop stop-color="#10140be0" offset="1"/></linearGradient></defs>' +
         rect(0, 0, W, H, "url(#shade)") + brand("#ffffff", 123) +
-        word(70, 1070, "THE PEOPLE", 93, "#ffffff", 850) +
-        word(70, 1172, "BEHIND", 102, "#ffffff", 850) +
-        word(70, 1270, "THE COUNTER.", 85, "#ffffff", 850);
+        word(70, 1070, "BEHIND", 102, "#ffffff", 850) +
+        word(70, 1172, "THE SUSHI", 101, "#ffffff", 850) +
+        word(70, 1270, "COUNTER.", 101, "#ffffff", 850);
     case "unsure":
       return rect(0, 900, W, 450, cream) +
         rect(66, 978, 92, 9, orange) + brand(ink, 1055) +
-        word(64, 1161, "WHAT LOOKS", 94, ink, 850) +
-        word(64, 1256, "GOOD TODAY?", 89, ink, 850);
+        word(64, 1161, "WHICH SUSHI", 83, ink, 850) +
+        word(64, 1256, "TONIGHT?", 100, ink, 850);
   }
 }
 
