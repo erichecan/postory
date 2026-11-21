@@ -14,7 +14,7 @@ jobs:
     timeout-minutes: 25
     env:
       PROJECT_ID: supply-491510
-      BACKUP_BUCKET: postory-private-rollback-db-549968261036
+      BACKUP_BUCKET: postory-user-media
     steps:
       - uses: google-github-actions/auth@v2
         with:
@@ -24,10 +24,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if ! gcloud storage buckets describe "gs://$BACKUP_BUCKET" --format=json > /tmp/backup-bucket.json 2>/dev/null; then
-            gcloud storage buckets create "gs://$BACKUP_BUCKET" --project="$PROJECT_ID" --location=europe-west1 --uniform-bucket-level-access --public-access-prevention
-            gcloud storage buckets describe "gs://$BACKUP_BUCKET" --format=json > /tmp/backup-bucket.json
-          fi
+          # Existing app media bucket is allowed only if its access configuration is strictly private.
+          # Never mutate bucket IAM or weaken any existing security setting.
+          gcloud storage buckets describe "gs://$BACKUP_BUCKET" --format=json > /tmp/backup-bucket.json
           jq -e '(.iamConfiguration.publicAccessPrevention == "enforced") and (.iamConfiguration.uniformBucketLevelAccess.enabled == true)' /tmp/backup-bucket.json >/dev/null || {
             echo "Backup bucket does not enforce private access. Refusing backup upload." >&2
             exit 1
