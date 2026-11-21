@@ -1,0 +1,33 @@
+name: PoStory V2 Interface Validation
+
+on:
+  pull_request:
+    paths:
+      - "src/components/visual/**"
+      - "package*.json"
+      - "tsconfig.json"
+      - ".github/workflows/postory-v2-interface.yml"
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Repair dependency metadata for verification
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Generate Next.js route types
+        run: npx next typegen
+      - name: TypeScript
+        run: npx tsc --noEmit
+      - name: ESLint of changed components
+        run: npx eslint src/components/visual/marketing-goal-picker.tsx src/components/visual/store-marketing-experience.tsx
+      - name: Production build
+        run: npm run build
