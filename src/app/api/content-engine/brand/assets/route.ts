@@ -1,3 +1,4 @@
+import { isContentEngineEnabled, unavailableContentEngine } from "@/lib/content-engine/feature-gate";
 import { createHash, randomBytes } from "node:crypto";
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/db/client";
@@ -17,6 +18,7 @@ function validOrigin(request: NextRequest) {
   } catch { return false; }
 }
 export async function POST(request: NextRequest) {
+  if (!isContentEngineEnabled()) return unavailableContentEngine();
   const user = await getCurrentUser();
   if (!user) return Response.json({ error: "login_required" }, { status: 401 });
   if (!validOrigin(request)) return Response.json({ error: "invalid_origin" }, { status: 403 });
