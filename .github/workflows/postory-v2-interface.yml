@@ -23,6 +23,8 @@ jobs:
         run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
+      - name: Generate Next.js route types
+        run: npx next typegen
       - name: TypeScript
         run: npx tsc --noEmit
       - name: ESLint of changed components
