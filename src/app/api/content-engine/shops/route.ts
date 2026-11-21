@@ -1,3 +1,4 @@
+import { isContentEngineEnabled, unavailableContentEngine } from "@/lib/content-engine/feature-gate";
 import type { NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/client";
@@ -14,6 +15,7 @@ function sameOrigin(request: NextRequest) {
 }
 
 export async function GET() {
+  if (!isContentEngineEnabled()) return unavailableContentEngine();
   const user = await getCurrentUser();
   if (!user) return Response.json({error:"login_required"},{status:401});
   const shops = await prisma.contentBrandShop.findMany({
@@ -24,6 +26,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  if (!isContentEngineEnabled()) return unavailableContentEngine();
   const user = await getCurrentUser();
   if (!user) return Response.json({error:"login_required"},{status:401});
   if (!sameOrigin(request)) return Response.json({error:"invalid_origin"},{status:403});
