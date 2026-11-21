@@ -659,6 +659,10 @@ model Design {
   caption          String?              @db.Text
   revisionCount    Int                  @default(0)
   exportedImageUrl String?
+  approvedImageSha256 String? @db.VarChar(64)
+  approvedCaptionSha256 String? @db.VarChar(64)
+  approvedMediaUrl String?
+  approvedAt DateTime?
   ayrsharePostId   String?
   publishStatus    PublishStatus?
   publishError     String?              @db.Text
@@ -1131,6 +1135,10 @@ model RestaurantCampaignContent {
   publishStatus  PublishStatus?
   publishError   String?                      @db.Text
   providerPostId String?
+  sourceSha256   String?                      @db.VarChar(64)
+  approvedSha256 String?                      @db.VarChar(64)
+  approvedCaptionSha256 String?               @db.VarChar(64)
+  approvedAt     DateTime?
   publishedAt    DateTime?
   createdAt      DateTime                     @default(now())
   updatedAt      DateTime                     @updatedAt
