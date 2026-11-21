@@ -51,7 +51,8 @@ export async function POST(request: NextRequest) {
     if (bytes.length > 10 * 1024 * 1024 || (!png && !jpg && !webp)) return json(415, { ok: false, reason: "invalid_image" });
     input = { bytes, mime: png ? "image/png" : jpg ? "image/jpeg" : "image/webp" };
   }
-  const sourceOnly = data.preserveSource === true;
+  // Restaurant campaigns require approved real photography; never invent menu items by generative image creation.
+  const sourceOnly = industry === "餐馆" || data.preserveSource === true;
   if (sourceOnly && !input) return json(422, { ok: false, reason: "invalid_image" });
   const digestFor = (seed: string) => { const hash = createHash("sha256").update(seed); if (input) hash.update(input.bytes); return hash.digest("hex"); };
   async function cachedImage(digest: string) {
