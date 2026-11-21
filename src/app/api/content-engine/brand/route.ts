@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 import type { NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
+import { ownedContentShop, isContentShopId } from "@/lib/content-engine/shop-access";
 import { prisma } from "@/lib/db/client";
 import { contentBrandMediaUrl } from "@/lib/storage";
 import { newBrandProfileDraft, type BrandProfileDraft } from "@/lib/content-engine/brand-profile";
@@ -45,10 +46,12 @@ function exposed(profile: BrandProfileDraft, revision: number) {
     assets: profile.assets.map(a=>({ id:a.assetId, kind:a.kind==="interior"?"store":a.kind, url:contentBrandMediaUrl(a.assetId) })),
   };
 }
-export async function GET() {
+export async function GET(request: NextRequest) {
   const user = await getCurrentUser();
   if (!user) return Response.json({error:"login_required"},{status:401});
-  const row = await prisma.contentBrandProfile.findUnique({where:{ownerId:user.id}});
+  const shopId = request.nextUrl.searchParams.get("shopId");
+  if (!isContentShopId(shopId) || !(await ownedContentShop(user.id,shopId))) return Response.json({error:"shop_not_found"},{status:404});
+  const row = await prisma.contentBrandProfile.findUnique({where:{shopId}});
   if (!row) return Response.json({ok:true,profile:null},{headers:{"Cache-Control":"no-store"}});
   return Response.json({ok:true,profile:exposed(row.data as unknown as BrandProfileDraft,row.revision)},{headers:{"Cache-Control":"no-store"}});
 }
@@ -62,17 +65,21 @@ export async function PUT(request: NextRequest) {
   const input=safeInput(raw);
   if (!input) return Response.json({error:"invalid_fields"},{status:422});
   const v=raw as Record<string, unknown>;
+  const shopId=v.shopId;
+  if (!isContentShopId(shopId)) return Response.json({error:"invalid_shop"},{status:422});
+  const shop=await ownedContentShop(user.id,shopId);
+  if (!shop || shop.industry!=="sushi") return Response.json({error:"shop_not_found"},{status:404});
   const expectedRevision=v.expectedRevision;
   if (expectedRevision !== null && (!Number.isInteger(expectedRevision) || (expectedRevision as number)<1)) return Response.json({error:"invalid_revision"},{status:422});
-  const assets=await prisma.contentBrandAsset.findMany({where:{ownerId:user.id,id:{in:input.assetIds}}});
+  const assets=await prisma.contentBrandAsset.findMany({where:{shopId,id:{in:input.assetIds}}});
   if (assets.length!==input.assetIds.length) return Response.json({error:"invalid_asset_ownership"},{status:403});
   const now=new Date().toISOString();
-  const existing=await prisma.contentBrandProfile.findUnique({where:{ownerId:user.id}});
+  const existing=await prisma.contentBrandProfile.findUnique({where:{shopId}});
   if ((!existing && expectedRevision!==null) || (existing && existing.revision!==expectedRevision)) {
     return Response.json({error:"revision_conflict"},{status:409});
   }
   const profile=newBrandProfileDraft({
-    tenantId:user.id,profileId:existing?.id || randomBytes(12).toString("hex"),industry:"sushi",
+    tenantId:shopId,profileId:existing?.id || randomBytes(12).toString("hex"),industry:"sushi",
     businessName:input.businessName,serviceArea:input.serviceArea,locale:input.locale,now,
   });
   profile.version=existing?existing.revision+1:1;
@@ -89,11 +96,11 @@ export async function PUT(request: NextRequest) {
     };
   });
   if(existing){
-    const result=await prisma.contentBrandProfile.updateMany({where:{ownerId:user.id,revision:existing.revision},data:{revision:{increment:1},data:profile as unknown as object}});
+    const result=await prisma.contentBrandProfile.updateMany({where:{shopId,revision:existing.revision},data:{revision:{increment:1},data:profile as unknown as object}});
     if(!result.count) return Response.json({error:"revision_conflict"},{status:409});
   }else{
     try {
-      await prisma.contentBrandProfile.create({data:{id:profile.profileId,ownerId:user.id,industry:"sushi",revision:1,data:profile as unknown as object}});
+      await prisma.contentBrandProfile.create({data:{id:profile.profileId,shopId,revision:1,data:profile as unknown as object}});
     } catch {
       return Response.json({error:"revision_conflict"},{status:409});
     }
