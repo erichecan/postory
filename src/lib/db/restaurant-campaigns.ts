@@ -156,6 +156,10 @@ export async function decideRestaurantCampaignContent(input: {
   approvedSha256?: string;
   approvedCaptionSha256?: string;
 }) {
+  if (input.status === "APPROVED" &&
+      (!/^[a-f0-9]{64}$/.test(input.approvedSha256 ?? "") ||
+       !/^[a-f0-9]{64}$/.test(input.approvedCaptionSha256 ?? "")))
+    throw new Error("verified_final_media_required_before_approval");
   const updated = await prisma.restaurantCampaignContent.updateMany({
     where: { id: input.id, briefId: input.briefId, status: { in: ["AWAITING_APPROVAL", "REVISION_REQUESTED"] } },
     data: { status: input.status, revisionNote: input.revisionNote, approvedSha256: input.status === "APPROVED" ? input.approvedSha256 : null, approvedCaptionSha256: input.status === "APPROVED" ? input.approvedCaptionSha256 : null, approvedAt: input.status === "APPROVED" ? new Date() : null },
