@@ -9,7 +9,8 @@ import { addRestaurantCampaignContent, addRestaurantCampaignReference, addRestau
 import { findUserByEmail } from "@/lib/db/users";
 import { verifyPartnerReferralToken } from "@/lib/partners/referral";
 import { isPublishPlatform, requiresConnection } from "@/lib/platforms";
-import { deleteObject, putObject, restaurantCampaignMediaKey } from "@/lib/storage";
+import { deleteObject, getObject, putObject, restaurantCampaignMediaKey } from "@/lib/storage";
+import { captionSha256, inspectPublishRaster, requireExactApproval } from "@/lib/publishing/approved-raster";
 import { appUrl } from "@/lib/app-url";
 import { listConnectedPlatforms } from "@/lib/db/social";
 import { getEntitlements } from "@/lib/db/entitlements";
@@ -154,9 +155,13 @@ export async function adminAddRestaurantCampaignContentAction(_: FormState, form
   const planItemId = planItemIdRaw || null;
   if (planItemId && !brief.marketingPlan?.items.some((item) => item.id === planItemId)) return { error: "planItemNotFound" };
   const storageKey = restaurantCampaignMediaKey(brief.id, valid.mime);
+  // Inspect the exact uploaded final raster, not merely its file extension.
+  let quality: Awaited<ReturnType<typeof inspectPublishRaster>>;
+  try { quality = await inspectPublishRaster(valid.bytes); }
+  catch { return { error: "invalidFinalImage" }; }
   try {
     await putObject(storageKey, valid.bytes);
-    await addRestaurantCampaignContent({ briefId, title, caption, storageKey, mimeType: valid.mime, platforms, scheduledAt, planItemId });
+    await addRestaurantCampaignContent({ briefId, title, caption, storageKey, mimeType: valid.mime, sourceSha256: quality.sha256, platforms, scheduledAt, planItemId });
   } catch {
     await deleteObject(storageKey).catch(() => undefined);
     return { error: "saveFailed" };
@@ -182,7 +187,24 @@ export async function decideRestaurantCampaignContentAction(_: FormState, formDa
         return owned?.brief ?? null;
       })();
   if (!brief) return { error: "This review link is invalid." };
-  const ok = await decideRestaurantCampaignContent({ id: contentId, briefId: brief.id, status: decision, revisionNote: decision === "REVISION_REQUESTED" ? note : null });
+  // Client is approving one *specific* already-rasterized file and caption.
+  // A renamed, replaced, or corrupted stored image cannot be approved.
+  let hashes: { approvedSha256: string; approvedCaptionSha256: string } | undefined;
+  if (decision === "APPROVED") {
+    const content = await prisma.restaurantCampaignContent.findFirst({
+      where: { id: contentId, briefId: brief.id, status: { in: ["AWAITING_APPROVAL", "REVISION_REQUESTED"] } },
+      select: { storageKey: true, sourceSha256: true, caption: true },
+    });
+    if (!content?.sourceSha256) return { error: "The image must be checked and uploaded again before approval." };
+    const stored = await getObject(content.storageKey);
+    if (!stored) return { error: "Final image is missing." };
+    let check: Awaited<ReturnType<typeof inspectPublishRaster>>;
+    try { check = await inspectPublishRaster(stored.bytes); }
+    catch { return { error: "Final image could not be decoded." }; }
+    if (check.sha256 !== content.sourceSha256) return { error: "Final image has changed; new approval required." };
+    hashes = { approvedSha256: check.sha256, approvedCaptionSha256: captionSha256(content.caption) };
+  }
+  const ok = await decideRestaurantCampaignContent({ id: contentId, briefId: brief.id, status: decision, revisionNote: decision === "REVISION_REQUESTED" ? note : null, ...hashes });
   if (!ok) return { error: "This content is no longer waiting for your review." };
   revalidatePath(`/restaurant/request/${token}`);
   revalidatePath(`/admin/restaurant-requests/${brief.id}`);
@@ -247,6 +269,22 @@ export async function adminPublishRestaurantCampaignContentAction(_: FormState, 
   if (!parsedId.success) return { error: "notFound" };
   const content = await prisma.restaurantCampaignContent.findUnique({ where: { id: parsedId.data }, include: { brief: { select: { id: true, token: true, clientUserId: true, businessName: true } } } });
   if (!content || content.status !== "APPROVED" || !content.brief.clientUserId) return { error: "notReady" };
+  // Read the exact byte sequence the customer approved; never regenerate on publish.
+  const final = await getObject(content.storageKey);
+  if (!final) return { error: "approvedMediaMissing" };
+  let audited: Awaited<ReturnType<typeof inspectPublishRaster>>;
+  try { audited = await inspectPublishRaster(final.bytes); }
+  catch { return { error: "approvedMediaInvalid" }; }
+  try {
+    if (content.sourceSha256 !== audited.sha256) return { error: "approvedMediaChanged" };
+    requireExactApproval({
+      expectedImageSha: content.approvedSha256,
+      actualImageSha: audited.sha256,
+      expectedCaptionSha: content.approvedCaptionSha256,
+      actualCaption: content.caption,
+      approvedAt: content.approvedAt,
+    });
+  } catch { return { error: "reapprovalRequired" }; }
   const userId = content.brief.clientUserId;
   const entitlements = await getEntitlements(userId);
   if (!entitlements.hasActivePlan) return { error: "clientPlanRequired" };
@@ -256,6 +294,14 @@ export async function adminPublishRestaurantCampaignContentAction(_: FormState, 
   if (content.platforms.some((platform) => !connected.has(platform))) return { error: "socialAccountRequired" };
   const scheduledAt = content.scheduledAt && content.scheduledAt.getTime() > Date.now() + 60_000 ? content.scheduledAt : null;
   if (!scheduledAt) return { error: "scheduleRequired" };
+  // Claim once at the database layer before the external provider call.
+  // Two admin clicks must not schedule the same approved item twice.
+  const claimed = await prisma.restaurantCampaignContent.updateMany({
+    where: { id: content.id, status: "APPROVED", approvedSha256: audited.sha256,
+      approvedCaptionSha256: captionSha256(content.caption) },
+    data: { status: "SCHEDULED" },
+  });
+  if (claimed.count !== 1) return { error: "alreadyScheduledOrReapprovalRequired" };
   const outcome = await publishDesignToAyrshare({
     userId,
     caption: content.caption,

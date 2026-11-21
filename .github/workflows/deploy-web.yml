@@ -46,6 +46,8 @@ jobs:
           # Verify the ACTUAL production image resolves Arial to an installed font,
           # not the missing-glyph boxes seen on Cloud Run.
           docker run --rm ${{ env.IMAGE }} sh -c "fc-match -f '%{family}\\n' Arial | grep -qi 'Liberation'"
+          docker run --rm ${{ env.IMAGE }} sh -c "fc-match -f '%{family}\\n' 'sans:lang=ja' | grep -qi 'Noto Sans CJK'"
+          docker run --rm ${{ env.IMAGE }} sh -c "fc-match -f '%{family}\\n' 'sans:lang=zh-cn' | grep -qi 'Noto Sans CJK'"
           docker push ${{ env.IMAGE }}-migrations
           docker push ${{ env.IMAGE }}
 

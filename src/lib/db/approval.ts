@@ -3,6 +3,7 @@ import { prisma } from "./client";
 import { getWhatsAppGateway } from "@/lib/whatsapp";
 import { publishDesignToAyrshare } from "./ayrshare-publish";
 import type { PublishPlatformId } from "@/lib/platforms";
+import { verifyLockedDesignAsset } from "@/lib/publishing/verify-design-asset";
 
 const APPROVE_WINDOW_MS = 24 * 3600 * 1000;
 
@@ -43,6 +44,7 @@ async function claim(approvalId: string, nextStatus: "APPROVED" | "AUTO_APPROVED
 }
 
 async function resolveAndPublish(approvalId: string, nextStatus: "APPROVED" | "AUTO_APPROVED") {
+  if (nextStatus === "AUTO_APPROVED") return { published: false, reason: "explicit-approval-required" as const };
   const claimed = await claim(approvalId, nextStatus);
   if (!claimed) return { published: false, reason: "already-resolved" as const };
 
@@ -58,6 +60,9 @@ async function resolveAndPublish(approvalId: string, nextStatus: "APPROVED" | "A
     select: { caption: true, exportedImageUrl: true, platforms: true, scheduledAt: true },
   });
   if (!design.caption || !design.exportedImageUrl || !design.scheduledAt) return { published: false, reason: "design-incomplete" as const };
+  // The WhatsApp reply is NOT permission to replace a previously reviewed file.
+  try { await verifyLockedDesignAsset(approval.userId, designId, design.exportedImageUrl, design.caption); }
+  catch { return { published: false, reason: "approved-media-mismatch" as const }; }
 
   const outcome = await publishDesignToAyrshare({
     userId: approval.userId,
@@ -91,15 +96,11 @@ export async function approveByReply(whatsappFrom: string): Promise<{ approvedId
   return { approvedId: pending.id };
 }
 
+/** Expire silent requests. No 24h auto-approval; no unreviewed publishing. */
 export async function autoApproveDueRequests(): Promise<{ processed: number }> {
-  const due = await prisma.approvalRequest.findMany({
+  await prisma.approvalRequest.updateMany({
     where: { status: "PENDING", autoApproveAt: { lte: new Date() } },
-    select: { id: true },
+    data: { status: "REJECTED", respondedAt: new Date() },
   });
-  let processed = 0;
-  for (const req of due) {
-    const r = await resolveAndPublish(req.id, "AUTO_APPROVED");
-    if (r.published) processed++;
-  }
-  return { processed };
+  return { processed: 0 };
 }

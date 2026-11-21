@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, type RefObject } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { CalendarClock, Check, Lock } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
@@ -8,7 +9,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { scheduleDesignAction } from "@/lib/actions/designs";
+import { approveFinalDesignAssetAction, scheduleDesignAction } from "@/lib/actions/designs";
 import { PUBLISH_PLATFORMS, publishPlatformLabel, requiresConnection } from "@/lib/platforms";
 import { cn } from "@/lib/utils";
 import type { DesignPage } from "@/types/design";
@@ -57,6 +58,11 @@ export function PublishDialog({
   // 一个平台后来变成被锁（比如断开了连接）时，不能留在已选列表里却又点不动按钮去掉它。
   const [platforms, setPlatforms] = useState<string[]>(() => initialPlatforms.filter((p) => lockReason(p) === null));
   const [caption, setCaption] = useState(initialCaption ?? "");
+  const [finalReviewed, setFinalReviewed] = useState(false);
+  const [serverPreviewUrl, setServerPreviewUrl] = useState<string | null>(null);
+  const pageSignature = JSON.stringify(page);
+  const [previewPageSignature, setPreviewPageSignature] = useState<string | null>(null);
+  const reviewedImageUrl = pageSignature === previewPageSignature ? serverPreviewUrl : null;
   const [at, setAt] = useState(() => toLocalInput(initialAt ?? new Date(Date.now() + 24 * 3600 * 1000)));
   const [pending, start] = useTransition();
 
@@ -64,32 +70,44 @@ export function PublishDialog({
     const isOn = platforms.includes(p);
     if (!isOn && lockReason(p) !== null) return;
     setPlatforms((v) => (isOn ? v.filter((x) => x !== p) : [...v, p]));
+    setServerPreviewUrl(null); setFinalReviewed(false);
   };
+
+  function generateFinalPreview() {
+    start(async () => {
+      setServerPreviewUrl(null);
+      setFinalReviewed(false);
+      if (!(await beforeSubmit())) return;
+      if (!exportRef.current) { toast.error(t("saveFailed")); return; }
+      try {
+        const dataUrl = await renderPagePng(exportRef.current, page);
+        const res = await fetch(`/api/designs/${designId}/publish-asset`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ dataUrl }),
+        });
+        const json = await res.json() as { ok: boolean; url?: string };
+        if (!res.ok || !json.ok || !json.url) throw new Error("upload failed");
+        setPreviewPageSignature(pageSignature);
+        setServerPreviewUrl(json.url);
+      } catch { toast.error(t("exportFailed")); }
+    });
+  }
 
   function submit() {
     start(async () => {
-      if (!(await beforeSubmit())) return;
-      let exportedImageUrl: string | undefined;
-      if (platforms.some(requiresConnection)) {
-        if (!exportRef.current) {
-          toast.error(t("saveFailed"));
+      const live = platforms.some(requiresConnection);
+      if (live) {
+        if (!finalReviewed || !reviewedImageUrl) {
+          toast.error("请先生成服务器最终预览，检查图片与文案并确认。");
           return;
         }
-        try {
-          const dataUrl = await renderPagePng(exportRef.current, page);
-          const res = await fetch(`/api/designs/${designId}/publish-asset`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ dataUrl }),
-          });
-          const json = (await res.json()) as { ok: boolean; url?: string };
-          if (!json.ok || !json.url) throw new Error("upload failed");
-          exportedImageUrl = json.url;
-        } catch {
-          toast.error(t("exportFailed"));
-          return;
-        }
-      }
+        const approved = await approveFinalDesignAssetAction(designId, {
+          mediaUrl: reviewedImageUrl, caption, confirmed: true,
+        });
+        if (!approved.ok) { toast.error(approved.error ?? "审核失败，请重试。"); return; }
+      } else if (!(await beforeSubmit())) return;
+      const exportedImageUrl = live ? reviewedImageUrl! : undefined;
       const res = await scheduleDesignAction(designId, { platforms, scheduledAt: new Date(at).toISOString(), caption, exportedImageUrl });
       if (!res.ok) {
         if (res.code === "insufficient") {
@@ -141,12 +159,31 @@ export function PublishDialog({
           </div>
           <label className="flex flex-col gap-2">
             <span className="text-sm">{t("captionLabel")}</span>
-            <Textarea value={caption} onChange={(e) => setCaption(e.target.value)} rows={3} placeholder={t("captionPlaceholder")} maxLength={2200} />
+            <Textarea value={caption} onChange={(e) => { setCaption(e.target.value); setFinalReviewed(false); }} rows={3} placeholder={t("captionPlaceholder")} maxLength={2200} />
           </label>
           <label className="flex flex-col gap-2">
             <span className="text-sm">{t("time")}</span>
             <input type="datetime-local" value={at} min={toLocalInput(new Date())} onChange={(e) => setAt(e.target.value)} className="h-10 rounded-lg border bg-input/30 px-3 text-sm [color-scheme:dark]" />
           </label>
+          {platforms.some(requiresConnection) && (
+            <div className="flex flex-col gap-2 rounded-md border p-3">
+              <Button type="button" variant="outline" disabled={pending} onClick={generateFinalPreview}>
+                {reviewedImageUrl ? "重新生成服务器最终预览" : "生成服务器最终预览"}
+              </Button>
+              {reviewedImageUrl && (
+                <div className="flex flex-col items-center gap-2">
+                  <Image src={reviewedImageUrl} alt="已在 PoStory 服务器保存、将提交给社媒平台的最终图片" width={240} height={260} unoptimized className="max-h-64 w-auto rounded object-contain" />
+                  <p className="text-xs text-muted-foreground">请检查实际导出图中文字、字体、菜品和价格。这份文件通过后会锁定，不会在发布时重新绘制。</p>
+                </div>
+              )}
+            </div>
+          )}
+          {platforms.some(requiresConnection) && (
+            <label className="flex items-start gap-2 rounded-md border border-amber-400/40 p-3 text-xs leading-relaxed">
+              <input type="checkbox" disabled={!reviewedImageUrl} checked={finalReviewed && Boolean(reviewedImageUrl)} onChange={(e) => setFinalReviewed(e.target.checked)} className="mt-0.5" />
+              我已逐项检查上方服务器最终图片及下方社媒正文，确认它们就是客户批准的发布版本。修改后须重新审核。
+            </label>
+          )}
           {platforms.some(requiresConnection) && (
             <p className="text-xs text-muted-foreground">
               {t("connectHint")} <Link href="/profile" className="underline">{t("connectHintLink")}</Link>
@@ -161,7 +198,7 @@ export function PublishDialog({
           </p>
         )}
         <DialogFooter>
-          <Button onClick={submit} disabled={pending || !hasPlan || platforms.length === 0 || !at || !caption.trim()}>
+          <Button onClick={submit} disabled={pending || !hasPlan || platforms.length === 0 || !at || !caption.trim() || (platforms.some(requiresConnection) && (!finalReviewed || !reviewedImageUrl))}>
             {pending ? t("saving") : t("submit")}
           </Button>
         </DialogFooter>

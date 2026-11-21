@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
+import { assertTextGlyphCoverage } from "@/lib/publishing/font-coverage";
 
 // Original PoStory demo-photo sources; never uses external restaurant images or
 // silently creates a fictional merchant menu with an image model.
@@ -20,8 +21,10 @@ const scenes = {
 
 type Id = keyof typeof scenes;
 const X = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-const word = (x: number, y: number, value: string, size: number, color = "#172722", weight = 700, extra = "") =>
-  '<text x="' + x + '" y="' + y + '" fill="' + color + '" font-family="Arial,Helvetica,sans-serif" font-size="' + size + '" font-weight="' + weight + '" ' + extra + '>' + X(value) + "</text>";
+const word = (x: number, y: number, value: string, size: number, color = "#172722", weight = 700, extra = "") => {
+  assertTextGlyphCoverage(value);
+  return '<text x="' + x + '" y="' + y + '" fill="' + color + '" font-family="Arial,Helvetica,sans-serif" font-size="' + size + '" font-weight="' + weight + '" ' + extra + '>' + X(value) + "</text>";
+};
 const rect = (x: number, y: number, w: number, h: number, fill: string) =>
   '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + fill + '"/>';
 const brand = (color: string, y = 95) =>

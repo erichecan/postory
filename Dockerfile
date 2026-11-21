@@ -23,7 +23,7 @@ FROM node:22-slim
 # Sharp/librsvg renders Sakura campaign SVG headlines inside the container.
 # node:22-slim has no usable font fallback by default (works on macOS only).
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends fontconfig fonts-liberation fonts-dejavu-core \
+    && apt-get install -y --no-install-recommends fontconfig fonts-liberation fonts-dejavu-core fonts-noto-cjk \
     && fc-cache -f \
     && test -n "$(fc-match -f '%{family}' Arial)" \
     && rm -rf /var/lib/apt/lists/*
