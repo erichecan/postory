@@ -15,10 +15,12 @@ TARGET = ROOT / "public/demo/typography/sakura-glyphs.json"
 FONT_DIR = Path("/usr/share/fonts/truetype")
 OPTIONS = {
     "regular": [
+        FONT_DIR / "liberation/LiberationSans-Regular.ttf",
         FONT_DIR / "liberation2/LiberationSans-Regular.ttf",
         FONT_DIR / "dejavu/DejaVuSans.ttf",
     ],
     "bold": [
+        FONT_DIR / "liberation/LiberationSans-Bold.ttf",
         FONT_DIR / "liberation2/LiberationSans-Bold.ttf",
         FONT_DIR / "dejavu/DejaVuSans-Bold.ttf",
     ],
