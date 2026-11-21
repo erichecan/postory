@@ -6,6 +6,9 @@ on:
       - "src/lib/content-engine/**"
       - "src/components/content-engine/**"
       - "src/app/for/sushi/**"
+      - "src/app/api/content-engine/**"
+      - "src/lib/storage.ts"
+      - "prisma/**"
       - "scripts/check-content-engine-foundation.ts"
       - "docs/content-engine/**"
       - ".github/workflows/content-engine-foundation.yml"
@@ -30,7 +33,7 @@ jobs:
       - name: Typecheck
         run: npx tsc --noEmit
       - name: Lint foundation
-        run: npx eslint src/lib/content-engine src/components/content-engine src/app/for/sushi scripts/check-content-engine-foundation.ts
+        run: npx eslint src/lib/content-engine src/components/content-engine src/app/for/sushi src/app/api/content-engine scripts/check-content-engine-foundation.ts
       - name: Industry and Brand Profile unit checks
         run: npx tsx scripts/check-content-engine-foundation.ts
       - name: Production build
