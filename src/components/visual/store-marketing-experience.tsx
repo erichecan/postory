@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { ArrowLeft, ArrowRight, CalendarDays, Check, ChevronLeft, ChevronRight, Plus, RefreshCw, Sparkles, X } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
@@ -73,7 +74,7 @@ function fileToDataUrl(file: File) {
 }
 
 function ExperienceFrame({ children }: { children: ReactNode }) {
-  return <main className="ps ps-workspace ps-storex"><header className="ps-workspace-header"><Logo href="/" /><span className="ps-workspace-header-label">门店自助营销</span><a className="ps-workspace-back" href="/">PoStory</a></header>{children}<footer className="ps-workspace-footer"><span>PoStory · 门店营销工作台</span><span>了解 · 制作 · 审核 · 发布</span></footer></main>;
+  return <main className="ps ps-workspace ps-storex"><header className="ps-workspace-header"><Logo href="/" /><span className="ps-workspace-header-label">门店自助营销</span><Link className="ps-workspace-back" href="/">PoStory</Link></header>{children}<footer className="ps-workspace-footer"><span>PoStory · 门店营销工作台</span><span>了解 · 制作 · 审核 · 发布</span></footer></main>;
 }
 
 function PhonePreview({ slide }: { slide: typeof HERO_SLIDES[number] }) {
@@ -116,7 +117,7 @@ export function StoreMarketingExperience() {
   const [products, setProducts] = useState<Product[]>([{ id: "product-1", name: "", price: "", promotionalPrice: "", facts: "" }]);
   const [channels, setChannels] = useState<string[]>(["Instagram", "Facebook"]);
   const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
-  const [endDate, setEndDate] = useState(new Date(Date.now() + 29 * 86400000).toISOString().slice(0, 10));
+  const [endDate, setEndDate] = useState(() => new Date(Date.now() + 29 * 86400000).toISOString().slice(0, 10));
   const [plan, setPlan] = useState<CampaignPost[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [month, setMonth] = useState(() => new Date(`${new Date().toISOString().slice(0, 7)}-01T12:00:00`));
@@ -127,6 +128,7 @@ export function StoreMarketingExperience() {
   const selected = selectedId ? plan.find((item) => item.id === selectedId) ?? null : null;
   const dates = useMemo(() => makeDates(startDate, endDate), [startDate, endDate]);
 
+  /* eslint-disable react-hooks/set-state-in-effect -- Restore persisted client-side draft after mount. */
   useEffect(() => {
     try {
       const raw = localStorage.getItem("postory-store-experience-v2");
@@ -141,6 +143,7 @@ export function StoreMarketingExperience() {
     } catch { localStorage.removeItem("postory-store-experience-v2"); }
     finally { setCalendarRestored(true); }
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!calendarRestored) return;
     try { localStorage.setItem("postory-store-experience-v2", JSON.stringify({ goal, business, industry, location, promotionType, promotionDetails, promotionStart, promotionEnd, currency, channels, startDate, endDate, products: products.map(({ photoDataUrl: _photo, ...product }) => product), plan: plan.map(({ imageDataUrl: _ignored, ...item }) => item), started, step })); } catch { /* Keep the current plan usable when browser storage is full. */ }
