@@ -4,6 +4,7 @@ import { useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { ImagePlus, Image as ImageIcon, Camera, WandSparkles, Download, Smartphone, Crown, Grid2X2, CalendarClock, Pencil, Eye, Share2, Clock, LockKeyhole, Settings, Plus, RefreshCw, Heart, MessageCircle, ChartNoAxesColumnIncreasing, CircleAlert, CalendarDays, Send, Utensils, Copy, Sparkles, Gift, Tag } from "lucide-react";
 import type { IndustryId, OutputId, TemplateRatioId } from "@/lib/demo/contracts";
 import { renderWatermarkedPng } from "@/lib/demo/render";
+import { generateSushiGuestBrandProfile } from "@/lib/demo/sushi-guest-brand-profile";
 import { Artwork } from "./artwork";
 import { TemplateRenderer } from "@/components/demo/templates/template-renderer";
 import { SUSHI_SIGNATURE_EDITORIAL_01 } from "@/lib/demo/templates/sushi-signature-editorial-01";
@@ -103,6 +104,7 @@ const OUTPUT_SPECS: Record<IndustryId, OutputChoice[]> = {
 
 export function FidelityDemo({industry,page}: {industry: IndustryId;page:FidelityPage}) {
   const demo=useDemo(industry); const sushi=industry==="sushi";
+  const guestBrand = sushi && demo.session ? generateSushiGuestBrandProfile({session:demo.session,businessName:demo.businessName,serviceArea:demo.serviceArea,locale:demo.brandLocale,rightsAttested:demo.brandPhotoRights}) : null;
   const nailsCodeTemplate=industry==="nails"&&(NAILS_TEMPLATE_IDS as readonly string[]).includes(demo.templateId);
   const outputChoices=nailsCodeTemplate?NAILS_CAT_EYE_OUTPUTS:OUTPUT_SPECS[industry];
   const input=useRef<HTMLInputElement>(null);const camera=useRef<HTMLInputElement>(null);const exportRef=useRef<HTMLDivElement>(null);const securityRef=useRef<HTMLDivElement>(null);const drag=useRef<number|null>(null);
@@ -382,11 +384,11 @@ export function FidelityDemo({industry,page}: {industry: IndustryId;page:Fidelit
     <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden aria-label="选择照片" onChange={e=>{void demo.upload(e.target.files);e.target.value="";}}/>
     <input ref={camera} type="file" accept="image/*" capture="environment" hidden aria-label="拍摄照片" onChange={e=>{void demo.upload(e.target.files);e.target.value="";}}/>
   </main>
-  {sushi&&page==="success"&&demo.businessName.trim()&&demo.serviceArea.trim()&&<section aria-label="品牌档案草稿" className="mx-auto mt-5 w-full max-w-[480px] rounded-3xl border border-orange-100 bg-[#fff8ee] p-5 text-[#38251d]">
+  {sushi&&page==="success"&&guestBrand&&<section aria-label="品牌档案草稿" className="mx-auto mt-5 w-full max-w-[480px] rounded-3xl border border-orange-100 bg-[#fff8ee] p-5 text-[#38251d]">
     <p className="text-xs font-bold tracking-[0.14em] text-orange-700">YOUR BRAND PROFILE · DRAFT</p>
-    <h2 className="mt-2 text-xl font-bold">{demo.businessName}</h2>
-    <p className="mt-1 text-sm text-stone-600">{demo.serviceArea} · {demo.brandLocale==="zh"?"简体中文":"English"}</p>
-    <p className="mt-3 text-sm">已收集 {demo.session?.assets.length??0} 张素材 · 照片授权{demo.brandPhotoRights?"已由填写人确认":"待确认"}</p>
+    <h2 className="mt-2 text-xl font-bold">{guestBrand?.businessName.value}</h2>
+    <p className="mt-1 text-sm text-stone-600">{guestBrand?.serviceArea.value} · {guestBrand?.preferredLocale.value==="zh"?"简体中文":"English"}</p>
+    <p className="mt-3 text-sm">已收集 {guestBrand?.assets.length??0} 张素材 · 草稿 v{guestBrand?.version} · 照片授权{demo.brandPhotoRights?"已由填写人确认":"待确认"}</p>
     <p className="mt-2 text-sm text-stone-600">品牌配色、语气与商品事实尚待 PoStory 审核；这不是正式获批版本。</p>
     <p className="mt-3 text-xs text-stone-500">资料当前保存在本设备的演示会话中，正式交付需要通过独立安全提交渠道转交 PoStory。</p>
   </section>}
