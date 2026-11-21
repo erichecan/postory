@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
-import { assertTextGlyphCoverage } from "@/lib/publishing/font-coverage";
 
 // Original PoStory demo-photo sources; never uses external restaurant images or
 // silently creates a fictional merchant menu with an image model.
@@ -20,10 +20,45 @@ const scenes = {
 } as const;
 
 type Id = keyof typeof scenes;
-const X = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+type OutlineGlyph = { path: string; advance: number; units: number };
+type OutlineData = { version: number; fonts: { regular: Record<string, OutlineGlyph>; bold: Record<string, OutlineGlyph> } };
+let cachedOutlines: OutlineData | undefined;
+function getOutlines(): OutlineData {
+  if (!cachedOutlines) {
+    const file = path.join(process.cwd(), "public/demo/typography/sakura-glyphs.json");
+    cachedOutlines = JSON.parse(readFileSync(file, "utf8")) as OutlineData;
+    if (cachedOutlines.version !== 1) throw new Error("missing_vector_font_version");
+  }
+  return cachedOutlines;
+}
 const word = (x: number, y: number, value: string, size: number, color = "#172722", weight = 700, extra = "") => {
-  assertTextGlyphCoverage(value);
-  return '<text x="' + x + '" y="' + y + '" fill="' + color + '" font-family="Arial,Helvetica,sans-serif" font-size="' + size + '" font-weight="' + weight + '" ' + extra + '>' + X(value) + "</text>";
+  // This creates actual SVG <path> outlines, NOT font-dependent SVG <text>.
+  // Production images thus render identically regardless of librsvg/Pango fallback.
+  let glyphs: Record<string, OutlineGlyph>;
+  try { glyphs = getOutlines().fonts[weight >= 600 ? "bold" : "regular"]; }
+  catch (err) {
+    // Local macOS dev may not have Debian's build-time fonttools/font files.
+    // Never silently fall back in production; the prod render must be outlines.
+    if (process.env.NODE_ENV === "production") throw err;
+    return '<text x="' + x + '" y="' + y + '" fill="' + color +
+      '" font-family="Arial,Helvetica,sans-serif" font-size="' + size +
+      '" font-weight="' + weight + '" ' + extra + '>' +
+      value.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</text>";
+  }
+  const match = /letter-spacing="([0-9.]+)"/.exec(extra);
+  const tracking = match ? Number(match[1]) : 0;
+  let cursor = 0;
+  let shapes = "";
+  for (const char of value) {
+    const glyph = glyphs[char];
+    if (!glyph) throw new Error("missing_vector_glyph_U+" + char.codePointAt(0)!.toString(16));
+    if (glyph.path) {
+      const scale = size / glyph.units;
+      shapes += '<path d="' + glyph.path + '" transform="translate(' + cursor.toFixed(3) + ' 0) scale(' + scale.toFixed(6) + ' -' + scale.toFixed(6) + ')"/>';
+    }
+    cursor += glyph.advance * size / glyph.units + tracking;
+  }
+  return '<g transform="translate(' + x + ' ' + y + ')" fill="' + color + '">' + shapes + '</g>';
 };
 const rect = (x: number, y: number, w: number, h: number, fill: string) =>
   '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + fill + '"/>';
@@ -117,10 +152,21 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       .composite(layers)
       .jpeg({ quality: 88, mozjpeg: true })
       .toBuffer();
-    return new Response(new Uint8Array(bytes), {
-      status: 200,
-      headers: { "Content-Type": "image/jpeg", "Cache-Control": "public, max-age=3600, s-maxage=86400", "X-Content-Type-Options": "nosniff" }
-    });
+    const headers: Record<string, string> = { "Content-Type": "image/jpeg", "Cache-Control": "public, max-age=300, s-maxage=300", "X-Content-Type-Options": "nosniff" };
+    // Deployment smoke check inspects final JPEG pixels on the LIVE Cloud Run
+    // revision (not fontconfig, a build test, or the original SVG).
+    if (id === "footfall" && new URL(_request.url).searchParams.get("verify") === "ink") {
+      const { data, info } = await sharp(bytes).extract({ left: 78, top: 1060, width: 820, height: 185 })
+        .removeAlpha().raw().toBuffer({ resolveWithObject: true });
+      let ink = 0;
+      for (let i = 0; i < data.length; i += info.channels) {
+        if (data[i] < 110 && data[i + 1] < 125 && data[i + 2] < 120) ink++;
+      }
+      if (ink <= 9000) throw new Error("rendered_jpeg_missing_title_ink:" + ink);
+      headers["X-Sakura-Title-Ink-Pixels"] = String(ink);
+      headers["Cache-Control"] = "no-store";
+    }
+    return new Response(new Uint8Array(bytes), { status: 200, headers });
   } catch (error) {
     console.error("Sakura demo creative failed", id, error instanceof Error ? error.message : "unknown");
     return new Response("Creative preview unavailable", { status: 503 });

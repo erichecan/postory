@@ -7,11 +7,13 @@ RUN npm install --no-audit --no-fund
 
 FROM deps AS build
 WORKDIR /app
+# Used only at build time to bake TrueType glyphs into vector path data.
+RUN apt-get update && apt-get install -y --no-install-recommends python3-fonttools fonts-liberation fonts-dejavu-core && rm -rf /var/lib/apt/lists/*
 ENV NEXT_TELEMETRY_DISABLED=1
 ARG NEXT_PUBLIC_TURNSTILE_SITE_KEY
 ENV NEXT_PUBLIC_TURNSTILE_SITE_KEY=${NEXT_PUBLIC_TURNSTILE_SITE_KEY}
 COPY . .
-RUN mkdir -p public && npx prisma generate && npm run build
+RUN mkdir -p public && /usr/bin/python3 scripts/generate-sakura-glyphs.py && npx prisma generate && npm run build
 
 FROM deps AS migrations
 WORKDIR /app

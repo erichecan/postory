@@ -36,12 +36,14 @@ jobs:
       - name: TypeScript
         run: npx tsc --noEmit
       - name: Install font coverage dependencies for validation
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq fontconfig fonts-liberation fonts-noto-cjk
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq fontconfig fonts-liberation fonts-dejavu-core fonts-noto-cjk python3-fonttools
       - name: Verify English, Chinese, Japanese glyphs
         run: npx tsx scripts/verify-font-coverage.ts
       - name: Publishing asset safety tests
         run: npx tsx scripts/verify-publishing-safety.ts
       - name: Lint affected client and server files
         run: npx eslint src/components/editor/publish-dialog.tsx src/lib/actions/designs.ts src/lib/actions/restaurant-campaigns.ts src/lib/db/approval.ts src/lib/publishing
+      - name: Generate deterministic SVG glyph outlines
+        run: /usr/bin/python3 scripts/generate-sakura-glyphs.py
       - name: Build
         run: npm run build

@@ -94,4 +94,10 @@ jobs:
           curl -fsS "$URL/api/sakura-creative/footfall" -o /tmp/sakura-footfall.jpg
           file /tmp/sakura-footfall.jpg | grep -q 'JPEG image data'
           test "$(wc -c </tmp/sakura-footfall.jpg)" -gt 20000
+          # Verify readable headline IN THE ACTUAL PRODUCTION JPEG, not just
+          # fontconfig and not merely a successful image HTTP response.
+          curl -fsS -D /tmp/sakura-font-verify.headers "$URL/api/sakura-creative/footfall?verify=ink" -o /tmp/sakura-font-verify.jpg
+          INK="$(awk 'BEGIN{IGNORECASE=1} tolower($1)=="x-sakura-title-ink-pixels:" {gsub("\\r","",$2); print $2}' /tmp/sakura-font-verify.headers | tail -1)"
+          test -n "$INK" && test "$INK" -gt 9000
+          echo "Cloud Run production JPEG title ink pixels: $INK"
           echo "Sakura creative rendered on production HTTP 200"

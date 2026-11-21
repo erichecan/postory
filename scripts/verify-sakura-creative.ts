@@ -17,6 +17,19 @@ for (const id of cases) {
   assert.equal(metadata.width, 1080, id + " width");
   assert.equal(metadata.height, 1350, id + " height");
   assert.ok(image.length > 18000, id + " is unexpectedly small");
+  // Regression on the exact failure seen in Cloud Run: black boxes barely
+  // fill this cream title area, whereas the actual outlined headline does.
+  if (id === "footfall") {
+    const { data, info } = await sharp(image)
+      .extract({ left: 78, top: 1060, width: 820, height: 185 })
+      .removeAlpha().raw().toBuffer({ resolveWithObject: true });
+    let ink = 0;
+    for (let i = 0; i < data.length; i += info.channels) {
+      if (data[i] < 110 && data[i + 1] < 125 && data[i + 2] < 120) ink++;
+    }
+    assert.ok(ink > 9000, "Sakura headline has insufficient visible ink (" + ink + " pixels): font likely rendered as boxes");
+    console.log("Footfall final JPEG headline ink pixels: " + ink + " (threshold 9000)");
+  }
   const digest = createHash("sha256").update(image).digest("hex");
   assert.ok(!digests.has(digest), id + " duplicated another creative");
   digests.add(digest);
