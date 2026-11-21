@@ -20,7 +20,6 @@ const scenes = {
 } as const;
 
 type Id = keyof typeof scenes;
-const X = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 type OutlineGlyph = { path: string; advance: number; units: number };
 type OutlineData = { version: number; fonts: { regular: Record<string, OutlineGlyph>; bold: Record<string, OutlineGlyph> } };
 let cachedOutlines: OutlineData | undefined;
