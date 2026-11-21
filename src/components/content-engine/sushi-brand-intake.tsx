@@ -91,6 +91,7 @@ export function SushiBrandIntake() {
         setAccent(data.profile.accent);
         setRevision(data.profile.revision);
         setProfileStatus(data.profile.status);
+        if (data.profile.status!=="draft") setStage("profile");
         setSavedFingerprint(JSON.stringify([data.profile.businessName,data.profile.serviceArea,data.profile.locale,data.profile.tagline,data.profile.website,data.profile.voice,data.profile.accent,data.profile.assets.map(a=>a.id)]));
         setImages(data.profile.assets.map(a=>({id:a.id,name:"已保存素材",url:a.url,type:a.kind})));
         setSaveMessage(`已恢复第 ${data.profile.revision} 版草稿。`);
@@ -324,7 +325,7 @@ setSaveMessage("");
       <div className="ps-brand-panel-head"><span className="ps-vertical-eyebrow">03 / BRAND PROFILE</span><h2>这是你的品牌起点。</h2><p>下面的品牌颜色和风格是可修改的初步建议，尚未经过 AI 自动识别或人工确认。真实商品价格、营业时间和优惠规则还需要后续核实。</p></div>
       <div className="ps-brand-review-grid">
         <article className={`ps-brand-profile-card tone-${tone}`} style={{"--brand-accent":accent} as CSSProperties}>
-          <div className="ps-brand-profile-top"><span>BRAND PROFILE / DRAFT</span><span>01</span></div>
+          <div className="ps-brand-profile-top"><span>BRAND PROFILE / {profileStatus==="approved"?"APPROVED":profileStatus==="pending_review"?"IN REVIEW":"DRAFT"}</span><span>01</span></div>
           <div className="ps-brand-profile-wordmark">{logo ? <Image src={logo.url} alt="上传的品牌 Logo" width={70} height={70} unoptimized/> : <span className="ps-brand-profile-mark">{businessName.trim().slice(0,1) || "S"}</span>}<span>{businessName || "Your Sushi Restaurant"}</span></div>
           <div className="ps-brand-profile-image">{scenes[0] ? <Image src={scenes[0].url} alt="门店实景预览" fill sizes="(max-width: 640px) 100vw, 440px" unoptimized/> : <Image src={PLACEHOLDER} alt="示意门店场景，不是你的店铺照片" fill sizes="(max-width: 640px) 100vw, 440px" unoptimized/>}{!scenes.length && <span>示意背景 · 待上传真实门店照片</span>}</div>
           <div className="ps-brand-profile-bottom"><span>{location || "Your neighbourhood"}</span><strong>{tagline || (language === "en" ? "A place for fresh moments." : "让每一餐都有好心情。")}</strong><small>VISUAL DIRECTION · {toneNames[tone]}</small></div>
