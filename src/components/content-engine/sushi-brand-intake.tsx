@@ -33,6 +33,7 @@ export function SushiBrandIntake() {
   const [saving, setSaving] = useState(false);
   const [loadingDraft, setLoadingDraft] = useState(true);
   const [loginRequired, setLoginRequired] = useState(false);
+  const [engineNotEnabled, setEngineNotEnabled] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
   const imageUrls = useRef(new Set<string>());
   useEffect(() => () => { for (const url of imageUrls.current) URL.revokeObjectURL(url); imageUrls.current.clear(); }, []);
@@ -44,6 +45,7 @@ export function SushiBrandIntake() {
         const response = await fetch("/api/content-engine/shops", { cache:"no-store" });
         if (cancelled) return;
         if (response.status===401) {setLoginRequired(true);return;}
+        if (response.status===503) {setEngineNotEnabled(true);return;}
         if (!response.ok) throw new Error("shops_failed");
         const data = await response.json() as {shops:Array<{id:string;name:string;industry:string}>};
         if (cancelled) return;
@@ -123,7 +125,7 @@ export function SushiBrandIntake() {
   }
 
   async function saveDraft() {
-    if (!canProceed || saving || loadingDraft || loginRequired || !shopId) return;
+    if (!canProceed || saving || loadingDraft || loginRequired || engineNotEnabled || !shopId) return;
     setSaving(true); setError(""); setSaveMessage("");
     try {
       const uploaded = await Promise.all(images.map(async asset => {
@@ -232,6 +234,7 @@ setSaveMessage("");
       <h1>先认识你的店，<br/><em>再认真讲好它的故事。</em></h1>
       <p>建立一份专属于寿司店的品牌档案。未来每一张图、每一条文案，都可以从同一份确认过的品牌信息出发。</p>
     </div>
+    {engineNotEnabled && <div className="ps-brand-auth-notice" role="status">品牌工作台尚未开放正式数据保存；你可以先体验页面和本地预览。数据库迁移与安全验证完成后才会开放。</div>}
     {loginRequired && <div className="ps-brand-auth-notice"><ShieldCheck size={18}/> 你可以先体验品牌档案预览；需要 <Link href="/login?next=%2Ffor%2Fsushi%2Fbrand">登录 PoStory</Link> 才能安全保存并跨设备恢复资料。</div>}
     {loadingDraft && <div className="ps-brand-auth-notice">正在检查已保存的品牌档案…</div>}
     {!loginRequired && <section className="ps-brand-shop-selector" aria-label="选择寿司门店">
@@ -283,7 +286,7 @@ setSaveMessage("");
         </div>
       </div>
       {saveMessage && <p className="ps-brand-local-confirm" role="status"><Check size={17}/>{saveMessage}</p>}{error && <p className="ps-brand-error" role="alert">{error}</p>}
-      <div className="ps-brand-panel-actions"><button type="button" className="ps-brand-secondary" onClick={()=>setStage("photos")}>返回修改素材</button>{loginRequired ? <Link className="ps-vertical-button" href="/login?next=%2Ffor%2Fsushi%2Fbrand"><ShieldCheck size={17}/> 登录后保存</Link> : <button type="button" className="ps-vertical-button" disabled={!canProceed || !shopId || saving || loadingDraft} onClick={()=>void saveDraft()}><ShieldCheck size={17}/>{saving ? "正在安全保存…" : "保存品牌档案草稿"}</button>{profileStatus==="pending_review" ? <span className="ps-brand-review-status">已提交审核，未获批准</span> : <button type="button" className="ps-brand-secondary" disabled={!unchangedSinceSave || saving} onClick={()=>void requestBrandReview()}>提交审核</button>}}</div>
+      <div className="ps-brand-panel-actions"><button type="button" className="ps-brand-secondary" onClick={()=>setStage("photos")}>返回修改素材</button>{loginRequired ? <Link className="ps-vertical-button" href="/login?next=%2Ffor%2Fsushi%2Fbrand"><ShieldCheck size={17}/> 登录后保存</Link> : <button type="button" className="ps-vertical-button" disabled={!canProceed || !shopId || saving || loadingDraft || engineNotEnabled} onClick={()=>void saveDraft()}><ShieldCheck size={17}/>{saving ? "正在安全保存…" : "保存品牌档案草稿"}</button>{profileStatus==="pending_review" ? <span className="ps-brand-review-status">已提交审核，未获批准</span> : <button type="button" className="ps-brand-secondary" disabled={!unchangedSinceSave || saving} onClick={()=>void requestBrandReview()}>提交审核</button>}}</div>
     </section>}
     <aside className="ps-brand-privacy"><LockKeyhole size={17}/><span>品牌资料在登录、选择门店并点击“保存品牌档案草稿”后上传到门店专属的私有存储。保存的是未审核草稿，不等于商家授权图片使用、正式确认品牌规范或批准发布。</span></aside>
     <footer className="ps-brand-footer"><Link href="/for/sushi">Sushi Marketing</Link><span>PoStory · Done-for-You Marketing</span></footer>
