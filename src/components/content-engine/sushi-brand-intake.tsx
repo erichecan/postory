@@ -66,7 +66,7 @@ export function SushiBrandIntake() {
   }, []);
 
   async function saveDraft() {
-    if (!canProceed || saving) return;
+    if (!canProceed || saving || loadingDraft || loginRequired) return;
     setSaving(true); setError(""); setSaveMessage("");
     try {
       const uploaded = await Promise.all(images.map(async asset => {
@@ -159,8 +159,8 @@ setSaveMessage("");
     {stage === "details" && <section className="ps-brand-panel">
       <div className="ps-brand-panel-head"><span className="ps-vertical-eyebrow">01 / THE BASICS</span><h2>品牌从真实的名字开始。</h2><p>以下信息用于预览品牌档案。请填写门店真实资料，系统不会擅自生成菜单价格或营业承诺。</p></div>
       <div className="ps-brand-fields">
-        <label>门店名称 <b>必填</b><input maxLength={120} placeholder="例如 Sakura Sushi" value={businessName} onChange={(e)=>{setBusinessName(e.target.value);setLocalConfirmed(false);}}/></label>
-        <label>所在城市或服务地区 <b>必填</b><input maxLength={160} placeholder="例如 Toronto, Ontario" value={location} onChange={(e)=>{setLocation(e.target.value);setLocalConfirmed(false);}}/></label>
+        <label>门店名称 <b>必填</b><input maxLength={120} placeholder="例如 Sakura Sushi" value={businessName} onChange={(e)=>{setBusinessName(e.target.value);setSaveMessage("");}}/></label>
+        <label>所在城市或服务地区 <b>必填</b><input maxLength={160} placeholder="例如 Toronto, Ontario" value={location} onChange={(e)=>{setLocation(e.target.value);setSaveMessage("");}}/></label>
         <label>一句话介绍（选填）<input maxLength={150} placeholder="例如 现代日式料理与寿司" value={tagline} onChange={(e)=>setTagline(e.target.value)}/></label>
         <label>网站或社媒主页（选填）<input maxLength={240} placeholder="例如 https://..." value={website} onChange={(e)=>setWebsite(e.target.value)}/></label>
         <label>主要内容语言<select value={language} onChange={(e)=>setLanguage(e.target.value as "zh"|"en")}><option value="en">English</option><option value="zh">简体中文</option></select></label>
@@ -188,9 +188,9 @@ setSaveMessage("");
           <div className="ps-brand-profile-bottom"><span>{location || "Your neighbourhood"}</span><strong>{tagline || (language === "en" ? "A place for fresh moments." : "让每一餐都有好心情。")}</strong><small>VISUAL DIRECTION · {toneNames[tone]}</small></div>
         </article>
         <div className="ps-brand-review-side">
-          <div className="ps-brand-review-box"><h3>建议的品牌方向</h3><p>这是一套起点，而不是自动得出的结论。确认后才可以成为后续内容的正式品牌依据。</p><label>建议主色 <input type="color" aria-label="调整品牌主色" value={accent} onChange={(e)=>{setAccent(e.target.value);setLocalConfirmed(false);}}/><strong>{accent.toUpperCase()}</strong></label><div className="ps-brand-tone"><span>表达风格</span><strong>{toneNames[tone]}</strong></div></div>
+          <div className="ps-brand-review-box"><h3>建议的品牌方向</h3><p>这是一套起点，而不是自动得出的结论。确认后才可以成为后续内容的正式品牌依据。</p><label>建议主色 <input type="color" aria-label="调整品牌主色" value={accent} onChange={(e)=>{setAccent(e.target.value);setSaveMessage("");}}/><strong>{accent.toUpperCase()}</strong></label><div className="ps-brand-tone"><span>表达风格</span><strong>{toneNames[tone]}</strong></div></div>
           <div className="ps-brand-review-box"><h3>资料完整度</h3><div className="ps-brand-checks">{checklist.map(item=><div key={item.title}><span className={item.complete?"is-ready":""}>{item.complete?<Check size={14}/>:<span>·</span>}</span>{item.title}<small>{item.complete?"已提供":"待补充"}</small></div>)}</div></div>
-          <div className="ps-brand-review-box"><h3>真实素材</h3><p>{images.length} 张已选图片，已选择／已保存的素材；未经 PoStory 人工审核或优化。</p><div className="ps-brand-mini-photos">{products.slice(0,3).map(asset=><Image key={asset.id} src={asset.url} alt={asset.name} width={90} height={75} unoptimized/>)}</div></div>
+          <div className="ps-brand-review-box"><h3>真实素材</h3><p>{images.length} 张已选择或已保存，未经 PoStory 人工审核或优化。</p><div className="ps-brand-mini-photos">{products.slice(0,3).map(asset=><Image key={asset.id} src={asset.url} alt={asset.name} width={90} height={75} unoptimized/>)}</div></div>
         </div>
       </div>
       {saveMessage && <p className="ps-brand-local-confirm" role="status"><Check size={17}/>{saveMessage}</p>}{error && <p className="ps-brand-error" role="alert">{error}</p>}
