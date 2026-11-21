@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - "src/components/visual/**"
+      - "src/app/api/sakura-creative/**"
+      - "src/app/api/marketing-calendar/**"
+      - "scripts/verify-sakura-creative.ts"
       - "package*.json"
       - "tsconfig.json"
       - ".github/workflows/postory-v2-interface.yml"
@@ -29,5 +32,9 @@ jobs:
         run: npx tsc --noEmit
       - name: ESLint of changed components
         run: npx eslint src/components/visual/marketing-goal-picker.tsx src/components/visual/sushi-campaign-poster.tsx src/components/visual/store-marketing-experience.tsx
+      - name: Verify original five-step marketing framework
+        run: npx tsx scripts/verify-store-framework.ts
+      - name: Render seven Sakura campaign images
+        run: npx tsx scripts/verify-sakura-creative.ts
       - name: Production build
         run: npm run build

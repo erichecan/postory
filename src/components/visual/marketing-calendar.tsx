@@ -7,6 +7,8 @@ import Image from "next/image";
 export type MarketingCalendarItem = {
   id: string; date: string; platform: string; headline: string; objective: string;
   copy: string; callToAction: string; visualDirection: string;
+  contentFormat?: "real_photo" | "brand_editorial" | "offer_poster" | "carousel";
+  promotionTerms?: string;
   imageDataUrl?: string; imageUrl?: string; imageProvider?: string; imageStatus?: "generating" | "ready" | "failed"; status: "草稿" | "待审核" | "待发布" | "已发布";
 };
 const platforms = ["Instagram", "Facebook", "TikTok", "小红书"];
@@ -85,15 +87,15 @@ export function MarketingCalendar({ items, onMove, onReplace, onGenerateImage, o
                     <article className="ps-calendar-event ps-calendar-actionable" key={item.id} draggable={item.status !== "已发布"} onDragStart={(event) => { if (item.status === "已发布" || (event.target instanceof HTMLElement && event.target.closest(".ps-calendar-actions, .ps-calendar-creative-tools, summary"))) { event.preventDefault(); return; } setDraggedId(item.id); event.dataTransfer.setData("text/plain", item.id); }} onDragEnd={() => setDraggedId(null)}>
                       <div className="ps-calendar-event-head"><button type="button" className="ps-calendar-drag-handle" aria-label="拖动到其他日期" title="拖动到其他日期" disabled={item.status === "已发布"} onPointerDown={(event) => startTouchDrag(event, item)}><GripVertical size={14} /></button><span className={`ps-calendar-platform ${item.platform === "小红书" ? "rednote" : item.platform.toLowerCase()}`}>{item.platform === "Instagram" ? "◎" : item.platform === "Facebook" ? "f" : item.platform === "TikTok" ? "♪" : "RED"}</span><span className="ps-calendar-channel-name">{item.platform}</span><span className="ps-calendar-status">{item.status}</span></div>
                       <div className="ps-calendar-creative-media">
-                        {item.imageDataUrl || item.imageUrl ? <div className="ps-calendar-ad-visual"><Image className="ps-calendar-generated-image" src={item.imageUrl || item.imageDataUrl!} alt={`${item.headline}广告配图`} width={480} height={300} unoptimized /><div className="ps-calendar-ad-overlay"><strong>{item.headline}</strong><span>{item.callToAction}</span></div></div> : <div className={`ps-calendar-image-placeholder ${item.imageStatus === "failed" ? "is-failed" : ""}`} aria-live="polite">{item.imageStatus === "generating" ? <><LoaderCircle className="ps-calendar-image-spinner" size={16} />正在生成配图，完成后会自动显示</> : item.imageStatus === "failed" ? "配图生成失败，可点右上角图标重试" : "专属广告配图"}</div>}
+                        {item.imageDataUrl || item.imageUrl ? <div className="ps-calendar-ad-visual"><Image className="ps-calendar-generated-image" src={item.imageUrl || item.imageDataUrl!} alt={`${item.headline}广告配图`} width={480} height={300} unoptimized /><div className="ps-calendar-ad-overlay">{item.headline && item.contentFormat !== "real_photo" && <strong>{item.headline}</strong>}{item.contentFormat === "offer_poster" && <span>{item.callToAction}</span>}</div></div> : <div className={`ps-calendar-image-placeholder ${item.imageStatus === "failed" ? "is-failed" : ""}`} aria-live="polite">{item.imageStatus === "generating" ? <><LoaderCircle className="ps-calendar-image-spinner" size={16} />正在生成配图，完成后会自动显示</> : item.imageStatus === "failed" ? "配图生成失败，可点右上角图标重试" : "专属广告配图"}</div>}
                         <div className="ps-calendar-creative-tools">
                           <button type="button" aria-label="换一个营销方案" title="换一个营销方案" disabled={busyId === item.id || item.imageStatus === "generating"} onClick={() => onReplace(item.id)}><RefreshCw size={14} /></button>
                           <button type="button" aria-label={item.imageDataUrl || item.imageUrl ? "重新生成配图" : item.imageStatus === "failed" ? "重试生成配图" : "生成配图"} title={item.imageDataUrl || item.imageUrl ? "重新生成配图" : item.imageStatus === "failed" ? "重试生成配图" : "生成配图"} disabled={busyId === item.id || item.imageStatus === "generating"} onClick={() => onGenerateImage(item.id)}><ImagePlus size={14} /></button>
                         </div>
                       </div>
                       <div className="ps-calendar-event-body">
-                        <strong>{item.headline}</strong><small className="ps-calendar-objective">{item.objective}</small>
-                        <details><summary>查看可发布文案</summary><p>{item.copy}</p><b>{item.callToAction}</b><small>{item.visualDirection}</small></details>
+                        <strong>{item.headline || "真实素材 · 无叠加标题"}</strong><small className="ps-calendar-objective">{item.objective} · {item.contentFormat === "real_photo" ? "真实照片" : item.contentFormat === "carousel" ? "轮播内容" : item.contentFormat === "offer_poster" ? "活动海报" : "品牌轻排版"}</small>
+                        <details><summary>查看三层文案与制作方向</summary><p><strong>社媒正文：</strong>{item.copy}</p><p><strong>CTA：</strong>{item.callToAction}</p>{item.promotionTerms && <p><strong>活动规则（待核实）：</strong>{item.promotionTerms}</p>}<small>{item.visualDirection}</small></details>
                         <div className="ps-calendar-actions"><button className="is-approve" disabled={(item.status !== "待审核" && item.status !== "草稿") || item.imageStatus === "generating" || item.imageStatus === "failed"} onClick={() => onApprove(item.id)}>{item.status === "草稿" ? "提交审核" : item.status === "待审核" ? "审核并加入待发布" : item.status}</button></div>
                       </div>
                     </article>

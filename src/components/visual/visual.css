@@ -6442,3 +6442,67 @@
  .ps-storex .storex-case-copy { padding:14px 17px; }
  .ps-storex .storex-poster-message { font-size:32px; }
 }
+
+
+/* Evidence-led editorial variety: food is the hero; a single black/gold layout
+   is NOT imposed on every marketing objective. These are concept previews. */
+.ps-storex .storex-poster--format-real_photo .storex-poster-photo {
+  inset: 34px 0 46px; height: auto; transform: none; border: 0;
+}
+.ps-storex .storex-poster--format-real_photo .storex-poster-photo::after {
+  background: linear-gradient(180deg,#10171999 0%,transparent 37%,#10171920 72%,#101719aa 100%);
+}
+.ps-storex .storex-poster--format-real_photo .storex-poster-message {
+  margin-top: auto; font-size: clamp(25px,3vw,34px); line-height: 1.08;
+  max-width: 94%; text-shadow: 0 2px 14px #000b;
+}
+.ps-storex .storex-poster--format-real_photo .storex-poster-subheadline {
+  max-width: 88%; margin: 5px 0 11px; font-size: 10px; text-shadow: 0 2px 8px #000b;
+}
+.ps-storex .storex-poster--format-real_photo .storex-poster-action {
+  background: #f6f1eb; color: #26352e;
+}
+.ps-storex .storex-poster--format-brand_editorial .storex-poster-message {
+  max-width: 82%; letter-spacing: -.042em;
+}
+.ps-storex .storex-poster--format-carousel .storex-poster-photo {
+  left: 8%; right: 8%; bottom: 65px; height: 49%; border: 6px solid #ffffffda;
+  transform: rotate(-2deg); box-shadow: 0 6px 24px #2118123b;
+}
+.ps-storex .storex-poster--format-carousel::after {
+  content: "CAROUSEL COVER · CONCEPT"; position: absolute; z-index: 4;
+  right: 19px; bottom: 64px; padding: 5px 8px; background: #fffef1;
+  color: #35413d; font-size: 8px; font-weight: 800; letter-spacing: .1em;
+}
+.ps-storex .storex-copy-layer { display: grid; gap: 5px; margin: 11px 0; }
+.ps-storex .storex-copy-layer strong,
+.ps-storex .storex-creative-format { color: #3b4761; font-size: 10px; font-weight: 700; }
+.ps-storex .storex-copy-layer input,
+.ps-storex .storex-copy-layer textarea {
+  width: 100%; min-height: 34px; padding: 9px 10px; border: 1px solid #e1e6ee;
+  border-radius: 7px; color: #344059; background: #fdfefe; font: inherit;
+  font-size: 11px; line-height: 1.55; resize: vertical;
+}
+.ps-storex .storex-copy-layer textarea { min-height: 94px; }
+.ps-storex .storex-copy-layer input:focus-visible,
+.ps-storex .storex-copy-layer textarea:focus-visible {
+  outline: 2px solid #c7428a; outline-offset: 2px;
+}
+
+/* Seven art-directed campaign covers; mobile Feed legibility is baked into the
+   1080×1350 generated JPEG, not recreated with generic UI overlays. */
+.ps-storex .storex-sushi-creative-frame {
+  position: relative;
+  display: block;
+  width: min(100%, 340px);
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: #f8f4ec;
+  box-shadow: 0 16px 45px #24221e24;
+  border-radius: 3px;
+}
+.ps-storex .storex-sushi-creative-frame img { object-fit: cover; }
+.ps-storex .storex-case-dialog-media > .storex-sushi-creative-frame { width: min(100%, 390px); }
+@media (max-width: 700px) {
+  .ps-storex .storex-sushi-creative-frame { width: min(100%, 320px); margin-inline: auto; }
+}
