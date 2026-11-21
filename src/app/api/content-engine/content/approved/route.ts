@@ -57,7 +57,7 @@ export async function POST(request:NextRequest) {
   try {
     const event=await prisma.contentBrandReviewEvent.create({
       data:{shopId:input.shopId,actorUserId:user.id,event:CONTENT_APPROVAL_EVENT,
-        revision:input.brandRevision,snapshot:manifest},
+        revision:input.brandRevision,snapshot:manifest as unknown as object},
       select:{id:true,createdAt:true}
     });
     return Response.json({ok:true,contentApprovalId:event.id,brandRevision:input.brandRevision},
