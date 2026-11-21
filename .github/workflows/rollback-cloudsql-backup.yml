@@ -1,4 +1,4 @@
-name: Pre-rollback Cloud SQL backup (4549688)
+name: Pre-rollback PostgreSQL backup (4549688)
 
 on:
   push:
@@ -11,36 +11,57 @@ permissions:
 jobs:
   backup:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     env:
       PROJECT_ID: supply-491510
+      BACKUP_BUCKET: postory-private-rollback-db-549968261036
     steps:
       - uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
       - uses: google-github-actions/setup-gcloud@v2
-      - name: Identify the single Cloud SQL instance safely
-        id: identify
+      - name: Prepare dedicated non-public backup bucket
         shell: bash
         run: |
           set -euo pipefail
-          mapfile -t INSTANCES < <(gcloud sql instances list --project="$PROJECT_ID" --format='value(name)')
-          if [ "${#INSTANCES[@]}" -ne 1 ] || [ -z "${INSTANCES[0]:-}" ]; then
-            echo "Expected exactly one Cloud SQL instance in project; refusing to guess or create a backup of the wrong database." >&2
-            exit 1
+          if ! gcloud storage buckets describe "gs://$BACKUP_BUCKET" --format=json > /tmp/backup-bucket.json 2>/dev/null; then
+            gcloud storage buckets create "gs://$BACKUP_BUCKET" --project="$PROJECT_ID" --location=europe-west1 --uniform-bucket-level-access --public-access-prevention
+            gcloud storage buckets describe "gs://$BACKUP_BUCKET" --format=json > /tmp/backup-bucket.json
           fi
-          echo "instance=${INSTANCES[0]}" >> "$GITHUB_OUTPUT"
-          echo "Backing up Cloud SQL instance ${INSTANCES[0]} in project $PROJECT_ID"
-      - name: Create and verify on-demand backup
+          jq -e '(.iamConfiguration.publicAccessPrevention == "enforced") and (.iamConfiguration.uniformBucketLevelAccess.enabled == true)' /tmp/backup-bucket.json >/dev/null || {
+            echo "Backup bucket does not enforce private access. Refusing backup upload." >&2
+            exit 1
+          }
+      - name: Install PostgreSQL backup utilities
         shell: bash
-        env:
-          INSTANCE: ${{ steps.identify.outputs.instance }}
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client
+      - name: Dump PostgreSQL and verify private cloud copy
+        shell: bash
         run: |
           set -euo pipefail
-          # No '--async': this operation must complete before reporting success.
-          gcloud sql backups create --instance="$INSTANCE" --project="$PROJECT_ID" --quiet
-          gcloud sql backups list --instance="$INSTANCE" --project="$PROJECT_ID" --limit=5 --format='table(id,status,startTime,endTime)'
-          if ! gcloud sql backups list --instance="$INSTANCE" --project="$PROJECT_ID" --filter='status=SUCCESSFUL' --limit=1 --format='value(id)' | grep -Eq '^[0-9]+$'; then
-            echo "No successful backup was confirmed, refusing to proceed." >&2
+          umask 077
+          export PGCONNECT_TIMEOUT=20
+          DB_URL="$(gcloud secrets versions access latest --secret=postory-database-url --project="$PROJECT_ID")"
+          if [ -z "$DB_URL" ]; then
+            echo "Production DATABASE_URL secret is empty. Refusing to proceed." >&2
             exit 1
           fi
-          echo "Cloud SQL on-demand backup command succeeded; confirm exact backup ID and time in the logs."
+          WORKDIR="$(mktemp -d)"
+          trap 'rm -rf "$WORKDIR"' EXIT
+          FILE="$WORKDIR/postory-db-pre-4549688.dump"
+          # No passwords printed: the secret URL is only kept in a shell variable.
+          pg_dump --dbname="$DB_URL" --format=custom --no-owner --no-privileges --file="$FILE"
+          unset DB_URL
+          test -s "$FILE"
+          pg_restore --list "$FILE" >/dev/null
+          TS="$(date -u +%Y%m%dT%H%M%SZ)"
+          DEST="gs://$BACKUP_BUCKET/rollback-4549688/postory-production-$TS.dump"
+          gcloud storage cp "$FILE" "$DEST" --quiet
+          gcloud storage cp "$DEST" "$WORKDIR/verified.dump" --quiet
+          cmp "$FILE" "$WORKDIR/verified.dump"
+          pg_restore --list "$WORKDIR/verified.dump" >/dev/null
+          echo "PRIVATE_BACKUP_VERIFIED=$DEST"
+          echo "BACKUP_BYTES=$(wc -c < "$FILE")"
+          echo "BACKUP_SHA256=$(sha256sum "$FILE" | cut -d' ' -f1)"
