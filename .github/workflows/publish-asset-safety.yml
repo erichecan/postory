@@ -43,5 +43,7 @@ jobs:
         run: npx tsx scripts/verify-publishing-safety.ts
       - name: Lint affected client and server files
         run: npx eslint src/components/editor/publish-dialog.tsx src/lib/actions/designs.ts src/lib/actions/restaurant-campaigns.ts src/lib/db/approval.ts src/lib/publishing
+      - name: Generate deterministic SVG glyph outlines
+        run: /usr/bin/python3 scripts/generate-sakura-glyphs.py
       - name: Build
         run: npm run build
