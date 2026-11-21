@@ -34,7 +34,17 @@ function getOutlines(): OutlineData {
 const word = (x: number, y: number, value: string, size: number, color = "#172722", weight = 700, extra = "") => {
   // This creates actual SVG <path> outlines, NOT font-dependent SVG <text>.
   // Production images thus render identically regardless of librsvg/Pango fallback.
-  const glyphs = getOutlines().fonts[weight >= 600 ? "bold" : "regular"];
+  let glyphs: Record<string, OutlineGlyph>;
+  try { glyphs = getOutlines().fonts[weight >= 600 ? "bold" : "regular"]; }
+  catch (err) {
+    // Local macOS dev may not have Debian's build-time fonttools/font files.
+    // Never silently fall back in production; the prod render must be outlines.
+    if (process.env.NODE_ENV === "production") throw err;
+    return '<text x="' + x + '" y="' + y + '" fill="' + color +
+      '" font-family="Arial,Helvetica,sans-serif" font-size="' + size +
+      '" font-weight="' + weight + '" ' + extra + '>' +
+      value.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</text>";
+  }
   const match = /letter-spacing="([0-9.]+)"/.exec(extra);
   const tracking = match ? Number(match[1]) : 0;
   let cursor = 0;
