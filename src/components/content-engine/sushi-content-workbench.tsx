@@ -63,7 +63,6 @@ export function SushiContentWorkbench() {
 
   useEffect(()=>{
     let cancelled=false;
-    setBrand(null);setAssetId("");setConfirmed(false);setApprovalId("");setNotice("");
     if(!shopId)return;
     void(async()=>{
       try{
@@ -156,7 +155,7 @@ export function SushiContentWorkbench() {
     <div className="grid gap-8 md:grid-cols-2">
       <section className="space-y-5 rounded-xl border p-5" aria-label="内容编辑">
         <label className="block text-sm font-medium">选择门店
-          <select className="mt-2 w-full rounded-md border p-3" value={shopId} onChange={e=>{clearApproval();setShopId(e.target.value);}}>
+          <select className="mt-2 w-full rounded-md border p-3" value={shopId} onChange={e=>{clearApproval();setBrand(null);setAssetId("");setShopId(e.target.value);}}>
             {!shops.length&&<option value="">请选择门店</option>}
             {shops.map(shop=><option key={shop.id} value={shop.id}>{shop.name}</option>)}
           </select>
