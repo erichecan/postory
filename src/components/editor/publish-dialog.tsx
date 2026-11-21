@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition, type RefObject } from "react";
+import { useState, useTransition, type RefObject } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { CalendarClock, Check, Lock } from "lucide-react";
@@ -60,8 +60,9 @@ export function PublishDialog({
   const [caption, setCaption] = useState(initialCaption ?? "");
   const [finalReviewed, setFinalReviewed] = useState(false);
   const [serverPreviewUrl, setServerPreviewUrl] = useState<string | null>(null);
-  // An edited canvas invalidates the previously generated server image.
-  useEffect(() => { setServerPreviewUrl(null); setFinalReviewed(false); }, [page]);
+  const pageSignature = JSON.stringify(page);
+  const [previewPageSignature, setPreviewPageSignature] = useState<string | null>(null);
+  const reviewedImageUrl = pageSignature === previewPageSignature ? serverPreviewUrl : null;
   const [at, setAt] = useState(() => toLocalInput(initialAt ?? new Date(Date.now() + 24 * 3600 * 1000)));
   const [pending, start] = useTransition();
 
@@ -87,6 +88,7 @@ export function PublishDialog({
         });
         const json = await res.json() as { ok: boolean; url?: string };
         if (!res.ok || !json.ok || !json.url) throw new Error("upload failed");
+        setPreviewPageSignature(pageSignature);
         setServerPreviewUrl(json.url);
       } catch { toast.error(t("exportFailed")); }
     });
@@ -96,16 +98,16 @@ export function PublishDialog({
     start(async () => {
       const live = platforms.some(requiresConnection);
       if (live) {
-        if (!finalReviewed || !serverPreviewUrl) {
+        if (!finalReviewed || !reviewedImageUrl) {
           toast.error("请先生成服务器最终预览，检查图片与文案并确认。");
           return;
         }
         const approved = await approveFinalDesignAssetAction(designId, {
-          mediaUrl: serverPreviewUrl, caption, confirmed: true,
+          mediaUrl: reviewedImageUrl, caption, confirmed: true,
         });
         if (!approved.ok) { toast.error(approved.error ?? "审核失败，请重试。"); return; }
       } else if (!(await beforeSubmit())) return;
-      const exportedImageUrl = live ? serverPreviewUrl! : undefined;
+      const exportedImageUrl = live ? reviewedImageUrl! : undefined;
       const res = await scheduleDesignAction(designId, { platforms, scheduledAt: new Date(at).toISOString(), caption, exportedImageUrl });
       if (!res.ok) {
         if (res.code === "insufficient") {
@@ -166,11 +168,11 @@ export function PublishDialog({
           {platforms.some(requiresConnection) && (
             <div className="flex flex-col gap-2 rounded-md border p-3">
               <Button type="button" variant="outline" disabled={pending} onClick={generateFinalPreview}>
-                {serverPreviewUrl ? "重新生成服务器最终预览" : "生成服务器最终预览"}
+                {reviewedImageUrl ? "重新生成服务器最终预览" : "生成服务器最终预览"}
               </Button>
-              {serverPreviewUrl && (
+              {reviewedImageUrl && (
                 <div className="flex flex-col items-center gap-2">
-                  <Image src={serverPreviewUrl} alt="已在 PoStory 服务器保存、将提交给社媒平台的最终图片" width={240} height={260} unoptimized className="max-h-64 w-auto rounded object-contain" />
+                  <Image src={reviewedImageUrl} alt="已在 PoStory 服务器保存、将提交给社媒平台的最终图片" width={240} height={260} unoptimized className="max-h-64 w-auto rounded object-contain" />
                   <p className="text-xs text-muted-foreground">请检查实际导出图中文字、字体、菜品和价格。这份文件通过后会锁定，不会在发布时重新绘制。</p>
                 </div>
               )}
@@ -178,7 +180,7 @@ export function PublishDialog({
           )}
           {platforms.some(requiresConnection) && (
             <label className="flex items-start gap-2 rounded-md border border-amber-400/40 p-3 text-xs leading-relaxed">
-              <input type="checkbox" disabled={!serverPreviewUrl} checked={finalReviewed} onChange={(e) => setFinalReviewed(e.target.checked)} className="mt-0.5" />
+              <input type="checkbox" disabled={!reviewedImageUrl} checked={finalReviewed && Boolean(reviewedImageUrl)} onChange={(e) => setFinalReviewed(e.target.checked)} className="mt-0.5" />
               我已逐项检查上方服务器最终图片及下方社媒正文，确认它们就是客户批准的发布版本。修改后须重新审核。
             </label>
           )}
@@ -196,7 +198,7 @@ export function PublishDialog({
           </p>
         )}
         <DialogFooter>
-          <Button onClick={submit} disabled={pending || !hasPlan || platforms.length === 0 || !at || !caption.trim() || (platforms.some(requiresConnection) && (!finalReviewed || !serverPreviewUrl))}>
+          <Button onClick={submit} disabled={pending || !hasPlan || platforms.length === 0 || !at || !caption.trim() || (platforms.some(requiresConnection) && (!finalReviewed || !reviewedImageUrl))}>
             {pending ? t("saving") : t("submit")}
           </Button>
         </DialogFooter>
