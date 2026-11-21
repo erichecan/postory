@@ -1,0 +1,46 @@
+name: Pre-rollback Cloud SQL backup (4549688)
+
+on:
+  push:
+    branches: ["ops/backup-before-rollback-4549688"]
+    paths: [".github/workflows/rollback-cloudsql-backup.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: supply-491510
+    steps:
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Identify the single Cloud SQL instance safely
+        id: identify
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t INSTANCES < <(gcloud sql instances list --project="$PROJECT_ID" --format='value(name)')
+          if [ "${#INSTANCES[@]}" -ne 1 ] || [ -z "${INSTANCES[0]:-}" ]; then
+            echo "Expected exactly one Cloud SQL instance in project; refusing to guess or create a backup of the wrong database." >&2
+            exit 1
+          fi
+          echo "instance=${INSTANCES[0]}" >> "$GITHUB_OUTPUT"
+          echo "Backing up Cloud SQL instance ${INSTANCES[0]} in project $PROJECT_ID"
+      - name: Create and verify on-demand backup
+        shell: bash
+        env:
+          INSTANCE: ${{ steps.identify.outputs.instance }}
+        run: |
+          set -euo pipefail
+          # No '--async': this operation must complete before reporting success.
+          gcloud sql backups create --instance="$INSTANCE" --project="$PROJECT_ID" --quiet
+          gcloud sql backups list --instance="$INSTANCE" --project="$PROJECT_ID" --limit=5 --format='table(id,status,startTime,endTime)'
+          if ! gcloud sql backups list --instance="$INSTANCE" --project="$PROJECT_ID" --filter='status=SUCCESSFUL' --limit=1 --format='value(id)' | grep -Eq '^[0-9]+$'; then
+            echo "No successful backup was confirmed, refusing to proceed." >&2
+            exit 1
+          fi
+          echo "Cloud SQL on-demand backup command succeeded; confirm exact backup ID and time in the logs."
