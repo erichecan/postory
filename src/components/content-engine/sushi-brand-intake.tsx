@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import "./sushi-brand.css";
 import Image from "next/image";
-import { useEffect, useRef, useState, type ChangeEvent } from "react";
-import { ArrowLeft, ArrowRight, Check, Camera, FileImage, ImagePlus, LockKeyhole, ShieldCheck, Sparkles, X } from "lucide-react";
+import { useEffect, useRef, useState, type CSSProperties, type ChangeEvent } from "react";
+import { ArrowLeft, ArrowRight, Check, Camera, FileImage, ImagePlus, LockKeyhole, ShieldCheck, X } from "lucide-react";
 
 type AssetType = "logo" | "store" | "product";
 type IntakeImage = { id: string; name: string; url: string; type: AssetType; file: File };
@@ -105,7 +106,7 @@ export function SushiBrandIntake() {
     {stage === "profile" && <section className="ps-brand-panel ps-brand-review">
       <div className="ps-brand-panel-head"><span className="ps-vertical-eyebrow">03 / BRAND PROFILE</span><h2>这是你的品牌起点。</h2><p>下面的品牌颜色和风格是可修改的初步建议，不代表已经识别或确认。真实商品价格、营业时间和优惠规则还需要后续核实。</p></div>
       <div className="ps-brand-review-grid">
-        <article className={`ps-brand-profile-card tone-${tone}`} style={{"--brand-accent":accent} as React.CSSProperties}>
+        <article className={`ps-brand-profile-card tone-${tone}`} style={{"--brand-accent":accent} as CSSProperties}>
           <div className="ps-brand-profile-top"><span>BRAND PROFILE / DRAFT</span><span>01</span></div>
           <div className="ps-brand-profile-wordmark">{logo ? <Image src={logo.url} alt="上传的品牌 Logo" width={70} height={70} unoptimized/> : <span className="ps-brand-profile-mark">{businessName.trim().slice(0,1) || "S"}</span>}<span>{businessName || "Your Sushi Restaurant"}</span></div>
           <div className="ps-brand-profile-image">{scenes[0] ? <Image src={scenes[0].url} alt="门店实景预览" fill sizes="(max-width: 640px) 100vw, 440px" unoptimized/> : <Image src={PLACEHOLDER} alt="示意门店场景，不是你的店铺照片" fill sizes="(max-width: 640px) 100vw, 440px" unoptimized/>}{!scenes.length && <span>示意背景 · 待上传真实门店照片</span>}</div>
