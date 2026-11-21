@@ -26,6 +26,14 @@ const RESTAURANT_CAMPAIGN_KEY_PATTERN = /^restaurant-campaign\/([a-z0-9]{10,40})
 
 const LOCAL_ROOT = path.join(process.cwd(), ".data", "uploads");
 
+// Publicly delivered final exports and restaurant campaign files have random,
+// never-reused object keys. Make storage write-once so a provider that downloads
+// later sees exactly the bytes approved by the client.
+function isWriteOnceFinalAsset(key: string) {
+  return PUB_KEY_PATTERN.test(key) && !key.startsWith("pub/postorycache01/")
+    || RESTAURANT_CAMPAIGN_KEY_PATTERN.test(key);
+}
+
 export function isMediaKey(key: string) {
   return (
     GEN_KEY_PATTERN.test(key) ||
@@ -158,7 +166,7 @@ const localBackend: Backend = {
   async put(key, bytes) {
     const file = path.join(LOCAL_ROOT, key);
     await mkdir(path.dirname(file), { recursive: true });
-    await writeFile(file, bytes);
+    await writeFile(file, bytes, { flag: isWriteOnceFinalAsset(key) ? "wx" : "w" });
   },
   async get(key) {
     try {
@@ -176,7 +184,7 @@ function gcsBackend(bucketName: string): Backend {
   const bucket = new Storage().bucket(bucketName);
   return {
     async put(key, bytes, mime) {
-      await bucket.file(key).save(bytes, { contentType: mime, resumable: false, metadata: { cacheControl: "private, max-age=31536000" } });
+      await bucket.file(key).save(bytes, { contentType: mime, resumable: false, metadata: { cacheControl: "private, max-age=31536000" }, ...(isWriteOnceFinalAsset(key) ? { preconditionOpts: { ifGenerationMatch: 0 } } : {}) });
     },
     async get(key) {
       try {
