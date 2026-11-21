@@ -24,10 +24,10 @@ function installedCharset(font: string) {
   return ranges;
 }
 
-export function assertTextGlyphCoverage(label: string): void {
+export function assertTextGlyphCoverage(label: string, force = false): void {
   // macOS development uses system fonts without fontconfig; Cloud Run MUST run
   // this check before Sharp composites an SVG. Missing glyphs fail closed.
-  if (process.env.NODE_ENV !== "production") return;
+  if (!force && process.env.NODE_ENV !== "production") return;
   const fallbacks = [
     installedCharset("Arial"),
     installedCharset("sans:lang=ja"),
