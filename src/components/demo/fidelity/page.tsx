@@ -271,7 +271,19 @@ export function FidelityDemo({industry,page}: {industry: IndustryId;page:Fidelit
       <CampaignArtwork industry={industry} direction={option.id} photoUrl={demo.photos[0]??(sushi?"/demo/photos/sushi-salmon-nigiri.png":NAILS_TEMPLATE_DEFAULTS[NAILS_AUTUMN_CAT_EYE_ID].sample)} color={option.color}/>
       <Text x={16} y={213} w={300} size={24} weight={700}>{option.title}</Text><Text x={16} y={252} w={338} size={18} color="var(--fd-muted)" style={{lineHeight:1.35,whiteSpace:"normal"}}>{option.hint}</Text>{selected?<span style={{position:"absolute",right:unit(13),top:unit(13),width:unit(31),height:unit(31),borderRadius:"50%",background:option.color,color:"white",display:"grid",placeItems:"center"}}><Check style={{width:unit(19),height:unit(19)}}/></span>:null}
     </Button>;})}
-    <Button x={38} y={campaignTop+campaignRows*350+17} w={778} h={91} disabled={!demo.ready||!demo.photos.length||demo.busy} onClick={()=>go(sushi?"templates":"edit")}>下一步 · {sushi?"选择设计模板":"填写广告文案"} <ArrowRight/></Button>
+    {sushi&&<>
+      <Panel x={38} y={campaignTop+campaignRows*350+10} w={778} h={460} tint/>
+      <Text x={64} y={campaignTop+campaignRows*350+28} w={720} size={30} weight={750}>门店资料 · 生成 Brand Profile 草稿</Text>
+      <Text x={64} y={campaignTop+campaignRows*350+72} w={714} size={20} color="var(--fd-muted)">无需登录。可选填真实门店信息，PoStory 后续负责内容制作和发布。</Text>
+      <Text x={64} y={campaignTop+campaignRows*350+112} w={250} size={22}>寿司店名称</Text>
+      <Box x={64} y={campaignTop+campaignRows*350+149} w={724} h={61}><input className="fd-field" aria-label="寿司店名称" maxLength={55} placeholder="例如 Sakura Sushi" value={demo.businessName} onChange={e=>demo.setBusinessName(e.target.value)}/></Box>
+      <Text x={64} y={campaignTop+campaignRows*350+220} w={400} size={22}>城市 / 服务区域</Text>
+      <Box x={64} y={campaignTop+campaignRows*350+259} w={724} h={61}><input className="fd-field" aria-label="城市或服务地区" maxLength={120} placeholder="例如 Toronto, Ontario" value={demo.serviceArea} onChange={e=>demo.setServiceArea(e.target.value)}/></Box>
+      <Box x={64} y={campaignTop+campaignRows*350+333} w={330} h={59}><select aria-label="品牌内容语言" className="fd-field" value={demo.brandLocale} onChange={e=>demo.setBrandLocale(e.target.value as "zh"|"en")}><option value="zh">简体中文</option><option value="en">English</option></select></Box>
+      <Box x={413} y={campaignTop+campaignRows*350+337} w={372} h={55}><label style={{display:"flex",alignItems:"center",gap:unit(12),fontSize:unit(19),lineHeight:1.25}}><input type="checkbox" checked={demo.brandPhotoRights} onChange={e=>demo.setBrandPhotoRights(e.target.checked)}/>我拥有或获授权使用这些照片</label></Box>
+      <Text x={64} y={campaignTop+campaignRows*350+402} w={714} size={16} color="var(--fd-muted)">本次资料仅存在本设备的演示草稿；正式客户交付仍需安全提交。</Text>
+    </>}
+    <Button x={38} y={campaignTop+campaignRows*350+(sushi?490:17)} w={778} h={91} disabled={!demo.ready||!demo.photos.length||demo.busy} onClick={()=>go(sushi?"templates":"edit")}>下一步 · {sushi?"选择设计模板":"填写广告文案"} <ArrowRight/></Button>
     </>
   </>:page==="templates"?<>
     <Steps current={1} onNavigate={go}/><Text x={68} y={286} w={716} size={51} weight={800} center>{sushi?"选择你喜欢的寿司模板":"选一个你喜欢的风格"}</Text><HeartDoodle x={703} y={279} w={52}/><Text x={70} y={366} w={716} size={29} color="var(--fd-muted)" center>{sushi?"同一组照片，可以做出不同风格的餐饮推广内容。":"同一组照片，可以做出不同风格的社交媒体笔记。"}</Text>
@@ -360,7 +372,7 @@ export function FidelityDemo({industry,page}: {industry: IndustryId;page:Fidelit
     <Panel x={26} y={1372} w={804} h={228}/><Panel x={42} y={1378} w={773} h={216} tint/><Text x={179} y={1384} w={506} size={28} weight={650} center>只需简单 4 步，轻松搞定社媒发布</Text>{[ImagePlus,Grid2X2,CalendarClock,Send].map((Icon,i)=><span key={i}><Box x={129+i*188} y={1427} w={27} h={27} className="fd-pill" style={{background:"var(--fd-primary)",color:"white",borderRadius:"50%",fontSize:unit(17)}}>{i+1}</Box><Box x={118+i*188} y={1460} w={43} h={43} style={{color:"var(--fd-primary)"}}><Icon/></Box><Text x={50+i*188} y={1515} w={176} size={23} weight={600} center>{["上传作品","选择视觉方案","安排发布时间","PoStory 自动发布"][i]}</Text><Text x={50+i*188} y={1546} w={176} size={20} color="var(--fd-muted)" center>{["提供美甲照片\n或简单需求","PoStory 生成\n多种内容方案","告诉我们你的\n发布计划","按计划发布到\n已连接的平台"][i]}</Text></span>)}<Button x={39} y={1627} w={777} h={85} onClick={()=>setModal("service")} style={{fontSize:unit(33)}}><Crown/>了解 PoStory 代运营服务 <ArrowRight/></Button><Button x={39} y={1727} w={777} h={85} secondary onClick={()=>go("upload")} style={{fontSize:unit(29)}}>继续制作下一篇 <ArrowRight/></Button>
   </>:null;
 
-  const stageExtra=page==="upload"?Math.max(uploadExtra,campaignTop+campaignRows*350+150-1844):uploadExtra+editStageExtra;
+  const stageExtra=page==="upload"?Math.max(uploadExtra,campaignTop+campaignRows*350+(sushi?620:150)-1844):uploadExtra+editStageExtra;
   const stageStyle=stageExtra?{aspectRatio:`853 / ${1844+stageExtra}`}:undefined;
   return <div className="fd-surround"><main className={`fd-stage ${sushi?"fd-sushi":""} ${sushi&&page==="success"?"fd-success-sushi":""} ${page==="upload"?"fd-upload-stage":""}`} style={stageStyle} data-reference={ref.id} data-ready={demo.ready} aria-label={ref.label}>
     <h1 className="sr-only">{ref.label}</h1>
@@ -370,18 +382,6 @@ export function FidelityDemo({industry,page}: {industry: IndustryId;page:Fidelit
     <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden aria-label="选择照片" onChange={e=>{void demo.upload(e.target.files);e.target.value="";}}/>
     <input ref={camera} type="file" accept="image/*" capture="environment" hidden aria-label="拍摄照片" onChange={e=>{void demo.upload(e.target.files);e.target.value="";}}/>
   </main>
-  {sushi&&page==="upload"&&<section aria-label="可选门店品牌资料" className="mx-auto mt-5 w-full max-w-[480px] rounded-3xl border border-orange-100 bg-[#fff8ee] p-5 text-[#38251d] shadow-sm">
-    <p className="text-xs font-bold tracking-[0.14em] text-orange-700">BRAND PROFILE · OPTIONAL</p>
-    <h2 className="mt-2 text-xl font-extrabold">把这次体验变成你的品牌起点</h2>
-    <p className="mt-2 text-sm leading-relaxed text-stone-600">免费体验与正式合作都不用登录。可选填真实门店信息，系统会在浏览器内整理成一份待确认的 Brand Profile 草稿；PoStory 后续负责内容制作与发布。</p>
-    <div className="mt-4 grid gap-3">
-      <label className="text-sm font-medium">寿司店名称<input className="mt-1 block w-full rounded-xl border border-orange-200 bg-white p-3" maxLength={55} value={demo.businessName} onChange={e=>demo.setBusinessName(e.target.value)} placeholder="例如 Sakura Sushi"/></label>
-      <label className="text-sm font-medium">城市 / 服务区域<input className="mt-1 block w-full rounded-xl border border-orange-200 bg-white p-3" maxLength={120} value={demo.serviceArea} onChange={e=>demo.setServiceArea(e.target.value)} placeholder="例如 Toronto, Ontario"/></label>
-      <label className="text-sm font-medium">内容语言<select className="mt-1 block w-full rounded-xl border border-orange-200 bg-white p-3" value={demo.brandLocale} onChange={e=>demo.setBrandLocale(e.target.value as "zh"|"en")}><option value="zh">简体中文</option><option value="en">English</option></select></label>
-      <label className="flex items-start gap-2 text-sm leading-relaxed"><input className="mt-1" type="checkbox" checked={demo.brandPhotoRights} onChange={e=>demo.setBrandPhotoRights(e.target.checked)}/>我确认拥有所上传照片的使用权，或已取得合法授权。</label>
-    </div>
-    <p className="mt-3 text-xs leading-relaxed text-stone-500">这里只生成本设备中的资料草稿，不会自动上传门店资料、创建正式客户记录、批准营销承诺或发布帖子。继续下一步时会保存到当前演示会话。</p>
-  </section>}
   {sushi&&page==="success"&&demo.businessName.trim()&&demo.serviceArea.trim()&&<section aria-label="品牌档案草稿" className="mx-auto mt-5 w-full max-w-[480px] rounded-3xl border border-orange-100 bg-[#fff8ee] p-5 text-[#38251d]">
     <p className="text-xs font-bold tracking-[0.14em] text-orange-700">YOUR BRAND PROFILE · DRAFT</p>
     <h2 className="mt-2 text-xl font-bold">{demo.businessName}</h2>
