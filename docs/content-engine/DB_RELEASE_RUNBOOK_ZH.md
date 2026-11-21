@@ -52,3 +52,15 @@ npx prisma migrate status
 ## 5. 已知限制
 
 用户要求“尽快完成全部开发”是目标，但目前只完成 Content Engine 基础和部分审核链路；请勿将数据库迁移、PR 合并或构建成功描述为整个系统交付或 Cloud Run 生产上线。
+
+## 6. 默认关闭的发布开关
+
+合并 `main` 或自动部署 **不会开启** Content Engine 的品牌数据库接口。所有新接口默认检查运行环境的 `CONTENT_ENGINE_ENABLED`，只有值为精确字符串 `true` 时才开放；未开启时返回 503。旧的 `/store` 完全不使用这个开关。
+
+必须按以下顺序发布：
+1. 新版本代码与 Prisma migrations 可安全进入 `main`；新接口默认不可用。
+2. 运维拥有 Cloud SQL 权限时执行备份、`prisma migrate deploy`、权限和存储测试。
+3. 仅在第 2 步通过后，用部署环境的受控配置设置 `CONTENT_ENGINE_ENABLED=true`，发布新 Cloud Run 修订版并验证真实登录流程。
+4. 发现任何越权或存储问题时，立刻取消该环境变量并重新发布应用配置，停止品牌档案 API；这不能代替撤销已经授权的访问或审计事故处理。
+
+绝对不要为了让页面看起来可用，就在尚未迁移的生产环境中提前开启开关。
