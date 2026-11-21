@@ -32,6 +32,8 @@ jobs:
         run: npx tsc --noEmit
       - name: ESLint of changed components
         run: npx eslint src/components/visual/marketing-goal-picker.tsx src/components/visual/sushi-campaign-poster.tsx src/components/visual/store-marketing-experience.tsx
+      - name: Verify original five-step marketing framework
+        run: npx tsx scripts/verify-store-framework.ts
       - name: Render seven Sakura campaign images
         run: npx tsx scripts/verify-sakura-creative.ts
       - name: Production build
