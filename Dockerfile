@@ -20,6 +20,13 @@ RUN npx prisma generate
 CMD ["./node_modules/.bin/prisma", "migrate", "deploy"]
 
 FROM node:22-slim
+# Sharp/librsvg renders Sakura campaign SVG headlines inside the container.
+# node:22-slim has no usable font fallback by default (works on macOS only).
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends fontconfig fonts-liberation fonts-dejavu-core \
+    && fc-cache -f \
+    && test -n "$(fc-match -f '%{family}' Arial)" \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=8080 HOSTNAME=0.0.0.0
 COPY --from=build --chown=node:node /app/.next/standalone ./

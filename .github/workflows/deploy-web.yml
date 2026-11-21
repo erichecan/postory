@@ -43,6 +43,9 @@ jobs:
         run: |
           docker build --target migrations -t ${{ env.IMAGE }}-migrations .
           docker build --build-arg NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }} -t ${{ env.IMAGE }} .
+          # Verify the ACTUAL production image resolves Arial to an installed font,
+          # not the missing-glyph boxes seen on Cloud Run.
+          docker run --rm ${{ env.IMAGE }} sh -c "fc-match -f '%{family}\\n' Arial | grep -qi 'Liberation'"
           docker push ${{ env.IMAGE }}-migrations
           docker push ${{ env.IMAGE }}
 
@@ -85,3 +88,8 @@ jobs:
           curl -sf -o /dev/null -w "landing HTTP %{http_code}\n" "$URL/"
           curl -sf -o /dev/null -w "legal HTTP %{http_code}\n" "$URL/legal/terms"
           curl -sf -o /dev/null -w "asset HTTP %{http_code}\n" "$URL/assets/templates/orshot/orshot-2444-1.png"
+          # The Sakura preview must be dynamically rendered, not merely a static asset.
+          curl -fsS "$URL/api/sakura-creative/footfall" -o /tmp/sakura-footfall.jpg
+          file /tmp/sakura-footfall.jpg | grep -q 'JPEG image data'
+          test "$(wc -c </tmp/sakura-footfall.jpg)" -gt 20000
+          echo "Sakura creative rendered on production HTTP 200"
