@@ -95,45 +95,9 @@ export const SUSHI_CAMPAIGNS: Record<SushiCampaignId, SushiCampaign> = {
   }
 };
 
-/** Original vector sushi artwork for four non-photographic demo posters. */
-function SushiArtwork({ variant }: { variant: SushiCampaign["scene"] }) {
-  const pieces = variant === "sharing"
-    ? [[75,105,1],[160,87,1.06],[242,122,.88],[107,210,1.07],[211,220,1],[302,204,.9]]
-    : variant === "loyalty" ? [[105,140,1.22],[224,118,1.12],[177,235,.94]]
-    : variant === "weekday" ? [[115,170,1.25],[247,196,1.04]]
-    : [[115,132,1],[218,110,.98],[157,235,1.05],[275,227,.92]];
-  return <svg className="storex-sushi-artwork" viewBox="0 0 370 340" role="img" aria-label="原创寿司插画示意，不代表真实商品">
-    <defs>
-      <linearGradient id={`plate-${variant}`} x1="0" x2="1" y1="0" y2="1"><stop stopColor="#f4e8d8"/><stop offset="1" stopColor="#bdad99"/></linearGradient>
-      <linearGradient id={`fish-${variant}`} x1="0" x2="1"><stop stopColor="#ffba7c"/><stop offset=".65" stopColor="#ee7864"/><stop offset="1" stopColor="#c85358"/></linearGradient>
-    </defs>
-    <ellipse cx="187" cy="185" rx="172" ry="146" fill="#000" opacity=".11"/>
-    <ellipse cx="183" cy="166" rx="173" ry="147" fill={`url(#plate-${variant})`}/>
-    <ellipse cx="183" cy="162" rx="160" ry="133" fill="#1b3433" stroke="#b4a18e" strokeWidth="8"/>
-    {pieces.map(([x,y,scale],i)=><g key={i} transform={`translate(${x} ${y}) rotate(${i%2===0?-14:23}) scale(${scale})`}>
-      <ellipse cx="0" cy="9" rx="47" ry="33" fill="#0a1b1b" opacity=".28"/>
-      <rect x="-37" y="-20" width="74" height="43" rx="20" fill="#faf2e8"/>
-      <rect x="-45" y="-25" width="90" height="33" rx="16" fill={`url(#fish-${variant})`}/>
-      <path d="M-25 -20Q-5 -8 24 -18M-21 -10Q-1 0 25 -11M-18 -1Q7 8 28 0" stroke="#ffd4b0" opacity=".7" strokeWidth="3" fill="none"/>
-    </g>)}
-    <circle cx="294" cy="84" r="19" fill="#e2d5bb" opacity=".9"/>
-    <circle cx="294" cy="84" r="12" fill="#4b7051"/>
-    <path d="M45 92L58 56M39 99L76 70" stroke="#dcb568" strokeWidth="5" strokeLinecap="round"/>
-  </svg>;
-}
-
+/** Seven genuinely distinct demo compositions, rendered from owned local demo photography. */
 export function SushiCampaignPoster({ campaign, modal = false }: { campaign: SushiCampaign; modal?: boolean }) {
-  return <div className={`storex-poster storex-poster--${campaign.id} storex-poster--format-${campaign.contentFormat} ${modal ? "is-modal" : ""}`} aria-label={`Sakura Sushi ${campaign.purpose}营销海报示例`}>
-    <div className="storex-poster-brand"><span className="storex-poster-monogram">桜</span><span>SAKURA <b>SUSHI</b></span><small>CAMPAIGN CONCEPT</small></div>
-    <div className="storex-poster-eyebrow">{campaign.eyebrow}</div>
-    <div className="storex-poster-message">
-      {campaign.headline.split("\n").map((line,i)=><span key={i}>{line}</span>)}
-    </div>
-    <div className="storex-poster-subheadline">{campaign.subheadline}</div>
-    {campaign.photo
-      ? <div className="storex-poster-photo"><Image src={campaign.photo} alt={campaign.purpose + "寿司店场景"} fill sizes={modal ? "450px" : "360px"} unoptimized /></div>
-      : <div className="storex-poster-illustration"><SushiArtwork variant={campaign.scene}/></div>}
-    <div className="storex-poster-action"><span>{campaign.cta}</span><span aria-hidden="true">↗</span></div>
-    <div className="storex-poster-signoff">SAKURA SUSHI <span>—</span> MADE WITH CARE</div>
+  return <div className={`storex-sushi-creative-frame ${modal ? "is-modal" : ""}`} aria-label={`Sakura Sushi ${campaign.purpose}创意展示`}>
+    <Image src={`/api/sakura-creative/${campaign.id}`} alt={`Sakura Sushi ${campaign.purpose}：${campaign.headline.replace(/\\n/g," ")}。虚构品牌创意效果，不代表真实菜品或餐厅。`} fill sizes={modal ? "450px" : "360px"} unoptimized />
   </div>;
 }
