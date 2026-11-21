@@ -152,10 +152,21 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       .composite(layers)
       .jpeg({ quality: 88, mozjpeg: true })
       .toBuffer();
-    return new Response(new Uint8Array(bytes), {
-      status: 200,
-      headers: { "Content-Type": "image/jpeg", "Cache-Control": "public, max-age=300, s-maxage=300", "X-Content-Type-Options": "nosniff" }
-    });
+    const headers: Record<string, string> = { "Content-Type": "image/jpeg", "Cache-Control": "public, max-age=300, s-maxage=300", "X-Content-Type-Options": "nosniff" };
+    // Deployment smoke check inspects final JPEG pixels on the LIVE Cloud Run
+    // revision (not fontconfig, a build test, or the original SVG).
+    if (id === "footfall" && new URL(_request.url).searchParams.get("verify") === "ink") {
+      const { data, info } = await sharp(bytes).extract({ left: 78, top: 1060, width: 820, height: 185 })
+        .removeAlpha().raw().toBuffer({ resolveWithObject: true });
+      let ink = 0;
+      for (let i = 0; i < data.length; i += info.channels) {
+        if (data[i] < 110 && data[i + 1] < 125 && data[i + 2] < 120) ink++;
+      }
+      if (ink <= 9000) throw new Error("rendered_jpeg_missing_title_ink:" + ink);
+      headers["X-Sakura-Title-Ink-Pixels"] = String(ink);
+      headers["Cache-Control"] = "no-store";
+    }
+    return new Response(new Uint8Array(bytes), { status: 200, headers });
   } catch (error) {
     console.error("Sakura demo creative failed", id, error instanceof Error ? error.message : "unknown");
     return new Response("Creative preview unavailable", { status: 503 });
