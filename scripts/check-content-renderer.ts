@@ -2,6 +2,7 @@ import { strict as assert } from "node:assert";
 import { createHash } from "node:crypto";
 import sharp from "sharp";
 import { newBrandProfileDraft } from "../src/lib/content-engine/brand-profile";
+import { submitBrandForReview, decideBrandReview, reviseApprovedBrand, BrandApprovalError } from "../src/lib/content-engine/brand-approval";
 import { renderContentMedia, ContentRenderError } from "../src/lib/content-engine/deterministic-renderer";
 import { validateOffer, type OfferFacts } from "../src/lib/content-engine/offers";
 
@@ -43,10 +44,28 @@ async function main() {
   await assert.rejects(async()=>renderContentMedia({profile:brand,photo:original,
       template:"food-editorial",format:"square",headline:"Sushi",mode:"publish",sourceAssetId:"photo-1"}),
     e=>e instanceof ContentRenderError && e.reason==="profile_not_approved");
-  brand.status="approved";
   brand.businessName.status="merchant_confirmed";
   brand.serviceArea.status="merchant_confirmed";
   brand.preferredLocale.status="merchant_confirmed";
+  const submitted=submitBrandForReview(brand,"merchant-1","2026-11-21T16:01:00Z");
+  assert.equal(brand.status,"draft","transitions must not mutate the source");
+  assert.equal(submitted.event.action,"submitted");
+  const approved=decideBrandReview(submitted.profile,"merchant-1","approve","2026-11-21T16:02:00Z");
+  assert.equal(approved.profile.status,"approved");
+  assert.equal(approved.profile.approvedBy,"merchant-1");
+  assert.equal(approved.event.version,1);
+  Object.assign(brand,approved.profile);
+  const revision=reviseApprovedBrand(approved.profile,"merchant-1","2026-11-21T16:03:00Z");
+  assert.equal(revision.profile.version,2);
+  assert.equal(revision.profile.status,"draft");
+  assert.equal(revision.profile.approvedAt,undefined);
+  assert.equal(approved.profile.status,"approved","approved snapshot must remain unchanged");
+  assert.throws(()=>decideBrandReview(approved.profile,"merchant-1","approve","2026-11-21T16:04:00Z"),
+    e=>e instanceof BrandApprovalError && e.reason==="not_pending_review");
+  const missingProvenance={...brand,approvedBy:undefined};
+  await assert.rejects(async()=>renderContentMedia({profile:missingProvenance,photo:original,
+      template:"food-editorial",format:"square",headline:"Sushi",mode:"publish",sourceAssetId:"photo-1"}),
+    e=>e instanceof ContentRenderError && e.reason==="profile_not_approved");
   const publish=await renderContentMedia({profile:brand,photo:original,
     sourceAssetId:"photo-1",template:"product-feature",format:"square",
     headline:"A fresh sushi lunch",cta:"Visit us",offer:promo,mode:"publish"});
