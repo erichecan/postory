@@ -22,8 +22,6 @@ const PARTNERS_REF_KEY_PATTERN = /^partners-ref\/([a-z0-9]{10,40})\/([a-f0-9]{16
 // partners-asset/ 前缀存放 PoStory 内部人工制作好、要给代理商看的试做样片，语义上本来就是"要展示给潜在客户看"的东西，
 // 和 partners-ref/ 一样靠 key 里的随机串不可猜测，不要求登录。
 const PARTNERS_ASSET_KEY_PATTERN = /^partners-asset\/([a-z0-9]{10,40})\/([a-f0-9]{16,32})\.(?:png|jpg|webp)$/;
-// Private Content Engine photos. Each key is tied to one authenticated owner and a DB asset row.
-const CONTENT_BRAND_KEY_PATTERN = /^content-brand\/([a-z0-9]{10,40})\/([a-z0-9]{10,40})\.(?:png|jpg|webp)$/;
 const RESTAURANT_CAMPAIGN_KEY_PATTERN = /^restaurant-campaign\/([a-z0-9]{10,40})\/([a-f0-9]{16,32})\.(?:png|jpg|webp)$/;
 
 const LOCAL_ROOT = path.join(process.cwd(), ".data", "uploads");
@@ -36,26 +34,8 @@ export function isMediaKey(key: string) {
     NAILS_EXPORT_KEY_PATTERN.test(key) ||
     PARTNERS_REF_KEY_PATTERN.test(key) ||
     PARTNERS_ASSET_KEY_PATTERN.test(key) ||
-    RESTAURANT_CAMPAIGN_KEY_PATTERN.test(key) ||
-    CONTENT_BRAND_KEY_PATTERN.test(key)
+    RESTAURANT_CAMPAIGN_KEY_PATTERN.test(key)
   );
-}
-
-export function contentBrandMediaKey(ownerId: string, assetId: string, mime: string) {
-  const ext = EXT_BY_MIME[mime];
-  if (!ext || ext === "svg" || !/^[a-z0-9]{10,40}$/.test(ownerId) || !/^[a-z0-9]{10,40}$/.test(assetId)) {
-    throw new Error("invalid brand asset key");
-  }
-  return `content-brand/${ownerId}/${assetId}.${ext}`;
-}
-
-export function parseContentBrandMediaKey(key: string) {
-  const match = CONTENT_BRAND_KEY_PATTERN.exec(key);
-  return match ? { ownerId: match[1], assetId: match[2] } : null;
-}
-
-export function contentBrandMediaUrl(assetId: string) {
-  return `/api/content-engine/brand/assets/${assetId}`;
 }
 
 export function nailsExportKey(studioId: string, postId: string) {
