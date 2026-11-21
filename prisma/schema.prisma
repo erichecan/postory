@@ -260,8 +260,7 @@ model User {
   ayrshareProfileKeyEnc         String?
   ayrshareRefId                 String?
   profile                       BrandProfile?
-  contentBrandProfile           ContentBrandProfile?
-  contentBrandAssets            ContentBrandAsset[]
+  contentBrandShops             ContentBrandShop[]
   designs                       Design[]
   plan                          CustomerPlan?
   grants                        CreditGrant[]
@@ -1153,31 +1152,44 @@ model PartnerTrialFeedback {
 }
 
 /**
- * Content Engine Brand Profile is separate from legacy BrandProfile used by
- * account settings. One private draft per authenticated owner in phase one.
- * Do not expose brand assets through public media routes.
+ * Private multi-shop content-engine workspace. Membership is checked through
+ * ownerId; agency delegates are NOT supported by this first iteration.
  */
+model ContentBrandShop {
+  id        String               @id @default(cuid())
+  ownerId   String
+  owner     User                 @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name      String               @db.VarChar(120)
+  industry  String               @db.VarChar(32)
+  profile   ContentBrandProfile?
+  assets    ContentBrandAsset[]
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  @@unique([id, ownerId])
+  @@index([ownerId, createdAt])
+}
+
 model ContentBrandProfile {
-  id        String   @id @default(cuid())
-  ownerId   String   @unique
-  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  industry  String   @db.VarChar(32)
-  revision  Int      @default(1)
+  id        String           @id @default(cuid())
+  shopId    String           @unique
+  shop      ContentBrandShop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  revision  Int              @default(1)
   data      Json
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
 }
 
 model ContentBrandAsset {
-  id        String   @id @default(cuid())
-  ownerId   String
-  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  kind      String   @db.VarChar(24)
-  key       String   @unique
-  mime      String   @db.VarChar(32)
-  sha256    String   @db.Char(64)
+  id        String           @id @default(cuid())
+  shopId    String
+  shop      ContentBrandShop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  kind      String           @db.VarChar(24)
+  key       String           @unique
+  mime      String           @db.VarChar(32)
+  sha256    String           @db.Char(64)
   byteSize  Int
-  createdAt DateTime @default(now())
+  createdAt DateTime         @default(now())
 
-  @@index([ownerId, createdAt])
+  @@index([shopId, createdAt])
 }
