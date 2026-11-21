@@ -56,7 +56,7 @@ export function MarketingGoalPicker({
     <div className="storex-choice-head">
       <span className="storex-eyebrow">第 1 步 · 营销目的</span>
       <h1>这次营销，你最希望带来什么变化？</h1>
-      <p>先选择一个主要经营目标。右侧直接预览同一家寿司店为这个目标设计的营销海报，之后再决定内容制作方式。</p>
+      <p>先选择一个主要经营目标。右侧预览同一家寿司店为这个目标设计的营销内容，之后再决定内容制作方式。</p>
     </div>
     <div className="storex-choice-layout">
       <div className="storex-goal-list" role="radiogroup" aria-label="选择营销目的">
@@ -77,7 +77,7 @@ export function MarketingGoalPicker({
         <div className="storex-case-meta"><span>SAKURA SUSHI · 创意展示</span><span>{example.purpose}</span></div>
         <div className="storex-case-poster-wrap"><SushiCampaignPoster campaign={example}/></div>
         <div className="storex-case-copy">
-          <span className="storex-case-kicker">这张海报为什么对应「{active.title}」？</span>
+          <span className="storex-case-kicker">这个创意为什么对应「{active.title}」？</span>
           <p>{example.description}</p>
         </div>
         <div className="storex-case-bottom">
