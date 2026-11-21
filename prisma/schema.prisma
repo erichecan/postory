@@ -260,6 +260,7 @@ model User {
   ayrshareProfileKeyEnc         String?
   ayrshareRefId                 String?
   profile                       BrandProfile?
+  contentBrandShops             ContentBrandShop[]
   designs                       Design[]
   plan                          CustomerPlan?
   grants                        CreditGrant[]
@@ -1148,4 +1149,65 @@ model PartnerTrialFeedback {
   createdAt      DateTime                     @default(now())
 
   @@index([trialRequestId, createdAt])
+}
+
+/**
+ * Private multi-shop content-engine workspace. Membership is checked through
+ * ownerId; agency delegates are NOT supported by this first iteration.
+ */
+model ContentBrandShop {
+  id        String               @id @default(cuid())
+  ownerId   String
+  owner     User                 @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name      String               @db.VarChar(120)
+  industry  String               @db.VarChar(32)
+  profile   ContentBrandProfile?
+  assets    ContentBrandAsset[]
+  reviewEvents ContentBrandReviewEvent[]
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  @@unique([id, ownerId])
+  @@index([ownerId, createdAt])
+}
+
+model ContentBrandProfile {
+  id        String           @id @default(cuid())
+  shopId    String           @unique
+  shop      ContentBrandShop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  revision  Int              @default(1)
+  data      Json
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+}
+
+model ContentBrandAsset {
+  id        String           @id @default(cuid())
+  shopId    String
+  shop      ContentBrandShop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  kind      String           @db.VarChar(24)
+  key       String           @unique
+  mime      String           @db.VarChar(32)
+  sha256    String           @db.Char(64)
+  byteSize  Int
+  createdAt DateTime         @default(now())
+
+  @@index([shopId, createdAt])
+}
+
+/**
+ * Append-only review snapshots: submitting a draft never grants publish approval.
+ * Full merchant/design approval and delegation require a separate role model.
+ */
+model ContentBrandReviewEvent {
+  id          String           @id @default(cuid())
+  shopId      String
+  shop        ContentBrandShop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  actorUserId String
+  event       String           @db.VarChar(32)
+  revision    Int
+  snapshot    Json
+  createdAt   DateTime         @default(now())
+
+  @@index([shopId, createdAt])
 }

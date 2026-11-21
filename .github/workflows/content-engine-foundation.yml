@@ -1,0 +1,80 @@
+name: Content Engine Foundation
+
+on:
+  pull_request:
+    paths:
+      - "src/lib/content-engine/**"
+      - "src/components/content-engine/**"
+      - "src/app/for/sushi/**"
+      - "src/app/api/content-engine/**"
+      - "src/lib/storage.ts"
+      - "prisma/**"
+      - "scripts/check-content-engine-foundation.ts"
+      - "scripts/check-content-engine-postgres.ts"
+      - "scripts/check-content-engine-images.ts"
+      - "package.json"
+      - "docs/content-engine/**"
+      - ".github/workflows/content-engine-foundation.yml"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Reconcile existing lockfile metadata
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Generate route types
+        run: npx next typegen
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Lint foundation
+        run: npx eslint src/lib/content-engine src/components/content-engine src/app/for/sushi src/app/api/content-engine scripts/check-content-engine-foundation.ts scripts/check-content-engine-images.ts scripts/check-content-engine-postgres.ts
+      - name: Industry and Brand Profile unit checks
+        run: npx tsx scripts/check-content-engine-foundation.ts
+      - name: Decode and dimension check fixture images
+        run: npx tsx scripts/check-content-engine-images.ts
+      - name: Production build
+        run: npm run build
+
+  postgres-isolation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: postory_ci
+          POSTGRES_USER: postory_ci
+          POSTGRES_PASSWORD: postory_ci_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postory_ci -d postory_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postory_ci:postory_ci_password@127.0.0.1:5432/postory_ci
+      CONTENT_ENGINE_TEST_DB: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Reconcile existing lockfile metadata
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Apply all migrations to isolated Postgres
+        run: npx prisma migrate deploy
+      - name: Verify shop ownership, draft revisions and asset boundaries
+        run: npx tsx scripts/check-content-engine-postgres.ts
