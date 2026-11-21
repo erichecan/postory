@@ -19,6 +19,9 @@ Existing live flow on GitHub `main`:
 - Selecting a goal **does not auto-advance**; user can inspect the sample and then explicitly continue.
 - Marketing-approach selection is visually simplified, with concise selection rows, a contextual image and an explanation; existing promotion types, dates, rules and validation remain intact.
 - More readable typography, focus states and small-screen layout for relevant form fields.
+- Follow-on visual refinement: store-information fields, products, scheduling form and calendar action typography.
+- Marketing case dialog supports Escape, focus trap, focus restoration and body scroll lock.
+- Added `.github/workflows/postory-v2-interface.yml` to run TypeScript and targeted ESLint on pull requests. No passing run has yet been observed.
 - Preserves the current data model, localStorage draft recovery, product entry, marketing-calendar API, content editing and scheduling logic.
 
 ## Review boundaries and test plan
@@ -33,7 +36,7 @@ Existing live flow on GitHub `main`:
 - [ ] Revisit previously completed steps; preserve entered data and previously generated plan.
 - [ ] Verify account permissions and real publishing flows before using the feature branch in production.
 
-Current changes are code only; no build, functional browser QA, GCP deployment, or live publish test is asserted. Existing `main` and the production Cloud Run service remain unchanged.
+Current changes are code only; no successful build, functional browser QA, GCP deployment, or live publish test has been observed. The environment used for this change cannot clone the repo from GitHub for an independent local build. CI job is configured but not yet observed passing. Existing `main` and the production Cloud Run service remain unchanged.
 
 ## Future polish
 
