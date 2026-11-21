@@ -1,4 +1,5 @@
 import sharp from "sharp";
+import { createHash } from "node:crypto";
 import type { BrandProfileDraft } from "./brand-profile";
 import { checkBrandProfileForApproval, confirmedBrandFacts } from "./brand-profile";
 import { type OfferFacts, validateOffer } from "./offers";
@@ -20,6 +21,7 @@ export type RenderMode="preview" | "publish";
 export type RenderRequest={
   profile:BrandProfileDraft;
   photo:Buffer;
+  sourceAssetId?:string;
   template:ContentTemplate;
   format:ContentFormat;
   headline:string;
@@ -115,8 +117,11 @@ export async function renderContentMedia(input:RenderRequest):Promise<{
   if(input.mode==="publish"){
     if(input.profile.status!=="approved" || !checkBrandProfileForApproval(input.profile).canApprove)
       throw new ContentRenderError("profile_not_approved");
-    if(input.profile.assets.some(a=>a.sourcePermission==="needs_confirmation" || !a.approvedForPublishing))
-      throw new ContentRenderError("unapproved_brand_assets");
+    const asset=input.profile.assets.find(a=>a.assetId===input.sourceAssetId);
+    if(!asset || asset.sourcePermission==="needs_confirmation" || !asset.approvedForPublishing)
+      throw new ContentRenderError("unapproved_source_asset");
+    const sha=createHash("sha256").update(input.photo).digest("hex");
+    if(sha!==asset.sha256)throw new ContentRenderError("asset_hash_mismatch");
   }
   const offerCheck=input.offer?validateOffer(input.profile.industry,input.offer):null;
   if(input.mode==="publish" && offerCheck && !offerCheck.valid)
