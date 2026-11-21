@@ -44,11 +44,13 @@ export async function POST(request: NextRequest) {
   // Explicit merchant affirmation must be supplied for each publishable asset.
   // Client cannot submit sourcePermission, SHA or storage keys.
   const approve=v.decision==="approve";
-  const assetIds=v.approvedAssetIds;
+  const rights=v.assetRights;
   if (approve && (v.confirmBrandFacts!==true || v.confirmImageRights!==true ||
-      !Array.isArray(assetIds) || assetIds.length>8 ||
-      assetIds.some(id=>typeof id!=="string" || !/^[a-f0-9]{24}$/.test(id)) ||
-      new Set(assetIds).size!==assetIds.length))
+      !Array.isArray(rights) || rights.length>8 ||
+      rights.some(item=>!item || typeof item!=="object" ||
+        !/^[a-f0-9]{24}$/.test(String(item.assetId)) ||
+        !["merchant_owned","merchant_licensed"].includes(item.sourcePermission)) ||
+      new Set(rights.map(item=>item.assetId)).size!==rights.length))
     return Response.json({error:"merchant_confirmation_required"},{status:422,headers:PRIVATE_HEADERS});
   try {
     const result=await prisma.$transaction(async tx=>{
@@ -60,7 +62,9 @@ export async function POST(request: NextRequest) {
         return null;
       const input=structuredClone(draft);
       if (approve) {
-        const supplied=new Set(assetIds as string[]);
+        const confirmedRights=new Map((rights as Array<{assetId:string;sourcePermission:"merchant_owned"|"merchant_licensed"}>)
+          .map(item=>[item.assetId,item.sourcePermission]));
+        const supplied=new Set(confirmedRights.keys());
         const expected=new Set(input.assets.map(a=>a.assetId));
         if (supplied.size!==expected.size || [...expected].some(id=>!supplied.has(id)))
           throw new BrandApprovalError("asset_confirmation_mismatch");
@@ -81,7 +85,7 @@ export async function POST(request: NextRequest) {
         // Optional brand styling is approved by the merchant, but do not
         // auto-confirm factual claims extracted from AI or other sources.
         for (const asset of input.assets) {
-          asset.sourcePermission="merchant_owned";
+          asset.sourcePermission=confirmedRights.get(asset.assetId)!;
           asset.approvedForPublishing=true;
         }
       }
