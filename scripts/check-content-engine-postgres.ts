@@ -67,9 +67,27 @@ try {
     where:{shopId:shopB.id,id:{in:[asset.id]}}
   })).length,0);
 
+  const submitted=await prisma.$transaction(async tx=>{
+    const cas=await tx.contentBrandProfile.updateMany({
+      where:{shopId:shopA.id,revision:2},
+      data:{revision:{increment:1},data:{shopName:"Sushi A",status:"pending_review",version:3}}
+    });
+    assert.equal(cas.count,1);
+    return tx.contentBrandReviewEvent.create({
+      data:{shopId:shopA.id,actorUserId:ownerA,event:"submitted_for_review",revision:3,
+        snapshot:{shopName:"Sushi A",status:"pending_review",version:3}}
+    });
+  });
+  assert.equal(submitted.revision,3);
+  assert.equal((await prisma.contentBrandReviewEvent.findMany({where:{shopId:shopA.id}})).length,1);
+  assert.equal((await prisma.contentBrandReviewEvent.findMany({where:{shopId:shopB.id}})).length,0);
+  assert.equal((await prisma.contentBrandReviewEvent.findMany({where:{shopId:shopOtherOwner.id}})).length,0);
+  assert.equal((await prisma.contentBrandProfile.findUniqueOrThrow({where:{shopId:shopA.id}})).revision,3);
+
   await prisma.contentBrandShop.delete({where:{id:shopA.id}});
   assert.equal(await prisma.contentBrandProfile.findUnique({where:{shopId:shopA.id}}),null);
   assert.equal(await prisma.contentBrandAsset.findUnique({where:{id:asset.id}}),null);
+  assert.equal((await prisma.contentBrandReviewEvent.findMany({where:{shopId:shopA.id}})).length,0);
   assert.ok(await prisma.contentBrandProfile.findUnique({where:{shopId:shopB.id}}));
 
   process.stdout.write("PASS: multi-shop isolation, asset ownership, revision conflicts, cascading deletes (Postgres)\n");
