@@ -5,6 +5,7 @@ import { newBrandProfileDraft } from "../src/lib/content-engine/brand-profile";
 import { submitBrandForReview, decideBrandReview, reviseApprovedBrand, BrandApprovalError } from "../src/lib/content-engine/brand-approval";
 import { renderContentMedia, ContentRenderError } from "../src/lib/content-engine/deterministic-renderer";
 import { validateOffer, type OfferFacts } from "../src/lib/content-engine/offers";
+import { parseContentApprovalInput, createApprovedContentManifest, isApprovedContentManifest, contentApprovalDigest } from "../src/lib/content-engine/content-approval";
 
 async function main() {
   const promo:OfferFacts = {
@@ -78,6 +79,27 @@ async function main() {
       template:"product-feature",format:"square",headline:"Sushi",mode:"publish",sourceAssetId:"photo-1",
       offer:{...promo,confirmedByMerchant:false}}),
     e=>e instanceof ContentRenderError && e.reason==="offer_not_confirmed");
+  // Exact customer-confirmed copy must survive audit serialization unchanged.
+  const contentInput={
+    shopId:"shop1234567890",brandApprovalEventId:"approval1234567890",
+    brandRevision:4,assetId:"a".repeat(24),format:"square",
+    template:"food-editorial",headline:"Fresh Sushi",subheadline:"Visit us today",cta:"View menu"
+  };
+  const parsed=parseContentApprovalInput(contentInput);
+  assert.ok(parsed,"valid non-promotional content required");
+  const manifest=createApprovedContentManifest(parsed,"merchant-1","2026-11-21T16:05:00Z");
+  assert.ok(isApprovedContentManifest(JSON.parse(JSON.stringify(manifest))));
+  assert.equal(manifest.digest,contentApprovalDigest(parsed));
+  assert.equal(isApprovedContentManifest({...manifest,headline:"UNAPPROVED 90% OFF"}),false,
+    "changed copy must never reuse prior approval");
+  assert.equal(isApprovedContentManifest({...manifest,assetId:"b".repeat(24)}),false,
+    "changed image must never reuse prior approval");
+  assert.equal(isApprovedContentManifest({...manifest,brandRevision:5}),false,
+    "changed brand revision must never reuse prior approval");
+  assert.equal(parseContentApprovalInput({...contentInput,offer:promo}),null,
+    "promotions need a disclosure-safe layout before export");
+  assert.equal(parseContentApprovalInput({...contentInput,headline:"\u0000Hidden"}),null);
+  assert.equal(parseContentApprovalInput({...contentInput,assetId:"wrong"}),null);
   console.log("PASS: industry offer rules, three deterministic PNG layouts, and publish-only confirmed fact/asset gates.");
 }
 void main().catch(error=>{console.error(error);process.exitCode=1;});
