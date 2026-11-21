@@ -123,7 +123,7 @@ function SushiArtwork({ variant }: { variant: SushiCampaign["scene"] }) {
 }
 
 export function SushiCampaignPoster({ campaign, modal = false }: { campaign: SushiCampaign; modal?: boolean }) {
-  return <div className={`storex-poster storex-poster--${campaign.id} ${modal ? "is-modal" : ""}`} aria-label={`Sakura Sushi ${campaign.purpose}营销海报示例`}>
+  return <div className={`storex-poster storex-poster--${campaign.id} storex-poster--format-${campaign.contentFormat} ${modal ? "is-modal" : ""}`} aria-label={`Sakura Sushi ${campaign.purpose}营销海报示例`}>
     <div className="storex-poster-brand"><span className="storex-poster-monogram">桜</span><span>SAKURA <b>SUSHI</b></span><small>CAMPAIGN CONCEPT</small></div>
     <div className="storex-poster-eyebrow">{campaign.eyebrow}</div>
     <div className="storex-poster-message">
