@@ -78,6 +78,9 @@ export async function PUT(request: NextRequest) {
   if (assets.length!==input.assetIds.length) return Response.json({error:"invalid_asset_ownership"},{status:403});
   const now=new Date().toISOString();
   const existing=await prisma.contentBrandProfile.findUnique({where:{shopId}});
+  if (existing && (existing.data as unknown as BrandProfileDraft).status !== "draft") {
+    return Response.json({error:"profile_locked_for_review"},{status:409,headers:{"Cache-Control":"no-store"}});
+  }
   if ((!existing && expectedRevision!==null) || (existing && existing.revision!==expectedRevision)) {
     return Response.json({error:"revision_conflict"},{status:409});
   }

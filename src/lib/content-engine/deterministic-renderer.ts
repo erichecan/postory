@@ -1,7 +1,8 @@
 import sharp from "sharp";
 import { createHash } from "node:crypto";
 import type { BrandProfileDraft } from "./brand-profile";
-import { checkBrandProfileForApproval, confirmedBrandFacts } from "./brand-profile";
+import { confirmedBrandFacts } from "./brand-profile";
+import { isApprovedBrandSnapshot } from "./brand-approval";
 import { type OfferFacts, validateOffer } from "./offers";
 
 /**
@@ -115,7 +116,7 @@ export async function renderContentMedia(input:RenderRequest):Promise<{
   if(!templates.includes(input.template)) throw new ContentRenderError("unsupported_template");
   if(input.photo.length>6*1024*1024)throw new ContentRenderError("photo_too_large");
   if(input.mode==="publish"){
-    if(input.profile.status!=="approved" || !checkBrandProfileForApproval(input.profile).canApprove)
+    if(!isApprovedBrandSnapshot(input.profile))
       throw new ContentRenderError("profile_not_approved");
     const asset=input.profile.assets.find(a=>a.assetId===input.sourceAssetId);
     if(!asset || asset.sourcePermission==="needs_confirmation" || !asset.approvedForPublishing)

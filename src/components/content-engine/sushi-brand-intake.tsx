@@ -24,7 +24,10 @@ export function SushiBrandIntake() {
   const [images, setImages] = useState<IntakeImage[]>([]);
   const [error, setError] = useState("");
   const [revision, setRevision] = useState<number | null>(null);
-  const [profileStatus, setProfileStatus] = useState<"draft" | "pending_review">("draft");
+  const [profileStatus, setProfileStatus] = useState<"draft" | "pending_review" | "approved">("draft");
+  const [confirmedBrandFacts, setConfirmedBrandFacts] = useState(false);
+  const [confirmedImageRights, setConfirmedImageRights] = useState(false);
+  const [imageRights, setImageRights] = useState<Record<string,"merchant_owned"|"merchant_licensed">>({});
   const [savedFingerprint, setSavedFingerprint] = useState("");
   const [shops, setShops] = useState<Array<{id:string;name:string;industry:string}>>([]);
   const [shopId, setShopId] = useState("");
@@ -71,12 +74,12 @@ export function SushiBrandIntake() {
         const response=await fetch(`/api/content-engine/brand?shopId=${encodeURIComponent(shopId)}`,{cache:"no-store"});
         if (!response.ok) throw new Error("load_failed");
         const data=await response.json() as {profile?:{
-          revision:number;status:"draft"|"pending_review";businessName:string;serviceArea:string;locale:"zh"|"en";
+          revision:number;status:"draft"|"pending_review"|"approved";businessName:string;serviceArea:string;locale:"zh"|"en";
           tagline:string;website:string;voice:"minimal"|"warm"|"bright";accent:string;
           assets:Array<{id:string;kind:AssetType;url:string}>;
         }|null};
         if(cancelled) return;
-        setRevision(null);setProfileStatus("draft");setSavedFingerprint("");setStage("details");setSaveMessage("");
+        setRevision(null);setProfileStatus("draft");setSavedFingerprint("");setStage("details");setSaveMessage("");setConfirmedBrandFacts(false);setConfirmedImageRights(false);setImageRights({});
         setBusinessName("");setLocation("");setTagline("");setWebsite("");setTone("minimal");setLanguage("en");setAccent("#2F5149");setImages([]);
         if(!data.profile)return;
         setBusinessName(data.profile.businessName);
@@ -88,6 +91,7 @@ export function SushiBrandIntake() {
         setAccent(data.profile.accent);
         setRevision(data.profile.revision);
         setProfileStatus(data.profile.status);
+        if (data.profile.status!=="draft") setStage("profile");
         setSavedFingerprint(JSON.stringify([data.profile.businessName,data.profile.serviceArea,data.profile.locale,data.profile.tagline,data.profile.website,data.profile.voice,data.profile.accent,data.profile.assets.map(a=>a.id)]));
         setImages(data.profile.assets.map(a=>({id:a.id,name:"已保存素材",url:a.url,type:a.kind})));
         setSaveMessage(`已恢复第 ${data.profile.revision} 版草稿。`);
@@ -103,7 +107,7 @@ export function SushiBrandIntake() {
     for(const asset of images){
       if(asset.file){URL.revokeObjectURL(asset.url);imageUrls.current.delete(asset.url);}
     }
-    setImages([]);setRevision(null);setSavedFingerprint("");setProfileStatus("draft");setSaveMessage("");setError("");
+    setImages([]);setRevision(null);setSavedFingerprint("");setProfileStatus("draft");setSaveMessage("");setError("");setConfirmedBrandFacts(false);setConfirmedImageRights(false);setImageRights({});
     setShopId(nextShopId);
   }
 
@@ -125,7 +129,7 @@ export function SushiBrandIntake() {
   }
 
   async function saveDraft() {
-    if (!canProceed || saving || loadingDraft || loginRequired || engineNotEnabled || !shopId) return;
+    if (!canProceed || saving || loadingDraft || loginRequired || engineNotEnabled || !shopId || profileStatus!=="draft") return;
     setSaving(true); setError(""); setSaveMessage("");
     try {
       const uploaded = await Promise.all(images.map(async asset => {
@@ -181,6 +185,53 @@ export function SushiBrandIntake() {
       const message=error instanceof Error?error.message:"review_failed";
       setError(message==="revision_conflict"?"该档案已有更新，请刷新后再提交审核。":"提交审核失败，请检查登录状态或稍后再试。");
     } finally {setSaving(false);}
+  }
+
+  async function decideReview(decision:"approve"|"request_changes") {
+    if (!shopId || !revision || saving || profileStatus!=="pending_review") return;
+    if (decision==="approve" && (!confirmedBrandFacts || !confirmedImageRights ||
+        images.some(asset=>!imageRights[asset.id]))) {
+      setError("请确认品牌信息，并逐张确认图片使用权。");
+      return;
+    }
+    setSaving(true);setError("");setSaveMessage("");
+    try {
+      const response=await fetch("/api/content-engine/brand/review/decision",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({shopId,expectedRevision:revision,decision,
+          confirmBrandFacts:confirmedBrandFacts,confirmImageRights:confirmedImageRights,
+          assetRights:images.map(asset=>({assetId:asset.id,sourcePermission:imageRights[asset.id]}))
+        })
+      });
+      const data=await response.json() as {revision?:number;status?:"draft"|"approved";error?:string};
+      if(!response.ok || !data.revision || !data.status)throw new Error(data.error||"decision_failed");
+      setRevision(data.revision);setProfileStatus(data.status);
+      setSaveMessage(data.status==="approved"
+        ?"品牌资料已由门店账号确认批准。后续修改必须创建新的草稿版本。"
+        :"已退回草稿，可修改后重新提交审核。");
+    }catch(error){
+      const message=error instanceof Error?error.message:"decision_failed";
+      setError(message==="revision_conflict"?"版本发生变化，请刷新后重试。":
+        message==="asset_ownership_or_hash_mismatch"?"素材已发生变化，请刷新后检查。":
+        "审批操作未完成，请检查确认事项或稍后重试。");
+    }finally{setSaving(false);}
+  }
+
+  async function startRevision() {
+    if (!shopId || !revision || saving || profileStatus!=="approved")return;
+    setSaving(true);setError("");setSaveMessage("");
+    try {
+      const response=await fetch("/api/content-engine/brand/review/revise",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({shopId,expectedRevision:revision})
+      });
+      const data=await response.json() as {revision?:number;error?:string};
+      if(!response.ok || !data.revision)throw new Error(data.error||"revision_failed");
+      setRevision(data.revision);setProfileStatus("draft");
+      setConfirmedBrandFacts(false);setConfirmedImageRights(false);setImageRights({});
+      setSaveMessage(`已创建第 ${data.revision} 版草稿；修改后需要再次提交审核。`);
+    }catch{setError("无法创建新版本，请刷新并重试。");}
+    finally{setSaving(false);}
   }
 
   const logo = images.find((asset) => asset.type === "logo");
@@ -274,7 +325,7 @@ setSaveMessage("");
       <div className="ps-brand-panel-head"><span className="ps-vertical-eyebrow">03 / BRAND PROFILE</span><h2>这是你的品牌起点。</h2><p>下面的品牌颜色和风格是可修改的初步建议，尚未经过 AI 自动识别或人工确认。真实商品价格、营业时间和优惠规则还需要后续核实。</p></div>
       <div className="ps-brand-review-grid">
         <article className={`ps-brand-profile-card tone-${tone}`} style={{"--brand-accent":accent} as CSSProperties}>
-          <div className="ps-brand-profile-top"><span>BRAND PROFILE / DRAFT</span><span>01</span></div>
+          <div className="ps-brand-profile-top"><span>BRAND PROFILE / {profileStatus==="approved"?"APPROVED":profileStatus==="pending_review"?"IN REVIEW":"DRAFT"}</span><span>01</span></div>
           <div className="ps-brand-profile-wordmark">{logo ? <Image src={logo.url} alt="上传的品牌 Logo" width={70} height={70} unoptimized/> : <span className="ps-brand-profile-mark">{businessName.trim().slice(0,1) || "S"}</span>}<span>{businessName || "Your Sushi Restaurant"}</span></div>
           <div className="ps-brand-profile-image">{scenes[0] ? <Image src={scenes[0].url} alt="门店实景预览" fill sizes="(max-width: 640px) 100vw, 440px" unoptimized/> : <Image src={PLACEHOLDER} alt="示意门店场景，不是你的店铺照片" fill sizes="(max-width: 640px) 100vw, 440px" unoptimized/>}{!scenes.length && <span>示意背景 · 待上传真实门店照片</span>}</div>
           <div className="ps-brand-profile-bottom"><span>{location || "Your neighbourhood"}</span><strong>{tagline || (language === "en" ? "A place for fresh moments." : "让每一餐都有好心情。")}</strong><small>VISUAL DIRECTION · {toneNames[tone]}</small></div>
@@ -286,7 +337,26 @@ setSaveMessage("");
         </div>
       </div>
       {saveMessage && <p className="ps-brand-local-confirm" role="status"><Check size={17}/>{saveMessage}</p>}{error && <p className="ps-brand-error" role="alert">{error}</p>}
-      <div className="ps-brand-panel-actions"><button type="button" className="ps-brand-secondary" onClick={()=>setStage("photos")}>返回修改素材</button>{loginRequired ? <Link className="ps-vertical-button" href="/login?next=%2Ffor%2Fsushi%2Fbrand"><ShieldCheck size={17}/> 登录后保存</Link> : <><button type="button" className="ps-vertical-button" disabled={!canProceed || !shopId || saving || loadingDraft || engineNotEnabled} onClick={()=>void saveDraft()}><ShieldCheck size={17}/>{saving ? "正在安全保存…" : "保存品牌档案草稿"}</button>{profileStatus==="pending_review" ? <span className="ps-brand-review-status">已提交审核，未获批准</span> : <button type="button" className="ps-brand-secondary" disabled={!unchangedSinceSave || saving} onClick={()=>void requestBrandReview()}>提交审核</button>}</>}</div>
+      {profileStatus==="pending_review" && !loginRequired && <div className="ps-brand-review-box">
+        <h3>门店确认 · 正式审批</h3>
+        <p>只有门店账号可以确认此版本。批准后才能作为发布依据；此操作不会自动发布任何内容。</p>
+        <label><input type="checkbox" checked={confirmedBrandFacts} onChange={event=>setConfirmedBrandFacts(event.target.checked)}/> 我已核实门店名称、服务地区和本页品牌资料的真实性。</label>
+        <label><input type="checkbox" checked={confirmedImageRights} onChange={event=>setConfirmedImageRights(event.target.checked)}/> 我确认拥有或获得了所选图片用于商业宣传的合法授权。</label>
+        {images.map(asset=><label key={asset.id}>{asset.type==="logo"?"品牌 Logo":asset.type==="store"?"门店照片":"商品照片"} · {asset.name}
+          <select aria-label={`图片使用权 ${asset.name}`} value={imageRights[asset.id]||""}
+            onChange={event=>setImageRights(current=>({...current,[asset.id]:event.target.value as "merchant_owned"|"merchant_licensed"}))}>
+            <option value="">请选择图片使用权</option>
+            <option value="merchant_owned">门店自行拥有版权</option>
+            <option value="merchant_licensed">已取得商业用途授权</option>
+          </select>
+        </label>)}
+      </div>}
+      {profileStatus!=="draft" && <p className="ps-brand-review-status" role="status">{profileStatus==="approved"?"此版本已批准，当前资料已锁定。":"资料待确认，当前版本暂时锁定，不能编辑或保存。"}</p>}
+      <div className="ps-brand-panel-actions"><button type="button" className="ps-brand-secondary" onClick={()=>setStage("photos")} disabled={profileStatus!=="draft"}>返回修改素材</button>{loginRequired ? <Link className="ps-vertical-button" href="/login?next=%2Ffor%2Fsushi%2Fbrand"><ShieldCheck size={17}/> 登录后保存</Link> : <>
+        {profileStatus==="draft" && <><button type="button" className="ps-vertical-button" disabled={!canProceed || !shopId || saving || loadingDraft || engineNotEnabled} onClick={()=>void saveDraft()}><ShieldCheck size={17}/>{saving ? "正在安全保存…" : "保存品牌档案草稿"}</button><button type="button" className="ps-brand-secondary" disabled={!unchangedSinceSave || saving} onClick={()=>void requestBrandReview()}>提交审核</button></>}
+        {profileStatus==="pending_review" && <><button type="button" className="ps-brand-secondary" disabled={saving} onClick={()=>void decideReview("request_changes")}>退回修改</button><button type="button" className="ps-vertical-button" disabled={saving||!confirmedBrandFacts||!confirmedImageRights||images.some(asset=>!imageRights[asset.id])} onClick={()=>void decideReview("approve")}>确认并批准品牌档案</button></>}
+        {profileStatus==="approved" && <button type="button" className="ps-brand-secondary" disabled={saving} onClick={()=>void startRevision()}>创建新草稿版本</button>}
+      </>}</div>
     </section>}
     <aside className="ps-brand-privacy"><LockKeyhole size={17}/><span>品牌资料在登录、选择门店并点击“保存品牌档案草稿”后上传到门店专属的私有存储。保存的是未审核草稿，不等于商家授权图片使用、正式确认品牌规范或批准发布。</span></aside>
     <footer className="ps-brand-footer"><Link href="/for/sushi">Sushi Marketing</Link><span>PoStory · Done-for-You Marketing</span></footer>

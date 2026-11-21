@@ -2,8 +2,10 @@ import { strict as assert } from "node:assert";
 import { createHash } from "node:crypto";
 import sharp from "sharp";
 import { newBrandProfileDraft } from "../src/lib/content-engine/brand-profile";
+import { submitBrandForReview, decideBrandReview, reviseApprovedBrand, BrandApprovalError } from "../src/lib/content-engine/brand-approval";
 import { renderContentMedia, ContentRenderError } from "../src/lib/content-engine/deterministic-renderer";
 import { validateOffer, type OfferFacts } from "../src/lib/content-engine/offers";
+import { parseContentApprovalInput, createApprovedContentManifest, isApprovedContentManifest, contentApprovalDigest } from "../src/lib/content-engine/content-approval";
 
 async function main() {
   const promo:OfferFacts = {
@@ -43,10 +45,28 @@ async function main() {
   await assert.rejects(async()=>renderContentMedia({profile:brand,photo:original,
       template:"food-editorial",format:"square",headline:"Sushi",mode:"publish",sourceAssetId:"photo-1"}),
     e=>e instanceof ContentRenderError && e.reason==="profile_not_approved");
-  brand.status="approved";
   brand.businessName.status="merchant_confirmed";
   brand.serviceArea.status="merchant_confirmed";
   brand.preferredLocale.status="merchant_confirmed";
+  const submitted=submitBrandForReview(brand,"merchant-1","2026-11-21T16:01:00Z");
+  assert.equal(brand.status,"draft","transitions must not mutate the source");
+  assert.equal(submitted.event.action,"submitted");
+  const approved=decideBrandReview(submitted.profile,"merchant-1","approve","2026-11-21T16:02:00Z");
+  assert.equal(approved.profile.status,"approved");
+  assert.equal(approved.profile.approvedBy,"merchant-1");
+  assert.equal(approved.event.version,1);
+  Object.assign(brand,approved.profile);
+  const revision=reviseApprovedBrand(approved.profile,"merchant-1","2026-11-21T16:03:00Z");
+  assert.equal(revision.profile.version,2);
+  assert.equal(revision.profile.status,"draft");
+  assert.equal(revision.profile.approvedAt,undefined);
+  assert.equal(approved.profile.status,"approved","approved snapshot must remain unchanged");
+  assert.throws(()=>decideBrandReview(approved.profile,"merchant-1","approve","2026-11-21T16:04:00Z"),
+    e=>e instanceof BrandApprovalError && e.reason==="not_pending_review");
+  const missingProvenance={...brand,approvedBy:undefined};
+  await assert.rejects(async()=>renderContentMedia({profile:missingProvenance,photo:original,
+      template:"food-editorial",format:"square",headline:"Sushi",mode:"publish",sourceAssetId:"photo-1"}),
+    e=>e instanceof ContentRenderError && e.reason==="profile_not_approved");
   const publish=await renderContentMedia({profile:brand,photo:original,
     sourceAssetId:"photo-1",template:"product-feature",format:"square",
     headline:"A fresh sushi lunch",cta:"Visit us",offer:promo,mode:"publish"});
@@ -59,6 +79,27 @@ async function main() {
       template:"product-feature",format:"square",headline:"Sushi",mode:"publish",sourceAssetId:"photo-1",
       offer:{...promo,confirmedByMerchant:false}}),
     e=>e instanceof ContentRenderError && e.reason==="offer_not_confirmed");
+  // Exact customer-confirmed copy must survive audit serialization unchanged.
+  const contentInput={
+    shopId:"shop1234567890",brandApprovalEventId:"approval1234567890",
+    brandRevision:4,assetId:"a".repeat(24),format:"square",
+    template:"food-editorial",headline:"Fresh Sushi",subheadline:"Visit us today",cta:"View menu"
+  };
+  const parsed=parseContentApprovalInput(contentInput);
+  assert.ok(parsed,"valid non-promotional content required");
+  const manifest=createApprovedContentManifest(parsed,"merchant-1","2026-11-21T16:05:00Z");
+  assert.ok(isApprovedContentManifest(JSON.parse(JSON.stringify(manifest))));
+  assert.equal(manifest.digest,contentApprovalDigest(parsed));
+  assert.equal(isApprovedContentManifest({...manifest,headline:"UNAPPROVED 90% OFF"}),false,
+    "changed copy must never reuse prior approval");
+  assert.equal(isApprovedContentManifest({...manifest,assetId:"b".repeat(24)}),false,
+    "changed image must never reuse prior approval");
+  assert.equal(isApprovedContentManifest({...manifest,brandRevision:5}),false,
+    "changed brand revision must never reuse prior approval");
+  assert.equal(parseContentApprovalInput({...contentInput,offer:promo}),null,
+    "promotions need a disclosure-safe layout before export");
+  assert.equal(parseContentApprovalInput({...contentInput,headline:"\u0000Hidden"}),null);
+  assert.equal(parseContentApprovalInput({...contentInput,assetId:"wrong"}),null);
   console.log("PASS: industry offer rules, three deterministic PNG layouts, and publish-only confirmed fact/asset gates.");
 }
 void main().catch(error=>{console.error(error);process.exitCode=1;});
