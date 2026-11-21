@@ -5,17 +5,6 @@ import { prisma } from "@/lib/db/client";
 export const runtime = "nodejs";
 const PRIVATE_HEADERS = { "Cache-Control": "no-store" };
 const MAX_SHOPS_PER_ACCOUNT = 40;
-const SHOP_ID = /^[a-z0-9]{10,40}$/;
-
-export function isShopId(value: unknown): value is string {
-  return typeof value === "string" && SHOP_ID.test(value);
-}
-
-export async function ownedContentShop(ownerId: string, shopId: string) {
-  if (!isShopId(shopId)) return null;
-  return prisma.contentBrandShop.findFirst({where:{id:shopId,ownerId}});
-}
-
 function sameOrigin(request: NextRequest) {
   try {
     const origin = request.headers.get("origin");
