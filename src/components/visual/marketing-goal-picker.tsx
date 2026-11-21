@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Check, ChevronRight, X } from "lucide-react";
 
 export type MarketingGoalChoice = {
@@ -88,13 +88,36 @@ export function MarketingGoalPicker({
   onContinue: () => void;
 }) {
   const [open, setOpen] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const active = goals.find((g) => g.id === selected) ?? goals[0];
   const example = CASES[active.id] ?? CASES.unsure;
   useEffect(() => {
     if (!open) return;
-    function onEscape(e: KeyboardEvent) { if (e.key === "Escape") setOpen(false); }
-    window.addEventListener("keydown", onEscape);
-    return () => window.removeEventListener("keydown", onEscape);
+    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const oldOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    modalRef.current?.focus();
+    function onModalKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") { e.preventDefault(); setOpen(false); return; }
+      if (e.key !== "Tab") return;
+      const elements = Array.from(modalRef.current?.querySelectorAll<HTMLElement>(
+        "button:not([disabled]), a[href], input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])"
+      ) ?? []);
+      if (!elements.length) { e.preventDefault(); return; }
+      const first = elements[0], last = elements[elements.length - 1];
+      if (e.shiftKey && (document.activeElement === first || document.activeElement === modalRef.current)) {
+        e.preventDefault(); last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault(); first.focus();
+      }
+    }
+    document.addEventListener("keydown", onModalKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onModalKeyDown);
+      document.body.style.overflow = oldOverflow;
+      (triggerRef.current ?? previouslyFocused)?.focus();
+    };
   }, [open]);
 
   return <section className="storex-step-panel storex-choice-v2">
@@ -128,7 +151,7 @@ export function MarketingGoalPicker({
         </div>
         <div className="storex-case-bottom">
           <span>演示案例 · 非客户业绩</span>
-          <button type="button" onClick={() => setOpen(true)}>查看案例思路 <ChevronRight size={17}/></button>
+          <button ref={triggerRef} type="button" onClick={() => setOpen(true)}>查看案例思路 <ChevronRight size={17}/></button>
         </div>
       </article>
     </div>
@@ -137,7 +160,7 @@ export function MarketingGoalPicker({
       <button className="storex-primary storex-choice-next" disabled={!selected} type="button" onClick={onContinue}>确定目的，继续 <ArrowRight size={17}/></button>
     </div>
     {open && <div className="storex-case-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setOpen(false); }}>
-      <div className="storex-case-dialog" role="dialog" aria-modal="true" aria-labelledby="storex-case-dialog-title">
+      <div ref={modalRef} tabIndex={-1} className="storex-case-dialog" role="dialog" aria-modal="true" aria-labelledby="storex-case-dialog-title">
         <button type="button" className="storex-case-close" onClick={() => setOpen(false)} aria-label="关闭案例"><X size={20}/></button>
         <div className="storex-case-dialog-media"><Image src={example.image} alt={example.industry} fill sizes="(max-width: 700px) 100vw, 420px" unoptimized/></div>
         <div className="storex-case-dialog-body">
