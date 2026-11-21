@@ -1,0 +1,43 @@
+name: Publish Asset Safety Validation
+
+on:
+  pull_request:
+    paths:
+      - "src/lib/publishing/**"
+      - "src/lib/actions/designs.ts"
+      - "src/lib/actions/restaurant-campaigns.ts"
+      - "src/lib/db/restaurant-campaigns.ts"
+      - "src/lib/db/approval.ts"
+      - "src/components/editor/publish-dialog.tsx"
+      - "prisma/**"
+      - "Dockerfile"
+      - "scripts/verify-publishing-safety.ts"
+      - ".github/workflows/publish-asset-safety.yml"
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Repair lockfile metadata for verification
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Install dependencies and generate Prisma Client
+        run: npm ci --no-audit --no-fund
+      - name: Validate schema and migration
+        run: npx prisma validate
+      - name: Generate Next route types
+        run: npx next typegen
+      - name: TypeScript
+        run: npx tsc --noEmit
+      - name: Publishing asset safety tests
+        run: npx tsx scripts/verify-publishing-safety.ts
+      - name: Lint affected client and server files
+        run: npx eslint src/components/editor/publish-dialog.tsx src/lib/actions/designs.ts src/lib/actions/restaurant-campaigns.ts src/lib/db/approval.ts src/lib/publishing
+      - name: Build
+        run: npm run build
