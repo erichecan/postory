@@ -6,6 +6,7 @@ async function shouldReject(bytes:Buffer, mime:string, reason:string){
   await assert.rejects(async()=>validateBrandImage(bytes,mime),(err:unknown)=>
     err instanceof BrandImageValidationError && err.reason===reason);
 }
+async function main() {
 const png=await sharp({create:{width:40,height:50,channels:4,background:{r:120,g:45,b:65,alpha:1}}}).png().toBuffer();
 const jpeg=await sharp({create:{width:40,height:50,channels:3,background:{r:100,g:140,b:180}}}).jpeg().toBuffer();
 const webp=await sharp({create:{width:40,height:50,channels:3,background:{r:30,g:50,b:70}}}).webp().toBuffer();
@@ -21,3 +22,6 @@ const big=await sharp({create:{width:5000,height:4000,channels:3,background:{r:2
 assert.ok(5000*4000>MAX_BRAND_IMAGE_PIXELS);
 await shouldReject(big,"image/png","image_dimensions_exceeded");
 console.log("PASS: Brand image decoding, MIME checks, corrupted files, and pixel limits.");
+
+}
+void main().catch(error=>{console.error(error);process.exitCode=1;});
