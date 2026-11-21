@@ -1,4 +1,5 @@
 import Link from "next/link";
+import "@/components/content-engine/sushi-brand.css";
 import type { Metadata } from "next";
 import { getIndustryConfig } from "@/lib/content-engine/industry-registry";
 import { ArrowRight, BookOpen, CalendarDays, Camera, Check, ShieldCheck, Sparkles } from "lucide-react";
