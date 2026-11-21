@@ -6,6 +6,7 @@ import { strict as assert } from "node:assert";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
+async function main() {
 if (process.env.CONTENT_ENGINE_TEST_DB !== "1") {
   throw new Error("Refusing to run: CONTENT_ENGINE_TEST_DB=1 required");
 }
@@ -76,3 +77,6 @@ try {
   await prisma.user.deleteMany({where:{id:{in:[ownerA,ownerB]}}});
   await prisma.$disconnect();
 }
+
+}
+void main().catch(error=>{console.error(error);process.exitCode=1;});
