@@ -98,13 +98,6 @@ export function MarketingGoalPicker({
           <span className="storex-eyebrow">SAKURA SUSHI · {example.purpose}</span>
           <h2 id="storex-case-dialog-title">{example.headline.replace(/\n/g, " ")}</h2>
           <p>{example.description}</p>
-          <h3>内容形式 · {({ real_photo: "真实食物／餐厅摄影", brand_editorial: "真实照片 + 轻排版", offer_poster: "核实规则的活动海报", carousel: "菜单／知识轮播（封面示意）" } as const)[example.contentFormat]}</h3>
-          <h3>第一层：图片短标题</h3>
-          <p className="storex-case-social-copy">{example.headline.replace(/\n/g, " ")}</p>
-          <h3>第二层：Facebook / Instagram 正文</h3>
-          <p className="storex-case-social-copy">{example.socialCopy}</p>
-          <h3>第三层：完整活动规则</h3>
-          <p className="storex-case-social-copy">{example.promotionTerms || "此案例没有已确认的优惠条件，因此不制作活动规则或虚构折扣。"}</p>
           <h3>这次内容如何实现目标？</h3>
           <ul>{example.approach.map((line) => <li key={line}>{line}</li>)}</ul>
           <h3>发布后可以观察什么？</h3>
