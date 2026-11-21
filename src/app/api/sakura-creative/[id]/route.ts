@@ -98,11 +98,11 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     };
     if (id === "basket") {
       await put(entry.images[0], 0, 0, 540, 860);
-      await put(entry.images[1], 548, 0, 532, 860);
+      await put(entry.images[1]!, 548, 0, 532, 860);
     } else if (id === "unsure") {
       await put(entry.images[0], 0, 0, 351, 900);
-      await put(entry.images[1], 365, 0, 351, 900);
-      await put(entry.images[2], 730, 0, 350, 900);
+      await put(entry.images[1]!, 365, 0, 351, 900);
+      await put(entry.images[2]!, 730, 0, 350, 900);
     } else if (id === "offpeak") {
       await put(entry.images[0], 535, 0, 545, H);
     } else {
