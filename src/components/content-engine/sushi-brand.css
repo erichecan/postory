@@ -154,3 +154,14 @@
 .ps-brand-auth-notice{max-width:1064px;margin:14px auto 6px;padding:13px 17px;display:flex;align-items:center;gap:10px;background:#eaf1ec;border:1px solid #b8d1c2;border-radius:12px;color:#355f48;font-size:13px;line-height:1.6}
 .ps-brand-auth-notice a{color:#8e3e70;text-decoration:underline;font-weight:700}
 @media(max-width:620px){.ps-brand-auth-notice{margin:14px 13px 6px;align-items:flex-start}}
+
+
+.ps-brand-shop-selector{max-width:1064px;margin:0 auto 17px;padding:18px 21px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr);align-items:center;gap:13px 20px;background:#fff;border:1px solid #dce5de;border-radius:14px}
+.ps-brand-shop-selector>div:first-child{display:grid;gap:4px}
+.ps-brand-shop-selector>div:first-child strong{color:#2b4c3e;font-size:16px}
+.ps-brand-shop-selector>div:first-child span{color:#819085;font-size:12px;line-height:1.55}
+.ps-brand-shop-selector select,.ps-brand-shop-create input{width:100%;min-height:44px;padding:0 12px;font-size:14px;background:#fff;border:1px solid #d5e0d8;border-radius:9px;color:#294338}
+.ps-brand-shop-create{grid-column:1/-1;display:flex;gap:9px}
+.ps-brand-shop-create button{flex:0 0 auto;padding:0 18px;border:1px solid #31584a;border-radius:9px;background:#31584a;color:#fff;font-size:13px;font-weight:700}
+.ps-brand-shop-create button:disabled{opacity:.45}
+@media(max-width:620px){.ps-brand-shop-selector{margin:0 13px 15px;grid-template-columns:1fr;padding:16px}.ps-brand-shop-create{grid-column:1}.ps-brand-shop-create button{padding:0 12px}}
