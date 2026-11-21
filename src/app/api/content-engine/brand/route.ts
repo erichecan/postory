@@ -1,3 +1,4 @@
+import { isContentEngineEnabled, unavailableContentEngine } from "@/lib/content-engine/feature-gate";
 import { randomBytes } from "node:crypto";
 import type { NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -47,6 +48,7 @@ function exposed(profile: BrandProfileDraft, revision: number) {
   };
 }
 export async function GET(request: NextRequest) {
+  if (!isContentEngineEnabled()) return unavailableContentEngine();
   const user = await getCurrentUser();
   if (!user) return Response.json({error:"login_required"},{status:401});
   const shopId = request.nextUrl.searchParams.get("shopId");
@@ -56,6 +58,7 @@ export async function GET(request: NextRequest) {
   return Response.json({ok:true,profile:exposed(row.data as unknown as BrandProfileDraft,row.revision)},{headers:{"Cache-Control":"no-store"}});
 }
 export async function PUT(request: NextRequest) {
+  if (!isContentEngineEnabled()) return unavailableContentEngine();
   const user = await getCurrentUser();
   if (!user) return Response.json({error:"login_required"},{status:401});
   if (!validOrigin(request)) return Response.json({error:"invalid_origin"},{status:403});
