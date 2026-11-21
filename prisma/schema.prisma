@@ -1163,6 +1163,7 @@ model ContentBrandShop {
   industry  String               @db.VarChar(32)
   profile   ContentBrandProfile?
   assets    ContentBrandAsset[]
+  reviewEvents ContentBrandReviewEvent[]
   createdAt DateTime             @default(now())
   updatedAt DateTime             @updatedAt
 
@@ -1190,6 +1191,23 @@ model ContentBrandAsset {
   sha256    String           @db.Char(64)
   byteSize  Int
   createdAt DateTime         @default(now())
+
+  @@index([shopId, createdAt])
+}
+
+/**
+ * Append-only review snapshots: submitting a draft never grants publish approval.
+ * Full merchant/design approval and delegation require a separate role model.
+ */
+model ContentBrandReviewEvent {
+  id          String           @id @default(cuid())
+  shopId      String
+  shop        ContentBrandShop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  actorUserId String
+  event       String           @db.VarChar(32)
+  revision    Int
+  snapshot    Json
+  createdAt   DateTime         @default(now())
 
   @@index([shopId, createdAt])
 }
