@@ -294,6 +294,14 @@ export async function adminPublishRestaurantCampaignContentAction(_: FormState, 
   if (content.platforms.some((platform) => !connected.has(platform))) return { error: "socialAccountRequired" };
   const scheduledAt = content.scheduledAt && content.scheduledAt.getTime() > Date.now() + 60_000 ? content.scheduledAt : null;
   if (!scheduledAt) return { error: "scheduleRequired" };
+  // Claim once at the database layer before the external provider call.
+  // Two admin clicks must not schedule the same approved item twice.
+  const claimed = await prisma.restaurantCampaignContent.updateMany({
+    where: { id: content.id, status: "APPROVED", approvedSha256: audited.sha256,
+      approvedCaptionSha256: captionSha256(content.caption) },
+    data: { status: "SCHEDULED" },
+  });
+  if (claimed.count !== 1) return { error: "alreadyScheduledOrReapprovalRequired" };
   const outcome = await publishDesignToAyrshare({
     userId,
     caption: content.caption,
