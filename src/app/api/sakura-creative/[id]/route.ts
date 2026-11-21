@@ -144,7 +144,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       .toBuffer();
     return new Response(new Uint8Array(bytes), {
       status: 200,
-      headers: { "Content-Type": "image/jpeg", "Cache-Control": "public, max-age=3600, s-maxage=86400", "X-Content-Type-Options": "nosniff" }
+      headers: { "Content-Type": "image/jpeg", "Cache-Control": "public, max-age=300, s-maxage=300", "X-Content-Type-Options": "nosniff" }
     });
   } catch (error) {
     console.error("Sakura demo creative failed", id, error instanceof Error ? error.message : "unknown");
