@@ -1,10 +1,6 @@
-import type { Metadata } from "next";
-import { SushiContentWorkbench } from "@/components/content-engine/sushi-content-workbench";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "寿司店内容工作台 · PoStory",
-  description: "使用已批准品牌资料和真实授权图片制作、审核和导出寿司店营销内容。",
-};
+/** Avoid exposing the separate self-service approval dashboard to merchants. */
 export default function SushiContentPage() {
-  return <SushiContentWorkbench/>;
+  redirect("/demo/sushi");
 }
