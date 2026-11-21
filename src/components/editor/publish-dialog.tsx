@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { scheduleDesignAction } from "@/lib/actions/designs";
+import { approveFinalDesignAssetAction, scheduleDesignAction } from "@/lib/actions/designs";
 import { PUBLISH_PLATFORMS, publishPlatformLabel, requiresConnection } from "@/lib/platforms";
 import { cn } from "@/lib/utils";
 import type { DesignPage } from "@/types/design";
@@ -57,6 +57,7 @@ export function PublishDialog({
   // 一个平台后来变成被锁（比如断开了连接）时，不能留在已选列表里却又点不动按钮去掉它。
   const [platforms, setPlatforms] = useState<string[]>(() => initialPlatforms.filter((p) => lockReason(p) === null));
   const [caption, setCaption] = useState(initialCaption ?? "");
+  const [finalReviewed, setFinalReviewed] = useState(false);
   const [at, setAt] = useState(() => toLocalInput(initialAt ?? new Date(Date.now() + 24 * 3600 * 1000)));
   const [pending, start] = useTransition();
 
@@ -89,6 +90,14 @@ export function PublishDialog({
           toast.error(t("exportFailed"));
           return;
         }
+      }
+      if (platforms.some(requiresConnection)) {
+        if (!finalReviewed || !exportedImageUrl) {
+          toast.error("请审核最终导出图片与社媒正文并确认后再排期。");
+          return;
+        }
+        const approved = await approveFinalDesignAssetAction(designId, { mediaUrl: exportedImageUrl, caption, confirmed: true });
+        if (!approved.ok) { toast.error(approved.error ?? "审核失败，请重试。"); return; }
       }
       const res = await scheduleDesignAction(designId, { platforms, scheduledAt: new Date(at).toISOString(), caption, exportedImageUrl });
       if (!res.ok) {
@@ -141,12 +150,18 @@ export function PublishDialog({
           </div>
           <label className="flex flex-col gap-2">
             <span className="text-sm">{t("captionLabel")}</span>
-            <Textarea value={caption} onChange={(e) => setCaption(e.target.value)} rows={3} placeholder={t("captionPlaceholder")} maxLength={2200} />
+            <Textarea value={caption} onChange={(e) => { setCaption(e.target.value); setFinalReviewed(false); }} rows={3} placeholder={t("captionPlaceholder")} maxLength={2200} />
           </label>
           <label className="flex flex-col gap-2">
             <span className="text-sm">{t("time")}</span>
             <input type="datetime-local" value={at} min={toLocalInput(new Date())} onChange={(e) => setAt(e.target.value)} className="h-10 rounded-lg border bg-input/30 px-3 text-sm [color-scheme:dark]" />
           </label>
+          {platforms.some(requiresConnection) && (
+            <label className="flex items-start gap-2 rounded-md border border-amber-400/40 p-3 text-xs leading-relaxed">
+              <input type="checkbox" checked={finalReviewed} onChange={(e) => setFinalReviewed(e.target.checked)} className="mt-0.5" />
+              我已检查当前画布将导出的最终图片、所有文字和社媒正文，确认与客户批准的版本一致。图片或文案变化后必须重新审核。
+            </label>
+          )}
           {platforms.some(requiresConnection) && (
             <p className="text-xs text-muted-foreground">
               {t("connectHint")} <Link href="/profile" className="underline">{t("connectHintLink")}</Link>
@@ -161,7 +176,7 @@ export function PublishDialog({
           </p>
         )}
         <DialogFooter>
-          <Button onClick={submit} disabled={pending || !hasPlan || platforms.length === 0 || !at || !caption.trim()}>
+          <Button onClick={submit} disabled={pending || !hasPlan || platforms.length === 0 || !at || !caption.trim() || (platforms.some(requiresConnection) && !finalReviewed)}>
             {pending ? t("saving") : t("submit")}
           </Button>
         </DialogFooter>
