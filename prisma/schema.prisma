@@ -260,6 +260,8 @@ model User {
   ayrshareProfileKeyEnc         String?
   ayrshareRefId                 String?
   profile                       BrandProfile?
+  contentBrandProfile           ContentBrandProfile?
+  contentBrandAssets            ContentBrandAsset[]
   designs                       Design[]
   plan                          CustomerPlan?
   grants                        CreditGrant[]
@@ -1148,4 +1150,34 @@ model PartnerTrialFeedback {
   createdAt      DateTime                     @default(now())
 
   @@index([trialRequestId, createdAt])
+}
+
+/**
+ * Content Engine Brand Profile is separate from legacy BrandProfile used by
+ * account settings. One private draft per authenticated owner in phase one.
+ * Do not expose brand assets through public media routes.
+ */
+model ContentBrandProfile {
+  id        String   @id @default(cuid())
+  ownerId   String   @unique
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  industry  String   @db.VarChar(32)
+  revision  Int      @default(1)
+  data      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ContentBrandAsset {
+  id        String   @id @default(cuid())
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  kind      String   @db.VarChar(24)
+  key       String   @unique
+  mime      String   @db.VarChar(32)
+  sha256    String   @db.Char(64)
+  byteSize  Int
+  createdAt DateTime @default(now())
+
+  @@index([ownerId, createdAt])
 }
