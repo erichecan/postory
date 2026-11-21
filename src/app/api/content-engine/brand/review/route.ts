@@ -1,3 +1,4 @@
+import { isContentEngineEnabled, unavailableContentEngine } from "@/lib/content-engine/feature-gate";
 import type { NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
 import { isContentShopId, ownedContentShop } from "@/lib/content-engine/shop-access";
@@ -15,6 +16,7 @@ function isSameOrigin(request: NextRequest): boolean {
 }
 
 export async function GET(request: NextRequest) {
+  if (!isContentEngineEnabled()) return unavailableContentEngine();
   const user = await getCurrentUser();
   if (!user) return Response.json({error:"login_required"},{status:401});
   const shopId = request.nextUrl.searchParams.get("shopId");
@@ -30,6 +32,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  if (!isContentEngineEnabled()) return unavailableContentEngine();
   const user = await getCurrentUser();
   if (!user) return Response.json({error:"login_required"},{status:401});
   if (!isSameOrigin(request)) return Response.json({error:"invalid_origin"},{status:403});
