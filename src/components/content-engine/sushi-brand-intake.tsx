@@ -7,7 +7,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ChangeEvent } fro
 import { ArrowLeft, ArrowRight, Check, Camera, FileImage, ImagePlus, LockKeyhole, ShieldCheck, X } from "lucide-react";
 
 type AssetType = "logo" | "store" | "product";
-type IntakeImage = { id: string; name: string; url: string; type: AssetType; file: File };
+type IntakeImage = { id: string; name: string; url: string; type: AssetType; file?: File };
 
 const PLACEHOLDER = "/demo/photos/restaurant-calendar/sushi-counter.jpg";
 const LIMIT_BYTES = 6 * 1024 * 1024;
@@ -23,9 +23,82 @@ export function SushiBrandIntake() {
   const [accent, setAccent] = useState("#2F5149");
   const [images, setImages] = useState<IntakeImage[]>([]);
   const [error, setError] = useState("");
-  const [localConfirmed, setLocalConfirmed] = useState(false);
+  const [revision, setRevision] = useState<number | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [loadingDraft, setLoadingDraft] = useState(true);
+  const [loginRequired, setLoginRequired] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
   const imageUrls = useRef(new Set<string>());
   useEffect(() => () => { for (const url of imageUrls.current) URL.revokeObjectURL(url); imageUrls.current.clear(); }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadDraft() {
+      try {
+        const response = await fetch("/api/content-engine/brand", { cache: "no-store" });
+        if (cancelled) return;
+        if (response.status === 401) { setLoginRequired(true); return; }
+        if (!response.ok) throw new Error("load_failed");
+        const data = await response.json() as { profile?: {
+          revision:number;businessName:string;serviceArea:string;locale:"zh"|"en";
+          tagline:string;website:string;voice:"minimal"|"warm"|"bright";accent:string;
+          assets:Array<{id:string;kind:AssetType;url:string}>;
+        } | null };
+        if (cancelled || !data.profile) return;
+        setBusinessName(data.profile.businessName);
+        setLocation(data.profile.serviceArea);
+        setLanguage(data.profile.locale);
+        setTagline(data.profile.tagline);
+        setWebsite(data.profile.website);
+        setTone(data.profile.voice);
+        setAccent(data.profile.accent);
+        setRevision(data.profile.revision);
+        setImages(data.profile.assets.map(a=>({id:a.id,name:"已保存素材",url:a.url,type:a.kind})));
+        setSaveMessage(`已恢复保存的第 ${data.profile.revision} 版草稿。`);
+      } catch {
+        if (!cancelled) setError("暂时无法读取已保存品牌档案，请稍后再试。");
+      } finally {
+        if (!cancelled) setLoadingDraft(false);
+      }
+    }
+    void loadDraft();
+    return () => { cancelled = true; };
+  }, []);
+
+  async function saveDraft() {
+    if (!canProceed || saving) return;
+    setSaving(true); setError(""); setSaveMessage("");
+    try {
+      const uploaded = await Promise.all(images.map(async asset => {
+        if (!asset.file) return { id:asset.id,url:asset.url,name:asset.name,type:asset.type };
+        const form = new FormData();
+        form.append("kind",asset.type);
+        form.append("file",asset.file);
+        const response = await fetch("/api/content-engine/brand/assets",{method:"POST",body:form});
+        const result = await response.json() as { id?:string; url?:string; error?:string };
+        if (!response.ok || !result.id || !result.url) throw new Error(result.error || "upload_failed");
+        return { id:result.id,url:result.url,name:asset.name,type:asset.type };
+      }));
+      const response = await fetch("/api/content-engine/brand",{
+        method:"PUT",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          businessName,serviceArea:location,locale:language,tagline,website,
+          voice:tone,accent,assetIds:uploaded.map(a=>a.id),expectedRevision:revision
+        }),
+      });
+      const data = await response.json() as {profile?:{revision:number};error?:string};
+      if (!response.ok || !data.profile) throw new Error(data.error || "save_failed");
+      for (const asset of images) if (asset.file) { URL.revokeObjectURL(asset.url); imageUrls.current.delete(asset.url); }
+      setImages(uploaded);
+      setRevision(data.profile.revision);
+      setSaveMessage(`品牌档案第 ${data.profile.revision} 版草稿已安全保存。后续仍需要商家和设计人员确认，才能用于正式发布。`);
+    } catch (cause) {
+      const detail = cause instanceof Error ? cause.message : "save_failed";
+      setError(detail === "revision_conflict" ? "其他页面已修改品牌档案，请刷新后再保存。" :
+        detail === "invalid_asset_ownership" ? "素材权限检查失败，请重新选择图片。" :
+        detail === "login_required" ? "请先登录后再保存。" : "保存未成功，已保留当前页面中的内容，请稍后重试。");
+    } finally { setSaving(false); }
+  }
 
   const logo = images.find((asset) => asset.type === "logo");
   const scenes = images.filter((asset) => asset.type === "store");
@@ -54,13 +127,13 @@ export function SushiBrandIntake() {
       for (const old of existing) { URL.revokeObjectURL(old.url); imageUrls.current.delete(old.url); }
       setImages((current) => [...current.filter((asset) => asset.type !== "logo"), ...added.slice(0,1)]);
     } else setImages((current) => [...current,...added]);
-    setLocalConfirmed(false);
+setSaveMessage("");
   }
   function removeImage(id: string) {
     const asset = images.find((item) => item.id === id);
     if (asset) { URL.revokeObjectURL(asset.url); imageUrls.current.delete(asset.url); }
     setImages((current) => current.filter((item) => item.id !== id));
-    setLocalConfirmed(false);
+    setSaveMessage("");
   }
 
   const toneNames = { warm: "温暖社区", minimal: "简约精致", bright: "年轻活力" };
@@ -78,6 +151,8 @@ export function SushiBrandIntake() {
       <h1>先认识你的店，<br/><em>再认真讲好它的故事。</em></h1>
       <p>建立一份专属于寿司店的品牌档案。未来每一张图、每一条文案，都可以从同一份确认过的品牌信息出发。</p>
     </div>
+    {loginRequired && <div className="ps-brand-auth-notice"><ShieldCheck size={18}/> 你可以先体验品牌档案预览；需要 <Link href="/login?next=%2Ffor%2Fsushi%2Fbrand">登录 PoStory</Link> 才能安全保存并跨设备恢复资料。</div>}
+    {loadingDraft && <div className="ps-brand-auth-notice">正在检查已保存的品牌档案…</div>}
     <nav className="ps-brand-steps" aria-label="品牌建档步骤">
       {[["details","01","门店信息"],["photos","02","真实素材"],["profile","03","品牌预览"]].map(([key,index,label])=><button key={key} type="button" className={stage === key ? "active" : ""} onClick={() => { if (key === "details" || canProceed) {setStage(key as typeof stage);setError("");} }} disabled={key !== "details" && !canProceed}><span>{index}</span>{label}</button>)}
     </nav>
@@ -91,10 +166,10 @@ export function SushiBrandIntake() {
         <label>主要内容语言<select value={language} onChange={(e)=>setLanguage(e.target.value as "zh"|"en")}><option value="en">English</option><option value="zh">简体中文</option></select></label>
         <label>希望呈现的品牌感觉<select value={tone} onChange={(e)=>setTone(e.target.value as typeof tone)}><option value="minimal">简约精致</option><option value="warm">温暖社区</option><option value="bright">年轻活力</option></select></label>
       </div>
-      <div className="ps-brand-panel-actions"><span>这些信息尚未提交给服务器。</span><button type="button" disabled={!canProceed} className="ps-vertical-button" onClick={()=>setStage("photos")}>下一步 · 上传素材 <ArrowRight size={17}/></button></div>
+      <div className="ps-brand-panel-actions"><span>在确认保存草稿前，这些信息不会上传。</span><button type="button" disabled={!canProceed} className="ps-vertical-button" onClick={()=>setStage("photos")}>下一步 · 上传素材 <ArrowRight size={17}/></button></div>
     </section>}
     {stage === "photos" && <section className="ps-brand-panel">
-      <div className="ps-brand-panel-head"><span className="ps-vertical-eyebrow">02 / REAL MATERIALS</span><h2>我们更相信真实的作品。</h2><p>优先上传你的 Logo、门店实景和真实菜品照片。原图在这个预览版本中只在当前浏览器显示，不会自动上传、修图或发布。</p></div>
+      <div className="ps-brand-panel-head"><span className="ps-vertical-eyebrow">02 / REAL MATERIALS</span><h2>我们更相信真实的作品。</h2><p>优先上传你的 Logo、门店实景和真实菜品照片。选好的素材会先在浏览器预览。只有点击保存草稿且已登录后，才会通过私有接口上传；不会自动修图或发布。</p></div>
       {error && <p role="alert" className="ps-brand-error">{error}</p>}
       <div className="ps-brand-upload-grid">
         <UploadGroup title="品牌 Logo" hint="1 张 · 建议透明 PNG" assets={logo?[logo]:[]} type="logo" onUpload={addImages} onRemove={removeImage}/>
@@ -104,7 +179,7 @@ export function SushiBrandIntake() {
       <div className="ps-brand-panel-actions"><button type="button" className="ps-brand-secondary" onClick={()=>setStage("details")}>上一步</button><button className="ps-vertical-button" type="button" onClick={()=>setStage("profile")}>查看我的品牌档案 <ArrowRight size={17}/></button></div>
     </section>}
     {stage === "profile" && <section className="ps-brand-panel ps-brand-review">
-      <div className="ps-brand-panel-head"><span className="ps-vertical-eyebrow">03 / BRAND PROFILE</span><h2>这是你的品牌起点。</h2><p>下面的品牌颜色和风格是可修改的初步建议，不代表已经识别或确认。真实商品价格、营业时间和优惠规则还需要后续核实。</p></div>
+      <div className="ps-brand-panel-head"><span className="ps-vertical-eyebrow">03 / BRAND PROFILE</span><h2>这是你的品牌起点。</h2><p>下面的品牌颜色和风格是可修改的初步建议，尚未经过 AI 自动识别或人工确认。真实商品价格、营业时间和优惠规则还需要后续核实。</p></div>
       <div className="ps-brand-review-grid">
         <article className={`ps-brand-profile-card tone-${tone}`} style={{"--brand-accent":accent} as CSSProperties}>
           <div className="ps-brand-profile-top"><span>BRAND PROFILE / DRAFT</span><span>01</span></div>
@@ -115,13 +190,13 @@ export function SushiBrandIntake() {
         <div className="ps-brand-review-side">
           <div className="ps-brand-review-box"><h3>建议的品牌方向</h3><p>这是一套起点，而不是自动得出的结论。确认后才可以成为后续内容的正式品牌依据。</p><label>建议主色 <input type="color" aria-label="调整品牌主色" value={accent} onChange={(e)=>{setAccent(e.target.value);setLocalConfirmed(false);}}/><strong>{accent.toUpperCase()}</strong></label><div className="ps-brand-tone"><span>表达风格</span><strong>{toneNames[tone]}</strong></div></div>
           <div className="ps-brand-review-box"><h3>资料完整度</h3><div className="ps-brand-checks">{checklist.map(item=><div key={item.title}><span className={item.complete?"is-ready":""}>{item.complete?<Check size={14}/>:<span>·</span>}</span>{item.title}<small>{item.complete?"已提供":"待补充"}</small></div>)}</div></div>
-          <div className="ps-brand-review-box"><h3>真实素材</h3><p>{images.length} 张已选图片，仅保存在浏览器临时预览中；尚未由 PoStory 审核、上传或优化。</p><div className="ps-brand-mini-photos">{products.slice(0,3).map(asset=><Image key={asset.id} src={asset.url} alt={asset.name} width={90} height={75} unoptimized/>)}</div></div>
+          <div className="ps-brand-review-box"><h3>真实素材</h3><p>{images.length} 张已选图片，已选择／已保存的素材；未经 PoStory 人工审核或优化。</p><div className="ps-brand-mini-photos">{products.slice(0,3).map(asset=><Image key={asset.id} src={asset.url} alt={asset.name} width={90} height={75} unoptimized/>)}</div></div>
         </div>
       </div>
-      {localConfirmed && <p className="ps-brand-local-confirm" role="status"><Check size={17}/> 已在当前页面标记为“预览确认”。此操作不保存服务器、不会创建正式 Brand Profile 或触发发布。</p>}
-      <div className="ps-brand-panel-actions"><button type="button" className="ps-brand-secondary" onClick={()=>setStage("photos")}>返回修改素材</button><button type="button" className="ps-vertical-button" disabled={!canProceed} onClick={()=>setLocalConfirmed(true)}><ShieldCheck size={17}/> 确认当前预览</button></div>
+      {saveMessage && <p className="ps-brand-local-confirm" role="status"><Check size={17}/>{saveMessage}</p>}{error && <p className="ps-brand-error" role="alert">{error}</p>}
+      <div className="ps-brand-panel-actions"><button type="button" className="ps-brand-secondary" onClick={()=>setStage("photos")}>返回修改素材</button>{loginRequired ? <Link className="ps-vertical-button" href="/login?next=%2Ffor%2Fsushi%2Fbrand"><ShieldCheck size={17}/> 登录后保存</Link> : <button type="button" className="ps-vertical-button" disabled={!canProceed || saving || loadingDraft} onClick={()=>void saveDraft()}><ShieldCheck size={17}/>{saving ? "正在安全保存…" : "保存品牌档案草稿"}</button>}</div>
     </section>}
-    <aside className="ps-brand-privacy"><LockKeyhole size={17}/><span>当前是首轮建档体验：数据暂存当前页面，刷新会丢失，也不会自动提交。正式的安全上传、客户身份验证、Brand Profile 持久化及审核将在下一开发阶段接入。</span></aside>
+    <aside className="ps-brand-privacy"><LockKeyhole size={17}/><span>品牌资料只在登录并点击“保存品牌档案草稿”后上传到私有存储。保存的是未审核草稿，不等于商家授权图片使用、正式确认品牌规范或批准发布。</span></aside>
     <footer className="ps-brand-footer"><Link href="/for/sushi">Sushi Marketing</Link><span>PoStory · Done-for-You Marketing</span></footer>
   </main>;
 }
