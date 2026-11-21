@@ -6360,3 +6360,85 @@
   .ps-storex .storex-drawer-actions .storex-primary,
   .ps-storex .storex-drawer-actions .storex-secondary { font-size: 12px; }
 }
+
+
+/* Sakura Sushi: goal-specific 4:5 concept posters instead of unrelated stock-photo thumbnails. */
+.ps-storex .storex-case-poster-wrap { display: flex; align-items: flex-start; justify-content: center; background: #f5f5f7; padding: 12px 15px 16px; }
+.ps-storex .storex-case-poster-wrap > .storex-poster { width: min(100%,340px); box-shadow: 0 9px 28px #17192317; }
+.ps-storex .storex-case-copy { padding: 16px 18px; }
+.ps-storex .storex-case-copy p { font-size: 14px; color: #626b79; line-height: 1.65; }
+.ps-storex .storex-case-dialog { width: min(880px,100%); grid-template-columns: minmax(0,.92fr) minmax(0,1.08fr); }
+.ps-storex .storex-case-dialog-media { display:flex; align-items:flex-start; justify-content:center; padding:25px 16px; background:#f0eff2; }
+.ps-storex .storex-case-dialog-media > .storex-poster { width: min(100%,390px); }
+.ps-storex .storex-case-social-copy { padding: 13px 15px; border: 1px solid #e9e7eb; background: #fafafa; border-radius: 11px; white-space: pre-line; }
+.ps-storex .storex-case-dialog-body h3 { font-size: 16px; }
+.ps-storex .storex-case-dialog-body ul { padding-left: 19px; }
+.ps-storex .storex-case-dialog-body li { line-height: 1.55; }
+
+/* Original editable marketing poster composition. The brand is consistent,
+   while every objective has a differentiated editorial layout and CTA. */
+.ps-storex .storex-poster {
+  position: relative; aspect-ratio: 4 / 5; overflow: hidden; isolation: isolate;
+  display: flex; flex-direction: column; padding: 18px 20px 14px;
+  color: #fff8ed; background: #192b27; border-radius: 3px;
+  font-family: -apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+}
+.ps-storex .storex-poster-brand { display: flex; align-items: center; gap: 7px; position:relative; z-index:3; letter-spacing:.11em; font-size:10px; font-weight:700; white-space:nowrap; }
+.ps-storex .storex-poster-brand b { font-weight:900; }
+.ps-storex .storex-poster-brand small { margin-left:auto; font-size:7px; font-weight:600; opacity:.68; letter-spacing:.09em; }
+.ps-storex .storex-poster-monogram { width:24px; height:24px; display:grid; place-items:center; border:1px solid currentColor; border-radius:50%; font-size:13px; }
+.ps-storex .storex-poster-eyebrow { z-index:3; margin-top:22px; font-size:9px; letter-spacing:.2em; font-weight:750; }
+.ps-storex .storex-poster-message { z-index:3; display:grid; margin-top:9px; font-size:clamp(26px,3vw,38px); line-height:1.01; letter-spacing:-.052em; font-weight:850; }
+.ps-storex .storex-poster-subheadline { z-index:3; margin-top:11px; max-width:92%; font-size:11px; line-height:1.45; opacity:.86; }
+.ps-storex .storex-poster-photo { position:absolute; z-index:1; left:0; right:0; bottom:45px; height:50%; overflow:hidden; }
+.ps-storex .storex-poster-photo img { object-fit:cover; }
+.ps-storex .storex-poster-photo::after { content:""; position:absolute; inset:0; background:linear-gradient(to bottom,#192b2755,transparent 40%,#192b2770); }
+.ps-storex .storex-poster-illustration { position:absolute; z-index:1; left:4%; right:3%; bottom:43px; height:59%; display:grid; place-items:center; }
+.ps-storex .storex-sushi-artwork { width:100%; height:100%; filter:drop-shadow(0 9px 18px #0002); }
+.ps-storex .storex-poster-action { z-index:3; display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:auto; padding:9px 12px; min-height:31px; background:#f7ede0; color:#182c2a; font-size:9px; font-weight:900; letter-spacing:.09em; }
+.ps-storex .storex-poster-action span:last-child { font-size:16px; line-height:1; }
+.ps-storex .storex-poster-signoff { z-index:3; display:flex; justify-content:space-between; align-items:center; margin-top:9px; font-size:7px; letter-spacing:.12em; opacity:.72; }
+.ps-storex .storex-poster-signoff span { flex:1; margin-left:10px; text-align:right; font-size:6px; letter-spacing:.04em; }
+.ps-storex .storex-poster--footfall { background:#1b302c; }
+.ps-storex .storex-poster--footfall .storex-poster-photo { height:52%; }
+.ps-storex .storex-poster--promote { background:#282323; color:#fff3e8; }
+.ps-storex .storex-poster--promote .storex-poster-message { font-size:39px; }
+.ps-storex .storex-poster--promote .storex-poster-photo { left:13%; right:-12%; bottom:65px; height:52%; transform:rotate(-8deg); border:7px solid #e9c5a0; }
+.ps-storex .storex-poster--promote .storex-poster-photo::after { background:transparent; }
+.ps-storex .storex-poster--promote .storex-poster-action { background:#e5ab7e; }
+.ps-storex .storex-poster--repeat { background:radial-gradient(circle at 58% 73%,#b95c5b 0%,#733d49 60%,#412e38 100%); color:#fff2e8; }
+.ps-storex .storex-poster--repeat .storex-poster-message { font-family:Georgia,"Times New Roman",serif; font-style:italic; font-weight:600; font-size:39px; }
+.ps-storex .storex-poster--repeat .storex-poster-illustration { bottom:40px; height:56%; right:-13%; left:5%; transform:rotate(-10deg); }
+.ps-storex .storex-poster--repeat .storex-poster-action { background:#f1d7c9; }
+.ps-storex .storex-poster--basket { background:linear-gradient(150deg,#f0dfca,#d8bba0); color:#2d3a32; }
+.ps-storex .storex-poster--basket .storex-poster-message { font-family:Georgia,"Times New Roman",serif; font-weight:700; font-size:45px; }
+.ps-storex .storex-poster--basket .storex-poster-illustration { bottom:40px; height:61%; left:0; right:0; transform:rotate(10deg); }
+.ps-storex .storex-poster--basket .storex-poster-action { background:#234039; color:#fff1db; }
+.ps-storex .storex-poster--offpeak { background:linear-gradient(150deg,#193c43,#2b5053); color:#f8f6ea; }
+.ps-storex .storex-poster--offpeak .storex-poster-eyebrow { color:#eac788; }
+.ps-storex .storex-poster--offpeak .storex-poster-message { font-size:38px; }
+.ps-storex .storex-poster--offpeak .storex-poster-illustration { height:54%; bottom:42px; transform:rotate(-15deg); }
+.ps-storex .storex-poster--offpeak .storex-poster-action { background:#f0c981; }
+.ps-storex .storex-poster--awareness { background:#172b23; }
+.ps-storex .storex-poster--awareness .storex-poster-photo { inset:0; height:auto; }
+.ps-storex .storex-poster--awareness .storex-poster-photo::after { background:linear-gradient(to bottom,#0f2621b0 0%,#0f262145 37%,#0e2520aa 70%,#0e2520dd); }
+.ps-storex .storex-poster--awareness .storex-poster-message { margin-top:auto; margin-bottom:8px; font-size:35px; }
+.ps-storex .storex-poster--awareness .storex-poster-action { margin-top:15px; }
+.ps-storex .storex-poster--unsure { color:#243f37; background:linear-gradient(155deg,#eff1df,#d7e6dd); }
+.ps-storex .storex-poster--unsure .storex-poster-message { font-family:Georgia,"Times New Roman",serif; font-size:35px; font-weight:700; }
+.ps-storex .storex-poster--unsure .storex-poster-illustration { transform:rotate(15deg); bottom:38px; }
+.ps-storex .storex-poster--unsure .storex-poster-action { background:#214b41; color:#fff6df; }
+.ps-storex .storex-poster.is-modal { padding:22px 23px 17px; }
+.ps-storex .storex-poster.is-modal .storex-poster-message { font-size:clamp(33px,3.5vw,45px); }
+@media(max-width:900px) {
+ .ps-storex .storex-case-dialog { grid-template-columns:1fr; }
+ .ps-storex .storex-case-dialog-media { padding:20px; }
+ .ps-storex .storex-case-dialog-media > .storex-poster { width:min(100%,340px); }
+}
+@media(max-width:680px) {
+ .ps-storex .storex-case-poster-wrap { padding:11px; }
+ .ps-storex .storex-case-poster-wrap > .storex-poster { width:min(100%,350px); }
+ .ps-storex .storex-case-dialog-media { min-height:auto; }
+ .ps-storex .storex-case-copy { padding:14px 17px; }
+ .ps-storex .storex-poster-message { font-size:32px; }
+}
