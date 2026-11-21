@@ -15,6 +15,8 @@ import { prisma } from "@/lib/db/client";
 import { designPagesSchema } from "@/lib/design-schema";
 import { PUBLISH_PLATFORMS } from "@/lib/platforms";
 import { firstError } from "@/lib/validation";
+import { captionSha256 } from "@/lib/publishing/approved-raster";
+import { inspectOwnDesignAsset, verifyLockedDesignAsset } from "@/lib/publishing/verify-design-asset";
 
 export async function startDesignAction(templateId: string) {
   const user = await requireUser();
@@ -34,6 +36,34 @@ export async function saveDesignAction(id: string, input: unknown): Promise<{ ok
   const ok = await updateOwnDesign(user.id, z.string().max(40).parse(id), parsed.data);
   if (ok) revalidatePath("/designs");
   return ok ? { ok } : { ok, error: await designError("notFound") };
+}
+
+/**
+ * Explicit final-image approval. The client must inspect the exact rendered
+ * public file and caption. The stored digest is checked again at publication.
+ */
+export async function approveFinalDesignAssetAction(id: string, input: {
+  mediaUrl: string; caption: string; confirmed: boolean;
+}): Promise<{ok: boolean; error?: string}> {
+  const user = await assertUser();
+  if (!input.confirmed || !input.caption.trim() || input.caption.length > 2200) return { ok: false, error: "请先核对最终图片与正文，再明确确认。" };
+  const parsed = z.string().max(40).safeParse(id);
+  if (!parsed.success) return { ok: false, error: "invalid_id" };
+  const design = await prisma.design.findFirst({ where: { id: parsed.data, userId: user.id }, select: { id: true } });
+  if (!design) return { ok: false, error: "notFound" };
+  try {
+    const final = await inspectOwnDesignAsset(user.id, design.id, input.mediaUrl);
+    await prisma.design.update({
+      where: { id: design.id },
+      data: {
+        approvedImageSha256: final.sha256,
+        approvedCaptionSha256: captionSha256(input.caption),
+        approvedMediaUrl: input.mediaUrl,
+        approvedAt: new Date(),
+      },
+    });
+    return { ok: true };
+  } catch { return { ok: false, error: "最终文件不存在、损坏或不是此客户的图片。" }; }
 }
 
 const scheduleSchema = z.object({
@@ -74,6 +104,12 @@ export async function scheduleDesignAction(id: string, input: unknown): Promise<
     if (livePlatforms.some((p) => !connected.has(p))) return { ok: false, code: "platformNotConnected", error: tb("platformNotConnected") };
   }
 
+  // Fail closed before charging or calling any provider. Only the customer-
+  // confirmed, immutable export may reach Facebook / Instagram / etc.
+  if (livePlatforms.length) {
+    try { await verifyLockedDesignAsset(user.id, designId, parsed.data.exportedImageUrl!, parsed.data.caption); }
+    catch { return { ok: false, code: "exportMissing", error: "最终图片或文案尚未批准，或批准后发生变化。请重新审核。" }; }
+  }
   const charge = await chargeDesign(user.id, designId);
   if (!charge.found) return { ok: false, error: await designError("notFound") };
   if (!charge.ok) return { ok: false, code: "insufficient", error: tb("insufficient"), need: charge.need, have: charge.have };
