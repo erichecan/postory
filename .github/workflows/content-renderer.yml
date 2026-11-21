@@ -1,0 +1,34 @@
+name: Content Engine Offers and Renderer
+
+on:
+  pull_request:
+    paths:
+      - "src/lib/content-engine/**"
+      - "scripts/check-content-renderer.ts"
+      - ".github/workflows/content-renderer.yml"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Reconcile dependency metadata
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Generate Next types
+        run: npx next typegen
+      - name: TypeScript
+        run: npx tsc --noEmit
+      - name: Lint
+        run: npx eslint src/lib/content-engine/offers.ts src/lib/content-engine/deterministic-renderer.ts scripts/check-content-renderer.ts
+      - name: Test real deterministic media rendering
+        run: npx tsx scripts/check-content-renderer.ts
+      - name: Build
+        run: npm run build
