@@ -6488,3 +6488,21 @@
 .ps-storex .storex-copy-layer textarea:focus-visible {
   outline: 2px solid #c7428a; outline-offset: 2px;
 }
+
+/* Seven art-directed campaign covers; mobile Feed legibility is baked into the
+   1080×1350 generated JPEG, not recreated with generic UI overlays. */
+.ps-storex .storex-sushi-creative-frame {
+  position: relative;
+  display: block;
+  width: min(100%, 340px);
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: #f8f4ec;
+  box-shadow: 0 16px 45px #24221e24;
+  border-radius: 3px;
+}
+.ps-storex .storex-sushi-creative-frame img { object-fit: cover; }
+.ps-storex .storex-case-dialog-media > .storex-sushi-creative-frame { width: min(100%, 390px); }
+@media (max-width: 700px) {
+  .ps-storex .storex-sushi-creative-frame { width: min(100%, 320px); margin-inline: auto; }
+}
