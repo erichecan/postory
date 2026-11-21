@@ -150,3 +150,7 @@
 .ps-brand-privacy{margin:0 13px 29px}
 }
 @media(prefers-reduced-motion:reduce){.ps-vertical-button{transition:none}}
+
+.ps-brand-auth-notice{max-width:1064px;margin:14px auto 6px;padding:13px 17px;display:flex;align-items:center;gap:10px;background:#eaf1ec;border:1px solid #b8d1c2;border-radius:12px;color:#355f48;font-size:13px;line-height:1.6}
+.ps-brand-auth-notice a{color:#8e3e70;text-decoration:underline;font-weight:700}
+@media(max-width:620px){.ps-brand-auth-notice{margin:14px 13px 6px;align-items:flex-start}}
