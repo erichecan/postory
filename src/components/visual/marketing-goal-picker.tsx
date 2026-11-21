@@ -100,7 +100,7 @@ export function MarketingGoalPicker({
           <p>{example.description}</p>
           <h3>内容形式 · {({ real_photo: "真实食物／餐厅摄影", brand_editorial: "真实照片 + 轻排版", offer_poster: "核实规则的活动海报", carousel: "菜单／知识轮播（封面示意）" } as const)[example.contentFormat]}</h3>
           <h3>第一层：图片短标题</h3>
-          <p className="storex-case-social-copy">{example.headline.replace(/\\n/g, " ")}</p>
+          <p className="storex-case-social-copy">{example.headline.replace(/\n/g, " ")}</p>
           <h3>第二层：Facebook / Instagram 正文</h3>
           <p className="storex-case-social-copy">{example.socialCopy}</p>
           <h3>第三层：完整活动规则</h3>
