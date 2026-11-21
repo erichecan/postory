@@ -30,7 +30,6 @@ const brand = (color: string, y = 95) =>
 
 function overlay(id: Id): string {
   const ink = "#22312b", cream = "#f9f4ea", orange = "#d86d48";
-  const mark = word(73, 1310, "SAKURA SUSHI  /  CREATIVE CONCEPT", 18, "#8c8880", 600, 'letter-spacing="3"');
   switch (id) {
     case "footfall":
       return rect(0, 850, W, 500, cream) +
