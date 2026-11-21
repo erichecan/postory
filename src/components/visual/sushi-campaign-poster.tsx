@@ -98,6 +98,6 @@ export const SUSHI_CAMPAIGNS: Record<SushiCampaignId, SushiCampaign> = {
 /** Seven genuinely distinct demo compositions, rendered from owned local demo photography. */
 export function SushiCampaignPoster({ campaign, modal = false }: { campaign: SushiCampaign; modal?: boolean }) {
   return <div className={`storex-sushi-creative-frame ${modal ? "is-modal" : ""}`} aria-label={`Sakura Sushi ${campaign.purpose}创意展示`}>
-    <Image src={`/api/sakura-creative/${campaign.id}`} alt={`Sakura Sushi ${campaign.purpose}：${campaign.headline.replace(/\\n/g," ")}。虚构品牌创意效果，不代表真实菜品或餐厅。`} fill sizes={modal ? "450px" : "360px"} unoptimized />
+    <Image src={`/api/sakura-creative/${campaign.id}`} alt={`Sakura Sushi ${campaign.purpose}：${campaign.headline.replace(/\n/g," ")}。虚构品牌创意效果，不代表真实菜品或餐厅。`} fill sizes={modal ? "450px" : "360px"} unoptimized />
   </div>;
 }
