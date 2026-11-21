@@ -1,3 +1,4 @@
+import { isContentEngineEnabled, unavailableContentEngine } from "@/lib/content-engine/feature-gate";
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/db/client";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -5,6 +6,7 @@ import { getObject, parseContentBrandMediaKey } from "@/lib/storage";
 
 export const runtime = "nodejs";
 export async function GET(_request: NextRequest, context: RouteContext<"/api/content-engine/brand/assets/[id]">) {
+  if (!isContentEngineEnabled()) return unavailableContentEngine();
   const user = await getCurrentUser();
   if (!user) return new Response(null, { status: 401 });
   const { id } = await context.params;
