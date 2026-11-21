@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import sharp from "sharp";
 import { GET } from "../src/app/api/sakura-creative/[id]/route";
 
+async function main() {
 const cases = ["footfall", "promote", "repeat", "basket", "offpeak", "awareness", "unsure"];
 const digests = new Set<string>();
 for (const id of cases) {
@@ -26,3 +27,6 @@ const invalid = await GET(new Request("http://localhost/api/sakura-creative/inva
 });
 assert.equal(invalid.status, 404, "unknown creative must not resolve");
 console.log("Sakura creative render smoke test: 7/7 distinct images");
+
+}
+void main().catch((error) => { console.error(error); process.exitCode = 1; });
