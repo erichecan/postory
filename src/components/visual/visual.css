@@ -6544,3 +6544,155 @@
   padding: 15px; border-radius: 10px; background: #faf9fc; border: 1px solid #e5e5ee;
 }
 .ps-storex .storex-brief-summary .storex-form-grid p { margin: 7px 0 0; color: #555b6b; }
+
+
+/* Phase 3 — two distinct high-fidelity visual languages.
+   Beauty: intimate editorial still life, softened ink, airy cream.
+   Roofing: documentary site photography, sober technical graphic system.
+   4:5 social media safe areas; lettering is browser-rendered in customer demo.
+   Production publication still requires final locked raster review. */
+.ps-storex .isp {
+  --ink: #25332d; --paper: #f5f0e9; --accent: #b46b79;
+  position: relative; isolation: isolate; width: min(100%, 340px);
+  aspect-ratio: 4 / 5; overflow: hidden; border-radius: 3px;
+  background: var(--paper); color: var(--ink);
+  box-shadow: 0 12px 32px #1d25351c;
+}
+.ps-storex .isp--roofing {
+  --ink: #172b36; --paper: #ecece5; --accent: #bd7846;
+}
+.ps-storex .isp-photo { position: absolute; inset: 0; overflow: hidden; z-index: -2; }
+.ps-storex .isp-photo img { object-fit: cover; object-position: center; }
+.ps-storex .isp-top {
+  position: absolute; left: 7%; right: 7%; top: 5.5%;
+  display: flex; justify-content: space-between; align-items: center; z-index: 2;
+}
+.ps-storex .isp-logo {
+  font-size: clamp(10px,1.06vw,12px); line-height: 1.2;
+  font-weight: 850; letter-spacing: .16em;
+}
+.ps-storex .isp-dot { font-size: 22px; line-height: 1; color: var(--accent); }
+.ps-storex .isp-content {
+  position: absolute; left: 7%; right: 7%; bottom: 7.5%; z-index: 2;
+  display: flex; flex-direction: column; align-items: flex-start;
+}
+.ps-storex .isp-overline {
+  font-size: 9px; letter-spacing: .19em; font-weight: 800; text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.ps-storex .isp-headline {
+  display: flex; flex-direction: column;
+  font-size: clamp(28px,3.3vw,45px);
+  line-height: 1.035; font-weight: 750; letter-spacing: -.052em; max-width: 100%;
+}
+.ps-storex .isp-headline span { display: block; }
+.ps-storex .isp-subline { font-size: clamp(10px,1.03vw,13px); line-height: 1.38; margin: 12px 0 15px; max-width: 93%; }
+.ps-storex .isp-cta {
+  display: inline-flex; gap: 16px; justify-content: space-between; align-items: center;
+  font-size: 9px; font-weight: 850; letter-spacing: .095em;
+  border-bottom: 1px solid currentColor; padding: 0 0 8px;
+}
+.ps-storex .isp-cta span { font-size: 16px; line-height: .7; }
+.ps-storex .isp-bottom {
+  position: absolute; bottom: 2.4%; left: 7%; right: 7%; z-index: 3;
+  display: flex; justify-content: space-between; font-size: 7px;
+  font-weight: 750; letter-spacing: .14em; opacity: .8;
+}
+/* Beauty editorial: a museum-like exhibition photo with a distinct cream type area. */
+.ps-storex .isp--beauty-editorial .isp-photo { inset: 0 0 39%; }
+.ps-storex .isp--beauty-editorial .isp-top { color: #fff; text-shadow: 0 1px 6px #2226; }
+.ps-storex .isp--beauty-editorial .isp-content { bottom: 7%; }
+.ps-storex .isp--beauty-editorial .isp-headline { font-family: Georgia, "Times New Roman", serif; font-weight: 600; font-size: clamp(31px,3.8vw,49px); letter-spacing: -.055em; }
+.ps-storex .isp--beauty-editorial .isp-subline { margin: 9px 0 10px; }
+/* Beauty cinematic full bleed with restrained editorial type on the photo. */
+.ps-storex .isp--beauty-fullbleed { color: #fff; background: #7e5a68; }
+.ps-storex .isp--beauty-fullbleed::before { content:""; position:absolute; inset:0; z-index:-1; background: linear-gradient(180deg,#1e101126 0%,#1e101110 38%,#24141acb 100%); }
+.ps-storex .isp--beauty-fullbleed .isp-headline { font-family: Georgia,serif; font-size: clamp(42px,4.5vw,58px); font-weight: 500; letter-spacing: -.055em; }
+.ps-storex .isp--beauty-fullbleed .isp-dot { color:#f1d6c0; }
+/* Window: framed product picture, ultra-minimal typography against paper. */
+.ps-storex .isp--beauty-window { background:#f6eeeb; }
+.ps-storex .isp--beauty-window .isp-photo { inset: 15% 8% 37%; border-radius: 100px 100px 3px 3px; }
+.ps-storex .isp--beauty-window .isp-top { color: #6b4553; }
+.ps-storex .isp--beauty-window .isp-content { bottom: 7.5%; }
+.ps-storex .isp--beauty-window .isp-headline { font-family: Georgia,serif; font-weight: 500; font-size: clamp(35px,4.2vw,55px); }
+.ps-storex .isp--beauty-window .isp-subline { margin: 9px 0 12px; }
+/* Split: photography to left, measured type and rhythm to right. */
+.ps-storex .isp--beauty-split { background:#e5d7dc; }
+.ps-storex .isp--beauty-split .isp-photo { inset: 10% 43% 29% 0; }
+.ps-storex .isp--beauty-split .isp-content { top: 33%; left: 62%; right: 5%; bottom: auto; }
+.ps-storex .isp--beauty-split .isp-headline { font-size: clamp(22px,2.25vw,34px); }
+.ps-storex .isp--beauty-split .isp-subline { font-size: 10px; }
+.ps-storex .isp--beauty-split .isp-bottom { bottom: 5%; }
+.ps-storex .isp--beauty-split .isp-overline { line-height: 1.4; }
+/* Minimal: an editorial headline at the top, narrow beauty photo along bottom. */
+.ps-storex .isp--beauty-minimal { background:#f6eee6; }
+.ps-storex .isp--beauty-minimal .isp-photo { inset: 41% 0 0; }
+.ps-storex .isp--beauty-minimal .isp-photo::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg,#f6eee660,#0000 38%,#f6eee64a 100%); }
+.ps-storex .isp--beauty-minimal .isp-top { top: 5%; }
+.ps-storex .isp--beauty-minimal .isp-content { top: 15%; bottom:auto; }
+.ps-storex .isp--beauty-minimal .isp-headline { font-size: clamp(35px,4.3vw,55px); font-family: Georgia,serif; font-weight: 500; }
+.ps-storex .isp--beauty-minimal .isp-subline { margin: 6px 0 10px; }
+/* Journal: large photo upper 70% with a white lower editorial strip. */
+.ps-storex .isp--beauty-journal { background:#fffaf4; }
+.ps-storex .isp--beauty-journal .isp-photo { inset: 0 0 31%; }
+.ps-storex .isp--beauty-journal .isp-top { color: #fff; }
+.ps-storex .isp--beauty-journal .isp-content { bottom: 6%; }
+.ps-storex .isp--beauty-journal .isp-headline { font-family: Georgia,serif; font-size:clamp(30px,3.7vw,48px);font-weight:500; }
+.ps-storex .isp--beauty-journal .isp-subline { margin:8px 0 10px; }
+/* Roofing editorial: architectural journalism, hero photograph dominates. */
+.ps-storex .isp--roof-editorial .isp-photo { inset: 0 0 38%; }
+.ps-storex .isp--roof-editorial .isp-top { color:#fff; text-shadow:0 1px 7px #1117; }
+.ps-storex .isp--roof-editorial .isp-content { bottom: 7%; }
+.ps-storex .isp--roof-editorial .isp-headline { font-size: clamp(31px,3.8vw,49px); font-weight:850; }
+/* Roofing documentary: strong evidence-led image + dark band, no fake badges. */
+.ps-storex .isp--roof-documentary { background:#19313b; color:#fff; }
+.ps-storex .isp--roof-documentary .isp-photo { inset: 0 0 30%; }
+.ps-storex .isp--roof-documentary .isp-content { bottom: 5.7%; }
+.ps-storex .isp--roof-documentary .isp-headline { font-size: clamp(30px,3.7vw,49px); }
+.ps-storex .isp--roof-documentary .isp-subline { margin:8px 0 10px; color:#d7e0df; }
+.ps-storex .isp--roof-documentary .isp-dot { color:#e5bd93; }
+/* Roofing split - photo occupies an editorial left pane, verified text on right. */
+.ps-storex .isp--roof-split { background:#dce2df; }
+.ps-storex .isp--roof-split .isp-photo { inset: 0 45% 0 0; }
+.ps-storex .isp--roof-split .isp-top { color: #fff; }
+.ps-storex .isp--roof-split .isp-content { left:61%; top:30%; right:4%; bottom:auto; }
+.ps-storex .isp--roof-split .isp-headline { font-size:clamp(21px,2.15vw,31px); font-weight:850; }
+.ps-storex .isp--roof-split .isp-subline { font-size:10px; }
+.ps-storex .isp--roof-split .isp-bottom { color:#fff; }
+.ps-storex .isp--roof-split .isp-bottom span:last-child { color:#23323a; }
+/* Technical: one large photo in bottom, clean journal title panel. */
+.ps-storex .isp--roof-technical { background:#eff1ec; }
+.ps-storex .isp--roof-technical .isp-photo { inset: 43% 0 0; }
+.ps-storex .isp--roof-technical .isp-content { top:15%; bottom:auto; }
+.ps-storex .isp--roof-technical .isp-headline { font-size:clamp(30px,3.5vw,46px); }
+.ps-storex .isp--roof-technical .isp-subline { margin:8px 0 12px; }
+/* Architecture: pure dramatic house photography with a deep low overlay. */
+.ps-storex .isp--roof-architecture { background:#213944; color:#fff; }
+.ps-storex .isp--roof-architecture::before { content:""; position:absolute; inset:0; z-index:-1; background:linear-gradient(180deg,#09151a36 0%,#07121b1a 35%,#07121bdc 100%); }
+.ps-storex .isp--roof-architecture .isp-headline { font-size:clamp(35px,4vw,53px); }
+.ps-storex .isp--roof-architecture .isp-dot { color:#e7b38e; }
+/* Field notes: small heading, construction photo, architectural rules. */
+.ps-storex .isp--roof-fieldnotes { background:#e9e6de; }
+.ps-storex .isp--roof-fieldnotes .isp-photo { inset: 16% 0 30%; }
+.ps-storex .isp--roof-fieldnotes .isp-content { bottom:5.8%; }
+.ps-storex .isp--roof-fieldnotes .isp-headline { font-size:clamp(31px,3.5vw,46px); }
+.ps-storex .isp--roof-fieldnotes .isp-subline { margin:8px 0 12px; }
+.ps-storex .isp--modal { width:min(100%,390px); }
+.ps-storex .isp-sample-controls {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  padding:11px 0 2px; background:transparent;
+}
+.ps-storex .isp-sample-controls button {
+  border:1px solid #d7d9e2; border-radius:20px; padding:5px 13px;
+  font-size:11px; font-weight:700; background:#fff; color:#536072;
+}
+.ps-storex .isp-sample-controls button[aria-pressed="true"] { background:#303c48; color:#fff; border-color:#303c48; }
+.ps-storex .isp-sample-notice {
+  font-size:10px; color:#8d8c98; padding:0 17px 10px; text-align:center;
+}
+@media(max-width:700px){
+ .ps-storex .isp { width:min(100%,320px); }
+ .ps-storex .isp-headline { font-size:clamp(26px,7vw,42px); }
+ .ps-storex .isp--beauty-split .isp-headline,.ps-storex .isp--roof-split .isp-headline {font-size:clamp(19px,5vw,28px);}
+ .ps-storex .isp--modal {width:min(100%,350px);}
+}
