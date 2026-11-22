@@ -28,7 +28,7 @@ const GOALS: Goal[] = [
 const PROMOTIONS = ["限时特价", "买一送一／第二件优惠", "套餐／组合优惠", "满额优惠", "赠品／加价购", "会员日／积分活动", "淡时段优惠", "新客体验优惠", "节日或主题活动"];
 const CHANNELS = ["Instagram", "Facebook", "TikTok", "小红书"];
 const HERO_SLIDES = [
-  { type: "capability", eyebrow: "门店社媒内容，一处安排", title: "把门店想宣传的内容，变成社媒上的帖子", body: "从经营目标出发，准备多平台内容；在日历里检查、修改并安排发布。", captionTitle: "工作日午餐，来点新鲜选择", caption: "忙碌的中午，来一份寿司午餐。今日菜单、价格与供应情况，欢迎到店或私信询问。", goal: "从想法到发布，步骤清楚", image: "/demo/photos/restaurant-calendar/sushi-counter.jpg", platform: "Instagram" },
+  { type: "capability", eyebrow: "门店社媒内容，由 PoStory 安排", title: "把门店想宣传的内容，变成社媒上的帖子", body: "从经营目标出发，准备多平台内容；在日历里检查、修改并安排发布。", captionTitle: "工作日午餐，来点新鲜选择", caption: "忙碌的中午，来一份寿司午餐。今日菜单、价格与供应情况，欢迎到店或私信询问。", goal: "从想法到发布，步骤清楚", image: "/demo/photos/restaurant-calendar/sushi-counter.jpg", platform: "Instagram" },
   { type: "campaign", eyebrow: "餐饮 · 午餐优惠", title: "让附近顾客知道，今天午餐有什么选择", body: "用一组清楚的午餐推荐，呈现主推套餐、供应时段与到店方式。门店可结合当日午餐订单回看活动表现。", captionTitle: "午休这一餐，来点新鲜选择", caption: "今天想吃寿司？看看本日午餐组合，适合堂食或外带。菜单、价格和供应情况以门店当天信息为准，欢迎到店或私信询问。", goal: "活动目标：带动工作日午餐", image: "/demo/photos/restaurant-calendar/lunch-set.jpg", platform: "Instagram" },
   { type: "campaign", eyebrow: "美甲 · 会员日", title: "给老顾客一个回来预约的理由", body: "围绕会员日或预约活动，介绍服务和参与规则，让老顾客知道何时预约。", captionTitle: "会员日预约开放", caption: "把喜欢的美甲款式安排进本月日程。会员日日期、参与项目与预约方式，欢迎私信了解。", goal: "活动目标：促进回访和预约", image: "/demo/photos/nail-1.jpg", platform: "Facebook" },
   { type: "campaign", eyebrow: "餐饮 · 买一送一", title: "把活动内容讲清楚，让顾客知道如何参与", body: "突出参与商品、活动时间和适用规则，让顾客快速看懂活动内容。", captionTitle: "和朋友分享喜欢的寿司", caption: "指定寿司买一送一活动进行中。参与品项和活动日期以门店公布为准；到店前欢迎私信确认。", goal: "活动目标：推广指定商品", image: "/demo/photos/restaurant-calendar/salmon-dragon-roll.jpg", platform: "TikTok" },
@@ -76,8 +76,8 @@ function fileToDataUrl(file: File) {
   });
 }
 
-function ExperienceFrame({ children }: { children: ReactNode }) {
-  return <main className="ps ps-workspace ps-storex"><header className="ps-workspace-header"><Logo href="/" /><span className="ps-workspace-header-label">门店自助营销</span><Link className="ps-workspace-back" href="/">PoStory</Link></header>{children}<footer className="ps-workspace-footer"><span>PoStory · 门店营销工作台</span><span>了解 · 制作 · 审核 · 发布</span></footer></main>;
+function ExperienceFrame({ children, vertical }: { children: ReactNode; vertical?: VerticalConfig }) {
+  return <main className="ps ps-workspace ps-storex"><header className="ps-workspace-header"><Logo href="/" /><span className="ps-workspace-header-label">{vertical ? `${vertical.label} · PoStory 代运营` : "门店营销体验"}</span><Link className="ps-workspace-back" href="/">PoStory</Link></header>{children}<footer className="ps-workspace-footer"><span>PoStory · 门店营销工作台</span><span>了解 · 制作 · 审核 · 发布</span></footer></main>;
 }
 
 function PhonePreview({ slide }: { slide: typeof HERO_SLIDES[number] }) {
@@ -108,6 +108,8 @@ export function StoreMarketingExperience({ vertical }: { vertical?: VerticalConf
   const goals = vertical?.goals ?? GOALS;
   const promotions = vertical?.promotions.map(p => p.label) ?? PROMOTIONS;
   const storageKey = vertical ? `postory-industry-brief-v1-${vertical.slug}` : "postory-store-experience-v2";
+  const isVertical = Boolean(vertical);
+  const goalIds = goals.map(item=>item.id).join(",");
   const [started, setStarted] = useState(Boolean(vertical));
   const [step, setStep] = useState(0);
   const [goal, setGoal] = useState("");
@@ -143,15 +145,15 @@ export function StoreMarketingExperience({ vertical }: { vertical?: VerticalConf
       const raw = localStorage.getItem(storageKey);
       if (raw) {
         const data = JSON.parse(raw) as { goal?: string; business?: string; industry?: string; location?: string; promotionType?: string; promotionDetails?: string; promotionStart?: string; promotionEnd?: string; currency?: string; channels?: string[]; startDate?: string; endDate?: string; products?: Product[]; plan?: CampaignPost[]; started?: boolean; step?: number };
-        if (data.goal && goals.some(g=>g.id===data.goal)) setGoal(data.goal); if (data.business) setBusiness(data.business); if (!vertical && data.industry) setIndustry(data.industry); if (data.location) setLocation(data.location);
+        if (data.goal && goalIds.split(",").includes(data.goal)) setGoal(data.goal); if (data.business) setBusiness(data.business); if (!isVertical && data.industry) setIndustry(data.industry); if (data.location) setLocation(data.location);
         if (data.promotionType) { setWantsPromotion(true); setPromotionType(data.promotionType); } if (data.promotionDetails) setPromotionDetails(data.promotionDetails); if (data.promotionStart) setPromotionStart(data.promotionStart); if (data.promotionEnd) setPromotionEnd(data.promotionEnd);
         if (data.currency) setCurrency(data.currency); if (data.channels) setChannels(data.channels); if (data.startDate) setStartDate(data.startDate); if (data.endDate) setEndDate(data.endDate); if (data.products) setProducts(data.products.map(({ photoDataUrl: _photo, ...product }) => product));
         if (data.plan?.length) { setPlan(data.plan.map((item) => ({ ...item, imageDataUrl: undefined }))); setSelectedId(data.plan[0].id); }
-        setStarted(vertical ? true : !!data.started); if (data.step !== undefined) setStep(data.step); else if (data.plan?.length) setStep(5);
+        setStarted(isVertical ? true : !!data.started); if (data.step !== undefined) setStep(data.step); else if (data.plan?.length) setStep(5);
       }
     } catch { localStorage.removeItem(storageKey); }
     finally { setCalendarRestored(true); }
-  }, [storageKey, vertical, goals]);
+  }, [storageKey, isVertical, goalIds]);
   /* eslint-enable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!calendarRestored) return;
@@ -246,7 +248,7 @@ export function StoreMarketingExperience({ vertical }: { vertical?: VerticalConf
 
   if (!started) return <Landing onStart={() => { setStarted(true); setStep(0); window.scrollTo({ top: 0, behavior: "smooth" }); }} />;
 
-  return <ExperienceFrame><div className="storex-flow">
+  return <ExperienceFrame vertical={vertical}><div className="storex-flow">
     <div className="storex-flow-top"><button className="storex-back" type="button" onClick={() => step === 0 ? setStarted(false) : setStep((current) => Math.max(0, current - 1))}><ArrowLeft size={16} />{step === 0 ? "返回介绍" : "上一步"}</button><span>门店营销计划</span></div>
     {step < 5 && <nav className="storex-stepper" aria-label="制作步骤">{STEP_NAMES.map((name, index) => index < step ? <button type="button" key={name} className="is-done" aria-label={`返回${name}`} onClick={() => goToPreviousStep(index)}><span><Check size={14} /></span><b>{name}</b></button> : <div key={name} className={index === step ? "is-current" : ""} aria-current={index === step ? "step" : undefined}><span>{index + 1}</span><b>{name}</b></div>)}</nav>}
     {step === 0 && <MarketingGoalPicker goals={goals} vertical={vertical} selected={goal} onSelect={chooseGoal} onContinue={() => { setStep(1); setError(""); }} />}
