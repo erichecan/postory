@@ -109,7 +109,7 @@ export function MarketingGoalPicker({
         <div className="storex-case-dialog-body">
           <span className="storex-eyebrow">{displayName} · {example?.purpose ?? active.title}</span>
           <h2 id="storex-case-dialog-title">{example?.headline.replace(/\n/g, " ") ?? concept?.headline}</h2>
-          <p>{example.description}</p>
+          <p>{example?.description ?? concept?.description}</p>
           <h3>这次内容如何实现目标？</h3>
           <ul>{(example?.approach ?? concept?.approach ?? []).map((line) => <li key={line}>{line}</li>)}</ul>
           <h3>发布后可以观察什么？</h3>
