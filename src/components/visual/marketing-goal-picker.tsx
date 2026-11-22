@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import type { VerticalConfig, GoalConfig } from "@/lib/verticals/config";
+import { getShowpieces } from "@/lib/verticals/showpieces";
+import { IndustryShowpiecePoster } from "@/components/visual/industry-showpiece-poster";
 import { ArrowRight, Check, ChevronRight, X } from "lucide-react";
 import { SUSHI_CAMPAIGNS, SushiCampaignPoster, type SushiCampaignId } from "@/components/visual/sushi-campaign-poster";
 
@@ -23,6 +25,7 @@ export function MarketingGoalPicker({
   onContinue: () => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [sampleVariant, setSampleVariant] = useState<"A"|"B">("A");
   const modalRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const active = goals.find((g) => g.id === selected) ?? goals[0];
@@ -30,12 +33,14 @@ export function MarketingGoalPicker({
   const isSushi = !vertical || vertical.slug === "sushi";
   const example = isSushi ? (SUSHI_CAMPAIGNS[active.id as SushiCampaignId] ?? SUSHI_CAMPAIGNS.unsure) : undefined;
   const concept = industryGoal?.creative;
+  const showpieces = vertical ? getShowpieces(vertical.slug,active.id) : [];
+  const sample = showpieces.find(item => item.variant === sampleVariant) ?? showpieces[0];
   const displayName = vertical?.demoName ?? "SAKURA SUSHI";
-  const image = example ? <SushiCampaignPoster campaign={example} /> : <div className="storex-vertical-art" style={{ background: vertical?.theme ?? "#344" }}>
+  const image = sample ? <IndustryShowpiecePoster item={sample} brand={displayName} /> : example ? <SushiCampaignPoster campaign={example} /> : <div className="storex-vertical-art" style={{ background: vertical?.theme ?? "#344" }}>
     {concept?.asset ? <Image src={concept.asset} alt={concept.description} fill unoptimized sizes="400px" /> : <div className="storex-vertical-art-placeholder"><span>POStory · CREATIVE DIRECTION</span><strong>{vertical?.serviceLabel}</strong><small>正式作品由门店真实照片制作</small></div>}
     <div className="storex-vertical-art-label"><span>{displayName}</span><strong>{concept?.headline}</strong><small>行业营销创意 · 概念展示</small></div>
   </div>;
-  const modalImage = example ? <SushiCampaignPoster campaign={example} modal /> : image;
+  const modalImage = sample ? <IndustryShowpiecePoster item={sample} brand={displayName} modal /> : example ? <SushiCampaignPoster campaign={example} modal /> : image;
   useEffect(() => {
     if (!open) return;
     const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -87,10 +92,19 @@ export function MarketingGoalPicker({
       </div>
       <article className="storex-case-card">
         <div className="storex-case-meta"><span>{displayName} · 创意展示</span><span>{example?.purpose ?? active.title}</span></div>
-        <div className="storex-case-poster-wrap">{image}</div>
+        <div className={`storex-case-poster-wrap ${sample ? "is-industry-library" : ""}`}>
+          {image}
+          {sample && <div className="isp-sample-controls" aria-label="同一营销目标的两个创意方向">
+            {(["A","B"] as const).map(variant=><button key={variant} type="button"
+              aria-pressed={sampleVariant===variant} onClick={()=>setSampleVariant(variant)}>
+              {variant==="A"?"创意方案 A":"创意方案 B"}
+            </button>)}
+          </div>}
+          {sample && <div className="isp-sample-notice">品牌与广告为演示示例，照片不代表该品牌真实作品或工程</div>}
+        </div>
         <div className="storex-case-copy">
           <span className="storex-case-kicker">这个创意为什么对应「{active.title}」？</span>
-          <p>{example?.description ?? concept?.description}</p>
+          <p>{example?.description ?? sample?.visualReason ?? concept?.description}</p>
         </div>
         <div className="storex-case-bottom">
           <span>虚构品牌 / 示意内容 / 非客户业绩</span>
@@ -108,10 +122,13 @@ export function MarketingGoalPicker({
         <div className="storex-case-dialog-media">{modalImage}</div>
         <div className="storex-case-dialog-body">
           <span className="storex-eyebrow">{displayName} · {example?.purpose ?? active.title}</span>
-          <h2 id="storex-case-dialog-title">{example?.headline.replace(/\n/g, " ") ?? concept?.headline}</h2>
-          <p>{example?.description ?? concept?.description}</p>
+          <h2 id="storex-case-dialog-title">{sample?.headline.replace(/\n/g, " ") ?? example?.headline.replace(/\n/g, " ") ?? concept?.headline}</h2>
+          <p>{example?.description ?? sample?.visualReason ?? concept?.description}</p>
           <h3>这次内容如何实现目标？</h3>
           <ul>{(example?.approach ?? concept?.approach ?? []).map((line) => <li key={line}>{line}</li>)}</ul>
+          {sample && <><h3>制作正式内容需要哪些真实资料？</h3>
+            <ul>{sample.evidenceNeeded.map(line=><li key={line}>{line}</li>)}</ul>
+            <p className="storex-case-disclaimer">{sample.photographyNotice} 摄影素材标注：{sample.imageCredit}。</p></>}
           <h3>发布后可以观察什么？</h3>
           <ul>{(example?.indicators ?? concept?.indicators ?? []).map((line) => <li key={line}>{line}</li>)}</ul>
           <p className="storex-case-disclaimer">这是虚构品牌的行业营销方向示意，不代表真实客户作品或经营业绩。具体商品、价格、项目和活动条件均须由商家确认。</p>
