@@ -32,6 +32,8 @@ assert.ok(proxy.includes('pathname) ||') && proxy.includes('/for'), "Public indu
 assert.ok(experience.includes("postory-industry-brief-v1-"), "Drafts must be isolated by industry");
 assert.ok(experience.includes("vertical ? null :"), "No industry dropdown on dedicated link");
 assert.ok(experience.includes("step === 6 && vertical"), "Customer flow must not open the internal content calendar");
+assert.ok(experience.includes("step === 5 && !vertical"), "Internal calendar must remain inaccessible on public industry links");
+assert.ok(experience.includes("current === 6 && vertical ? 4"), "Back button must not navigate into internal editor");
 assert.ok(picker.includes("SushiCampaignPoster") && picker.includes("storex-goal-list"), "Preserve original Sakura five-step layout");
 assert.ok(picker.includes("vertical?.demoName") && picker.includes("industryGoal"), "Cases must match vertical");
 console.log("Six industry-specific public entry routes and isolated goal/promotion journeys verified");
