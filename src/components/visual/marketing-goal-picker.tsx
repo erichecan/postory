@@ -92,7 +92,7 @@ export function MarketingGoalPicker({
       </div>
       <article className="storex-case-card">
         <div className="storex-case-meta"><span>{displayName} · 创意展示</span><span>{example?.purpose ?? active.title}</span></div>
-        <div className="storex-case-poster-wrap">
+        <div className={`storex-case-poster-wrap ${sample ? "is-industry-library" : ""}`}>
           {image}
           {sample && <div className="isp-sample-controls" aria-label="同一营销目标的两个创意方向">
             {(["A","B"] as const).map(variant=><button key={variant} type="button"
