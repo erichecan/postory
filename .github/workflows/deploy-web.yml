@@ -100,4 +100,11 @@ jobs:
           INK="$(awk 'BEGIN{IGNORECASE=1} tolower($1)=="x-sakura-title-ink-pixels:" {gsub("\\r","",$2); print $2}' /tmp/sakura-font-verify.headers | tail -1)"
           test -n "$INK" && test "$INK" -gt 9000
           echo "Cloud Run production JPEG title ink pixels: $INK"
+          # Industry-specific field-sales links MUST work anonymously.
+          # A redirect to /login is a release-blocking failure.
+          for vertical in sushi nails roofing accounting fitness retail; do
+            STATUS="$(curl -sS -o /dev/null -w '%{http_code}' "$URL/for/$vertical")"
+            test "$STATUS" = "200" || { echo "/for/$vertical returned $STATUS (expected anonymous HTTP 200)" >&2; exit 1; }
+            echo "Public industry entry /for/$vertical HTTP 200"
+          done
           echo "Sakura creative rendered on production HTTP 200"

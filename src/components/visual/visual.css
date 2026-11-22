@@ -6506,3 +6506,41 @@
 @media (max-width: 700px) {
   .ps-storex .storex-sushi-creative-frame { width: min(100%, 320px); margin-inline: auto; }
 }
+
+/* Public vertical previews share the original /store 5-step visual grammar.
+   No industry picker, no fake project photography for industries without assets. */
+.ps-storex .storex-vertical-art {
+  width: min(100%, 340px); aspect-ratio: 4 / 5; position: relative; overflow: hidden;
+  border-radius: 4px; box-shadow: 0 16px 44px #17212b24; color: #fff;
+  display: flex; flex-direction: column; justify-content: flex-end; isolation: isolate;
+}
+.ps-storex .storex-vertical-art > img { object-fit: cover; z-index: -2; }
+.ps-storex .storex-vertical-art::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(180deg, #0910192b 0%, transparent 31%, #091019d8 100%);
+}
+.ps-storex .storex-vertical-art-placeholder {
+  position: absolute; inset: 12%; display: flex; flex-direction: column; gap: 15px;
+  align-items: flex-start; justify-content: center; border: 1px solid #ffffff85;
+  padding: 20px; text-align: left;
+}
+.ps-storex .storex-vertical-art-placeholder span { font-size: 11px; letter-spacing: .18em; opacity: .82; }
+.ps-storex .storex-vertical-art-placeholder strong { font-size: 38px; line-height: 1.1; }
+.ps-storex .storex-vertical-art-placeholder small { font-size: 12px; opacity: .85; }
+.ps-storex .storex-vertical-art-label { padding: 25px 26px; display: flex; flex-direction: column; gap: 9px; }
+.ps-storex .storex-vertical-art-label span { font-size: 11px; font-weight: 800; letter-spacing: .18em; }
+.ps-storex .storex-vertical-art-label strong { font-size: clamp(24px, 3vw, 38px); line-height: 1.05; max-width: 94%; }
+.ps-storex .storex-vertical-art-label small { font-size: 11px; opacity: .8; }
+.ps-storex .storex-case-dialog-media .storex-vertical-art { width: min(100%, 380px); }
+.ps-storex .storex-promo-fact-checks {
+  display: grid; gap: 9px; margin: 16px 0; padding: 16px;
+  border: 1px solid #e7e2e7; border-radius: 10px; background: #fbf9fb;
+  font-size: 13px; color: #353947;
+}
+.ps-storex .storex-promo-fact-checks p { color: #8e4567; margin: 0 0 5px; }
+.ps-storex .storex-promo-fact-checks label { display: flex; align-items: center; gap: 8px; }
+.ps-storex .storex-promo-fact-checks input { accent-color: #eb008b; }
+.ps-storex .storex-brief-summary .storex-form-grid > div {
+  padding: 15px; border-radius: 10px; background: #faf9fc; border: 1px solid #e5e5ee;
+}
+.ps-storex .storex-brief-summary .storex-form-grid p { margin: 7px 0 0; color: #555b6b; }
