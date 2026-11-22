@@ -15,7 +15,7 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/legal/") ||
     pathname.startsWith("/our-work/") ||
     pathname.startsWith("/demo/") ||
-    /^\\/for\\/(sushi|nails|roofing|accounting|fitness|retail)\\/?$/.test(pathname) ||
+    ["/for/sushi", "/for/nails", "/for/roofing", "/for/accounting", "/for/fitness", "/for/retail"].includes(pathname.replace(/\/$/, "")) ||
     pathname === "/partners" ||
     pathname === "/partners/demo" ||
     pathname.startsWith("/partners/trial") ||
