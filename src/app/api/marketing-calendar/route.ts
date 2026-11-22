@@ -5,6 +5,7 @@ import path from "node:path";
 import { promisify } from "node:util";
 import type { NextRequest } from "next/server";
 import { getVerticalConfig, validatePromotion } from "@/lib/verticals/config";
+import { getShowpieces } from "@/lib/verticals/showpieces";
 
 export const runtime = "nodejs";
 export const maxDuration = 240;
@@ -127,6 +128,9 @@ function buildPrompt(input: PlanInput) {
       `VERTICAL COPY RULES: ${config.copyRules.join("; ")}`,
       `VERTICAL IMAGE RULES: ${config.imageRules.join("; ")}`,
       `TARGET GOAL: ${config.goals.find(g=>g.id===input.goalId)?.title ?? input.goal}`,
+      ...getShowpieces(config.slug, input.goalId ?? "").map(example =>
+        `ART DIRECTED ${example.variant} COPY REFERENCE, STRUCTURE ONLY (NOT VERIFIED MERCHANT FACTS): headline=${example.headline.replace(/\\n/g, " ")}; copy=${example.bodyCopy}; CTA=${example.cta}; proof needed=${example.evidenceNeeded.join(", ")}; visual style=${example.visualReason}. Never assert the sample photographer's projects, employees or images belong to the merchant.`
+      ),
       `VALID PROMOTION TYPE: ${input.promotionId ? config.promotions.find(p=>p.id===input.promotionId)?.label : "none, no discounts or promotion rules allowed"}`,
     ] : []; })() : []),
     `CAMPAIGN OBJECTIVE RULES (${input.goal}): ${OBJECTIVE_RULES[input.goal] || "Build each idea around the merchant's stated objective, customer action, and confirmed facts."}`,
