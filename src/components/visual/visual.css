@@ -6696,3 +6696,5 @@
  .ps-storex .isp--beauty-split .isp-headline,.ps-storex .isp--roof-split .isp-headline {font-size:clamp(19px,5vw,28px);}
  .ps-storex .isp--modal {width:min(100%,350px);}
 }
+
+.ps-storex .storex-case-poster-wrap.is-industry-library { flex-direction:column; align-items:center; }
