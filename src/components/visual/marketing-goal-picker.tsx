@@ -128,7 +128,7 @@ export function MarketingGoalPicker({
           <ul>{(example?.approach ?? concept?.approach ?? []).map((line) => <li key={line}>{line}</li>)}</ul>
           {sample && <><h3>制作正式内容需要哪些真实资料？</h3>
             <ul>{sample.evidenceNeeded.map(line=><li key={line}>{line}</li>)}</ul>
-            <p className="storex-case-disclaimer">{sample.photographyNotice} 摄影素材标注：{sample.imageCredit}。</p></>
+            <p className="storex-case-disclaimer">{sample.photographyNotice} 摄影素材标注：{sample.imageCredit}。</p></>}
           <h3>发布后可以观察什么？</h3>
           <ul>{(example?.indicators ?? concept?.indicators ?? []).map((line) => <li key={line}>{line}</li>)}</ul>
           <p className="storex-case-disclaimer">这是虚构品牌的行业营销方向示意，不代表真实客户作品或经营业绩。具体商品、价格、项目和活动条件均须由商家确认。</p>
