@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import type { NextRequest } from "next/server";
+import { getVerticalConfig, validatePromotion } from "@/lib/verticals/config";
 
 export const runtime = "nodejs";
 export const maxDuration = 240;
@@ -31,6 +32,7 @@ const OBJECTIVE_RULES: Record<string, string> = {
 
 type PlanInput = {
   industry: string; businessName: string; location: string; audience: string; goal: string; offer: string; notes: string;
+  verticalSlug?: string; goalId?: string; promotionId?: string;
   products: Array<{ name: string; price: string; promotionalPrice: string; facts: string }>;
   platforms: string[]; dates: Array<{ date: string; platform: string }>;
   replace?: { headline: string; objective: string; copy: string; callToAction: string; visualDirection: string; promotionTerms?: string; contentFormat?: string };
@@ -66,6 +68,10 @@ function parseInput(value: unknown): PlanInput | null {
   if (!value || typeof value !== "object") return null;
   const raw = value as Record<string, unknown>;
   const industry = bounded(raw.industry, 40);
+  const verticalSlug = bounded(raw.verticalSlug, 32);
+  const vertical = verticalSlug ? getVerticalConfig(verticalSlug) : undefined;
+  const goalId = bounded(raw.goalId, 50);
+  const promotionId = bounded(raw.promotionId, 50);
   const platforms = Array.isArray(raw.platforms) ? [...new Set(raw.platforms.filter((item): item is string => typeof item === "string" && ["Instagram", "Facebook", "TikTok", "小红书"].includes(item)))] : [];
   const rawDates = Array.isArray(raw.dates) ? raw.dates : [];
   const products = Array.isArray(raw.products) ? raw.products.slice(0, 10).map((item) => {
@@ -77,11 +83,22 @@ function parseInput(value: unknown): PlanInput | null {
     return { date: bounded(date.date, 10), platform: bounded(date.platform, 30) };
   });
   const replaceRaw = raw.replace && typeof raw.replace === "object" ? raw.replace as Record<string, unknown> : undefined;
+  // Industry links are fixed to an allowlisted vertical; no cross-industry
+  // goal or offer can enter the shared generation engine.
+  if (verticalSlug && !vertical) return null;
+  if (vertical && (industry !== vertical.industry || !vertical.goals.some(g=>g.id===goalId))) return null;
+  if (vertical && promotionId) {
+    const facts = raw.verifiedPromotionFacts && typeof raw.verifiedPromotionFacts === "object"
+      ? raw.verifiedPromotionFacts as Record<string,string> : {};
+    if (validatePromotion(vertical, promotionId, facts).length) return null;
+    if (!bounded(raw.offer, 600) || /^(本次不设置|不做促销)/.test(bounded(raw.offer, 600))) return null;
+  }
   if (!INDUSTRY_RULES[industry] || !bounded(raw.businessName, 120) || !bounded(raw.location, 160) || !platforms.length || !dates.length) return null;
   if (products.length && products.some((product) => !product.name)) return null;
   if (dates.some((item) => !validDate(item.date) || !platforms.includes(item.platform))) return null;
   return {
-    industry, businessName: bounded(raw.businessName, 120), location: bounded(raw.location, 160), audience: bounded(raw.audience, 240), goal: bounded(raw.goal, 120),
+    industry, verticalSlug: vertical?.slug, goalId: vertical ? goalId : undefined, promotionId: vertical ? promotionId : undefined,
+    businessName: bounded(raw.businessName, 120), location: bounded(raw.location, 160), audience: bounded(raw.audience, 240), goal: bounded(raw.goal, 120),
     offer: bounded(raw.offer, 600), notes: bounded(raw.notes, 1200), products, platforms, dates,
     replace: replaceRaw ? {
       headline: bounded(replaceRaw.headline, 160), objective: bounded(replaceRaw.objective, 300), copy: bounded(replaceRaw.copy, 1600),
@@ -106,6 +123,12 @@ function buildPrompt(input: PlanInput) {
   return [
     "Create practical, platform-ready social media marketing posts for one real local business. Return only JSON matching the supplied schema.",
     `INDUSTRY RULES (${input.industry}): ${INDUSTRY_RULES[input.industry]}`,
+    ...(input.verticalSlug ? (()=> { const config = getVerticalConfig(input.verticalSlug); return config ? [
+      `VERTICAL COPY RULES: ${config.copyRules.join("; ")}`,
+      `VERTICAL IMAGE RULES: ${config.imageRules.join("; ")}`,
+      `TARGET GOAL: ${config.goals.find(g=>g.id===input.goalId)?.title ?? input.goal}`,
+      `VALID PROMOTION TYPE: ${input.promotionId ? config.promotions.find(p=>p.id===input.promotionId)?.label : "none, no discounts or promotion rules allowed"}`,
+    ] : []; })() : []),
     `CAMPAIGN OBJECTIVE RULES (${input.goal}): ${OBJECTIVE_RULES[input.goal] || "Build each idea around the merchant's stated objective, customer action, and confirmed facts."}`,
     "This is direct-response local-business advertising, not a news feed or a content calendar summary. Every post must sell a specific reason to visit, order, book, ask, or participate. Do not write announcements like 'we are introducing', generic descriptions, or passive summaries.",
     "Copy structure: (1) first line is a sharp customer-facing hook built around appetite, a real customer choice, a specific occasion, a useful answer, or a confirmed deal; (2) make the product/service and customer payoff concrete using only supplied facts; (3) close with one direct action the customer can take today. Make the headline specific enough to stop a local customer scrolling. Avoid generic labels and empty praise such as 'delicious', 'high quality', or 'don't miss out' without evidence.",
