@@ -2,13 +2,15 @@ import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySession } from "@/lib/auth/token";
 import { isLoopbackHost, isVideoLabLocalAccessEnabled } from "@/lib/auth/video-lab-local-access";
 
-const PUBLIC_PATHS = ["/", "/login", "/register", "/plans", "/forgot-password", "/reset-password", "/calendar-preview", "/services", "/who-we-help", "/our-work", "/how-it-works", "/about", "/assessment", "/store", "/team", "/managed"];
+const PUBLIC_PATHS = ["/", "/login", "/register", "/plans", "/privacy", "/terms", "/forgot-password", "/reset-password", "/calendar-preview", "/services", "/who-we-help", "/our-work", "/samples", "/for-shops", "/for-partners", "/apply", "/how-it-works", "/about", "/assessment", "/store", "/team", "/managed"];
 
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const session = await verifySession(request.cookies.get(SESSION_COOKIE)?.value);
   const isPublic =
     PUBLIC_PATHS.includes(pathname) ||
+    pathname === "/zh" ||
+    pathname.startsWith("/zh/") ||
     pathname === "/nails/login" ||
     pathname === "/nails/demo" ||
     pathname === "/demo" ||

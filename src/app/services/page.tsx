@@ -1,4 +1,4 @@
-import { ServicesPage } from "@/components/visual/public-pages";
+import { ShopPage } from "@/components/visual/official-pages";
 export default function Page() {
-  return <ServicesPage />;
+  return <ShopPage />;
 }

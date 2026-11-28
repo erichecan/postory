@@ -1,4 +1,4 @@
-import { AboutPage } from "@/components/visual/public-pages";
+import { AboutPostoryPage } from "@/components/visual/official-pages";
 export default function Page() {
-  return <AboutPage />;
+  return <AboutPostoryPage />;
 }

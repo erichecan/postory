@@ -6698,3 +6698,104 @@
 }
 
 .ps-storex .storex-case-poster-wrap.is-industry-library { flex-direction:column; align-items:center; }
+.ps-official { color: #172a27; }
+.po-hero,.po-page-head,.po-two-col,.po-paths,.po-local,.po-end-cta,.po-steps,.po-apply-grid,.po-proof,.po-sample-grid { width:min(1160px,calc(100% - 40px)); margin-inline:auto; }
+.po-hero { display:grid; grid-template-columns:1.02fr .98fr; align-items:center; gap:5vw; min-height:610px; padding-block:72px; }
+.po-hero h1,.po-page-head h1 { font-size:clamp(42px,6vw,76px); line-height:1.03; letter-spacing:-.055em; margin:18px 0; color:#173b34; }
+.po-hero h1 em,.po-page-head h1 em { color:#df654a; font-style:normal; }
+.po-hero p,.po-page-head p { max-width:620px; color:#52645f; font-size:18px; line-height:1.7; }
+.po-actions { display:flex; align-items:center; flex-wrap:wrap; gap:22px; margin:28px 0 24px; }
+.po-hero-art { position:relative; min-height:450px; background:#f4eee6; border-radius:30px; padding:34px; transform:rotate(1deg); }
+.po-hero-art>.ps-photo { height:380px; border-radius:20px; overflow:hidden; }
+.po-hero-art>div:last-child { position:absolute; bottom:18px; left:0; transform:rotate(-3deg); background:#fff; border-radius:18px; padding:16px 22px; box-shadow:0 14px 40px #173b3422; display:flex; align-items:center; gap:14px; }
+.po-hero-art b { font-size:48px; color:#df654a; line-height:1; }
+.po-proof { display:flex; align-items:center; gap:18px; border-block:1px solid #dce5e0; padding-block:22px; }
+.po-proof>span,.po-sample-heading span,.po-paths span { font-size:12px; letter-spacing:.1em; font-weight:800; color:#a7553f; }
+.po-proof p { flex:1; margin:0; font-size:16px; }
+.po-proof a,.po-note a,.po-local a,.po-steps a { color:#a24734; font-weight:700; }
+.po-samples { padding:74px 0; }
+.po-samples .ps-section-heading { width:min(1160px,calc(100% - 40px)); margin-inline:auto; }
+.po-sample-grid { display:grid; grid-template-columns:1fr; gap:24px; }
+.po-sample-grid article { background:#f6f4ef; border:1px solid #e3e6de; border-radius:22px; padding:24px; }
+.po-sample-heading { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px; }
+.po-sample-heading h2 { margin:5px 0 0; font-size:25px; }
+.po-sample-images { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
+.po-sample-images figure { margin:0; min-width:0; }
+.po-sample-images .ps-photo { height:220px; overflow:hidden; border-radius:13px; }
+.po-sample-card { height:220px; border-radius:13px; padding:22px; display:flex; flex-direction:column; justify-content:space-between; text-align:left; overflow:hidden; }
+.po-sample-card span { font-size:11px; font-weight:800; letter-spacing:.12em; }
+.po-sample-card b { font-family:Georgia,serif; font-size:22px; line-height:1.2; }
+.po-sample-card small { font-size:11px; }
+.po-review-card { background:#f8ede8; color:#543d37; border:1px solid #e5c8bc; }
+.po-offer-card { background:#23483f; color:#fff6e9; }
+.po-sample-images figcaption { font-size:14px; font-weight:700; margin-top:10px; }
+.po-sample-grid article>p { color:#64736d; font-size:13px; margin:18px 0 0; }
+.po-samples-compact { padding:34px 0 68px; }
+.po-samples-compact .po-sample-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.po-samples-compact .po-sample-images { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.po-samples-compact .po-sample-images .ps-photo { height:210px; }
+.po-two-col { display:grid; grid-template-columns:1fr 1fr; align-items:center; gap:8vw; padding-block:76px; }
+.po-two-col h2,.po-note h2,.po-end-cta h2 { font-size:clamp(30px,4vw,48px); letter-spacing:-.04em; line-height:1.1; color:#173b34; }
+.po-two-col p,.po-note p { color:#52645f; font-size:17px; line-height:1.7; }
+.po-two-col ul { list-style:none; padding:0; display:grid; gap:16px; }
+.po-two-col li { display:flex; align-items:flex-start; gap:12px; font-size:17px; }
+.po-two-col li svg { flex:none; color:#41846d; }
+.po-tint { background:#f4f1e8; border-radius:26px; padding-inline:40px; width:min(1160px,calc(100% - 40px)); }
+.po-tint>.ps-photo { height:330px; border-radius:18px; overflow:hidden; }
+.po-paths { display:grid; grid-template-columns:1fr 1fr; gap:18px; padding-block:54px; }
+.po-paths>a { color:inherit; text-decoration:none; padding:28px; border:1px solid #dce5e0; border-radius:20px; background:#fbfaf7; }
+.po-paths h2 { color:#173b34; font-size:27px; }
+.po-paths p { color:#596963; }
+.po-paths b { display:flex; align-items:center; gap:7px; color:#a24734; }
+.po-local { display:flex; justify-content:center; align-items:center; gap:15px; padding:28px 0 48px; color:#53645e; flex-wrap:wrap; }
+.po-local p { margin:0; }
+.po-page-head { padding-block:94px 42px; }
+.po-page-head>p { max-width:700px; }
+.po-page-head .ps-button { margin-top:18px; }
+.po-end-cta { background:#173b34; color:#fff; border-radius:24px; padding:44px; margin-block:48px 80px; display:flex; align-items:center; justify-content:space-between; gap:20px; }
+.po-end-cta h2 { color:#fff; max-width:680px; margin:0; }
+.po-note { width:min(1160px,calc(100% - 40px)); margin:18px auto 72px; padding:32px; background:#f4f1e8; border-radius:20px; }
+.po-note a { display:inline-flex; align-items:center; gap:8px; }
+.po-report-card { background:#fff; border:1px solid #dce5e0; border-radius:16px; padding:22px; box-shadow:0 12px 34px #173b3410; }
+.po-report-card>div:first-child { display:grid; gap:8px; padding-bottom:18px; border-bottom:1px solid #e5ebe6; }
+.po-report-card>div:first-child span,.po-report-card>small { font-size:11px; letter-spacing:.08em; color:#61716b; }
+.po-report-card>div:first-child b { font-size:30px; color:#173b34; }
+.po-report-card>div:first-child small { color:#61716b; }
+.po-report-row { display:flex; justify-content:space-between; padding:15px 0; border-bottom:1px solid #e5ebe6; }
+.po-report-row b { color:#173b34; }
+.po-report-link { display:flex; justify-content:space-between; align-items:center; color:#a24734; font-weight:700; padding:17px 0; }
+.po-steps { padding-bottom:70px; }
+.po-steps article { display:grid; grid-template-columns:70px 1fr; gap:18px; padding:28px 0; border-bottom:1px solid #dce5e0; }
+.po-steps article>b { color:#d96b4d; font-size:21px; }
+.po-steps h2 { margin:0; color:#173b34; font-size:24px; }
+.po-steps p { color:#52645f; max-width:740px; font-size:16px; line-height:1.7; }
+.po-apply-grid { display:grid; grid-template-columns:minmax(0,650px); justify-content:center; padding:16px 0 62px; }
+.po-apply-card { padding:30px; border:1px solid #dce5e0; border-radius:20px; display:grid; gap:16px; background:#fbfaf7; }
+.po-apply-card h2 { margin:0; font-size:28px; color:#173b34; }
+.po-apply-card label { display:grid; gap:7px; font-size:14px; font-weight:700; }
+.po-apply-card input,.po-apply-card select,.po-apply-card textarea { width:100%; border:1px solid #cbd7d0; border-radius:9px; padding:12px; background:white; font:inherit; font-weight:400; }
+.po-apply-card select[multiple] { min-height:145px; }
+.po-apply-card .po-consent { display:grid; grid-template-columns:20px 1fr; align-items:start; gap:10px; line-height:1.5; font-weight:500; }
+.po-apply-card .po-consent input { width:18px; height:18px; margin:2px 0 0; padding:0; }
+.po-apply-card button { justify-content:center; }
+.po-apply-card small { color:#61716b; }
+.po-honeypot { position:absolute!important; left:-10000px!important; width:1px; height:1px; overflow:hidden; }
+.po-apply-success { width:min(650px,calc(100% - 40px)); margin:10px auto 60px; padding:32px; border-radius:18px; background:#eff7f1; }
+.po-apply-success>svg { color:#41846d; }
+.po-signature { font-weight:700; }
+@media(max-width:760px) {
+ .po-hero,.po-two-col { grid-template-columns:1fr; }
+ .po-hero { min-height:unset; padding-block:54px; gap:32px; }
+ .po-hero-art { min-height:340px; padding:22px; }
+ .po-hero-art>.ps-photo { height:300px; }
+ .po-proof { flex-wrap:wrap; }
+ .po-paths,.po-samples-compact .po-sample-grid { grid-template-columns:1fr; }
+ .po-sample-images { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .po-sample-images .ps-photo,.po-samples-compact .po-sample-images .ps-photo { height:190px; }
+ .po-sample-card { height:190px; padding:17px; }
+ .po-two-col { padding-block:54px; gap:25px; }
+ .po-tint { padding-inline:22px; }
+ .po-tint>.ps-photo { height:250px; }
+ .po-end-cta { align-items:flex-start; flex-direction:column; padding:28px; }
+ .po-page-head { padding-block:62px 28px; }
+}

@@ -1,2 +1,2 @@
-import { HomePage } from "@/components/visual/public-pages";
-export default function Page() { return <HomePage/>; }
+import { OfficialHomePage } from "@/components/visual/official-pages";
+export default function Page() { return <OfficialHomePage/>; }

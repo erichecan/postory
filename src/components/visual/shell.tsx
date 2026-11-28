@@ -14,8 +14,9 @@ import { Logo } from "@/components/brand/logo";
 import { Photo } from "./primitives";
 import { logoutAction } from "@/lib/actions/auth";
 const publicLinks = [
-  ["Services", "/services"],
-  ["Our Work", "/our-work"],
+  ["Samples", "/samples"],
+  ["For Shops", "/for-shops"],
+  ["For Partners", "/for-partners"],
   ["How It Works", "/how-it-works"],
   ["About", "/about"],
 ];
@@ -60,6 +61,8 @@ export function VisualHeader({
   const menuRef = useRef<HTMLButtonElement>(null);
   const prefix = basePath ?? (demo ? "/demo" : "");
   const links = customer ? clientLinks : publicLinks;
+  const partnerPage = pathname === "/for-partners" || pathname === "/partners" || pathname.startsWith("/for-partners/");
+  const applyPage = pathname === "/apply" || pathname === "/zh/apply";
   return (
     <header className={`ps-header ${customer ? "ps-customer-header" : ""}`}>
       <div className="ps-header-inner">
@@ -170,10 +173,10 @@ export function VisualHeader({
             </>
           ) : (
             <>
-              <Link href="/assessment" className="ps-button ps-header-cta">
-                Book a Free Assessment
+              {!applyPage && <Link href={partnerPage ? "/apply?type=partner" : "/apply?type=shop"} className="ps-button ps-header-cta">
+                {partnerPage ? "Book a Partner Call" : "Apply for an Experience"}
                 <ArrowRight size={14} />
-              </Link>
+              </Link>}
               <Link
                 className="ps-login"
                 href={signedIn ? "/dashboard" : "/login"}

@@ -1,4 +1,4 @@
-import { ProcessPage } from "@/components/visual/public-pages";
+import { HowItWorksPage } from "@/components/visual/official-pages";
 export default function Page() {
-  return <ProcessPage />;
+  return <HowItWorksPage />;
 }

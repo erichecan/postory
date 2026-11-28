@@ -1,4 +1,2 @@
-import { AssessmentPage } from "@/components/visual/public-pages";
-export default function Page() {
-  return <AssessmentPage />;
-}
+import { redirect } from "next/navigation";
+export default function Page() { redirect("/apply"); }

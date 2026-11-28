@@ -194,6 +194,11 @@ enum LeadStatus {
   CONVERTED
 }
 
+enum WebsiteLeadType {
+  SHOP
+  PARTNER
+}
+
 enum PartnerTrialStatus {
   SUBMITTED
   IN_PROGRESS
@@ -785,6 +790,26 @@ model CalendarLead {
   generatedPreviewUrl String?
   status              LeadStatus @default(NEW)
   createdAt           DateTime   @default(now())
+}
+
+model WebsiteLead {
+  id                  String          @id @default(cuid())
+  type                WebsiteLeadType
+  businessName        String          @db.VarChar(160)
+  contactName         String          @db.VarChar(128)
+  industry            String?         @db.VarChar(128)
+  email               String          @db.VarChar(254)
+  phone               String          @db.VarChar(40)
+  location            String          @db.VarChar(255)
+  platforms           String?         @db.VarChar(255)
+  socialOrClientCount String?         @db.VarChar(255)
+  googleReviewUrl     String?         @db.VarChar(500)
+  notes               String?         @db.Text
+  experienceConfirmed Boolean         @default(false)
+  createdAt           DateTime        @default(now())
+
+  @@index([createdAt])
+  @@index([type, createdAt])
 }
 
 // 代理商对某个客户账号的操作授权。数据归属仍是 clientUser 自己（一个客户一个 User/Studio），

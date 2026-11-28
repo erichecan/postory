@@ -1,4 +1,4 @@
-import { WorkPage } from "@/components/visual/public-pages";
+import { SamplesPage } from "@/components/visual/official-pages";
 export default function Page() {
-  return <WorkPage />;
+  return <SamplesPage />;
 }

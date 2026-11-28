@@ -54,19 +54,19 @@
     "intro": "This policy explains what information {entity} collects when running {brand}, how it's used, who processes it, and your rights.",
     "s1": {
       "h": "1. What we collect",
-      "p": "Account details: email, name and an encrypted password.\nShop details: shop name, WeChat, phone, address, slogan, promotions and logo, which you choose to provide.\nYour content: uploaded photos, AI-generated images, prompts and designs.\nPayment details: collected and stored directly by Stripe. We only keep your Stripe customer ID and subscription status and never see your full card number.\nUsage records: sign-in times, credit history, generation history and necessary server logs."
+      "p": "Website applications: shop or company name, contact name, industry, email, phone, location, social account or client range, and any notes you choose to provide.\nAccount details: email, name and an encrypted password.\nShop details: shop name, WeChat, phone, address, slogan, promotions and logo, which you choose to provide.\nYour content: uploaded photos, AI-generated images, prompts and designs.\nPayment details: collected and stored directly by Stripe. We only keep your Stripe customer ID and subscription status and never see your full card number.\nUsage records: sign-in times, credit history, generation history and necessary server logs."
     },
     "s2": {
       "h": "2. How we use it",
-      "p": "To provide and maintain the service, calculate and charge credits, send verification and billing emails, handle support requests, and prevent abuse and fraud. We don't sell your personal information and we don't use your photos to train our own models."
+      "p": "To provide and maintain the service, calculate and charge credits, send verification and billing emails, handle support requests, respond to shop or partner applications, prepare requested design samples, and prevent abuse and fraud. We don't sell your personal information and we don't use your photos to train our own models."
     },
     "s3": {
       "h": "3. Service providers",
-      "p": "To run the service, we share the necessary data with these providers:\nStripe: payments and subscriptions.\nOpenAI: processes your prompts and uploaded photos when you generate AI images.\nGoogle Cloud: servers and file storage.\nResend: sending email.\nThese providers may only process data on our instructions, and data may be stored outside your country."
+      "p": "To run the service, we share the necessary data with these providers:\nStripe: payments and subscriptions.\nOpenAI: processes your prompts and uploaded photos when you generate AI images.\nGoogle Cloud: servers, database and file storage.\nResend: account, service and website application email.\nThese providers may only process data on our instructions, and data may be stored outside your country."
     },
     "s4": {
       "h": "4. How long we keep it",
-      "p": "We keep your information while your account is active. After you delete your account, we delete your shop details and uploaded and generated images within 30 days. Payment records are kept for as long as tax and accounting laws require."
+      "p": "We keep your information while your account is active. Website application records are retained while we handle the request and maintain follow-up records; you can contact us to request deletion. After you delete your account, we delete your shop details and uploaded and generated images within 30 days. Payment records are kept for as long as tax and accounting laws require."
     },
     "s5": {
       "h": "5. Your rights",
